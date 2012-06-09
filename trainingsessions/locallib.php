@@ -12,19 +12,19 @@
 * @return a complex structure representing the course organisation
 */
 function reports_get_course_structure($courseid, &$itemcount){
-    global $CFG, $DB;
+    global $CFG;
     
     $structure = array();
 
-    if (!$course = $DB->get_record('course', array('id' => $courseid))){
-        print_error('errorbadcoursestructure', 'report_trainingsessions', $courseid);
+    if (!$course = get_record('course', 'id', $courseid)){
+        print_error("Course structure error : bad id $courseid");
     }
     
     if ($course->format == 'page'){
         include_once $CFG->dirroot.'/course/format/page/lib.php';
         // get first top level page (contains course structure)
-        if (!$pages = $DB->get_records_select('format_page', " courseid = $course->id AND parent = 0 ", 'sortorder')){
-            print_error('errorcoursestructurefirstpage', 'report_trainingsessions');        
+        if (!$pages = get_records_select('format_page', " courseid = $course->id AND parent = 0 ", 'sortorder')){
+            print_error("Course structure error : failed getting first page");        
         }
         $structure = array();
         foreach($pages as $key => $page){
@@ -41,7 +41,7 @@ function reports_get_course_structure($courseid, &$itemcount){
         // browse through course_sections and collect course items.
         $structure = array();
 
-        if ($sections = $DB->get_records("course_sections", array('course' => $courseid), 'section ASC')) {
+        if ($sections = get_records("course_sections", "course", $courseid, "section ASC")) {
             foreach ($sections as $section) {
                 $element = new StdClass;
                 $element->type = 'section';
@@ -64,13 +64,13 @@ function reports_get_course_structure($courseid, &$itemcount){
                     $element->subs = array();
                     $sequence = explode(",", $section->sequence);
                     foreach ($sequence as $seq) {
-                       	if (!$cm = $DB->get_record('course_modules', array('id' => $seq))){
+                       	if (!$cm = get_record('course_modules', 'id', $seq)){
                        		// if (debugging()) notify("missing module of id $seq");
                        		continue;
                     	}
-                       $module = $DB->get_record('modules', array('id' => $cm->module));
+                       $module = get_record('modules', 'id', $cm->module);
                        if (preg_match('/label$/', $module->name)) continue; // discard all labels
-                       $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
+                       $moduleinstance = get_record($module->name, 'id', $cm->instance);
                        $sub = new StdClass;
                        $sub->id                 = $cm->id;
                        $sub->plugin             = 'mod';
@@ -109,15 +109,15 @@ function page_get_structure_from_page($page, &$itemcount){
     $structure = array();
     
     // get page items from first page. They are located in the center column    
-    $select = "pageid = ? AND (position = 'c' OR position = 'r') ";
-    $pageitems = $DB->get_records_select('format_page_items', $select, array($page->id), 'position, sortorder');
+    $select = "pageid = {$page->id} AND (position = 'c' OR position = 'r') ";
+    $pageitems = get_records_select('format_page_items', $select, 'position, sortorder');
     
     // analyses course content component stack
     foreach($pageitems as $pi){
         if ($pi->blockinstance){
             // is a block
-            $b = $DB->get_record('block_instance', array('id' => $pi->blockinstance));
-            $block = $DB->get_record('block', array('id' => $b->blockid));
+            $b = get_record('block_instance', 'id', $pi->blockinstance);
+            $block = get_record('block', 'id', $b->blockid);
             $blockinstance = block_instance($block->name, $b);
             $element = new StdClass;
             $element->type = $block->name;
@@ -137,8 +137,8 @@ function page_get_structure_from_page($page, &$itemcount){
             }            
         } else {
             // is a module
-            $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
-            $module = $DB->get_record('modules', array('id' => $cm->module));
+            $cm = get_record('course_modules', 'id', $pi->cmid);
+            $module = get_record('modules', 'id', $cm->module);
             
             switch($module->name){
                 case 'customlabel':;
@@ -149,15 +149,15 @@ function page_get_structure_from_page($page, &$itemcount){
                     // continue;
                     // if a page menu, we have to get substructure
                     $element = new StdClass;
-                    $menu = $DB->get_record('pagemenu', array('id' => $cm->instance));
+                    $menu = get_record('pagemenu', 'id', $cm->instance);
                     $element->type = 'pagemenu';
                     $element->plugin = 'mod';
                     $element->name = $menu->name;
                     $menulinks = array();
                     /*
-                    if ($next = $DB->get_record('pagemenu_links', array('pagemenuid' => $menu->id, 'previd' => 0))){ // firstone
+                    if ($next = get_record('pagemenu_links', 'pagemenuid', $menu->id, 'previd', 0)){ // firstone
                         $menulinks[] = $next;
-                        while($next = $DB->get_record_select('pagemenu_links', "pagemenuid = ? AND id = ?", array($menu->id, $next->nextid))){
+                        while($next = get_record_select('pagemenu_links', "pagemenuid = {$menu->id} AND id = {$next->nextid}")){
                             $menulinks[] = $next;
                             if ($next->nextid == 0) break;
                         }
@@ -168,7 +168,7 @@ function page_get_structure_from_page($page, &$itemcount){
         			$linkid = pagemenu_get_first_linkid($menu->id);
 			        while ($linkid) {
 			
-			            $link     = $DB->get_record('pagemenu_links', array('id' => $linkid));
+			            $link     = get_record('pagemenu_links', 'id', $linkid);
 			            $linkid   = $link->nextid;
 			
 			            // Update info
@@ -180,8 +180,8 @@ function page_get_structure_from_page($page, &$itemcount){
                     foreach($menulinks as $link){
                         if ($link->type == 'page'){
 
-                            $linkdata = $DB->get_record('pagemenu_link_data', array('linkid' => $link->id, 'name' => 'pageid'));
-                            $subpage = $DB->get_record('format_page', array('id' => $linkdata->value));
+                            $linkdata = get_record('pagemenu_link_data', 'linkid', $link->id, 'name', 'pageid');
+                            $subpage = get_record('format_page', 'id', $linkdata->value);
                             
                             $subelement = new StdClass;
                             $subelement->type = 'page';
@@ -189,7 +189,7 @@ function page_get_structure_from_page($page, &$itemcount){
                             
                             $subelement->subs = page_get_structure_from_page($subpage, $itemcount);
 
-                            if ($subpages = $DB->get_records('format_page', array('parent' => $subpage->id), 'sortorder')){
+                            if ($subpages = get_records('format_page', 'parent', $subpage->id, 'sortorder')){
                             	foreach($subpages as $sp){
                             		if (in_array($sp->id, $VISITED_PAGES)) continue;
                             		if ($sp->display & DISP_PUBLISH){
@@ -214,7 +214,7 @@ function page_get_structure_from_page($page, &$itemcount){
                     $element = new StdClass;
                     $element->type = $module->name;
                     $element->plugin = 'mod';
-                    $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
+                    $moduleinstance = get_record($module->name, 'id', $cm->instance);
                     $element->name = $moduleinstance->name;
                     $element->instance = $cm;
                     $element->instance->visible = $element->instance->visible * $pi->visible; // a bloc can be hidden by its page_module insertion.
@@ -249,7 +249,7 @@ function page_get_structure_in_content($source, &$itemcount){
             // jump to another page
             if (preg_match('/course\\/view.php\\?id=(\\d+)&page=(\\d+)/', $href, $matches)){
                 if (in_array($matches[2], $VISITED_PAGES)) continue;
-                $page = $DB->get_record('format_page', array('id' => $matches[2]));
+                $page = get_record('format_page', 'id', $matches[2]);
                 $element = new StdClass;
                 $element->type = 'pagemenu';
                 $element->plugin = 'mod';
@@ -262,9 +262,9 @@ function page_get_structure_in_content($source, &$itemcount){
                 $element = new StdClass;
                 $element->type = $matches[1];
                 $element->plugin = 'mod';
-                $module = $DB->get_record('modules', array('name' => $element->type));
-                $cm = $DB->get_record('course_modules', array('id' => $matches[2]));
-                $moduleinstance = $DB->get_record($element->type, array('id' => $cm->instance));
+                $module = get_record('modules', 'name', $element->type);
+                $cm = get_record('course_modules', 'id', $matches[2]);
+                $moduleinstance = get_record($element->type, 'id', $cm->instance);
                 $element->name = $moduleinstance->name;
                 $element->instance = &$cm;
                 $element->id = $cm->id;
@@ -315,19 +315,20 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
             $dataobject->events += $res->events;
         } 
     } else {
+    	$nodestr = '';
         if (!isset($structure->instance) || !empty($structure->instance->visible)){ // non visible items should not be displayed
             // name is not empty. It is a significant module (non structural)
             if (!empty($structure->name)){
-                $str .= "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
-                $str .= "<tr class=\"sessionlevel{$level}\" valign=\"top\">";
-                $str .= "<td class=\"sessionitem\">";
-                $str .= $indent;
+                $nodestr .= "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
+                $nodestr .= "<tr class=\"sessionlevel{$level}\" valign=\"top\">";
+                $nodestr .= "<td class=\"sessionitem\">";
+                $nodestr .= $indent;
                 if (debugging()){
-                    $str .= '['.$structure->type.'] ';
+                    $nodestr .= '['.$structure->type.'] ';
                 }
-                $str .= shorten_text($structure->name, 85);
-                $str .= '</td>';
-                $str .= "<td class=\"reportvalue\" align=\"right\">";
+                $nodestr .= shorten_text($structure->name, 85);
+                $nodestr .= '</td>';
+                $nodestr .= "<td class=\"reportvalue\" align=\"right\">";
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])){
                     $done++;
                     $dataobject = $aggregate[$structure->type][$structure->id];
@@ -340,18 +341,18 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 
 				if (!in_array($structure->type, $ignoremodulelist)){
 					if (!empty($dataobject->timesource) && $dataobject->timesource == 'credit' && $dataobject->elapsed){
-						$str .= get_string('credittime', 'block_use_stats');
+						$nodestr .= get_string('credittime', 'block_use_stats');
 					}
-	                $str .= training_reports_format_time($dataobject->elapsed, 'html');
-	                $str .= ' ('.$dataobject->events.')';
+	                $nodestr .= training_reports_format_time($dataobject->elapsed, 'html');
+	                $nodestr .= ' ('.$dataobject->events.')';
 	            } else {
-	            	$str .= get_string('ignored', 'block_use_stats');
+	            	$nodestr .= get_string('ignored', 'block_use_stats');
 	            }
     
                 // plug here specific details
-                $str .= '</td>';
-                $str .= '</tr>';
-                $str .= "</table>\n";
+                $nodestr .= '</td>';
+                $nodestr .= '</tr>';
+                $nodestr .= "</table>\n";
             } else {
                 // It is only a structural module that should not impact on level
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])){
@@ -373,6 +374,10 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
                 $str .= '</tr>';
                 $str .= "</table>\n";
             }
+            $str .= $nodestr;
+            if (!empty($structure->subs)){
+            	if ($str .= '<p></p>');
+            }
         }
     }   
     return $dataobject;
@@ -384,18 +389,17 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 *
 */
 function training_reports_print_header_html($userid, $courseid, $data, $short = false){
-    global $CFG, $DB, $OUTPUT;
+    global $CFG;
     
-    $user = $DB->get_record('user', array('id' => $userid));
-    $course = $DB->get_record('course', array('id' => $courseid));
+    $user = get_record('user', 'id', $userid);
+    $course = get_record('course', 'id', $courseid);
     
+    print_user($user, $course);
+    
+    $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
+
     echo "<center>";
     echo "<div style=\"width:80%;text-align:left;padding:3px;\" class=\"userinfobox\">";
-
-    $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
-    echo '<h1>';
-    echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid'=>$course->id));    
-    echo fullname($user).'</h1>';
 
     // print group status
     if (!empty($usergroups)){
@@ -412,19 +416,14 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
                 
     }
     
-    $context = context_course::instance($courseid);
+    $context = get_context_instance(CONTEXT_COURSE, $courseid);
     echo '<br/>';
     print_string('roles');
     echo ' : ';
-    $userroles = get_user_roles($context, $userid);
-    $uroles = array();
-    foreach($userroles as $r){
-    	$uroles[] = $r->name;
-	}
-    echo implode (",", $uroles);
+    echo get_user_roles_in_context($userid, $context);
 
     if (!empty($data->linktousersheet)){
-        echo "<br/><a href=\"{$CFG->wwwroot}/report/trainingsessions/index.php?view=user&amp;id={$courseid}&amp;userid=$userid\">".get_string('seedetails', 'report_trainingsessions').'</a>';
+        echo "<br/><a href=\"{$CFG->wwwroot}/course/report/trainingsessions/index.php?view=user&amp;id={$courseid}&amp;userid=$userid\">".get_string('seedetails', 'report_trainingsessions').'</a>';
     }
 
     // print completion bar
@@ -442,8 +441,8 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
     echo '<p class="completionbar">';
     print_string('done', 'report_trainingsessions');
     
-    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
-    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
+    echo "<img src=\"{$CFG->wwwroot}/course/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
+    echo "<img src=\"{$CFG->wwwroot}/course/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
     
     // Start printing the overall times
     
@@ -456,8 +455,44 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
     
         // plug here specific details
     }    
+    echo '<br/>';
+    echo get_string('workingsessions', 'report_trainingsessions');
+    echo $data->sessions;
+    if ($data->sessions == 0 && $completedwidth > 0){
+	    helpbutton('checklistadvice', get_string('checklistadvice', 'report_trainingsessions'), 'report_trainingsessions');
+	}
     
     echo '</p></div></center>';
+}
+
+/**
+* prints a report over each connection session
+*
+*/
+function training_reports_print_session_list(&$str, $sessions){
+	$str .= print_heading(get_string('sessions', 'report_trainingsessions'), 'center', 2, '', true);
+	if (empty($sessions)){
+		print_box(get_string('nosessions', 'report_trainingsessions'));
+		return;
+	}
+
+	// effective printing of available sessions
+	$str .= '<table width="100%" id="session-table">';
+	$str .= '<tr valign="top">';
+	$str .= '<td width="33%"><b>'.get_string('sessionstart', 'report_trainingsessions').'</b></td>';
+	$str .= '<td width="33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
+	$str .= '<td width="33%"><b>'.get_string('duration', 'report_trainingsessions').'</b></td>';
+	$str .= '</tr>';
+
+	foreach($sessions as $s){
+		$sessionenddate = (isset($s->sessionend)) ? userdate(@$s->sessionend) : '' ;
+		$str .= '<tr valign="top">';
+		$str .= '<td>'.userdate($s->sessionstart).'</td>';
+		$str .= '<td>'.$sessionenddate.'</td>';
+		$str .= '<td>'.format_time($s->elapsed).'</td>';
+		$str .= '</tr>';
+	}
+	$str .= '</table>';
 }
 
 /**
@@ -483,10 +518,10 @@ function training_reports_format_time($timevalue, $mode = 'html'){
 *
 */
 function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $data, $xls_formats){
-    global $CFG, $DB;
+    global $CFG;
     
-    $user = $DB->get_record('user', array('id' => $userid));
-    $course = $DB->get_record('course', array('id' => $courseid));
+    $user = get_record('user', 'id', $userid);
+    $course = get_record('course', 'id', $courseid);
     
     $row = 0;
 
@@ -515,7 +550,6 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
     $worksheet->write_string($row, 0, get_string('to').' :', $xls_formats['p']);    
     $worksheet->write_string($row, 1, userdate(time()));  
     $row++;    
-
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
     // print group status
@@ -532,19 +566,11 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
         $str = implode(', ', $groupnames);
                 
     }
-
     $worksheet->write_string($row, 1, $str);    
     $row++;    
-
-    $context = context_course::instance($courseid);
+    $context = get_context_instance(CONTEXT_COURSE, $courseid);
     $worksheet->write_string($row, 0, get_string('roles').' :', $xls_formats['p']);
-    $roles = get_user_roles($context, $userid);
-    $rolenames = array();
-    foreach($roles as $role){
-    	$rolenames[] = $role->shortname;
-    }
-    $worksheet->write_string($row, 1, strip_tags(implode(",", $rolenames)));
-
+    $worksheet->write_string($row, 1, strip_tags(get_user_roles_in_context($userid, $context)));
     $row++;
     // print completion bar
     $completed = $data->done / $data->items;
@@ -665,7 +691,7 @@ function training_reports_xls_formats(&$workbook){
     $xls_formats['zt']->set_num_format('[h]:mm:ss');
     $xls_formats['zd'] =& $workbook->add_format();
     $xls_formats['zd']->set_size(9);
-    $xls_formats['zd']->set_num_format('aaaa/mm/jj hh:mm');
+    $xls_formats['zd']->set_num_format('aaaa/mm/dd hh:mm');
     
     return $xls_formats;
 }
@@ -678,16 +704,28 @@ function training_reports_xls_formats(&$workbook){
 * @param object $workbook
 * @return the initialized worksheet.
 */
-function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$workbook){
-    global $DB;
-    
-    $user = $DB->get_record('user', array('id' => $userid));
-    $sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');
+function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes'){
+
+    $user = get_record('user', 'id', $userid);
+
+	if ($purpose == 'usertimes'){
+    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');		
+	} else {
+    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8').' ('.get_string('sessions', 'report_trainingsessions').')';
+	}
+
     $worksheet =& $workbook->add_worksheet($sheettitle);
-    $worksheet->set_column(0,0,20);
-    $worksheet->set_column(1,1,74);
-    $worksheet->set_column(2,2,12);
-    $worksheet->set_column(3,3,4);
+	if ($purpose == 'usertimes'){
+    	$worksheet->set_column(0,0,20);
+	    $worksheet->set_column(1,1,74);
+    	$worksheet->set_column(2,2,12);
+    	$worksheet->set_column(3,3,4);
+	} else {
+    	$worksheet->set_column(0,0,30);
+	    $worksheet->set_column(1,1,30);
+    	$worksheet->set_column(2,2,20);
+    	$worksheet->set_column(3,3,10);
+	}
     $worksheet->set_column(4,4,12);
     $worksheet->set_column(5,5,4);
     $worksheet->set_column(6,6,12);
@@ -699,39 +737,33 @@ function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$wo
     $worksheet->set_column(12,12,12);
     $worksheet->set_column(13,13,4);
 
-    $worksheet->set_row($startrow - 1,12,$xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 0, get_string('item', 'report_trainingsessions'),$xls_formats['tt']);
-    $worksheet->write_blank($startrow - 1, 1, $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'),$xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'),$xls_formats['tt']);
+    $worksheet->set_row($startrow - 1, 12, $xls_formats['tt']);
+    $worksheet->write_string($startrow - 1, 0, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
+    $worksheet->write_blank($startrow - 1,1, $xls_formats['tt']);
+    $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
+    $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
     
     return $worksheet;
 }
 
-function trainingsssions_get_course_users($courseid){
-	global $DB;
-
-    $sql = "SELECT 
-    			DISTINCT u.id, u.firstname, u.lastname, u.idnumber
-            FROM 
-            	{user} u
-            JOIN 
-            	{user_enrolments} ue 
-            ON 
-            	ue.userid = u.id
-            JOIN 
-            	{enrol} e 
-           	ON 
-           		e.id = ue.enrolid
-			ORDER BY 
-				u.firstname ASC, 
-				u.lastname ASC
-    ";
+/**
+* print session table in an initialied worksheet
+* @param object $worksheet
+* @param int $row
+* @param array $sessions
+* @param object $xls_formats
+*/
+function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xls_formats){
 	
-    $users = $DB->get_records_sql($sql, null);
-    
-    return $users;
-	
-} 
+	foreach($sessions as $s){
+	    $worksheet->write_number($row, 0, training_reports_format_time($s->sessionstart, 'xls'), $xls_formats['zd']);	
+	    if (!empty($s->sessionend)){
+		    $worksheet->write_number($row, 1, training_reports_format_time($s->sessionend, 'xsl'), $xls_formats['zd']);	
+		}
+	    $worksheet->write_string($row, 2, format_time($s->elapsed), $xls_formats['tt']);	
+	    $worksheet->write_number($row, 3, training_reports_format_time($s->elapsed, 'xls'), $xls_formats['zt']);	
+	    $row++;
+	}
+}
 
 ?>

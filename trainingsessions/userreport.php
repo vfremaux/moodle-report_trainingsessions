@@ -7,43 +7,36 @@
 	ob_start();
 
     include_once $CFG->dirroot.'/blocks/use_stats/locallib.php';
-    include_once $CFG->dirroot.'/report/trainingsessions/locallib.php';
+    include_once $CFG->dirroot.'/course/report/trainingsessions/locallib.php';
 
 // require login and make page start
 
-	/*
     $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
     $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
     $startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
-    */
-
-// selector form
-
-	include_once 'selector_form.php';
-    $selform = new SelectorForm($id, 'user');
-    if ($data = $selform->get_data()){
-	} else {
-		$data->from = -1;
-		$data->userid = $USER->id;
-		$data->fromstart = 0;
-		$data->output = 'html';
-	}
+    $fromstart = optional_param('fromstart', 0, PARAM_INT) ; // force reset to course startdate
+    $from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
+    $userid = optional_param('userid', $USER->id, PARAM_INT) ; // admits special values : -1 current group, -2 course users
+    $output = optional_param('output', 'html', PARAM_ALPHA) ; // 'html' or 'xls'    
 
 // calculate start time
 
-    if ($data->from == -1 || @$data->fromstart){ // maybe we get it from parameters
-        $data->from = $course->startdate;
+    if ($from == -1){ // maybe we get it from parameters
+        if ($startday == -1 || $fromstart){
+            $from = $course->startdate;
+        } else {
+            if ($startmonth != -1 && $startyear != -1){
+                $from = mktime(0,0,8,$startmonth, $startday, $startyear);
+            } else {
+                print_error('Bad start date');
+            }
+        }
     }
-
-	if (!$asxls){
-	    $selform->set_data($data);
-	    $selform->display();
-	}
 
 // get data
 
-    $logusers = $data->userid;
-    $logs = use_stats_extract_logs($data->from, time(), $data->userid, $course->id);
+    $logusers = $userid;
+    $logs = use_stats_extract_logs($from, time(), $userid, $course->id);
     $aggregate = use_stats_aggregate_logs($logs, 'module');
     
 // get course structure
@@ -52,17 +45,19 @@
     
 // print result
 
-    if (!$asxls){
+    if ($output == 'html'){
         // time period form
 
         echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
+        include "selector_form.html";
         
         $str = '';
         $dataobject = training_reports_print_html($str, $coursestructure, $aggregate, $done);
         $dataobject->items = $items;
         $dataobject->done = $done;
-
+		$dataobject->sessions = count($aggregate['sessions']);
+		
         /*
         if (!empty($aggregate)){
             foreach(array_keys($aggregate) as $module){
@@ -73,41 +68,51 @@
 
         if ($dataobject->done > $items) $dataobject->done = $items;
 
-        training_reports_print_header_html($data->userid, $course->id, $dataobject);
-        
+        training_reports_print_header_html($userid, $course->id, $dataobject);
+                
+        training_reports_print_session_list($str, @$aggregate['sessions']);
+
         echo $str;
 
-        $url = $CFG->wwwroot.'/report/trainingsessions/index.php?id='.$course->id.'&amp;view=user&amp;userid='.$data->userid.'&amp;from='.$data->from.'&amp;output=xls&amp;asxls=1';
+        $options['id'] = $course->id;
+        $options['userid'] = $userid;
+        $options['from'] = $from; // alternate way
+        $options['output'] = 'xls'; // ask for XLS
+        $options['asxls'] = 'xls'; // force XLS for index.php
         echo '<br/><center>';
-        echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+        print_single_button($CFG->wwwroot.'/course/report/trainingsessions/index.php', $options, get_string('generateXLS', 'report_trainingsessions'), 'get');
         echo '</center>';
+        echo '<br/>';
 
     } else {
         // $CFG->trace = 'x_temp/xlsreport.log';
         // debug_open_trace();
-        require_once $CFG->libdir.'/excellib.class.php';
         
         $filename = 'training_sessions_report_'.date('d-M-Y', time()).'.xls';
         $workbook = new MoodleExcelWorkbook("-");
         // Sending HTTP headers
         ob_end_clean();
-        
         $workbook->send($filename);
         
         // preparing some formats
         $xls_formats = training_reports_xls_formats($workbook);
         $startrow = 15;
-        $worksheet = training_reports_init_worksheet($data->userid, $startrow, $xls_formats, $workbook);
+        $worksheet = training_reports_init_worksheet($userid, $startrow, $xls_formats, $workbook);
         $overall = training_reports_print_xls($worksheet, $coursestructure, $aggregate, $done, $startrow, $xls_formats);
-        $datarec->items = $items;
-        $datarec->done = $done;
-        $datarec->from = $data->from;
-        $datarec->elapsed = $overall->elapsed;
-        $datarec->events = $overall->events;
-        training_reports_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
+        $data->items = $items;
+        $data->done = $done;
+        $data->from = $from;
+        $data->elapsed = $overall->elapsed;
+        $data->events = $overall->events;
+        training_reports_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
+
+        $worksheet = training_reports_init_worksheet($userid, $startrow, $xls_formats, $workbook, 'sessions');
+        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
+        training_reports_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
+
         $workbook->close();
 
-        // debug_close_trace();
+        debug_close_trace();
 
     }
 

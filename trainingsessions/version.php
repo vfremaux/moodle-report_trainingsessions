@@ -27,4 +27,4 @@ defined('MOODLE_INTERNAL') || die;
 
 $plugin->version   = 2012052100; // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2011110200; // Requires this Moodle version
-$plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
+

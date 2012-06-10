@@ -49,3 +49,13 @@ for an entire group.
 
 * Excel export of a group timesheet as an Excel multiple individual sheet.
 
+Automated generation of group reports
+======================================
+
+The trainingsession reports is provided with a batch generation URL that generates
+automatically all group reports for a specific course. All you need to know is the course ID,
+and add a cron task that wgets this url : 
+
+wget -O /dev/null -q <moodlewwwroot>/course/report/trainingsessions/grouprawreport_batch.php?id=<courseid>
+
+

@@ -113,118 +113,120 @@ function page_get_structure_from_page($page, &$itemcount){
     $pageitems = get_records_select('format_page_items', $select, 'position, sortorder');
     
     // analyses course content component stack
-    foreach($pageitems as $pi){
-        if ($pi->blockinstance){
-            // is a block
-            $b = get_record('block_instance', 'id', $pi->blockinstance);
-            $block = get_record('block', 'id', $b->blockid);
-            $blockinstance = block_instance($block->name, $b);
-            $element = new StdClass;
-            $element->type = $block->name;
-            $element->plugintype = 'block';
-            $element->instance = $b;
-            $element->instance->visible = $element->instance->visible * $pi->visible; // a bloc can be hidden by its page_module insertion.
-            $element->name = (!empty($blockinstance->config->title)) ? $blockinstance->config->title : '' ;
-            $element->id = $b->id;
-            // $itemcount++;
-                        
-            // tries to catch modules, pages or resources in content
-
-            $source = @$blockinstance->config->text;
-            // if there is no subcontent, do not consider this bloc in reports.
-            if ($element->subs = page_get_structure_in_content($source, $itemcount)){
-                $structure[] = $element;
-            }            
-        } else {
-            // is a module
-            $cm = get_record('course_modules', 'id', $pi->cmid);
-            $module = get_record('modules', 'id', $cm->module);
-            
-            switch($module->name){
-                case 'customlabel':;
-                case 'label':{
-                }
-                break;
-                case 'pagemenu':{
-                    // continue;
-                    // if a page menu, we have to get substructure
-                    $element = new StdClass;
-                    $menu = get_record('pagemenu', 'id', $cm->instance);
-                    $element->type = 'pagemenu';
-                    $element->plugin = 'mod';
-                    $element->name = $menu->name;
-                    $menulinks = array();
-                    /*
-                    if ($next = get_record('pagemenu_links', 'pagemenuid', $menu->id, 'previd', 0)){ // firstone
-                        $menulinks[] = $next;
-                        while($next = get_record_select('pagemenu_links', "pagemenuid = {$menu->id} AND id = {$next->nextid}")){
-                            $menulinks[] = $next;
-                            if ($next->nextid == 0) break;
-                        }
-                    }
-                    */
-                    global $CFG;
-                    include_once($CFG->dirroot.'/mod/pagemenu/locallib.php');
-        			$linkid = pagemenu_get_first_linkid($menu->id);
-			        while ($linkid) {
-			
-			            $link     = get_record('pagemenu_links', 'id', $linkid);
-			            $linkid   = $link->nextid;
-			
-			            // Update info
-		                $menulinks[] = $link;
-		                
-			        }
-
-                    $element->subs = array();
-                    foreach($menulinks as $link){
-                        if ($link->type == 'page'){
-
-                            $linkdata = get_record('pagemenu_link_data', 'linkid', $link->id, 'name', 'pageid');
-                            $subpage = get_record('format_page', 'id', $linkdata->value);
-                            
-                            $subelement = new StdClass;
-                            $subelement->type = 'page';
-                            $subelement->name = $subpage->nametwo;
-                            
-                            $subelement->subs = page_get_structure_from_page($subpage, $itemcount);
-
-                            if ($subpages = get_records('format_page', 'parent', $subpage->id, 'sortorder')){
-                            	foreach($subpages as $sp){
-                            		if (in_array($sp->id, $VISITED_PAGES)) continue;
-                            		if ($sp->display & DISP_PUBLISH){
-			                            $subsubelement = new StdClass;
-			                            $subsubelement->type = 'page';
-			                            $subsubelement->name = $sp->nametwo;		                            
-			                            $subsubelement->subs = page_get_structure_from_page($sp, $itemcount);
-										$subelement->subs[] = $subsubelement;
-			                        }
-                            	}
-                            }
-
-                            $element->subs[] = $subelement;
-                            
-                        }
-                    }
-                    $structure[] = $element;
-                    
-                }
-                break;
-                default:{
-                    $element = new StdClass;
-                    $element->type = $module->name;
-                    $element->plugin = 'mod';
-                    $moduleinstance = get_record($module->name, 'id', $cm->instance);
-                    $element->name = $moduleinstance->name;
-                    $element->instance = $cm;
-                    $element->instance->visible = $element->instance->visible * $pi->visible; // a bloc can be hidden by its page_module insertion.
-                    $element->id = $cm->id;
-                    $structure[] = $element;
-                    $itemcount++;
-                }
-            }
-        }
-    }
+    if ($pageitems){
+	    foreach($pageitems as $pi){
+	        if ($pi->blockinstance){
+	            // is a block
+	            $b = get_record('block_instance', 'id', $pi->blockinstance);
+	            $block = get_record('block', 'id', $b->blockid);
+	            $blockinstance = block_instance($block->name, $b);
+	            $element = new StdClass;
+	            $element->type = $block->name;
+	            $element->plugintype = 'block';
+	            $element->instance = $b;
+	            $element->instance->visible = $element->instance->visible * $pi->visible; // a bloc can be hidden by its page_module insertion.
+	            $element->name = (!empty($blockinstance->config->title)) ? $blockinstance->config->title : '' ;
+	            $element->id = $b->id;
+	            // $itemcount++;
+	                        
+	            // tries to catch modules, pages or resources in content
+	
+	            $source = @$blockinstance->config->text;
+	            // if there is no subcontent, do not consider this bloc in reports.
+	            if ($element->subs = page_get_structure_in_content($source, $itemcount)){
+	                $structure[] = $element;
+	            }            
+	        } else {
+	            // is a module
+	            $cm = get_record('course_modules', 'id', $pi->cmid);
+	            $module = get_record('modules', 'id', $cm->module);
+	            
+	            switch($module->name){
+	                case 'customlabel':;
+	                case 'label':{
+	                }
+	                break;
+	                case 'pagemenu':{
+	                    // continue;
+	                    // if a page menu, we have to get substructure
+	                    $element = new StdClass;
+	                    $menu = get_record('pagemenu', 'id', $cm->instance);
+	                    $element->type = 'pagemenu';
+	                    $element->plugin = 'mod';
+	                    $element->name = $menu->name;
+	                    $menulinks = array();
+	                    /*
+	                    if ($next = get_record('pagemenu_links', 'pagemenuid', $menu->id, 'previd', 0)){ // firstone
+	                        $menulinks[] = $next;
+	                        while($next = get_record_select('pagemenu_links', "pagemenuid = {$menu->id} AND id = {$next->nextid}")){
+	                            $menulinks[] = $next;
+	                            if ($next->nextid == 0) break;
+	                        }
+	                    }
+	                    */
+	                    global $CFG;
+	                    include_once($CFG->dirroot.'/mod/pagemenu/locallib.php');
+	        			$linkid = pagemenu_get_first_linkid($menu->id);
+				        while ($linkid) {
+				
+				            $link     = get_record('pagemenu_links', 'id', $linkid);
+				            $linkid   = $link->nextid;
+				
+				            // Update info
+			                $menulinks[] = $link;
+			                
+				        }
+	
+	                    $element->subs = array();
+	                    foreach($menulinks as $link){
+	                        if ($link->type == 'page'){
+	
+	                            $linkdata = get_record('pagemenu_link_data', 'linkid', $link->id, 'name', 'pageid');
+	                            $subpage = get_record('format_page', 'id', $linkdata->value);
+	                            
+	                            $subelement = new StdClass;
+	                            $subelement->type = 'page';
+	                            $subelement->name = $subpage->nametwo;
+	                            
+	                            $subelement->subs = page_get_structure_from_page($subpage, $itemcount);
+	
+	                            if ($subpages = get_records('format_page', 'parent', $subpage->id, 'sortorder')){
+	                            	foreach($subpages as $sp){
+	                            		if (in_array($sp->id, $VISITED_PAGES)) continue;
+	                            		if ($sp->display & DISP_PUBLISH){
+				                            $subsubelement = new StdClass;
+				                            $subsubelement->type = 'page';
+				                            $subsubelement->name = $sp->nametwo;		                            
+				                            $subsubelement->subs = page_get_structure_from_page($sp, $itemcount);
+											$subelement->subs[] = $subsubelement;
+				                        }
+	                            	}
+	                            }
+	
+	                            $element->subs[] = $subelement;
+	                            
+	                        }
+	                    }
+	                    $structure[] = $element;
+	                    
+	                }
+	                break;
+	                default:{
+	                    $element = new StdClass;
+	                    $element->type = $module->name;
+	                    $element->plugin = 'mod';
+	                    $moduleinstance = get_record($module->name, 'id', $cm->instance);
+	                    $element->name = $moduleinstance->name;
+	                    $element->instance = $cm;
+	                    $element->instance->visible = $element->instance->visible * $pi->visible; // a bloc can be hidden by its page_module insertion.
+	                    $element->id = $cm->id;
+	                    $structure[] = $element;
+	                    $itemcount++;
+	                }
+	            }
+	        }
+		}
+	}
     return $structure;
 }
 
@@ -452,10 +454,17 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
         echo get_string('equlearningtime', 'report_trainingsessions');
         echo training_reports_format_time(0 + @$data->elapsed, 'html');
         echo ' ('.(0 + @$data->events).')';
+        helpbutton('equlearningtime', get_string('equlearningtime', 'report_trainingsessions'), 'report_trainingsessions');
+
+        echo '<br/>';
+        echo get_string('activitytime', 'report_trainingsessions');
+        echo training_reports_format_time(0 + @$data->activityelapsed, 'html');
+        helpbutton('activitytime', get_string('activitytime', 'report_trainingsessions'), 'report_trainingsessions');
     
         // plug here specific details
     }    
     echo '<br/>';
+
     echo get_string('workingsessions', 'report_trainingsessions');
     echo $data->sessions;
     if ($data->sessions == 0 && $completedwidth > 0){
@@ -463,6 +472,32 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 	}
     
     echo '</p></div></center>';
+
+	// add printing for global course time (out of activities)    
+    if (!$short){
+		print_heading(get_string('outofstructure', 'report_trainingsessions'));    
+        echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
+        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
+        echo "<td class=\"sessionitem\">";
+        print_string('courseglobals', 'report_trainingsessions');
+        echo '</td>';
+        echo "<td class=\"sessionvalue\">";
+        echo training_reports_format_time($data->course->elapsed).' ('.$data->course->hits.')';
+        echo '</td>';
+        echo '</tr>';
+        if (isset($data->upload)){
+	        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
+	        echo "<td class=\"sessionitem\">";
+	        print_string('uploadglobals', 'report_trainingsessions');
+	        echo '</td>';
+	        echo "<td class=\"sessionvalue\">";
+	        echo training_reports_format_time($data->upload->elapsed).' ('.$data->upload->hits.')';
+	        echo '</td>';
+	        echo '</tr>';
+	    }
+        echo '</table>';
+    }
+	print_heading(get_string('instructure', 'report_trainingsessions'));    
 }
 
 /**
@@ -483,6 +518,8 @@ function training_reports_print_session_list(&$str, $sessions){
 	$str .= '<td width="33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
 	$str .= '<td width="33%"><b>'.get_string('duration', 'report_trainingsessions').'</b></td>';
 	$str .= '</tr>';
+	
+	$totalelapsed = 0;
 
 	foreach($sessions as $s){
 		$sessionenddate = (isset($s->sessionend)) ? userdate(@$s->sessionend) : '' ;
@@ -491,8 +528,16 @@ function training_reports_print_session_list(&$str, $sessions){
 		$str .= '<td>'.$sessionenddate.'</td>';
 		$str .= '<td>'.format_time($s->elapsed).'</td>';
 		$str .= '</tr>';
+		$totalelapsed += $s->elapsed;
 	}
+	$str .= '<tr valign="top">';
+	$str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').'</b></td>';
+	$str .= '<td></td>';
+	$str .= '<td><br/>'.format_time($totalelapsed).'</td>';
+	$str .= '</tr>';
+
 	$str .= '</table>';
+		
 }
 
 /**
@@ -550,6 +595,7 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
     $worksheet->write_string($row, 0, get_string('to').' :', $xls_formats['p']);    
     $worksheet->write_string($row, 1, userdate(time()));  
     $row++;    
+
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
     // print group status
@@ -566,6 +612,7 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
         $str = implode(', ', $groupnames);
                 
     }
+
     $worksheet->write_string($row, 1, $str);    
     $row++;    
     $context = get_context_instance(CONTEXT_COURSE, $courseid);
@@ -755,6 +802,8 @@ function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$wo
 */
 function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xls_formats){
 	
+	$totalelapsed = 0;
+	
 	foreach($sessions as $s){
 	    $worksheet->write_number($row, 0, training_reports_format_time($s->sessionstart, 'xls'), $xls_formats['zd']);	
 	    if (!empty($s->sessionend)){
@@ -762,8 +811,10 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 		}
 	    $worksheet->write_string($row, 2, format_time($s->elapsed), $xls_formats['tt']);	
 	    $worksheet->write_number($row, 3, training_reports_format_time($s->elapsed, 'xls'), $xls_formats['zt']);	
+	    $totalelapsed += $s->elapsed;
 	    $row++;
-	}
+	}	
+	return $totalelapsed;
 }
 
 ?>

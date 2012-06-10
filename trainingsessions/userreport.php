@@ -51,6 +51,7 @@
         echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
         include "selector_form.html";
+        echo '<br/>';
         
         $str = '';
         $dataobject = training_reports_print_html($str, $coursestructure, $aggregate, $done);
@@ -58,15 +59,18 @@
         $dataobject->done = $done;
 		$dataobject->sessions = count($aggregate['sessions']);
 		
-        /*
-        if (!empty($aggregate)){
-            foreach(array_keys($aggregate) as $module){
-                $dataobject->done += count($aggregate[$module]);
-            }
-        }
-        */
-
         if ($dataobject->done > $items) $dataobject->done = $items;
+        
+        // fix global course times
+        $dataobject->activityelapsed = $dataobject->elapsed;
+        $dataobject->elapsed += @$aggregate['course'][0]->elapsed;
+		$dataobject->course->elapsed = 0 + @$aggregate['course'][0]->elapsed;
+		$dataobject->course->hits = 0 + @$aggregate['course'][0]->hits;
+		if (array_key_exists('upload', $aggregate)){
+	        $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
+			$dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
+			$dataobject->upload->hits = 0 + @$aggregate['upload'][0]->hits;
+		}
 
         training_reports_print_header_html($userid, $course->id, $dataobject);
                 
@@ -92,6 +96,7 @@
         $workbook = new MoodleExcelWorkbook("-");
         // Sending HTTP headers
         ob_end_clean();
+        
         $workbook->send($filename);
         
         // preparing some formats
@@ -112,7 +117,7 @@
 
         $workbook->close();
 
-        debug_close_trace();
+        // debug_close_trace();
 
     }
 

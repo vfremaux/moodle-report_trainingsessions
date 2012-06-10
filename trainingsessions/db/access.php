@@ -38,5 +38,3 @@ $coursereport_trainingsessions_capabilities = array(
         'clonepermissionsfrom' => 'moodle/site:viewreports',
     )
 );
-
-?>

@@ -37,6 +37,7 @@
     if ($output == 'html'){
         // time and group period form
         include "course_selector_form.html";
+        echo '<br/>';
     }
 
 // compute target group
@@ -63,7 +64,7 @@
                 $logusers = $auser->id;
                 $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
                 $aggregate = use_stats_aggregate_logs($logs, 'module');
-                
+
                 $data->items = $items;
                 $data->done = 0;
                 
@@ -134,7 +135,6 @@
 	        $worksheet = training_reports_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
 	        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
 	        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
         }
         $workbook->close();
     }

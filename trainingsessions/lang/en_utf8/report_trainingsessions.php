@@ -1,6 +1,7 @@
 <?php // $Id: report_trainingsessions.php,v 1.1 2011/03/28 15:24:25 vf Exp $
 
 $string['advancement'] = 'Advancement';
+$string['activitytime'] = 'In activity time: ';
 $string['allgroups'] = 'All groups';
 $string['ashtml'] = 'HTML Format';
 $string['asxls'] = 'Upload as Excel';
@@ -50,5 +51,10 @@ $string['unvisited'] = 'Unvisited';
 $string['updatefromcoursestart'] = 'Get from course start';
 $string['user'] = 'Per participant';
 $string['workingsessions'] = 'Work sessions: ';
+$string['instructure'] = 'Activity use time';
+$string['outofstructure'] = 'Other course use time';
+$string['courseglobals'] = 'Course content';
+$string['uploadglobals'] = 'File uploads';
+$string['totalsessions'] = 'Total session time';
 
 ?>

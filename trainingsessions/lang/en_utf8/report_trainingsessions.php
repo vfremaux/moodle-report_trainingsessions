@@ -1,0 +1,54 @@
+<?php // $Id: report_trainingsessions.php,v 1.1 2011/03/28 15:24:25 vf Exp $
+
+$string['advancement'] = 'Advancement';
+$string['allgroups'] = 'All groups';
+$string['ashtml'] = 'HTML Format';
+$string['asxls'] = 'Upload as Excel';
+$string['chooseagroup'] = 'Choose a group';
+$string['chooseaninstitution'] = 'Choose an institution';
+$string['connections'] = 'Connections';
+$string['course'] = 'Course';
+$string['coursename'] = 'Group name';
+$string['done'] = 'Performed: ';
+$string['duration'] = 'Duration';
+$string['elapsed'] = 'Total time';
+$string['enddate'] = 'End date';
+$string['equlearningtime'] = 'Equivalent training time: ';
+$string['firstname'] = 'Firstname';
+$string['generateXLS'] = 'Generate as XLS';
+$string['generatereports'] = 'Generate reports';
+$string['headsection'] = 'Heading section';
+$string['hits'] = 'Hits';
+$string['institution'] = 'Institution';
+$string['institutions'] = 'Institutions';
+$string['item'] = 'Item';
+$string['lastname'] = 'LastNname';
+$string['nostructure'] = 'No measurable course structure detected';
+$string['nosesssions'] = 'No measurable session data';
+$string['over'] = 'over';
+$string['parts'] = 'parts';
+$string['reports'] = 'Reports';
+$string['role'] = 'Role';
+$string['sectionname'] = 'Section name';
+$string['seedetails'] = 'See details';
+$string['selectforreport'] = 'Include in reports';
+$string['sessionreports'] = 'User session report';
+$string['sessions'] = 'Working sessions (real guessed times)';
+$string['sessionstart'] = 'Session start';
+$string['sessionend'] = 'Session end';
+$string['startdate'] = 'Start date';
+$string['timeperpart'] = 'Time elapsed per part';
+$string['totalduration'] = 'Total duration';
+$string['trainingreports'] = 'Traning Reports';
+$string['trainingsessions'] = 'Training Sessions';
+$string['trainingsessions:view'] = 'View training session report';
+$string['trainingsessions_report_advancement'] = 'Progress Report';
+$string['trainingsessions_report_connections'] = 'Connection Report';
+$string['trainingsessions_report_institutions'] = 'Institution Report';
+$string['trainingsessionsreport'] = 'Training Session Reports';
+$string['unvisited'] = 'Unvisited';
+$string['updatefromcoursestart'] = 'Get from course start';
+$string['user'] = 'Per participant';
+$string['workingsessions'] = 'Work sessions: ';
+
+?>

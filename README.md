@@ -10,7 +10,7 @@ Student individual details report :
 * Use time in course space (outside activities)
 * Working sessions reports 
 
-Dependdancies: 
+Dependancies: 
 ===============
 Block moodle-block_use_stats
 

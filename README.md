@@ -3,6 +3,13 @@ moodle-report_trainingsessions
 
 A structured report of use time using use_stats bloc time compliatons.
 
+Provides : 
+
+Student individual details report :
+* Use time detailed in course structure
+* Use time in course space (outside activities)
+* Working sessions reports 
+
 Dependdancies: 
 ===============
 Block moodle-block_use_stats

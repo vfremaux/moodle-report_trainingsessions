@@ -72,8 +72,22 @@
         */
 
         if ($dataobject->done > $items) $dataobject->done = $items;
+        
+        // fix global course times
+        $dataobject->activityelapsed = $dataobject->elapsed;
+        $dataobject->elapsed += @$aggregate['course'][0]->elapsed;
+		$dataobject->course->elapsed = 0 + @$aggregate['course'][0]->elapsed;
+		$dataobject->course->hits = 0 + @$aggregate['course'][0]->hits;
+		if (array_key_exists('upload', $aggregate)){
+	        $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
+			$dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
+			$dataobject->upload->hits = 0 + @$aggregate['upload'][0]->hits;
+		}
+
 
         training_reports_print_header_html($data->userid, $course->id, $dataobject);
+                
+        training_reports_print_session_list($str, @$aggregate['sessions']);
         
         echo $str;
 
@@ -81,6 +95,7 @@
         echo '<br/><center>';
         echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
         echo '</center>';
+        echo '<br/>';
 
     } else {
         // $CFG->trace = 'x_temp/xlsreport.log';
@@ -105,6 +120,11 @@
         $datarec->elapsed = $overall->elapsed;
         $datarec->events = $overall->events;
         training_reports_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
+
+        $worksheet = training_reports_init_worksheet($data->userid, $startrow, $xls_formats, $workbook, 'sessions');
+        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
+        training_reports_print_header_xls($worksheet, $data->userid, $course->id, $data, $xls_formats);
+
         $workbook->close();
 
         // debug_close_trace();

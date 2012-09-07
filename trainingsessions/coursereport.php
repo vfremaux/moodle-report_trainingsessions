@@ -34,8 +34,6 @@
     }
 
 	if ($data->output == 'html'){
-		print_object($data);
-		echo userdate($data->from);
 	    $selform->set_data($data);
 	    $selform->display();
 	}
@@ -43,9 +41,9 @@
 // compute target group
 
     if ($data->groupid){
-        $targetusers = groups_get_members($data->groupid);
+        $targetusers = get_enrolled_users($context, '', $data->groupid);
     } else {
-    	$targetusers = trainingsssions_get_course_users($course->id);
+    	$targetusers = get_enrolled_users($context);
         // $targetusers = get_users_by_capability($context, 'moodle/course:view', 'u.id, firstname, lastname, email, institution', 'lastname');
     }
 
@@ -65,16 +63,22 @@
                 $logusers = $auser->id;
                 $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
                 $aggregate = use_stats_aggregate_logs($logs, 'module');
-    
+
                 $data->items = $items;
                 $data->done = 0;
                 if (!empty($aggregate)){
                     foreach(array_keys($aggregate) as $module){
+                    	// exclude from calculation some pseudo-modules that are not part of 
+                    	// a course structure.
+                    	if (preg_match('/course|user|upload|sessions/', $module)) continue;
                         $data->done += count($aggregate[$module]);
                     }
+                	$data->sessions = 0 + count(@$aggregate['sessions']);
+                } else {
+                	$data->sessions = 0;
                 }
                 if ($data->done > $items) $data->done = $items;
-    
+
                 $data->linktousersheet = 1;
                 training_reports_print_header_html($auser->id, $course->id, $data, true);
     
@@ -93,6 +97,7 @@
         // echo count($targetusers).' found in this selection';
         echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
         echo '</center>';
+        echo '<br/>';
         
     } else {
 
@@ -115,7 +120,7 @@
 
         $xls_formats = training_reports_xls_formats($workbook);
         $startrow = 15;
-        
+    
         foreach($targetusers as $auser){
 
             $row = $startrow;
@@ -131,8 +136,11 @@
             $data->elapsed = $overall->elapsed;
             $data->events = $overall->events;
             training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);    
-        }
 
+	        $worksheet = training_reports_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
+	        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
+	        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+        }
         $workbook->close();
     }
 

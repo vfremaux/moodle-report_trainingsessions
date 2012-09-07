@@ -23,41 +23,48 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['trainingsessions:view'] = 'View training session report';
-$string['pluginname'] = 'Training Sessions';
-$string['errorbadviewid'] = 'non existing report view';
-
+$string['activitytime'] = 'Time in activities: ';
 $string['advancement'] = 'Advancement';
 $string['allgroups'] = 'All groups';
 $string['ashtml'] = 'HTML Format';
 $string['asxls'] = 'Upload as Excel';
+$string['checklistadvice'] = 'Special side completion effects';
 $string['chooseagroup'] = 'Choose a group';
 $string['chooseaninstitution'] = 'Choose an institution';
 $string['connections'] = 'Connections';
 $string['course'] = 'Course';
+$string['courseglobals'] = 'Course globals';
 $string['coursename'] = 'Group name';
 $string['done'] = 'Performed: ';
 $string['elapsed'] = 'Total time';
 $string['enddate'] = 'End date';
 $string['equlearningtime'] = 'Equivalent training time: ';
-$string['firstname'] = 'Firstname';
+$string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
+$string['errorbadviewid'] = 'non existing report view';
+$string['errorcoursestructurefirstpage'] = 'Course structure error : failed getting first page';
+$string['firstname'] = 'Firstname: ';
 $string['generateXLS'] = 'Generate as XLS';
 $string['generatereports'] = 'Generate reports';
 $string['headsection'] = 'Heading section';
 $string['hits'] = 'Hits';
 $string['institution'] = 'Institution';
 $string['institutions'] = 'Institutions';
+$string['instructure'] = 'Time spent inside structure';
 $string['item'] = 'Item';
 $string['lastname'] = 'LastNname';
+$string['nosessions'] = 'No working sessions recorded';
 $string['nostructure'] = 'No measurable course structure detected';
+$string['outofstructure'] = 'Time spent out of structure';
 $string['over'] = 'over';
 $string['parts'] = 'parts';
+$string['pluginname'] = 'Training Sessions';
 $string['reports'] = 'Reports';
 $string['role'] = 'Role';
 $string['sectionname'] = 'Section name';
 $string['seedetails'] = 'See details';
 $string['selectforreport'] = 'Include in reports';
 $string['sessionreports'] = 'User session report';
+$string['sessions'] = 'Working sessions';
 $string['startdate'] = 'Start date';
 $string['timeperpart'] = 'Time elapsed per part';
 $string['totalduration'] = 'Total duration';
@@ -68,9 +75,26 @@ $string['trainingsessions_report_advancement'] = 'Progress Report';
 $string['trainingsessions_report_connections'] = 'Connection Report';
 $string['trainingsessions_report_institutions'] = 'Institution Report';
 $string['trainingsessionsreport'] = 'Training Session Reports';
+$string['unvisited'] = 'Unvisited';
 $string['updatefromcoursestart'] = 'Get from course start';
 $string['user'] = 'Per participant';
-$string['unvisited'] = 'Unvisited';
+$string['workingsessions'] = 'Working sessions: ';
 
-$string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
-$string['errorcoursestructurefirstpage'] = 'Course structure error : failed getting first page';
+$string['activitytime_help'] = '
+<p>This time calculation considers all use time spent in course activities, letting course 
+	layout times out of calculation. In certain cases (when using the (reworked) Checklist with
+	standard time allocation (http://github.com/vfremaux/moodle-mod_checklist.git), additional 
+	standard time are used rather than real extracted times from log.</p>
+';
+
+$string['equlearningtime_help'] = '
+<p>Equivalent learning time summarizes all time spent in course, including standard allocation times if
+	the reworked Checklist is used (http://github.com/vfremaux/moodle-mod_checklist.git).</p>
+';
+
+$string['checklistadvice_help'] = '
+<p>When using a checklist module that enables teachers to validate activities without
+any student interaction in the course, some apparent information discrepancy may appear.</p>
+<p>This is a normal situation that reports consistant information regarding the effective
+	use of the platform</p>
+';

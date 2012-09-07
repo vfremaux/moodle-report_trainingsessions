@@ -1,4 +1,4 @@
-<?php  // $Id: index.php,v 1.2 2010/07/22 11:55:15 vf Exp $
+<?php  // $Id: index.php,v 1.2 2012-09-05 22:33:14 vf Exp $
 
     require_once('../../../config.php');
     require_once($CFG->libdir.'/adminlib.php');
@@ -26,7 +26,7 @@
 
     $navigation = build_navigation($navlinks);
 
-    require_login();
+    require_login($course->id);
 
     $context = get_context_instance(CONTEXT_COURSE, $course->id);
     require_capability('coursereport/trainingsessions:view', $context);
@@ -36,11 +36,10 @@
     if (!$asxls){
         print_header(get_string('reports', 'report_trainingsessions'), get_string('reports', 'report_trainingsessions'), $navigation);    
         
-        print_container_start();
-    
         /// Print tabs with options for user
         $rows[0][] = new tabobject('user', "index.php?id={$course->id}&amp;view=user", get_string('user', 'report_trainingsessions'));
         $rows[0][] = new tabobject('course', "index.php?id={$course->id}&amp;view=course", get_string('course', 'report_trainingsessions'));
+        $rows[0][] = new tabobject('courseraw', "index.php?id={$course->id}&amp;view=courseraw", get_string('courseraw', 'report_trainingsessions'));
         
         print_tabs($rows, $view);
     }

@@ -1,4 +1,4 @@
-<?php // $Id: report_trainingsessions.php,v 1.1 2011/03/28 15:24:25 vf Exp $
+<?php // $Id: report_trainingsessions.php,v 1.2 2012-06-11 09:39:42 vf Exp $
 
 $string['advancement'] = 'Advancement';
 $string['activitytime'] = 'In activity time: ';
@@ -9,6 +9,7 @@ $string['chooseagroup'] = 'Choose a group';
 $string['chooseaninstitution'] = 'Choose an institution';
 $string['connections'] = 'Connections';
 $string['course'] = 'Course';
+$string['courseraw'] = 'Course Raw';
 $string['coursename'] = 'Group name';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
@@ -16,6 +17,8 @@ $string['elapsed'] = 'Total time';
 $string['enddate'] = 'End date';
 $string['equlearningtime'] = 'Equivalent training time: ';
 $string['firstname'] = 'Firstname';
+$string['firstconnection'] = 'First connection';
+$string['firstenrolldate'] = 'First enroll';
 $string['generateXLS'] = 'Generate as XLS';
 $string['generatereports'] = 'Generate reports';
 $string['headsection'] = 'Heading section';
@@ -38,7 +41,10 @@ $string['sessions'] = 'Working sessions (real guessed times)';
 $string['sessionstart'] = 'Session start';
 $string['sessionend'] = 'Session end';
 $string['startdate'] = 'Start date';
+$string['timeelapsed'] = 'Time spent';
+$string['timeelapsedcurweek'] = 'Time spent cur. week';
 $string['timeperpart'] = 'Time elapsed per part';
+$string['todate'] = 'Date end';
 $string['totalduration'] = 'Total duration';
 $string['trainingreports'] = 'Traning Reports';
 $string['trainingsessions'] = 'Training Sessions';
@@ -55,6 +61,8 @@ $string['instructure'] = 'Activity use time';
 $string['outofstructure'] = 'Other course use time';
 $string['courseglobals'] = 'Course content';
 $string['uploadglobals'] = 'File uploads';
+$string['uploadresult'] = 'Upload raw results';
 $string['totalsessions'] = 'Total session time';
+$string['weekstartdate'] = 'Week start';
 
-?>
+

@@ -11,7 +11,6 @@
 
 // require login and make page start
 
-    $id = required_param('id', PARAM_INT) ; // the course id
     $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
     $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
     $startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
@@ -19,7 +18,7 @@
     $from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
     $groupid = optional_param('groupid', false, PARAM_INT) ; // admits special values : -1 current group, -2 course users
     $output = optional_param('output', 'html', PARAM_ALPHA) ; // 'html' or 'xls'
-
+    
 // calculate start time
 
     if ($from == -1){ // maybe we get it from parameters
@@ -135,6 +134,7 @@
 	        $worksheet = training_reports_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
 	        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
 	        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+
         }
         $workbook->close();
     }

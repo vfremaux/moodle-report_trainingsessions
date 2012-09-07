@@ -99,7 +99,7 @@ function reports_get_course_structure($courseid, &$itemcount){
 * or recursive content.
 */
 function page_get_structure_from_page($page, &$itemcount){
-    global $VISITED_PAGES;
+    global $VISITED_PAGES, $CFG;
     
     if (!isset($VISITED_PAGES)) $VISITED_PAGES = array();
 
@@ -108,9 +108,31 @@ function page_get_structure_from_page($page, &$itemcount){
     
     $structure = array();
     
-    // get page items from first page. They are located in the center column    
-    $select = "pageid = {$page->id} AND (position = 'c' OR position = 'r') ";
-    $pageitems = get_records_select('format_page_items', $select, 'position, sortorder');
+    // get page items from first page. They are located in the center column
+    // we accept a "pagemenu" item being located on the left column of a
+    // leading page.      
+    $sql = "
+    	SELECT 
+    		pi.*
+    	FROM
+    		{$CFG->prefix}format_page_items pi
+    	LEFT JOIN
+    		{$CFG->prefix}course_modules cm
+    	ON 
+    		pi.cmid = cm.id
+		JOIN    		
+    		{$CFG->prefix}modules m
+    	ON
+    		cm.module = m.id
+    	WHERE
+    		pi.pageid = {$page->id} AND
+    		((pi.position = 'c' OR pi.position = 'r') OR (m.name = 'pagemenu' AND '{$page->parent}' = 0))
+    	ORDER BY
+    		pi.position, 
+    		pi.sortorder
+    ";
+    		
+    $pageitems = get_records_sql($sql);
     
     // analyses course content component stack
     if ($pageitems){
@@ -314,7 +336,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
             if (isset($element->instance) && empty($element->instance->visible)) continue; // non visible items should not be displayed
             $res = training_reports_print_html($str, $element, $aggregate, $done, $indent, $level);
             $dataobject->elapsed += $res->elapsed;
-            $dataobject->events += $res->events;
+            $dataobject->events += (0 + @$res->events);
         } 
     } else {
     	$nodestr = '';
@@ -345,8 +367,11 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 					if (!empty($dataobject->timesource) && $dataobject->timesource == 'credit' && $dataobject->elapsed){
 						$nodestr .= get_string('credittime', 'block_use_stats');
 					}
+					if (!empty($dataobject->timesource) && $dataobject->timesource == 'declared' && $dataobject->elapsed){
+						$nodestr .= get_string('declaredtime', 'block_use_stats');
+					}
 	                $nodestr .= training_reports_format_time($dataobject->elapsed, 'html');
-	                $nodestr .= ' ('.$dataobject->events.')';
+	                $nodestr .= ' ('.(0 + @$dataobject->events).')';
 	            } else {
 	            	$nodestr .= get_string('ignored', 'block_use_stats');
 	            }
@@ -522,6 +547,7 @@ function training_reports_print_session_list(&$str, $sessions){
 	$totalelapsed = 0;
 
 	foreach($sessions as $s){
+		if (!isset($s->sessionstart)) continue;
 		$sessionenddate = (isset($s->sessionend)) ? userdate(@$s->sessionend) : '' ;
 		$str .= '<tr valign="top">';
 		$str .= '<td>'.userdate($s->sessionstart).'</td>';
@@ -815,6 +841,92 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 	    $row++;
 	}	
 	return $totalelapsed;
+}
+
+/**
+* a raster for printing in raw format 
+* with all the relevant data about a user.
+*
+*/
+function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, $rawfile, $from, $to){
+    global $CFG, $COURSE;
+
+    $user = get_record('user', 'id', $userid);
+    if ($courseid != $COURSE->id){
+	    $course = get_record('course', 'id', $courseid);
+	} else {
+		$course = &$COURSE;
+	}
+
+	$resultset = array();
+    $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
+
+    if (!empty($usergroups)){
+        foreach($usergroups as $group){
+            $str = $group->name;        
+            if ($group->id == get_current_group($courseid)){
+                $str = "$str";
+            }
+            $groupnames[] = $str;
+        }
+        $resultset[] = implode(', ', $groupnames); // entity        
+    } else {
+        $resultset[] = get_string('outofgroup', 'report_trainingsessions'); // entity        
+    }
+
+	$resultset[] = $user->id; // userid
+	$firstenroll = get_field_select('role_assignments', 'MIN(timestart)', " timestart != 0 AND userid = $user->id ");
+	$resultset[] = ($firstenroll) ? date('d/m/Y', $firstenroll) : '' ; // from date
+	$firstlogin = get_field_select('log', 'MIN(time)', " userid = $user->id AND action = 'login' ");
+	$resultset[] = ($firstlogin) ? date('d/m/Y', $firstlogin) : '' ; // firstlogin
+	$lastlogin = get_field_select('log', 'MAX(time)', " userid = $user->id AND action = 'login' ");
+	$resultset[] = ($lastlogin) ? date('d/m/Y', $lastlogin) : '' ; // firstlogin
+	$resultset[] = date('d/m/Y', $from); // from date
+	$resultset[] = date('d/m/Y', $to); // to date
+	$resultset[] = date('d/m/Y', $to - DAYSECS * 7); // last week of period
+	$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname))), 'ISO-8859-1', 'UTF-8');
+	$namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
+	$namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
+	$namestr = mb_ereg_replace('/ç/', 'C', $namestr);
+	$namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
+	$namestr = mb_ereg_replace('/î/', 'I', $namestr);
+	$resultset[] = $namestr;
+	$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname))), 'ISO-8859-1', 'UTF-8');
+	$namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
+	$namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
+	$namestr = mb_ereg_replace('/ç/', 'C', $namestr);
+	$namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
+	$namestr = mb_ereg_replace('/î/', 'I', $namestr);
+	$resultset[] = $namestr;
+
+    $resultset[] = raw_format_duration(@$data->elapsed); // elapsed time
+    $resultset[] = raw_format_duration(@$data->weekelapsed); // elapsed time this week
+
+    // $context = get_context_instance(CONTEXT_COURSE, $courseid);
+	// $roles = get_user_roles_in_context($userid, $context);
+	// $resultset[] = $roles;
+
+}
+
+function raw_format_duration($secs){
+	$min = floor($secs / 60);
+	$hours = floor($min / 60);
+	$days = floor($hours / 24);
+
+	$hours = $hours - $days * 24;
+	$min = $min - ($days * 24 * 60 + $hours * 60);
+	$secs = $secs - ($days * 24 * 60 * 60 + $hours * 60 * 60 + $min * 60);
+	
+	if ($days){	
+		return $days.' '.get_string('days')." $hours ".get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
+	}
+	if ($hours){	
+		return $hours.' '.get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
+	}
+	if ($min){	
+		return $min.' '.get_string('min')." $secs ".get_string('secs');
+	}
+	return $secs.' '.get_string('secs');
 }
 
 ?>

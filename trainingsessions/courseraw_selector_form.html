@@ -1,0 +1,74 @@
+<?php
+?>
+<center>
+<form action="#" name="courseselector" method="get">
+<input type="hidden" name="id" value="<?php p($course->id) ?>" />
+<input type="hidden" name="fromstart" value="" />
+<input type="hidden" name="output" value="html" />
+<input type="hidden" name="asxls" value="" />
+<input type="hidden" name="view" value="courseraw" />
+<table width="90%">
+<tr valign="top">
+    <td align="center" colspan="2">
+        <?php
+            print_string('from');
+            echo ' : ';
+            print_date_selector('startday', 'startmonth', 'startyear', $from, false, 2009, 2020);
+            echo '<br/>';
+            print_date_selector('endday', 'endmonth', 'endyear', $to, false, 2009, 2020);
+        ?>
+    </td>
+</tr>
+<tr valign="top">
+    <td align="right">
+        <b><?php
+            print_string('chooseagroup', 'report_trainingsessions');
+         ?> :</b>
+    </td>
+    <td>
+        <?php
+            
+            // first clear all groups if only group allowed
+			$defaultgroup = 0;
+            if (!has_any_capability(array('block/use_stats:seecoursedetails', 'block/use_stats:seesitedetails'), $context)){
+            	if (!has_capability('block/use_stats:seegroupdetails', $context)){ // checked in course context
+            		print_error('accessdenied', 'block_use_stats');
+            	}
+            	$mygroupings = groups_get_user_groups($course->id);
+            	$mygroups = array();
+            	foreach($mygroupings as $grouping){
+            		$mygroups = $mygroups + $grouping;
+            	}
+            } else {
+            	$groupoptions[0] = get_string('allgroups', 'report_trainingsessions');
+            	$mygroups = groups_get_all_groups($course->id);
+            }
+            
+            if (!empty($mygroups)){
+            	$groupkeys = array_keys($mygroups);
+        		$defaultgroup = $groupkeys[0];
+                foreach($mygroups as $group){
+                	if (is_numeric($group)){
+	                    if ($groupid === false) $groupid = $group; // forces a group if not mentionned.
+	                    $members = groups_get_members($group, 'u.id, u.username');
+	                    $groupoptions[$group] = get_field('groups', 'name', 'id', $group). ' ('.count($members).')';
+                	} else {
+	                    if ($groupid === false) $groupid = $group->id; // forces a group if not mentionned.
+	                    $members = groups_get_members($group->id, 'u.id, u.username');
+	                    $groupoptions[$group->id] = $group->name. ' ('.count($members).')';
+	                }
+                }
+            }
+            choose_from_menu($groupoptions, 'groupid', $groupid);
+        ?>
+    </td>
+</tr>
+<tr>
+    <td colspan="2" align="center">
+        <input type="submit" name="go_btn" value="<?php print_string('update') ?>" />
+        &nbsp;<input type="button" name="gostart_btn" value="<?php print_string('updatefromcoursestart', 'report_trainingsessions') ?>" onclick="document.forms['selector'].fromstart.value = 1;document.forms['selector'].submit();" />
+    </td>
+</tr>
+</table>
+</form>
+</center>

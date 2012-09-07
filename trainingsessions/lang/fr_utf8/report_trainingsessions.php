@@ -1,4 +1,4 @@
-<?php // $Id: report_trainingsessions.php,v 1.3 2011-12-06 23:39:36 vf Exp $
+<?php // $Id: report_trainingsessions.php,v 1.4 2012-06-11 09:39:43 vf Exp $
 
 $string['advancement'] = 'Avancement';
 $string['activitytime'] = 'Temps dans les activités : ';
@@ -9,6 +9,7 @@ $string['chooseagroup'] = 'Choisir un groupe';
 $string['chooseaninstitution'] = 'Choisir une institution';
 $string['connections'] = 'Connexions';
 $string['course'] = 'Formation';
+$string['courseraw'] = 'Formation (résumé brut)';
 $string['coursename'] = 'Nom du groupe';
 $string['done'] = 'Réalisé : ';
 $string['elapsed'] = 'Temps total';
@@ -44,6 +45,8 @@ $string['duration'] = 'Durée';
 $string['sessions'] = 'Sessions de travail (au réel plateforme)';
 $string['startdate'] = 'Date de début';
 $string['timeperpart'] = 'Temps par partie';
+$string['timeelapsed'] = 'Temps';
+$string['timeelapsedcurweek'] = 'Temps de la semaine';
 $string['totalduration'] = 'Durée totale par séquence';
 $string['trainingreports'] = 'Rapports de Formation';
 $string['trainingsessions'] = 'Rapports de session';
@@ -56,6 +59,7 @@ $string['trainingsessions_report_institutions'] = 'Rapport des établissements';
 $string['trainingsessionsreport'] = 'Rapports de session de formation';
 $string['unvisited'] = 'Non visité';
 $string['updatefromcoursestart'] = 'A partir du début de la formation';
+$string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
 $string['workingsessions'] = 'Sessions : ';
 $string['instructure'] = 'Temps dans les activités';
@@ -63,5 +67,5 @@ $string['outofstructure'] = 'Autres temps du cours';
 $string['courseglobals'] = 'Espaces généraux du cours';
 $string['uploadglobals'] = 'Téléchargements';
 $string['totalsessions'] = 'Temps en session total';
+$string['weekstartdate'] = 'Semaine du';
 
-?>

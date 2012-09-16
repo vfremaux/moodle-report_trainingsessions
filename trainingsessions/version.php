@@ -23,7 +23,9 @@
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
-$plugin->version  = 2011031900;
+$plugin->version  = 2012091400;
 $plugin->requires = 2007101532;
+$plugin->component = 'coursereport-trainingsessions';
+// $plugin->maturity = MATURITY_RC;
+$plugin->release = '1.9.0 build(2012091400)';
 
-?>

@@ -1,9 +1,8 @@
-<?php  // $Id: index.php,v 1.2 2012-09-05 22:33:14 vf Exp $
+<?php  // $Id: index.php,v 1.4 2012-07-15 17:34:08 vf Exp $
 
     require_once('../../../config.php');
     require_once($CFG->libdir.'/adminlib.php');
     require_once($CFG->libdir.'/tablelib.php');
-    require_once($CFG->libdir.'/excellib.class.php');
     // require_once('lib.php');
     
     $id         = required_param('id', PARAM_INT); // course id.
@@ -38,8 +37,11 @@
         
         /// Print tabs with options for user
         $rows[0][] = new tabobject('user', "index.php?id={$course->id}&amp;view=user", get_string('user', 'report_trainingsessions'));
-        $rows[0][] = new tabobject('course', "index.php?id={$course->id}&amp;view=course", get_string('course', 'report_trainingsessions'));
-        $rows[0][] = new tabobject('courseraw', "index.php?id={$course->id}&amp;view=courseraw", get_string('courseraw', 'report_trainingsessions'));
+        if (has_capability('coursereport/trainingsessions:viewother', $context)){
+	        $rows[0][] = new tabobject('course', "index.php?id={$course->id}&amp;view=course", get_string('course', 'report_trainingsessions'));
+	        $rows[0][] = new tabobject('courseraw', "index.php?id={$course->id}&amp;view=courseraw", get_string('courseraw', 'report_trainingsessions'));
+	    }
+        $rows[0][] = new tabobject('allcourses', "index.php?id={$course->id}&amp;view=allcourses", get_string('allcourses', 'report_trainingsessions'));
         
         print_tabs($rows, $view);
     }

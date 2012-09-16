@@ -307,6 +307,80 @@ function page_get_structure_in_content($source, &$itemcount){
 * @param string ref $str a buffer for accumulating output
 * @param object $structure a course structure object.
 */
+function training_reports_print_allcourses_html(&$str, &$aggregate){
+	global $CFG, $COURSE;
+
+	$output = array();
+	$courses = array();
+	$courseids = array();
+	$return->elapsed = 0;
+	if (!empty($aggregate['coursetotal'])){	
+		foreach($aggregate['coursetotal'] as $cid => $cdata){
+			if ($cid != 0){
+				if (!in_array($cid, $courseids)){
+					$courses[$cid] = get_record('course', 'id', $cid, '', '', '', '', 'id,idnumber,shortname,fullname,category');
+					$courseids[$cid] = '';
+				}
+				$output[$courses[$cid]->category][$cid] = $cdata;
+				$catids[$courses[$cid]->category] = '';
+			} else {
+				// echo "ignoring hidden $cdata->elapsed ";
+				$output[0][SITEID]->elapsed += $cdata->elapsed;
+				$output[0][SITEID]->events += $cdata->events;
+			}
+			$return->elapsed += $cdata->elapsed;
+		}
+
+		$catidlist = implode(',', array_keys($catids));
+		$coursecats = get_records_list('course_categories', 'id', $catidlist);
+	}
+
+	if (!empty($output)){	
+		
+		$elapsedstr = get_string('elapsed', 'report_trainingsessions');
+		$hitsstr = get_string('hits', 'report_trainingsessions');
+		$coursestr = get_string('course');
+		
+		if (isset($output[0])){
+			$str .= '<h2>'.get_string('site').'</h2>';
+			$str .= $elapsedstr.' : '.format_time($output[0][SITEID]->elapsed).'<br/>';
+			$str .= $hitsstr.' : '.$output[0][SITEID]->events;
+		}
+		
+		foreach($output as $catid => $catdata){
+			if ($catid == 0) continue;
+			$str .= '<h2>'.$coursecats[$catid]->name.'</h2>';
+			$str .= '<table class="generaltable" width="100%">';
+			$str .= '<tr class="header"><td class="header c0" width="70%"><b>'.$coursestr.'</b></td><td class="header c1" width="15%"><b>'.$elapsedstr.'</b></td><td class="header c2" width="15%"><b>'.$hitsstr.'</b></td></tr>';
+			foreach($catdata as $cid => $cdata){
+				$ccontext = get_context_instance(CONTEXT_COURSE, $cid);
+				if (has_capability('coursereport/trainingsessions:view', $ccontext)){
+					$str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td>';
+					$str .= format_time($cdata->elapsed).'<br/>';
+					$str .= '</td><td>';
+					$str .= $cdata->events;
+					$str .= '</td></tr>';
+				} else {
+					$str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td colspan="2">';
+					$str .= get_string('nopermissiontoview', 'report_trainingsessions');
+					$str .= '</td></tr>';
+				}
+			}
+			$str .= '</table>';
+		}
+	} else {
+		$str .= print_box(get_string('nodata', 'report_trainingsessions'), 'generalbox', '', true);
+	}
+
+	return $return;
+}
+
+/**
+* a raster for html printing of a report structure.
+*
+* @param string ref $str a buffer for accumulating output
+* @param object $structure a course structure object.
+*/
 function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 1){
 	global $CFG, $COURSE;
 
@@ -415,7 +489,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 * with all the relevant data about a user.
 *
 */
-function training_reports_print_header_html($userid, $courseid, $data, $short = false){
+function training_reports_print_header_html($userid, $courseid, $data, $short = false, $withcompletion = true, $withnooutofstructure = false){
     global $CFG;
     
     $user = get_record('user', 'id', $userid);
@@ -453,23 +527,25 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
         echo "<br/><a href=\"{$CFG->wwwroot}/course/report/trainingsessions/index.php?view=user&amp;id={$courseid}&amp;userid=$userid\">".get_string('seedetails', 'report_trainingsessions').'</a>';
     }
 
-    // print completion bar
-    if ($data->items){
-        $completed = $data->done / $data->items;
-    } else {
-        $completed = 0;
-    }
-    $remaining = 1 - $completed;
-    $completedpc = ceil($completed * 100);
-    $remainingpc = 100 - $completedpc;
-    $completedwidth = floor(500 * $completed);
-    $remainingwidth = floor(500 * $remaining);
-
-    echo '<p class="completionbar">';
-    print_string('done', 'report_trainingsessions');
-    
-    echo "<img src=\"{$CFG->wwwroot}/course/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
-    echo "<img src=\"{$CFG->wwwroot}/course/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
+	if($withcompletion){
+	    // print completion bar
+	    if ($data->items){
+	        $completed = $data->done / $data->items;
+	    } else {
+	        $completed = 0;
+	    }
+	    $remaining = 1 - $completed;
+	    $completedpc = ceil($completed * 100);
+	    $remainingpc = 100 - $completedpc;
+	    $completedwidth = floor(500 * $completed);
+	    $remainingwidth = floor(500 * $remaining);
+	
+	    echo '<p class="completionbar">';
+	    print_string('done', 'report_trainingsessions');
+	    
+	    echo "<img src=\"{$CFG->wwwroot}/course/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
+	    echo "<img src=\"{$CFG->wwwroot}/course/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
+	}
     
     // Start printing the overall times
     
@@ -500,16 +576,18 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 
 	// add printing for global course time (out of activities)    
     if (!$short){
-		print_heading(get_string('outofstructure', 'report_trainingsessions'));    
-        echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
-        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
-        echo "<td class=\"sessionitem\">";
-        print_string('courseglobals', 'report_trainingsessions');
-        echo '</td>';
-        echo "<td class=\"sessionvalue\">";
-        echo training_reports_format_time($data->course->elapsed).' ('.$data->course->hits.')';
-        echo '</td>';
-        echo '</tr>';
+    	if (!$withnooutofstructure){
+			print_heading(get_string('outofstructure', 'report_trainingsessions'));    
+	        echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
+	        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
+	        echo "<td class=\"sessionitem\">";
+	        print_string('courseglobals', 'report_trainingsessions');
+	        echo '</td>';
+	        echo "<td class=\"sessionvalue\">";
+	        echo training_reports_format_time($data->course->elapsed).' ('.$data->course->hits.')';
+	        echo '</td>';
+	        echo '</tr>';
+	    }
         if (isset($data->upload)){
 	        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
 	        echo "<td class=\"sessionitem\">";
@@ -522,7 +600,6 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 	    }
         echo '</table>';
     }
-	print_heading(get_string('instructure', 'report_trainingsessions'));    
 }
 
 /**
@@ -645,15 +722,18 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
     $worksheet->write_string($row, 0, get_string('roles').' :', $xls_formats['p']);
     $worksheet->write_string($row, 1, strip_tags(get_user_roles_in_context($userid, $context)));
     $row++;
-    // print completion bar
-    $completed = $data->done / $data->items;
-    $remaining = 1 - $completed;
-    $completedpc = ceil($completed * 100);
-    $remainingpc = 100 - $completedpc;
 
-    $worksheet->write_string($row, 0, get_string('done', 'report_trainingsessions'), $xls_formats['p']);
-    $worksheet->write_string($row, 1, $data->done. ' ' . get_string('over', 'report_trainingsessions'). ' '. $data->items. ' ('.$completedpc.' %)');
-    $row++;    
+	if (isset($data->done)){
+	    // print completion bar
+	    $completed = $data->done / $data->items;
+	    $remaining = 1 - $completed;
+	    $completedpc = ceil($completed * 100);
+	    $remainingpc = 100 - $completedpc;
+	
+	    $worksheet->write_string($row, 0, get_string('done', 'report_trainingsessions'), $xls_formats['p']);
+	    $worksheet->write_string($row, 1, $data->done. ' ' . get_string('over', 'report_trainingsessions'). ' '. $data->items. ' ('.$completedpc.' %)');
+	    $row++;
+	}
     $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xls_formats['p']);    
     $worksheet->write_number($row, 1, training_reports_format_time($data->elapsed, 'xls'), $xls_formats['zt']);
     $row++;    
@@ -739,6 +819,14 @@ function training_reports_print_xls(&$worksheet, &$structure, &$aggregate, &$don
 * sets up a set fo formats
 * @param object $workbook
 * @return array of usable formats keyed by a label
+*
+* Formats : 
+* t : Big Title
+* tt : section caption
+* p : bolded paragraph
+* z : numeric (normal)
+* zt : time format
+* zd : date format
 */
 function training_reports_xls_formats(&$workbook){
     $xls_formats['t'] =& $workbook->add_format();
@@ -778,19 +866,33 @@ function training_reports_xls_formats(&$workbook){
 * @return the initialized worksheet.
 */
 function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes'){
-
+	global $CFG;
+	
     $user = get_record('user', 'id', $userid);
-
-	if ($purpose == 'usertimes'){
-    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');		
+    
+	if ($purpose == 'usertimes' || $purpose == 'allcourses'){
+		if ($CFG->latinexcelexport){
+	    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');		
+	    } else {
+	    	$sheettitle = fullname($user);
+	    }
 	} else {
-    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8').' ('.get_string('sessions', 'report_trainingsessions').')';
+		if ($CFG->latinexcelexport){
+    		$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8').' ('.get_string('sessions', 'report_trainingsessions').')';
+    	} else {
+    		$sheettitle = fullname($user).' ('.get_string('sessions', 'report_trainingsessions').')';
+    	}
 	}
 
     $worksheet =& $workbook->add_worksheet($sheettitle);
 	if ($purpose == 'usertimes'){
     	$worksheet->set_column(0,0,20);
 	    $worksheet->set_column(1,1,74);
+    	$worksheet->set_column(2,2,12);
+    	$worksheet->set_column(3,3,4);
+	} elseif ($purpose == 'allcourses'){
+    	$worksheet->set_column(0,0,50);
+	    $worksheet->set_column(1,1,50);
     	$worksheet->set_column(2,2,12);
     	$worksheet->set_column(3,3,4);
 	} else {
@@ -833,7 +935,7 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 	foreach($sessions as $s){
 	    $worksheet->write_number($row, 0, training_reports_format_time($s->sessionstart, 'xls'), $xls_formats['zd']);	
 	    if (!empty($s->sessionend)){
-		    $worksheet->write_number($row, 1, training_reports_format_time($s->sessionend, 'xsl'), $xls_formats['zd']);	
+		    $worksheet->write_number($row, 1, training_reports_format_time($s->sessionend, 'xls'), $xls_formats['zd']);	
 		}
 	    $worksheet->write_string($row, 2, format_time($s->elapsed), $xls_formats['tt']);	
 	    $worksheet->write_number($row, 3, training_reports_format_time($s->elapsed, 'xls'), $xls_formats['zt']);	
@@ -841,6 +943,86 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 	    $row++;
 	}	
 	return $totalelapsed;
+}
+
+/**
+* a raster for Excel printing of a report structure.
+*
+* @param ref $worksheet a buffer for accumulating output
+* @param object $aggregate aggregated logs to explore.
+*/
+function training_reports_print_allcourses_xls(&$worksheet, &$aggregate, $row, &$xls_formats){
+	global $CFG, $COURSE;
+
+	$output = array();
+	$courses = array();
+	$courseids = array();
+	$return->elapsed = 0;
+	$return->events = 0;
+	if (!empty($aggregate['coursetotal'])){	
+		foreach($aggregate['coursetotal'] as $cid => $cdata){
+			if ($cid != 0){
+				if (!in_array($cid, $courseids)){
+					$courses[$cid] = get_record('course', 'id', $cid, '', '', '', '', 'id,idnumber,shortname,fullname,category');
+					$courseids[$cid] = '';
+				}
+				$output[$courses[$cid]->category][$cid] = $cdata;
+				$catids[$courses[$cid]->category] = '';
+			} else {
+				// echo "ignoring hidden $cdata->elapsed ";
+				$output[0][SITEID]->elapsed += $cdata->elapsed;
+				$output[0][SITEID]->events += $cdata->events;
+			}
+			$return->elapsed += $cdata->elapsed;
+			$return->events += $cdata->events;
+		}
+
+		$catidlist = implode(',', array_keys($catids));
+		$coursecats = get_records_list('course_categories', 'id', $catidlist);
+	}
+
+	if (!empty($output)){	
+		
+		$elapsedstr = get_string('elapsed', 'report_trainingsessions');
+		$hitsstr = get_string('hits', 'report_trainingsessions');
+		$coursestr = get_string('course');
+		
+		if (isset($output[0])){
+	    	$worksheet->write_string($row, 0, get_string('site'), $xls_formats['tt']);	
+	    	$row++;
+	    	$worksheet->write_string($row, 0, $elapsedstr, $xls_formats['p']);	
+	    	$worksheet->write_number($row, 1, training_reports_format_time($output[0][SITEID]->elapsed, 'xls'), $xls_formats['zt']);	
+	    	$row++;
+	    	$worksheet->write_string($row, 0, $hitsstr, $xls_formats['p']);	
+	    	$worksheet->write_number($row, 1, $output[0][SITEID]->events, $xls_formats['z']);	
+	    	$row++;
+		}
+		
+		foreach($output as $catid => $catdata){
+			if ($catid == 0) continue;
+	    	$worksheet->write_string($row, 0, $coursecats[$catid]->name, $xls_formats['tt']);	
+	    	$row++;
+	    	$worksheet->write_string($row, 0, $coursestr, $xls_formats['tt']);	
+	    	$worksheet->write_string($row, 1, $elapsedstr, $xls_formats['tt']);	
+	    	$worksheet->write_string($row, 2, $hitsstr, $xls_formats['tt']);	
+	    	$row++;
+	    	
+			foreach($catdata as $cid => $cdata){
+				$ccontext = get_context_instance(CONTEXT_COURSE, $cid);
+				if (has_capability('coursereport/trainingsessions:view', $ccontext)){
+			    	$worksheet->write_string($row, 0, $courses[$cid]->fullname, $xls_formats['p']);	
+			    	$worksheet->write_number($row, 1, training_reports_format_time($cdata->elapsed, 'xls'), $xls_formats['zt']);	
+			    	$worksheet->write_number($row, 2, $cdata->events, $xls_formats['z']);
+			    	$row++;
+				} else {
+			    	$worksheet->write_string($row, 0, $courses[$cid]->fullname, $xls_formats['p']);	
+			    	$worksheet->write_string($row, 2, get_string('nopermissiontoview', 'report_trainingsessions'), $xls_formats['p']);	
+				}
+			}
+		}
+	}
+
+	return $return;
 }
 
 /**

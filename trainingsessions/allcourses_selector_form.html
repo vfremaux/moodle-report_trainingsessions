@@ -9,9 +9,9 @@ if ($canseeothers){
 		$userids = array_keys($targetusers);
 		if (!in_array($userid, $userids)){
 			if (empty($targetusers)){
-				redirect($CFG->wwwroot.'/course/report/trainingsessions/index.php?id='.$id.'&amp;userid='.$USER->id);
+				redirect($CFG->wwwroot.'/course/report/trainingsessions/index.php?id='.$id.'&amp;view=allcourses&amp;userid='.$USER->id);
 			} else {
-				redirect($CFG->wwwroot.'/course/report/trainingsessions/index.php?id='.$id.'&amp;userid='.$userids[0]);
+				redirect($CFG->wwwroot.'/course/report/trainingsessions/index.php?id='.$id.'&amp;view=allcourses&amp;userid='.$userids[0]);
 			}
 		}
 		
@@ -19,7 +19,7 @@ if ($canseeothers){
 	    $targetusers = get_users_by_capability($context, 'moodle/course:view', 'u.id, firstname, lastname', 'lastname');
 	}
 	
-	groups_print_course_menu($course, $CFG->wwwroot.'/course/report/trainingsessions/index.php?id='.$id.'&amp;view=user');
+	groups_print_course_menu($course, $CFG->wwwroot.'/course/report/trainingsessions/index.php?id='.$id.'&amp;view=allcourses');
 	echo '<br/>';
 	echo '<br/>';
 }
@@ -28,6 +28,7 @@ if ($canseeothers){
 <form action="#" name="selector" method="get">
 <input type="hidden" name="id" value="<?php p($course->id) ?>" />
 <input type="hidden" name="fromstart" value="" />
+<input type="hidden" name="view" value="allcourses" />
 <table width="100%">
 <tr>
     <td>

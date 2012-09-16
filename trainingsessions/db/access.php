@@ -30,11 +30,25 @@ $coursereport_trainingsessions_capabilities = array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'legacy' => array(
+            'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'admin' => CAP_ALLOW
         ),
 
         'clonepermissionsfrom' => 'moodle/site:viewreports',
-    )
+    ),
+
+    'coursereport/trainingsessions:viewother' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'legacy' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'admin' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:viewreports',
+    ),
 );

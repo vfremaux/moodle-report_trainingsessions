@@ -18,6 +18,7 @@ class SelectorForm extends moodleform{
 	}
 	
 	public function definition(){
+		global $USER;
 		
         $mform = $this->_form;
         
@@ -33,32 +34,44 @@ class SelectorForm extends moodleform{
 		    'optional'  => false
 		);
 		$group[] = & $mform->createElement('date_selector', 'from', get_string('from'), $dateparms);
-
+	
         $context = context_course::instance($this->courseid);
         
-        if ($this->mode == 'user'){
+        if ($this->mode == 'user' || $this->mode == 'allcourses'){
         
-	        $users = get_users_by_capability($context, 'moodle/course:update', 'u.id, firstname, lastname', 'lastname');
-	        $useroptions = array();
-	        foreach($users as $user){
-	           $useroptions[$user->id] = fullname($user);
-	        }
-	        $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);
-	
-			$mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('user').':&nbsp; &nbsp;'), false);
+	        if (has_capability('report/trainingsessions:viewother', $context)){
+		        $users = get_enrolled_users($context);
+		        $useroptions = array();
+		        foreach($users as $user){
+		        	if (has_capability('report/trainingsessions:iscompiled', $context, $user->id)){
+			           $useroptions[$user->id] = fullname($user);
+			       }
+		        }
+		        $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);
+		
+				$mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('user').':&nbsp; &nbsp;'), false);
+			}
 		} else {
 			$groups = groups_get_all_groups($this->courseid);
 
 			$groupoptions = array();
+			if (has_capability('moodle/site:accessallgroups', $context, $USER->id)){
+				$groupoptions[0] = get_string('allgroups');
+			}
 			foreach($groups as $g){
 				$groupoptions[$g->id] = $g->name;
 			}
 	        $group[] = & $mform->createElement('select', 'groupid', get_string('group'), $groupoptions);
 	
 			$mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('group').':&nbsp; &nbsp;'), false);
-			
+	
+			if ($this->mode == 'courseraw'){
+				$mform->addElement('date_selector', 'to', get_string('to'), $dateparms);
+			} 
+		
 		}		
-		$mform->addElement('checkbox', 'fromstart', get_string('updatefromcoursestart', 'report_trainingsessions'));
+		$updatefromstr = ($this->mode == 'user') ? get_string('updatefromcoursestart', 'report_trainingsessions') : get_string('updatefromaccountstart', 'report_trainingsessions') ;
+		$mform->addElement('checkbox', 'fromstart', $updatefromstr);
 		$mform->addElement('submit', 'go_btn', get_string('update')); 
 	}
 }

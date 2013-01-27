@@ -23,82 +23,100 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['activitytime'] = 'Temps en activitÈs : ';
+$string['activitytime'] = 'Temps dans les activit√©s : ';
 $string['advancement'] = 'Avancement';
+$string['allcourses'] = 'Tous les cours';
 $string['allgroups'] = 'Tous les groupes';
 $string['ashtml'] = 'Format HTML';
-$string['asxls'] = 'TÈlÈcharger au format Excel';
+$string['asxls'] = 'T√©l√©charger au format Excel';
 $string['chooseagroup'] = 'Choisir un groupe';
 $string['chooseaninstitution'] = 'Choisir une institution';
 $string['connections'] = 'Connexions';
 $string['course'] = 'Formation';
+$string['courseglobals'] = 'Espaces g√©n√©raux du cours';
 $string['coursename'] = 'Nom du groupe';
-$string['courseglobals'] = 'Espaces globaux du cours';
-$string['done'] = 'RÈalisÈ : ';
+$string['courseraw'] = 'Formation (r√©sum√© brut)';
+$string['done'] = 'R√©alis√© : ';
+$string['duration'] = 'Dur√©e';
 $string['elapsed'] = 'Temps total';
 $string['enddate'] = 'Date de fin';
-$string['equlearningtime'] = 'Temps Èquivalent de formation : ';
+$string['equlearningtime'] = 'Temps √©quivalent de formation : ';
+$string['errorcoursetoolarge'] = 'Le cours a trop de participants. Choix forc√© d\'un groupe';
 $string['evaluating'] = 'Evaluation';
 $string['executing'] = 'Formation';
-$string['firstname'] = 'PrÈnom';
-$string['freerun'] = 'Parcours libre';
-$string['generateXLS'] = 'GÈnÈrer en XLS';
-$string['generatereports'] = 'GÈnÈrer les rapports';
-$string['headsection'] = 'Section d\'en-tÍte';
+$string['firstname'] = 'Pr√©nom';
+$string['generateXLS'] = 'G√©n√©rer en XLS';
+$string['generatereports'] = 'G√©n√©rer les rapports';
+$string['headsection'] = 'Section d\'en-t√™te';
 $string['hits'] = 'Hits';
+$string['incourses'] = 'Dans les cours';
 $string['institution'] = 'Etablissement';
 $string['institutions'] = 'Etablissements';
-$string['instructure'] = 'Temps dans la structure : ';
-$string['item'] = 'ElÈment';
+$string['instructure'] = 'Temps dans les activit√©s';
+$string['item'] = 'El√©ment';
 $string['lastname'] = 'Nom';
-$string['nostructure'] = 'Pas de structure mesurable identifiÈe';
+$string['nodata'] = 'Aucune donn√©e de cours';
+$string['nopermissiontoview'] = 'Vous n\'avez pas les permissions n√©cessaires dans ce cours pour voir ces donn√©es';
+$string['nosessions'] = 'Aucune session disponible';
+$string['nostructure'] = 'Pas de structure mesurable identifi√©e';
+$string['outofstructure'] = 'Autres temps du cours';
+$string['outofgroup'] = 'Hors groupe';
 $string['over'] = 'sur';
-$string['outofstructure'] = 'Temps hors structure : ';
 $string['parts'] = 'Parties';
 $string['pluginname'] = 'Sessions de formation';
-$string['nosessions'] = 'Aucune session enregistrÈe';
-$string['sessions'] = 'Sessions';
 $string['reports'] = 'Rapports de formation';
-$string['role'] = 'RÙle';
-$string['sectionname'] = 'Nom de la sÈquence';
-$string['seedetails'] = 'Voir la fiche de dÈtail';
+$string['role'] = 'R√¥le';
+$string['sectionname'] = 'Nom de la s√©quence';
+$string['seedetails'] = 'Voir la fiche de d√©tail';
 $string['selectforreport'] = '';
 $string['selectforreport'] = 'Inclure dans les rapports';
+$string['sessionend'] = 'fin de session';
 $string['sessionreports'] = 'Rapports de formation individuel';
-$string['startdate'] = 'Date de dÈbut';
+$string['sessions'] = 'Sessions de travail (au r√©el plateforme)';
+$string['sessionstart'] = 'D√©but de session';
+$string['startdate'] = 'Date de d√©but';
+$string['timeelapsed'] = 'Temps';
+$string['timeelapsedcurweek'] = 'Temps de la semaine';
 $string['timeperpart'] = 'Temps par partie';
-$string['totalduration'] = 'DurÈe totale par sÈquence';
+$string['totalduration'] = 'Dur√©e totale par s√©quence';
+$string['totalsessions'] = 'Temps en session total';
 $string['trainingreports'] = 'Rapports de Formation';
 $string['trainingsessions'] = 'Rapports de session';
-$string['trainingsessions:view'] = 'Voir les rapports de session de formation';
-$string['trainingsessions_report_advancement'] = 'Rapport d\'avancement';
+$string['trainingsessions:view'] = 'Consulter le rapport des sessions de formation';
+$string['trainingsessions:viewother'] = 'Consulter les rapports de session des autres';
+$string['trainingsessions:iscompiled'] = 'Appara√Æt dans les rapports';
+$string['trainingsessions_report_advancement'] = 'Rapport d&#145;avancement';
+$string['trainingsessions_report_advancement'] = 'Rapport de l&#145;avancement';
 $string['trainingsessions_report_connections'] = 'Rapport des connexions';
 $string['trainingsessions_report_connections'] = 'Rapport sur les connexions';
-$string['trainingsessions_report_institutions'] = 'Rapport des Ètablissements';
+$string['trainingsessions_report_institutions'] = 'Rapport des √©tablissements';
 $string['trainingsessionsreport'] = 'Rapports de session de formation';
-$string['unvisited'] = 'Non visitÈ';
-$string['updatefromcoursestart'] = 'A partir du dÈbut de la formation';
+$string['unvisited'] = 'Non visit√©';
+$string['updatefromaccountstart'] = 'A partir du premier acc√®s';
+$string['updatefromcoursestart'] = 'A partir du d√©but de la formation';
+$string['uploadglobals'] = 'T√©l√©chargements';
+$string['uploadresult'] = 'T√©l√©charger le r√©sultat';
 $string['user'] = 'Par participant';
+$string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail : ';
 
-$string['activitytime_help'] = 'Ce temps comptabilise les temps passÈs dans les "activitÈs" du cours, ‡ l\'exception des temps
-	d\'usage passÈs dans les espaces communs du cours. Il peut prendre en compte dans certains cas
-	(utilisation du module Checklist "amÈliorÈ" avec prise en charge des temps forfaitaires -- 
+$string['activitytime_help'] = 'Ce temps comptabilise les temps pass√©s dans les "activit√©s" du cours, √† l\'exception des temps
+	d\'usage pass√©s dans les espaces communs du cours. Il peut prendre en compte dans certains cas
+	(utilisation du module Checklist "am√©lior√©" avec prise en charge des temps forfaitaires -- 
 	http://github.com/vfremaux/moodle-mod_checklist.git), les
-	temps forfaitisÈs associÈs aux activitÈs plutot que les temps mesurÈs sur les traces.';
+	temps forfaitis√©s associ√©s aux activit√©s plutot que les temps mesur√©s sur les traces.';
 
 $string['equlearningtime_help'] = '
-<p>Le temps Èquivalent de formation tient compte de tous les temps passÈs dans le cours
-	y compris les temps forfaitaires fournis par le module Checklist modifiÈ 
+<p>Le temps √©quivalent de formation tient compte de tous les temps pass√©s dans le cours
+	y compris les temps forfaitaires fournis par le module Checklist modifi√© 
 	(http://github.com/vfremaux/moodle-mod_checklist.git).</p>
 ';
 
 $string['checklistadvice_help'] = '
-<p>Si une "liste de suivi" (module non standard) est utilisÈe dans le cours pour marquer les
-	accomplissments, certaines ativitÈs peuvent Ítre validÈes par les enseignants sans aucune
-	interaction prÈalable de l\'Ètudiant dans le cours (et donc sans traces).</p>
+<p>Si une "liste de suivi" (module non standard) est utilis√©e dans le cours pour marquer les
+	accomplissments, certaines ativit√©s peuvent √™tre valid√©es par les enseignants sans aucune
+	interaction pr√©alable de l\'√©tudiant dans le cours (et donc sans traces).</p>
 <p>Ceci est une situation possible et normale et le rapport affiche des informations "justes"
-	dans ses diffÈrents indicateurs d\'usage.</p>
+	dans ses diff√©rents indicateurs d\'usage.</p>
 ';
 
-?>

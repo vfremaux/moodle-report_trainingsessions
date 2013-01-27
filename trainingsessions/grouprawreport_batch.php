@@ -18,12 +18,12 @@
     $from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
     $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
 
-    ini_set('memory_limit', '256M');
+    ini_set('memory_limit', '512M');
     
-    if (!$course = get_record('course', 'id', $id)){
+    if (!$course = $DB->get_record('course', array('id' => $id))){
     	die ('Invalid course ID');
     }
-    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+    $context = context_course::instance($course->id);
 
 // TODO : secure groupid access depending on proper capabilities
 
@@ -46,18 +46,11 @@
 	
 	$testmax = 5;
 	$i = 0;
-
-	if (!is_dir($CFG->dataroot.'/'.$course->id."/autoreports")){
-		mkdir($CFG->dataroot.'/'.$course->id."/autoreports");
-	}
-
-	if (!is_dir($CFG->dataroot.'/'.$course->id."/autoreports/$sessionday")){
-		mkdir($CFG->dataroot.'/'.$course->id."/autoreports/$sessionday");
-	}
 	
 	foreach($groups as $group){
 
-        $filename = $CFG->dataroot.'/'.$course->id."/autoreports/{$sessionday}/trainingsessions_group_{$group->name}_report_".date('d-M-Y', time()).".xls";
+		$filepath = "/$sessionday/";
+        $filename = "trainingsessions_group_{$group->name}_report_".date('d-M-Y', time()).".xls";
 		
 		// for unit test only
 		// if ($i > $testmax) continue;
@@ -67,7 +60,7 @@
 
 		// filters teachers out
 	    foreach($targetusers as $uid => $user){
-	    	if (has_capability('moodle/legacy:teacher', $context, $user->id) || has_capability('moodle/legacy:editingteacher', $context, $user->id)){
+	    	if (has_capability('moodle/course:grade', $context, $user->id) || has_capability('moodle/legacy:editingteacher', $context, $user->id)){
 	    		unset($targetusers[$uid]);
 	    	}
 	    }

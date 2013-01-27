@@ -1,5 +1,7 @@
 <?php
 
+if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
+
 /**
 * direct log construction implementation
 *
@@ -23,10 +25,10 @@
     $selform = new SelectorForm($id, 'user');
     if ($data = $selform->get_data()){
 	} else {
-		$data->from = -1;
-		$data->userid = $USER->id;
-		$data->fromstart = 0;
-		$data->output = 'html';
+		$data->from = optional_param('from', -1, PARAM_NUMBER);
+		$data->userid = optional_param('userid', $USER->id, PARAM_INT);
+		$data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
+		$data->output = optional_param('output', 'html', PARAM_ALPHA);
 	}
 
 // calculate start time
@@ -35,7 +37,7 @@
         $data->from = $course->startdate;
     }
 
-	if (!$asxls){
+	if ($data->output == 'html'){
 	    $selform->set_data($data);
 	    $selform->display();
 	}
@@ -52,7 +54,7 @@
     
 // print result
 
-    if (!$asxls){
+    if ($data->output == 'html'){
         // time period form
 
         echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
@@ -91,7 +93,7 @@
         
         echo $str;
 
-        $url = $CFG->wwwroot.'/report/trainingsessions/index.php?id='.$course->id.'&amp;view=user&amp;userid='.$data->userid.'&amp;from='.$data->from.'&amp;output=xls&amp;asxls=1';
+        $url = $CFG->wwwroot.'/report/trainingsessions/index.php?id='.$course->id.'&amp;view=user&amp;userid='.$data->userid.'&amp;from='.$data->from.'&amp;output=xls';
         echo '<br/><center>';
         echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
         echo '</center>';

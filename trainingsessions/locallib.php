@@ -285,6 +285,79 @@ function page_get_structure_in_content($source, &$itemcount){
 * @param string ref $str a buffer for accumulating output
 * @param object $structure a course structure object.
 */
+function training_reports_print_allcourses_html(&$str, &$aggregate){
+	global $CFG, $COURSE, $OUTPUT, $DB;
+
+	$output = array();
+	$courses = array();
+	$courseids = array();
+	$return->elapsed = 0;
+	if (!empty($aggregate['coursetotal'])){	
+		foreach($aggregate['coursetotal'] as $cid => $cdata){
+			if ($cid != 0){
+				if (!in_array($cid, $courseids)){
+					$courses[$cid] = $DB->get_record('course', array('id' =>  $cid), 'id,idnumber,shortname,fullname,category');
+					$courseids[$cid] = '';
+				}
+				$output[$courses[$cid]->category][$cid] = $cdata;
+				$catids[$courses[$cid]->category] = '';
+			} else {
+				// echo "ignoring hidden $cdata->elapsed ";
+				$output[0][SITEID]->elapsed += $cdata->elapsed;
+				$output[0][SITEID]->events += $cdata->events;
+			}
+			$return->elapsed += $cdata->elapsed;
+		}
+
+		$coursecats = $DB->get_records_list('course_categories', 'id', array_keys($catids));
+	}
+
+	if (!empty($output)){	
+		
+		$elapsedstr = get_string('elapsed', 'report_trainingsessions');
+		$hitsstr = get_string('hits', 'report_trainingsessions');
+		$coursestr = get_string('course');
+		
+		if (isset($output[0])){
+			$str .= '<h2>'.get_string('site').'</h2>';
+			$str .= $elapsedstr.' : '.format_time($output[0][SITEID]->elapsed).'<br/>';
+			$str .= $hitsstr.' : '.$output[0][SITEID]->events;
+		}
+		
+		foreach($output as $catid => $catdata){
+			if ($catid == 0) continue;
+			$str .= '<h2>'.$coursecats[$catid]->name.'</h2>';
+			$str .= '<table class="generaltable" width="100%">';
+			$str .= '<tr class="header"><td class="header c0" width="70%"><b>'.$coursestr.'</b></td><td class="header c1" width="15%"><b>'.$elapsedstr.'</b></td><td class="header c2" width="15%"><b>'.$hitsstr.'</b></td></tr>';
+			foreach($catdata as $cid => $cdata){
+				$ccontext = context_course::instance($cid);
+				if (has_capability('report/trainingsessions:view', $ccontext)){
+					$str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td>';
+					$str .= format_time($cdata->elapsed).'<br/>';
+					$str .= '</td><td>';
+					$str .= $cdata->events;
+					$str .= '</td></tr>';
+				} else {
+					$str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td colspan="2">';
+					$str .= get_string('nopermissiontoview', 'report_trainingsessions');
+					$str .= '</td></tr>';
+				}
+			}
+			$str .= '</table>';
+		}
+	} else {
+		$str .= $OUTPUT->box(get_string('nodata', 'report_trainingsessions'), 'generalbox', '', true);
+	}
+
+	return $return;
+}
+
+/**
+* a raster for html printing of a report structure.
+*
+* @param string ref $str a buffer for accumulating output
+* @param object $structure a course structure object.
+*/
 function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 1){
 	global $CFG, $COURSE;
 
@@ -314,7 +387,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
             if (isset($element->instance) && empty($element->instance->visible)) continue; // non visible items should not be displayed
             $res = training_reports_print_html($str, $element, $aggregate, $done, $indent, $level);
             $dataobject->elapsed += $res->elapsed;
-            $dataobject->events += $res->events;
+            $dataobject->events += (0 + @$res->events);
         } 
     } else {
     	$nodestr = '';
@@ -345,8 +418,11 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 					if (!empty($dataobject->timesource) && $dataobject->timesource == 'credit' && $dataobject->elapsed){
 						$nodestr .= get_string('credittime', 'block_use_stats');
 					}
+					if (!empty($dataobject->timesource) && $dataobject->timesource == 'declared' && $dataobject->elapsed){
+						$nodestr .= get_string('declaredtime', 'block_use_stats');
+					}
 	                $nodestr .= training_reports_format_time($dataobject->elapsed, 'html');
-	                $nodestr .= ' ('.$dataobject->events.')';
+	                $nodestr .= ' ('.(0 + @$dataobject->events).')';
 	            } else {
 	            	$nodestr .= get_string('ignored', 'block_use_stats');
 	            }
@@ -390,7 +466,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 * with all the relevant data about a user.
 *
 */
-function training_reports_print_header_html($userid, $courseid, $data, $short = false){
+function training_reports_print_header_html($userid, $courseid, $data, $short = false, $withcompletion = true, $withnooutofstructure = false){
     global $CFG, $DB, $OUTPUT;
     
     $user = $DB->get_record('user', array('id' => $userid));
@@ -401,7 +477,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
     echo '<h1>';
-    echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid'=>$course->id));    
+    echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));    
     echo fullname($user).'</h1>';
 
     // print group status
@@ -434,23 +510,25 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
         echo "<br/><a href=\"{$CFG->wwwroot}/report/trainingsessions/index.php?view=user&amp;id={$courseid}&amp;userid=$userid\">".get_string('seedetails', 'report_trainingsessions').'</a>';
     }
 
-    // print completion bar
-    if ($data->items){
-        $completed = $data->done / $data->items;
-    } else {
-        $completed = 0;
-    }
-    $remaining = 1 - $completed;
-    $completedpc = ceil($completed * 100);
-    $remainingpc = 100 - $completedpc;
-    $completedwidth = floor(500 * $completed);
-    $remainingwidth = floor(500 * $remaining);
-
-    echo '<p class="completionbar">';
-    print_string('done', 'report_trainingsessions');
-    
-    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
-    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
+	if($withcompletion){
+	    // print completion bar
+	    if ($data->items){
+	        $completed = $data->done / $data->items;
+	    } else {
+	        $completed = 0;
+	    }
+	    $remaining = 1 - $completed;
+	    $completedpc = ceil($completed * 100);
+	    $remainingpc = 100 - $completedpc;
+	    $completedwidth = floor(500 * $completed);
+	    $remainingwidth = floor(500 * $remaining);
+	
+	    echo '<p class="completionbar">';
+	    print_string('done', 'report_trainingsessions');
+	    
+	    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
+	    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
+	}
     
     // Start printing the overall times
     
@@ -473,7 +551,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 
     echo get_string('workingsessions', 'report_trainingsessions');
     echo 0 + @$data->sessions;
-    if (@$data->sessions == 0 && $completedwidth > 0){
+    if (@$data->sessions == 0 && (@$completedwidth > 0)){
 		echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
 	}
     
@@ -481,16 +559,18 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 
 	// add printing for global course time (out of activities)    
     if (!$short){
-		echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));    
-        echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
-        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
-        echo "<td class=\"sessionitem\">";
-        print_string('courseglobals', 'report_trainingsessions');
-        echo '</td>';
-        echo "<td class=\"sessionvalue\">";
-        echo training_reports_format_time($data->course->elapsed).' ('.$data->course->hits.')';
-        echo '</td>';
-        echo '</tr>';
+    	if (!$withnooutofstructure){
+			echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));    
+	        echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
+	        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
+	        echo "<td class=\"sessionitem\">";
+	        print_string('courseglobals', 'report_trainingsessions');
+	        echo '</td>';
+	        echo "<td class=\"sessionvalue\">";
+	        echo training_reports_format_time($data->course->elapsed).' ('.$data->course->hits.')';
+	        echo '</td>';
+	        echo '</tr>';
+		}
         if (isset($data->upload)){
 	        echo "<tr class=\"sessionlevel2\" valign=\"top\">";
 	        echo "<td class=\"sessionitem\">";
@@ -503,7 +583,6 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 	    }
         echo '</table>';
     }
-	echo $OUTPUT->heading(get_string('instructure', 'report_trainingsessions'));    
 }
 
 /**
@@ -530,6 +609,7 @@ function training_reports_print_session_list(&$str, $sessions){
 	$totalelapsed = 0;
 
 	foreach($sessions as $s){
+		if (!isset($s->sessionstart)) continue;
 		$sessionenddate = (isset($s->sessionend)) ? userdate(@$s->sessionend) : '' ;
 		$str .= '<tr valign="top">';
 		$str .= '<td>'.userdate($s->sessionstart).'</td>';
@@ -585,6 +665,9 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
     $worksheet->write_string($row, 0, get_string('user').' :', $xls_formats['p']);    
     $worksheet->write_string($row, 1, fullname($user));    
     $row++;
+    $worksheet->write_string($row, 0, get_string('idnumber').' :', $xls_formats['p']);    
+    $worksheet->write_string($row, 1, $user->idnumber);    
+    $row++;
     $worksheet->write_string($row, 0, get_string('email').' :', $xls_formats['p']);    
     $worksheet->write_string($row, 1, $user->email);    
     $row++;
@@ -612,7 +695,7 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
     if (!empty($usergroups)){
         foreach($usergroups as $group){
             $str = $group->name;        
-            if ($group->id == get_current_group($courseid)){
+            if ($group->id == groups_get_course_group($courseid)){
                 $str = "[$str]";
             }
             $groupnames[] = $str;
@@ -732,6 +815,14 @@ function training_reports_print_xls(&$worksheet, &$structure, &$aggregate, &$don
 * sets up a set fo formats
 * @param object $workbook
 * @return array of usable formats keyed by a label
+*
+* Formats : 
+* t : Big Title
+* tt : section caption
+* p : bolded paragraph
+* z : numeric (normal)
+* zt : time format
+* zd : date format
 */
 function training_reports_xls_formats(&$workbook){
     $xls_formats['t'] =& $workbook->add_format();
@@ -771,20 +862,33 @@ function training_reports_xls_formats(&$workbook){
 * @return the initialized worksheet.
 */
 function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes'){
-    global $DB;
+    global $DB, $CFG;
     
     $user = $DB->get_record('user', array('id' => $userid));
 
-	if ($purpose == 'usertimes'){
-    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');		
+	if ($purpose == 'usertimes' || $purpose == 'allcourses'){
+		if ($CFG->latinexcelexport){
+	    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');		
+	    } else {
+	    	$sheettitle = fullname($user);
+	    }
 	} else {
-    	$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8').' ('.get_string('sessions', 'report_trainingsessions').')';
+		if ($CFG->latinexcelexport){
+    		$sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8').' ('.get_string('sessions', 'report_trainingsessions').')';
+    	} else {
+    		$sheettitle = fullname($user).' ('.get_string('sessions', 'report_trainingsessions').')';
+    	}
 	}
 
     $worksheet =& $workbook->add_worksheet($sheettitle);
 	if ($purpose == 'usertimes'){
     	$worksheet->set_column(0,0,20);
 	    $worksheet->set_column(1,1,74);
+    	$worksheet->set_column(2,2,12);
+    	$worksheet->set_column(3,3,4);
+	} elseif ($purpose == 'allcourses'){
+    	$worksheet->set_column(0,0,50);
+	    $worksheet->set_column(1,1,50);
     	$worksheet->set_column(2,2,12);
     	$worksheet->set_column(3,3,4);
 	} else {
@@ -828,7 +932,7 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 		foreach($sessions as $s){
 		    $worksheet->write_number($row, 0, training_reports_format_time($s->sessionstart, 'xls'), $xls_formats['zd']);	
 		    if (!empty($s->sessionend)){
-			    $worksheet->write_number($row, 1, training_reports_format_time($s->sessionend, 'xsl'), $xls_formats['zd']);	
+			    $worksheet->write_number($row, 1, training_reports_format_time($s->sessionend, 'xls'), $xls_formats['zd']);	
 			}
 		    $worksheet->write_string($row, 2, format_time($s->elapsed), $xls_formats['tt']);	
 		    $worksheet->write_number($row, 3, training_reports_format_time($s->elapsed, 'xls'), $xls_formats['zt']);	
@@ -838,6 +942,173 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 	}
 	return $totalelapsed;
 }
+
+/**
+* a raster for Excel printing of a report structure.
+*
+* @param ref $worksheet a buffer for accumulating output
+* @param object $aggregate aggregated logs to explore.
+*/
+function training_reports_print_allcourses_xls(&$worksheet, &$aggregate, $row, &$xls_formats){
+	global $CFG, $COURSE, $DB;
+
+	$output = array();
+	$courses = array();
+	$courseids = array();
+	$return->elapsed = 0;
+	$return->events = 0;
+	if (!empty($aggregate['coursetotal'])){	
+		foreach($aggregate['coursetotal'] as $cid => $cdata){
+			if ($cid != 0){
+				if (!in_array($cid, $courseids)){
+					$courses[$cid] = $DB->get_record('course', array('id' => $cid), 'id,idnumber,shortname,fullname,category');
+					$courseids[$cid] = '';
+				}
+				$output[$courses[$cid]->category][$cid] = $cdata;
+				$catids[$courses[$cid]->category] = '';
+			} else {
+				// echo "ignoring hidden $cdata->elapsed ";
+				$output[0][SITEID]->elapsed += $cdata->elapsed;
+				$output[0][SITEID]->events += $cdata->events;
+			}
+			$return->elapsed += $cdata->elapsed;
+			$return->events += $cdata->events;
+		}
+
+		$coursecats = $DB->get_records_list('course_categories', 'id', array_keys($catids));
+	}
+
+	if (!empty($output)){	
+		
+		$elapsedstr = get_string('elapsed', 'report_trainingsessions');
+		$hitsstr = get_string('hits', 'report_trainingsessions');
+		$coursestr = get_string('course');
+		
+		if (isset($output[0])){
+	    	$worksheet->write_string($row, 0, get_string('site'), $xls_formats['tt']);	
+	    	$row++;
+	    	$worksheet->write_string($row, 0, $elapsedstr, $xls_formats['p']);	
+	    	$worksheet->write_number($row, 1, training_reports_format_time($output[0][SITEID]->elapsed, 'xls'), $xls_formats['zt']);	
+	    	$row++;
+	    	$worksheet->write_string($row, 0, $hitsstr, $xls_formats['p']);	
+	    	$worksheet->write_number($row, 1, $output[0][SITEID]->events, $xls_formats['z']);	
+	    	$row++;
+		}
+		
+		foreach($output as $catid => $catdata){
+			if ($catid == 0) continue;
+	    	$worksheet->write_string($row, 0, $coursecats[$catid]->name, $xls_formats['tt']);	
+	    	$row++;
+	    	$worksheet->write_string($row, 0, $coursestr, $xls_formats['tt']);	
+	    	$worksheet->write_string($row, 1, $elapsedstr, $xls_formats['tt']);	
+	    	$worksheet->write_string($row, 2, $hitsstr, $xls_formats['tt']);	
+	    	$row++;
+	    	
+			foreach($catdata as $cid => $cdata){
+				$ccontext = context_course::instance($cid);
+				if (has_capability('report/trainingsessions:view', $ccontext)){
+			    	$worksheet->write_string($row, 0, $courses[$cid]->fullname, $xls_formats['p']);	
+			    	$worksheet->write_number($row, 1, training_reports_format_time($cdata->elapsed, 'xls'), $xls_formats['zt']);	
+			    	$worksheet->write_number($row, 2, $cdata->events, $xls_formats['z']);
+			    	$row++;
+				} else {
+			    	$worksheet->write_string($row, 0, $courses[$cid]->fullname, $xls_formats['p']);	
+			    	$worksheet->write_string($row, 2, get_string('nopermissiontoview', 'report_trainingsessions'), $xls_formats['p']);	
+				}
+			}
+		}
+	}
+
+	return $return;
+}
+
+/**
+* a raster for printing in raw format 
+* with all the relevant data about a user.
+*
+*/
+function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$rawstr, $from, $to){
+    global $CFG, $COURSE, $DB;
+
+    $user = $DB->get_record('user', array('id' => $userid));
+    if ($courseid != $COURSE->id){
+	    $course = $DB->get_record('course', array('id' => $courseid));
+	} else {
+		$course = &$COURSE;
+	}
+
+	$resultset = array();
+    $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
+
+    if (!empty($usergroups)){
+        foreach($usergroups as $group){
+            $str = $group->name;        
+            if ($group->id == groups_get_course_group($course)){
+                $str = "$str";
+            }
+            $groupnames[] = $str;
+        }
+        $resultset[] = implode(', ', $groupnames); // entity        
+    } else {
+        $resultset[] = get_string('outofgroup', 'report_trainingsessions'); // entity        
+    }
+
+	$resultset[] = $user->id; // userid
+	$firstenroll = $DB->get_field_select('user_enrolments', 'MIN(timestart)', " timestart != 0 AND userid = ? ", array($user->id));
+	$resultset[] = ($firstenroll) ? date('d/m/Y', $firstenroll) : '' ; // from date
+	$firstlogin = $DB->get_field_select('log', 'MIN(time)', " userid = ? AND action = 'login' ", array($user->id));
+	$resultset[] = ($firstlogin) ? date('d/m/Y', $firstlogin) : '' ; // firstlogin
+	$lastlogin = $DB->get_field_select('log', 'MAX(time)', " userid = ? AND action = 'login' ", array($user->id));
+	$resultset[] = ($lastlogin) ? date('d/m/Y', $lastlogin) : '' ; // firstlogin
+	$resultset[] = date('d/m/Y', $from); // from date
+	$resultset[] = date('d/m/Y', $to); // to date
+	$resultset[] = date('d/m/Y', $to - DAYSECS * 7); // last week of period
+	$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname))), 'ISO-8859-1', 'UTF-8');
+	$namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
+	$namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
+	$namestr = mb_ereg_replace('/ç/', 'C', $namestr);
+	$namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
+	$namestr = mb_ereg_replace('/î/', 'I', $namestr);
+	$resultset[] = $namestr;
+	$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname))), 'ISO-8859-1', 'UTF-8');
+	$namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
+	$namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
+	$namestr = mb_ereg_replace('/ç/', 'C', $namestr);
+	$namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
+	$namestr = mb_ereg_replace('/î/', 'I', $namestr);
+	$resultset[] = $namestr;
+
+    $resultset[] = raw_format_duration(@$data->elapsed); // elapsed time
+    $resultset[] = raw_format_duration(@$data->weekelapsed); // elapsed time this week
+
+    // $context = context_course::instance($courseid);
+	// $roles = get_user_roles_in_context($userid, $context);
+	// $resultset[] = $roles;
+
+	$rawstr .= mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
+}
+
+function raw_format_duration($secs){
+	$min = floor($secs / 60);
+	$hours = floor($min / 60);
+	$days = floor($hours / 24);
+
+	$hours = $hours - $days * 24;
+	$min = $min - ($days * 24 * 60 + $hours * 60);
+	$secs = $secs - ($days * 24 * 60 * 60 + $hours * 60 * 60 + $min * 60);
+	
+	if ($days){	
+		return $days.' '.get_string('days')." $hours ".get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
+	}
+	if ($hours){	
+		return $hours.' '.get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
+	}
+	if ($min){	
+		return $min.' '.get_string('min')." $secs ".get_string('secs');
+	}
+	return $secs.' '.get_string('secs');
+}
+
 
 /**
 *

@@ -101,6 +101,8 @@ $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
 $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail : ';
+$string['csvoutputtoiso'] = 'CSV au format ISO';
+$string['csvoutputtoiso_desc'] = 'Si activé, le rapport brut de cours sortira au format ISO-8859-1 pour les applications anciennes.';
 
 $string['activitytime_help'] = 'Ce temps comptabilise les temps passés dans les "activités" du cours, à l\'exception des temps
 	d\'usage passés dans les espaces communs du cours. Il peut prendre en compte dans certains cas

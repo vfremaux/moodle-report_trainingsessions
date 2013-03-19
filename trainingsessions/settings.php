@@ -15,18 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version info
+ * Report settings
  *
  * @package    report
- * @subpackage trainingsessions
+ * @subpackage courseoverview
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2013031900; // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2012120300; // Requires this Moodle version
-$plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity = MATURITY_STABLE; 
-$plugin->release = '2.4.0 (build 2013031900)';
+// no report settings
+	$yesnoopts = array(0 => get_string('no'), 1 => get_string('yes'));
+	$settings->add(new admin_setting_configselect('report_trainingsessions_csv_iso', get_string('csvoutputtoiso', 'report_trainingsessions'), get_string('csvoutputtoiso_desc', 'report_trainingsessions'), 0, $yesnoopts));
+

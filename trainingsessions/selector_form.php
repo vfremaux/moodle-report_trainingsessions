@@ -44,7 +44,7 @@ class SelectorForm extends moodleform{
 		        $useroptions = array();
 		        foreach($users as $user){
 		        	if (has_capability('report/trainingsessions:iscompiled', $context, $user->id)){
-			           $useroptions[$user->id] = fullname($user);
+			           $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
 			       }
 		        }
 		        $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);

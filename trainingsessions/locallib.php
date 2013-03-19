@@ -1071,14 +1071,22 @@ function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$r
 	$resultset[] = date('d/m/Y', $from); // from date
 	$resultset[] = date('d/m/Y', $to); // to date
 	$resultset[] = date('d/m/Y', $to - DAYSECS * 7); // last week of period
-	$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname))), 'ISO-8859-1', 'UTF-8');
+	if (!empty($CFG->report_trainingsessions_csv_iso)){
+		$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname))), 'ISO-8859-1', 'UTF-8');
+	} else {
+		$namestr = strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname)));
+	}
 	$namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
 	$namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
 	$namestr = mb_ereg_replace('/ç/', 'C', $namestr);
 	$namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
 	$namestr = mb_ereg_replace('/î/', 'I', $namestr);
 	$resultset[] = $namestr;
-	$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname))), 'ISO-8859-1', 'UTF-8');
+	if (!empty($CFG->report_trainingsessions_csv_iso)){
+		$namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname))), 'ISO-8859-1', 'UTF-8');
+	} else {
+		$namestr = strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname)));
+	}
 	$namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
 	$namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
 	$namestr = mb_ereg_replace('/ç/', 'C', $namestr);
@@ -1093,7 +1101,11 @@ function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$r
 	// $roles = get_user_roles_in_context($userid, $context);
 	// $resultset[] = $roles;
 
-	$rawstr .= mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
+	if (!empty($CFG->report_trainingsessions_csv_iso)){
+		$rawstr .= mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
+	} else {
+		$rawstr .= implode(';', $resultset)."\n";
+	}
 }
 
 function raw_format_duration($secs){

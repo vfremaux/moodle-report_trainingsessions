@@ -25,6 +25,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
     $selform = new SelectorForm($id, 'courseraw');
     if ($data = $selform->get_data()){
 	} else {
+		$data = new StdClass;
 		$data->from = optional_param('from', -1, PARAM_NUMBER);
 		$data->to = optional_param('to', time(), PARAM_INT);
 		$data->groupid = optional_param('groupid', $USER->id, PARAM_INT);
@@ -111,6 +112,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
     
             $logusers = $auser->id;
 		    echo "Compiling for ".fullname($auser).'<br/>';
+		    $globalresults = new StdClass;
 	        $globalresults->elapsed = 0;
 	        if (isset($aggregate[$userid])){
 		        foreach($aggregate[$userid] as $classname => $classarray){

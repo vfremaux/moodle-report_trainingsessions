@@ -17,6 +17,7 @@
     $selform = new SelectorForm($id, 'course');
     if ($data = $selform->get_data()){
 	} else {
+		$data = new StdClass;
 		$data->from = optional_param('from', -1, PARAM_NUMBER);
 		$data->userid = optional_param('userid', $USER->id, PARAM_INT);
 		$data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
@@ -90,6 +91,8 @@
                 $logusers = $auser->id;
                 $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
                 $aggregate = use_stats_aggregate_logs($logs, 'module');
+				
+				if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
 
                 $data->items = $items;
                 $data->done = 0;
@@ -158,6 +161,8 @@
             $logusers = $auser->id;
             $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
             $aggregate = use_stats_aggregate_logs($logs, 'module');
+
+			if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
             
             $overall = training_reports_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
             $data->items = $items;
@@ -167,7 +172,7 @@
             training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);    
 
 	        $worksheet = training_reports_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-	        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
+	        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $xls_formats);
 	        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
 
         }

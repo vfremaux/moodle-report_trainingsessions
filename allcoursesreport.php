@@ -17,6 +17,7 @@
 
     if ($data = $selform->get_data()){
 	} else {
+		$data = new StdClass;
 		$data->from = optional_param('from', -1, PARAM_NUMBER);
 		$data->userid = optional_param('userid', $USER->id, PARAM_INT);
 		$data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
@@ -49,6 +50,8 @@
     $logs = use_stats_extract_logs($data->from, time(), $userid, null);
     $aggregate = use_stats_aggregate_logs($logs, 'module');
     
+    if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
+    
 // print result
 
     if ($data->output == 'html'){
@@ -60,6 +63,7 @@
         
         $str = '';
         $dataobject = training_reports_print_allcourses_html($str, $aggregate);
+        $dataobject->course = new StdClass;
 		$dataobject->sessions = count(@$aggregate['sessions']);
 		
         // fix global course times
@@ -110,7 +114,7 @@
         training_reports_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
 
         $worksheet = training_reports_init_worksheet($userid, $startrow, $xls_formats, $workbook, 'sessions');
-        training_reports_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
+        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $xls_formats);
         training_reports_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
 
         $workbook->close();

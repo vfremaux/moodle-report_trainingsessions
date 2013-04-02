@@ -25,6 +25,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
     $selform = new SelectorForm($id, 'courseraw');
     if ($data = $selform->get_data()){
 	} else {
+		$data = new StdClass;
 		$data->from = optional_param('from', -1, PARAM_NUMBER);
 		$data->to = optional_param('to', time(), PARAM_INT);
 		$data->groupid = optional_param('groupid', $USER->id, PARAM_INT);
@@ -94,23 +95,28 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
         $rawstr = '';
 		$resultset[] = get_string('group'); // groupname
 		$resultset[] = get_string('idnumber'); // userid
-		$resultset[] = get_string('lastname'); // user name 
-		$resultset[] = get_string('firstname'); // user name 
 		$resultset[] = get_string('firstenrolldate', 'report_trainingsessions'); // enrol start date
 		$resultset[] = get_string('firstaccess'); // fist trace
 		$resultset[] = get_string('lastaccess'); // last trace
 		$resultset[] = get_string('startdate', 'report_trainingsessions'); // compile start date
 		$resultset[] = get_string('todate', 'report_trainingsessions'); // compile end date
 		$resultset[] = get_string('weekstartdate', 'report_trainingsessions'); // last week start date 
+		$resultset[] = get_string('lastname'); // user name 
+		$resultset[] = get_string('firstname'); // user name 
 	    $resultset[] = get_string('timeelapsed', 'report_trainingsessions');
 	    $resultset[] = get_string('timeelapsedcurweek', 'report_trainingsessions');
 
-		$rawstr = mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
+		if (!empty($CFG->report_trainingsessions_csv_iso)){
+			$rawstr = mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
+		} else {
+			$rawstr = implode(';', $resultset)."\n";
+		}
 		
         foreach($compiledusers as $userid => $auser){
     
             $logusers = $auser->id;
 		    echo "Compiling for ".fullname($auser).'<br/>';
+		    $globalresults = new StdClass;
 	        $globalresults->elapsed = 0;
 	        if (isset($aggregate[$userid])){
 		        foreach($aggregate[$userid] as $classname => $classarray){

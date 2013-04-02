@@ -36,7 +36,7 @@ $string['course'] = 'Formation';
 $string['courseglobals'] = 'Espaces généraux du cours';
 $string['coursename'] = 'Nom du groupe';
 $string['courseraw'] = 'Formation (résumé brut)';
-$string['done'] = 'Réalisé : ';
+$string['done'] = 'Visité : ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps total';
 $string['enddate'] = 'Date de fin';
@@ -80,6 +80,8 @@ $string['timeelapsedcurweek'] = 'Temps de la semaine';
 $string['timeperpart'] = 'Temps par partie';
 $string['totalduration'] = 'Durée totale par séquence';
 $string['totalsessions'] = 'Temps en session total';
+$string['totalsessiontime'] = 'Temps total en session';
+$string['totalsessiontime_help'] = 'Notez que le calcul de temps de session peut tenir compte de temps hors de ce cours. Le temps total en session sera normalement supérieur au temps mesurés dans ce cours.';
 $string['trainingreports'] = 'Rapports de Formation';
 $string['trainingsessions'] = 'Rapports de session';
 $string['trainingsessions:view'] = 'Consulter le rapport des sessions de formation';
@@ -99,6 +101,8 @@ $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
 $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail : ';
+$string['csvoutputtoiso'] = 'CSV au format ISO';
+$string['csvoutputtoiso_desc'] = 'Si activé, le rapport brut de cours sortira au format ISO-8859-1 pour les applications anciennes.';
 
 $string['activitytime_help'] = 'Ce temps comptabilise les temps passés dans les "activités" du cours, à l\'exception des temps
 	d\'usage passés dans les espaces communs du cours. Il peut prendre en compte dans certains cas

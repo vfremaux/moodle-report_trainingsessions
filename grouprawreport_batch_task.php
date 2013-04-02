@@ -31,10 +31,10 @@
 
     ini_set('memory_limit', '512M');
 
-    if (!$course = get_record('course', 'id', $id)){
+    if (!$course = $DB->get_record('course', array('id' => $id))){
     	die ('Invalid course ID');
     }
-    $context = get_context_instance(CONTEXT_COURSE, $course->id);
+    $context = context_course::instance($course->id);
 
     $coursestructure = reports_get_course_structure($course->id, $items);
 
@@ -66,7 +66,7 @@
     
 // compute target group
 
-	$group = get_record('groups', 'id', $groupid);
+	$group = $DB->get_record('groups', array('id' => $groupid));
 
     $targetusers = groups_get_members($groupid);
 

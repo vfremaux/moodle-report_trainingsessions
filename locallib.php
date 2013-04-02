@@ -555,7 +555,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
     echo '<br/>';
 
     echo get_string('workingsessions', 'report_trainingsessions');
-    echo 0 + $data->sessions;
+    echo 0 + @$data->sessions;
     if (@$data->sessions == 0 && (@$completedwidth > 0)){
 		echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
 	}

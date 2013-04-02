@@ -137,5 +137,3 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
         // debug_close_trace();
 
     }
-
-?>

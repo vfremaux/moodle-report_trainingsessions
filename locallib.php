@@ -291,6 +291,7 @@ function training_reports_print_allcourses_html(&$str, &$aggregate){
 	$output = array();
 	$courses = array();
 	$courseids = array();
+	$return = new StdClass;
 	$return->elapsed = 0;
 	if (!empty($aggregate['coursetotal'])){	
 		foreach($aggregate['coursetotal'] as $cid => $cdata){
@@ -299,8 +300,8 @@ function training_reports_print_allcourses_html(&$str, &$aggregate){
 					$courses[$cid] = $DB->get_record('course', array('id' =>  $cid), 'id,idnumber,shortname,fullname,category');
 					$courseids[$cid] = '';
 				}
-				$output[$courses[$cid]->category][$cid] = $cdata;
-				$catids[$courses[$cid]->category] = '';
+				@$output[$courses[$cid]->category][$cid] = $cdata;
+				@$catids[$courses[$cid]->category] = '';
 			} else {
 				// echo "ignoring hidden $cdata->elapsed ";
 				$output[0][SITEID]->elapsed += $cdata->elapsed;
@@ -377,6 +378,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
 
     // initiates a blank dataobject
     if (!isset($dataobject)){
+    	$dataobject = new StdClass;
         $dataobject->elapsed = 0;
         $dataobject->events = 0;
     }
@@ -495,6 +497,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
                 
     }
     
+    // print roles list
     $context = context_course::instance($courseid);
     echo '<br/>';
     print_string('roles');
@@ -512,7 +515,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 
 	if($withcompletion){
 	    // print completion bar
-	    if ($data->items){
+	    if (!empty($data->items)){
 	        $completed = $data->done / $data->items;
 	    } else {
 	        $completed = 0;
@@ -619,7 +622,7 @@ function training_reports_print_session_list(&$str, $sessions){
 		$totalelapsed += $s->elapsed;
 	}
 	$str .= '<tr valign="top">';
-	$str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').'</b></td>';
+	$str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
 	$str .= '<td></td>';
 	$str .= '<td><br/>'.format_time($totalelapsed).'</td>';
 	$str .= '</tr>';
@@ -695,7 +698,7 @@ function training_reports_print_header_xls(&$worksheet, $userid, $courseid, $dat
     if (!empty($usergroups)){
         foreach($usergroups as $group){
             $str = $group->name;        
-            if ($group->id == groups_get_course_group($courseid)){
+            if ($group->id == groups_get_course_group($course)){
                 $str = "[$str]";
             }
             $groupnames[] = $str;
@@ -753,6 +756,7 @@ function training_reports_print_xls(&$worksheet, &$structure, &$aggregate, &$don
 
     // makes a blank dataobject.
     if (!isset($dataobject)){
+    	$dataobject = new StdClass;
         $dataobject->elapsed = 0;
         $dataobject->events = 0;
     }
@@ -825,6 +829,7 @@ function training_reports_print_xls(&$worksheet, &$structure, &$aggregate, &$don
 * zd : date format
 */
 function training_reports_xls_formats(&$workbook){
+	$xls_formats = array();
     $xls_formats['t'] =& $workbook->add_format();
     $xls_formats['t']->set_size(20);
     $xls_formats['tt'] =& $workbook->add_format();
@@ -930,13 +935,13 @@ function training_reports_print_sessions_xls(&$worksheet, $row, &$sessions, &$xl
 	
 	if (!empty($sessions)){
 		foreach($sessions as $s){
-		    $worksheet->write_number($row, 0, training_reports_format_time($s->sessionstart, 'xls'), $xls_formats['zd']);	
+		    $worksheet->write_number($row, 0, training_reports_format_time(@$s->sessionstart, 'xls'), $xls_formats['zd']);	
 		    if (!empty($s->sessionend)){
-			    $worksheet->write_number($row, 1, training_reports_format_time($s->sessionend, 'xls'), $xls_formats['zd']);	
+			    $worksheet->write_number($row, 1, training_reports_format_time(@$s->sessionend, 'xls'), $xls_formats['zd']);	
 			}
-		    $worksheet->write_string($row, 2, format_time($s->elapsed), $xls_formats['tt']);	
-		    $worksheet->write_number($row, 3, training_reports_format_time($s->elapsed, 'xls'), $xls_formats['zt']);	
-		    $totalelapsed += $s->elapsed;
+		    $worksheet->write_string($row, 2, format_time(0 + @$s->elapsed), $xls_formats['tt']);	
+		    $worksheet->write_number($row, 3, training_reports_format_time(0 + @$s->elapsed, 'xls'), $xls_formats['zt']);	
+		    $totalelapsed += 0 + @$s->elapsed;
 		    $row++;
 		}	
 	}
@@ -955,6 +960,7 @@ function training_reports_print_allcourses_xls(&$worksheet, &$aggregate, $row, &
 	$output = array();
 	$courses = array();
 	$courseids = array();
+	$return = new StdClass;
 	$return->elapsed = 0;
 	$return->events = 0;
 	if (!empty($aggregate['coursetotal'])){	

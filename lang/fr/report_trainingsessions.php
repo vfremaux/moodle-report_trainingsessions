@@ -39,6 +39,7 @@ $string['courseraw'] = 'Formation (résumé brut)';
 $string['done'] = 'Visité : ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps total';
+$string['elapsedadvice'] = 'Les durées calculées peuvent être différentes de la période de session en fonction des corrections apportées sur les ruptures de session. Voir le paramétrage du bloc "Mesures d\'activité".';
 $string['enddate'] = 'Date de fin';
 $string['equlearningtime'] = 'Temps équivalent de formation : ';
 $string['errorcoursetoolarge'] = 'Le cours a trop de participants. Choix forcé d\'un groupe';
@@ -58,6 +59,7 @@ $string['lastname'] = 'Nom';
 $string['nodata'] = 'Aucune donnée de cours';
 $string['nopermissiontoview'] = 'Vous n\'avez pas les permissions nécessaires dans ce cours pour voir ces données';
 $string['nosessions'] = 'Aucune session disponible';
+$string['nothing'] = 'Aucune donnée';
 $string['nostructure'] = 'Pas de structure mesurable identifiée';
 $string['outofstructure'] = 'Autres temps du cours';
 $string['outofgroup'] = 'Hors groupe';
@@ -73,6 +75,7 @@ $string['selectforreport'] = 'Inclure dans les rapports';
 $string['sessionend'] = 'fin de session';
 $string['sessionreports'] = 'Rapports de formation individuel';
 $string['sessions'] = 'Sessions de travail (au réel plateforme)';
+$string['coursesessions'] = 'Sessions de travail dans le cours (au réel plate-forme)';
 $string['sessionstart'] = 'Début de session';
 $string['startdate'] = 'Date de début';
 $string['timeelapsed'] = 'Temps';
@@ -106,19 +109,19 @@ $string['csvoutputtoiso_desc'] = 'Si activé, le rapport brut de cours sortira a
 
 $string['activitytime_help'] = 'Ce temps comptabilise les temps passés dans les "activités" du cours, à l\'exception des temps
 	d\'usage passés dans les espaces communs du cours. Il peut prendre en compte dans certains cas
-	(utilisation du module Checklist "amélioré" avec prise en charge des temps forfaitaires -- 
-	http://github.com/vfremaux/moodle-mod_checklist.git), les
+	(utilisation du module Learning Time Check -- 
+	http://github.com/vfremaux/moodle-mod_learningtimecheck.git), les
 	temps forfaitisés associés aux activités plutot que les temps mesurés sur les traces.';
 
 $string['equlearningtime_help'] = '
 <p>Le temps équivalent de formation tient compte de tous les temps passés dans le cours
-	y compris les temps forfaitaires fournis par le module Checklist modifié 
-	(http://github.com/vfremaux/moodle-mod_checklist.git).</p>
+	y compris les temps forfaitaires fournis par le module Learning Time Check
+	(http://github.com/vfremaux/moodle-mod_learningtimecheck.git).</p>
 ';
 
-$string['checklistadvice_help'] = '
-<p>Si une "liste de suivi" (module non standard) est utilisée dans le cours pour marquer les
-	accomplissments, certaines ativités peuvent être validées par les enseignants sans aucune
+$string['learningtimecheckadvice_help'] = '
+<p>Si une "liste de suivi des temps pédagogiques" (module non standard) est utilisée dans le cours pour marquer les
+	accomplissements, certaines ativités peuvent être validées par les enseignants sans aucune
 	interaction préalable de l\'étudiant dans le cours (et donc sans traces).</p>
 <p>Ceci est une situation possible et normale et le rapport affiche des informations "justes"
 	dans ses différents indicateurs d\'usage.</p>

@@ -58,6 +58,8 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
 // print result
 
     if ($data->output == 'html'){
+
+    	require_once('htmlrenderers.php');
         // time period form
 
         echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
@@ -86,6 +88,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
 		$dataobject->sessions = (!empty($aggregate['sessions'])) ? count(@$aggregate['sessions']) - 1 : 0 ;
 		if (array_key_exists('upload', $aggregate)){
 	        $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
+	        $dataobject->upload = new StdClass;
 			$dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
 			$dataobject->upload->hits = 0 + @$aggregate['upload'][0]->events;
 		}
@@ -93,7 +96,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
 
         training_reports_print_header_html($data->userid, $course->id, $dataobject);
                 
-        training_reports_print_session_list($str, @$aggregate['sessions']);
+        training_reports_print_session_list($str, @$aggregate['sessions'], $course->id);
         
         echo $str;
 
@@ -104,6 +107,8 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
         echo '<br/>';
 
     } else {
+    	require_once('xlsrenderers.php');
+
         // $CFG->trace = 'x_temp/xlsreport.log';
         // debug_open_trace();
         require_once $CFG->libdir.'/excellib.class.php';
@@ -129,7 +134,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
         training_reports_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
 
         $worksheet = training_reports_init_worksheet($data->userid, $startrow, $xls_formats, $workbook, 'sessions');
-        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $xls_formats);
+        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $course->id, $xls_formats);
         training_reports_print_header_xls($worksheet, $data->userid, $course->id, $data, $xls_formats);
 
         $workbook->close();

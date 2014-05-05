@@ -40,6 +40,7 @@ $string['courseraw'] = 'Course Raw';
 $string['done'] = 'Visited: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total time';
+$string['elapsedadvice'] = 'Elapsed time can be different from sesion time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
 $string['enddate'] = 'End date';
 $string['equlearningtime'] = 'Equivalent training time: ';
 $string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
@@ -63,6 +64,7 @@ $string['nodata'] = 'No course data';
 $string['nopermissiontoview'] = 'You have not enough permissions in this course to view this information.';
 $string['nosessions'] = 'No measurable session data';
 $string['nostructure'] = 'No measurable course structure detected';
+$string['nothing'] = 'Nothing';
 $string['outofstructure'] = 'Time spent out of structure';
 $string['outofgroup'] = 'Out of group';
 $string['over'] = 'over';
@@ -76,6 +78,7 @@ $string['selectforreport'] = 'Include in reports';
 $string['sessionend'] = 'Session end';
 $string['sessionreports'] = 'User session report';
 $string['sessions'] = 'Working sessions (real guessed times)';
+$string['coursesessions'] = 'Working sessions in course (real guessed times)';
 $string['sessionstart'] = 'Session start';
 $string['startdate'] = 'Start date';
 $string['timeelapsed'] = 'Time spent';
@@ -108,18 +111,18 @@ $string['csvoutputtoiso_desc'] = 'If enabled, the course raw report will be gene
 
 $string['activitytime_help'] = '
 <p>This time calculation considers all use time spent in course activities, letting course 
-	layout times out of calculation. In certain cases (when using the (reworked) Checklist with
-	standard time allocation (http://github.com/vfremaux/moodle-mod_checklist.git), additional 
+	layout times out of calculation. In certain cases (when using the Learning Time Check (non standard) with
+	standard time allocation (http://github.com/vfremaux/moodle-mod_learningtimecheck.git), additional 
 	standard time are used rather than real extracted times from log.</p>
 ';
 
 $string['equlearningtime_help'] = '
 <p>Equivalent learning time summarizes all time spent in course, including standard allocation times if
-	the reworked Checklist is used (http://github.com/vfremaux/moodle-mod_checklist.git).</p>
+	the Learning Time Check checklist module is used (http://github.com/vfremaux/moodle-mod_learningtimecheck.git).</p>
 ';
 
-$string['checklistadvice_help'] = '
-<p>When using a checklist module that enables teachers to validate activities without
+$string['learningtimecheckadvice_help'] = '
+<p>When using a Learning Time Check module that enables teachers to validate activities without
 any student interaction in the course, some apparent information discrepancy may appear.</p>
 <p>This is a normal situation that reports consistant information regarding the effective
 	use of the platform</p>

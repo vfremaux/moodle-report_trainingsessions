@@ -58,6 +58,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
         	// in that case we need force groupid to some value
         	
         	if (count($targetusers) > 100) $OUTPUT->notification(get_string('errorcoursetoolarge', 'report_trainingsessions'));
+			/*
         	if ($allgroups = groups_get_all_groups($COURSE->id, $USER->id, 0, 'd.id,d.name')){
         		$allgroupids = array_keys($allgroups);
 	        	$data->groupid = $allgroupids[0];
@@ -67,6 +68,7 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
 				echo $OUTPUT->footer($course);
 				die;
 			}
+			*/
         	$targetusers = groups_get_members($data->groupid);
         }
     }
@@ -95,14 +97,14 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
         $rawstr = '';
 		$resultset[] = get_string('group'); // groupname
 		$resultset[] = get_string('idnumber'); // userid
+		$resultset[] = get_string('lastname'); // user name 
+		$resultset[] = get_string('firstname'); // user name 
 		$resultset[] = get_string('firstenrolldate', 'report_trainingsessions'); // enrol start date
 		$resultset[] = get_string('firstaccess'); // fist trace
 		$resultset[] = get_string('lastaccess'); // last trace
 		$resultset[] = get_string('startdate', 'report_trainingsessions'); // compile start date
 		$resultset[] = get_string('todate', 'report_trainingsessions'); // compile end date
 		$resultset[] = get_string('weekstartdate', 'report_trainingsessions'); // last week start date 
-		$resultset[] = get_string('lastname'); // user name 
-		$resultset[] = get_string('firstname'); // user name 
 	    $resultset[] = get_string('timeelapsed', 'report_trainingsessions');
 	    $resultset[] = get_string('timeelapsedcurweek', 'report_trainingsessions');
 
@@ -161,4 +163,3 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
     	print_string('nothing', 'report_trainingsessions');
     }
     
-?>

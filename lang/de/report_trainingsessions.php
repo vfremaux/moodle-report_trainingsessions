@@ -106,18 +106,18 @@ $string['workingsessions'] = 'Work sessions: ';
 
 $string['activitytime_help'] = '
 <p>This time calculation considers all use time spent in course activities, letting course 
-	layout times out of calculation. In certain cases (when using the (reworked) Checklist with
-	standard time allocation (http://github.com/vfremaux/moodle-mod_checklist.git), additional 
+	layout times out of calculation. In certain cases (when using the Learning Time Check with
+	standard time allocation (http://github.com/vfremaux/moodle-mod_learningtimecheck.git), additional 
 	standard time are used rather than real extracted times from log.</p>
 ';
 
 $string['equlearningtime_help'] = '
 <p>Equivalent learning time summarizes all time spent in course, including standard allocation times if
-	the reworked Checklist is used (http://github.com/vfremaux/moodle-mod_checklist.git).</p>
+	the Learning Time Check is used (http://github.com/vfremaux/moodle-mod_learningtimecheck.git).</p>
 ';
 
-$string['checklistadvice_help'] = '
-<p>When using a checklist module that enables teachers to validate activities without
+$string['learningtimecheckadvice_help'] = '
+<p>When using a Learning Time Check module that enables teachers to validate activities without
 any student interaction in the course, some apparent information discrepancy may appear.</p>
 <p>This is a normal situation that reports consistant information regarding the effective
 	use of the platform</p>

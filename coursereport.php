@@ -83,6 +83,8 @@
 
     if ($data->output == 'html'){
 
+    	require_once('htmlrenderers.php');
+
         echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
         if (!empty($compiledusers)){
@@ -133,6 +135,7 @@
     } else {
 
     	require_once($CFG->libdir.'/excellib.class.php');
+    	require_once('xlsrenderers.php');
 
         /// generate XLS
 

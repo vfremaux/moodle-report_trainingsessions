@@ -40,3 +40,8 @@ table * td {
 .reportdetails{
     font-size:0.85em;
 }
+
+.trainingreport.subs,
+.sessionreport{
+    width:100%;
+}

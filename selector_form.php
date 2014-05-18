@@ -23,8 +23,13 @@ class SelectorForm extends moodleform{
         $mform = $this->_form;
         
         $mform->addElement('hidden', 'id', $this->courseid);
+        $mform->setType('id', PARAM_INT);
+
         $mform->addElement('hidden', 'view', $this->mode);
+        $mform->setType('view', PARAM_INT);
+
         $mform->addElement('hidden', 'output', 'html');
+        $mform->setType('output', PARAM_INT);
         
         $dateparms = array(
 		    'startyear' => 2008, 
@@ -37,15 +42,27 @@ class SelectorForm extends moodleform{
 	
         $context = context_course::instance($this->courseid);
         
+        $allgroupaccess = has_capability('moodle/site:accessallgroups', $context, $USER->id);
+        $mygroups = groups_get_my_groups();
+        
         if ($this->mode == 'user' || $this->mode == 'allcourses'){
         
 	        if (has_capability('report/trainingsessions:viewother', $context)){
 		        $users = get_enrolled_users($context);
 		        $useroptions = array();
+
 		        foreach($users as $user){
-		        	if (has_capability('report/trainingsessions:iscompiled', $context, $user->id)){
-			           $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
-			       }
+		        	if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) continue;
+		        	
+		        	if (!$allgroupaccess){
+		        		$keep = false;
+		        		foreach($mygroups as $g){ // is the user in my groups ?
+			        		if (groups_is_member($g->id, $user->id)) $keep = true;
+			        	}
+			        	if (!$keep) continue;
+		        	}
+
+		            $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
 		        }
 		        $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);
 		
@@ -55,11 +72,13 @@ class SelectorForm extends moodleform{
 			$groups = groups_get_all_groups($this->courseid);
 
 			$groupoptions = array();
-			if (has_capability('moodle/site:accessallgroups', $context, $USER->id)){
+			if ($allgroupaccess){
 				$groupoptions[0] = get_string('allgroups');
 			}
 			foreach($groups as $g){
-				$groupoptions[$g->id] = $g->name;
+				if ($allgroupaccess || groups_is_member($g->id, $USER->id)){
+					$groupoptions[$g->id] = $g->name;
+				}
 			}
 	        $group[] = & $mform->createElement('select', 'groupid', get_string('group'), $groupoptions);
 	

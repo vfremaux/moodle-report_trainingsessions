@@ -39,8 +39,10 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
     }
 
 	if ($data->output == 'html'){
+		echo $OUTPUT->box_start('block');
 	    $selform->set_data($data);
 	    $selform->display();
+		echo $OUTPUT->box_end();
 	}
 
 // get data
@@ -78,13 +80,27 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
         */
 
         if ($dataobject->done > $items) $dataobject->done = $items;
+        
+        // in-activity 
 
-        // fix global course times
+        $dataobject->activityelapsed = @$aggregate['activities'][$COURSE->id]->elapsed;
+        $dataobject->activityhits = @$aggregate['activities'][$COURSE->id]->events;
+        
         $dataobject->course = new StdClass;
-        $dataobject->activityelapsed = @$aggregate['activities']->elapsed;
-        $dataobject->elapsed += @$aggregate['course'][0]->elapsed;
-		$dataobject->course->elapsed = 0 + @$aggregate['course'][0]->elapsed;
-		$dataobject->course->hits = 0 + @$aggregate['course'][0]->events;
+		// calculate in-course-out-activities
+		$dataobject->course->elapsed = 0;
+		$dataobject->course->hits = 0;
+		if (!empty($aggregate['course'])){
+	        foreach($aggregate['course'] as $citemid => $courselevel){
+				$dataobject->course->elapsed = 0 + @$dataobject->course->elapsed + @$aggregate['course'][$citemid]->elapsed;
+				$dataobject->course->hits = 0 + @$dataobject->course->hits + @$aggregate['course'][$citemid]->events;
+	        }
+	    }
+
+		// calculate everything        
+        $dataobject->elapsed += $dataobject->course->elapsed;
+        $dataobject->hits = $dataobject->activityhits + $dataobject->course->hits;
+
 		$dataobject->sessions = (!empty($aggregate['sessions'])) ? count(@$aggregate['sessions']) - 1 : 0 ;
 		if (array_key_exists('upload', $aggregate)){
 	        $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;

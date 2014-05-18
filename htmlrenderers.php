@@ -85,7 +85,7 @@ function training_reports_print_allcourses_html(&$str, &$aggregate){
 */
 function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 1){
 	global $CFG, $COURSE;
-
+	
     if (isset($CFG->block_use_stats_ignoremodules)){
         $ignoremodulelist = explode(',', $CFG->block_use_stats_ignoremodules);
     } else {
@@ -122,24 +122,24 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
             if (!empty($structure->name)){
                 $nodestr .= "<table class=\"sessionreport level$level\">";
                 $nodestr .= "<tr class=\"sessionlevel{$level}\" valign=\"top\">";
-                $nodestr .= "<td class=\"sessionitem item\">";
+                $nodestr .= "<td class=\"sessionitem item\" width=\"40%\">";
                 $nodestr .= $indent;
                 if (debugging()){
                     $nodestr .= '['.$structure->type.'] ';
                 }
                 $nodestr .= shorten_text($structure->name, 85);
                 $nodestr .= '</td>';
-                $nodestr .= "<td class=\"sessionitem rangedate\">";
+                $nodestr .= "<td class=\"sessionitem rangedate\" width=\"20%\">";
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])){
                 	$nodestr .= date('Y/m/d h:i', 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess));
             	}
                 $nodestr .= '</td>';
-                $nodestr .= "<td class=\"sessionitem rangedate\">";
+                $nodestr .= "<td class=\"sessionitem rangedate\" width=\"20%\">";
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])){
                 	$nodestr .= date('Y/m/d h:i', 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess));
             	}
                 $nodestr .= '</td>';
-                $nodestr .= "<td class=\"reportvalue rangedate\" align=\"right\">";
+                $nodestr .= "<td class=\"reportvalue rangedate\" align=\"right\" width=\"20%\">";
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])){
                     $done++;
                     $dataobject = $aggregate[$structure->type][$structure->id];
@@ -183,6 +183,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
                 $str .= "<table class=\"trainingreport subs\">";
                 $str .= "<tr valign=\"top\">";
                 $str .= "<td colspan=\"2\">";
+                $str .= '<br/>';
                 $str .= $suboutput;
                 $str .= '</td>';
                 $str .= '</tr>';
@@ -206,21 +207,21 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
     $course = $DB->get_record('course', array('id' => $courseid));
     
     echo "<center>";
-    echo "<div style=\"width:80%;text-align:left;padding:3px;\" class=\"userinfobox\">";
+    echo "<div class=\"report-trainingsession userinfobox\">";
 
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
     echo '<h1>';
     echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));    
-    echo fullname($user).'</h1>';
+    echo '&nbsp;&nbsp;&nbsp;'.fullname($user).'</h1>';
 
     // print group status
     if (!empty($usergroups)){
-        print_string('groups');
-        echo ' : ';
+        echo '<b>'.get_string('groups');
+        echo ':</b> ';
         foreach($usergroups as $group){
             $str = $group->name;        
             if ($group->id == get_current_group($courseid)){
-                $str = "<b>$str</b>";
+                $str = "$str";
             }
             $groupnames[] = $str;
         }
@@ -231,9 +232,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
     // print roles list
     $context = context_course::instance($courseid);
 	$roles = role_fix_names(get_all_roles(), context_system::instance(), ROLENAME_ORIGINAL);
-    echo '<br/>';
-    print_string('roles');
-    echo ' : ';
+    echo '<br/><b>'.get_string('roles').':</b> ';
     $userroles = get_user_roles($context, $userid);
     $uroles = array();
     
@@ -260,7 +259,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
 	    $remainingwidth = floor(500 * $remaining);
 	
 	    echo '<p class="completionbar">';
-	    print_string('done', 'report_trainingsessions');
+	    echo '<b>'.get_string('done', 'report_trainingsessions').'</b>';
 	    
 	    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
 	    echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
@@ -270,23 +269,23 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
     
     if (!$short){
 
-        echo '<br/>';
+        echo '<br/><b>';
         echo get_string('equlearningtime', 'report_trainingsessions');
-        echo training_reports_format_time(0 + @$data->elapsed, 'html');
-        echo ' ('.(0 + @$data->events).')';
+        echo ':</b> '.training_reports_format_time(0 + @$data->elapsed, 'html');
+        echo ' ('.(0 + @$data->hits).')';
 		echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
-        echo '<br/>';
+        echo '<br/><b>';
         echo get_string('activitytime', 'report_trainingsessions');
-        echo training_reports_format_time(0 + @$data->activityelapsed, 'html');
+        echo ':</b> '.training_reports_format_time(0 + @$data->activityelapsed, 'html');
 		echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
     
         // plug here specific details
     }    
-    echo '<br/>';
+    echo '<br/><b>';
 
     echo get_string('workingsessions', 'report_trainingsessions');
-    echo 0 + $data->sessions;
+    echo ':</b> '.(0 + @$data->sessions);
     if (@$data->sessions == 0 && (@$completedwidth > 0)){
 		echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
 	}

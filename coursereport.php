@@ -34,22 +34,42 @@
     }
 
 	if ($data->output == 'html'){
+		echo $OUTPUT->box_start('block');
 	    $selform->set_data($data);
 	    $selform->display();
+		echo $OUTPUT->box_end();
 	}
     
 // compute target group
 
-	if ($allowedgroups = groups_get_all_groups($COURSE->id, $USER->id, 0, 'g.id,g.name')){
-		$allowedgroupids = array_keys($allgroups);
+	$allgroupsaccess = has_capability('moodle/site:accessallgroups', $context);
+
+	if (!$allgroupsaccess){
+		$mygroups = groups_get_my_groups();
+
+		$allowedgroupids = array();
+		if ($mygroups){
+			foreach($mygroups as $g){
+				$allowedgroupids[] = $g->id;
+			}
+			if (empty($data->groupid) || !in_array($data->groupid, $allowedgroupids)){
+				$data->groupid = $allowedgroupids[0];
+			}
+		} else {
+			echo $OUTPUT->notification(get_string('errornotingroups', 'report_trainingsessions'));
+			echo $OUTPUT->footer($course);
+			die;
+		}
+	} else {
+		if ($allowedgroups = groups_get_all_groups($COURSE->id, $USER->id, 0, 'g.id,g.name')){
+			$allowedgroupids = array_keys($allowedgroups);
+		}
 	}
 
-    $targetusers = get_enrolled_users($context, '', $data->groupid);
     if ($data->groupid){
-		if (!has_capability('moodle/site:accessallgroups', $context) && !in_array($data->groupid, $allowedgroupids)){
-        	$data->groupid = $allowedgroupids[0];
-		}
+    	$targetusers = get_enrolled_users($context, '', $data->groupid);
     } else {
+    	$targetusers = get_enrolled_users($context);
     	if (count($targetusers) > 100){
     		if (!empty($allowedgroupids)){
 	    		$OUTPUT->notification(get_string('errorcoursetoolarge', 'report_trainingsessions'));
@@ -175,11 +195,10 @@
             training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);    
 
 	        $worksheet = training_reports_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-	        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $xls_formats);
+	        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $COURSE->id, $xls_formats);
 	        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
 
         }
         $workbook->close();
     }
 
-?>

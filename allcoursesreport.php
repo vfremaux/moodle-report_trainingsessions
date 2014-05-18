@@ -41,8 +41,10 @@
     }
 
 	if ($data->output == 'html'){
+		echo $OUTPUT->box_start('block');
 	    $selform->set_data($data);
 	    $selform->display();
+		echo $OUTPUT->box_end();
 	}
 
 // get log data

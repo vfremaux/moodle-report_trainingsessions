@@ -42,8 +42,10 @@ if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script
     }
 
 	if ($data->output == 'html'){
+		echo $OUTPUT->box_start('block');
 	    $selform->set_data($data);
 	    $selform->display();
+		echo $OUTPUT->box_end();
 	}
 
 // compute target group

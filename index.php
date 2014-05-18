@@ -32,6 +32,10 @@
 	$view		= optional_param('view', 'user', PARAM_ALPHA);
 	$report		= optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
 	$time		= optional_param('time', 0, PARAM_INT);
+
+	// form bounce somewhere ? 
+	$view = (empty($view)) ? 'user' : $view ;
+	$output = (empty($output)) ? 'html' : $output ;
     
 	if (!$course = $DB->get_record('course', array('id' => $id))) {
 		print_error('invalidcourse');

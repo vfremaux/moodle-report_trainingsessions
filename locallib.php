@@ -22,17 +22,21 @@ function reports_get_course_structure($courseid, &$itemcount){
     
     if ($course->format == 'page'){
         include_once $CFG->dirroot.'/course/format/page/lib.php';
+        include_once $CFG->dirroot.'/course/format/page/page.class.php';
+
         // get first top level page (contains course structure)
-        if (!$pages = $DB->get_records_select('format_page', " courseid = ? AND parent = 0 ", array($course->id), 'sortorder')){
+        $nestedpages = course_page::get_all_pages($courseid, 'nested');
+        if (empty($nestedpages)){
             print_error('errorcoursestructurefirstpage', 'report_trainingsessions');        
         }
-        $structure = array();
-        foreach($pages as $key => $page){
+        
+        // adapt structure from page format internal nested
+        foreach($nestedpages as $key => $page){
             if (!($page->display > FORMAT_PAGE_DISP_HIDDEN)) continue;
             
             $pageelement = new StdClass;
             $pageelement->type = 'page';
-            $pageelement->name = $page->nametwo;
+            $pageelement->name = format_string($page->nametwo);
             
             $pageelement->subs = page_get_structure_from_page($page, $itemcount);
             $structure[] = $pageelement;
@@ -109,21 +113,29 @@ function page_get_structure_from_page($page, &$itemcount){
     $structure = array();
     
     // get page items from first page. They are located in the center column    
-    $select = "pageid = ? AND (position = 'c' OR position = 'r') ";
+    $select = " pageid = ? AND (position = 'c' OR position = 'r') ";
     $pageitems = $DB->get_records_select('format_page_items', $select, array($page->id), 'position, sortorder');
     
     // analyses course content component stack
 	if ($pageitems){
 	    foreach($pageitems as $pi){
-	        if ($pi->blockinstance){
+	    	
+	        if (!$pi->cmid){
+
 	            // is a block
 	            $b = $DB->get_record('block_instances', array('id' => $pi->blockinstance));
+	            $bp = $DB->get_record('block_positions', array('blockinstanceid' => $pi->blockinstance));
 	            $blockinstance = block_instance($b->blockname, $b);
+
 	            $element = new StdClass;
 	            $element->type = $b->blockname;
 	            $element->plugintype = 'block';
 	            $element->instance = $b;
-	            $element->instance->visible = $element->instance->visible * $pi->visible; // a bloc can be hidden by its page_module insertion.
+	            if ($bp){
+		            $element->instance->visible = $bp->visible * $pi->visible; // a block can be hidden by its page_module insertion.
+		        } else {
+		        	$element->instance->visible = $pi->visible;
+		        }
 	            $element->name = (!empty($blockinstance->config->title)) ? $blockinstance->config->title : '' ;
 	            $element->id = $b->id;
 	            // $itemcount++;
@@ -131,6 +143,7 @@ function page_get_structure_from_page($page, &$itemcount){
 	            // tries to catch modules, pages or resources in content
 	
 	            $source = @$blockinstance->config->text;
+
 	            // if there is no subcontent, do not consider this bloc in reports.
 	            if ($element->subs = page_get_structure_in_content($source, $itemcount)){
 	                $structure[] = $element;
@@ -141,75 +154,10 @@ function page_get_structure_from_page($page, &$itemcount){
 	            $module = $DB->get_record('modules', array('id' => $cm->module));
 	            
 	            switch($module->name){
-	                case 'customlabel':;
-	                case 'label':{
-	                }
-	                break;
-	                case 'pagemenu':{
-	                    // continue;
-	                    // if a page menu, we have to get substructure
-	                    $element = new StdClass;
-	                    $menu = $DB->get_record('pagemenu', array('id' => $cm->instance));
-	                    $element->type = 'pagemenu';
-	                    $element->plugin = 'mod';
-	                    $element->name = $menu->name;
-	                    $menulinks = array();
-	                    /*
-	                    if ($next = $DB->get_record('pagemenu_links', array('pagemenuid' => $menu->id, 'previd' => 0))){ // firstone
-	                        $menulinks[] = $next;
-	                        while($next = $DB->get_record_select('pagemenu_links', "pagemenuid = ? AND id = ?", array($menu->id, $next->nextid))){
-	                            $menulinks[] = $next;
-	                            if ($next->nextid == 0) break;
-	                        }
-	                    }
-	                    */
-	                    global $CFG;
-	                    include_once($CFG->dirroot.'/mod/pagemenu/locallib.php');
-	        			$linkid = pagemenu_get_first_linkid($menu->id);
-				        while ($linkid) {
-				
-				            $link     = $DB->get_record('pagemenu_links', array('id' => $linkid));
-				            $linkid   = $link->nextid;
-				
-				            // Update info
-			                $menulinks[] = $link;
-			                
-				        }
-	
-	                    $element->subs = array();
-	                    foreach($menulinks as $link){
-	                        if ($link->type == 'page'){
-	
-	                            $linkdata = $DB->get_record('pagemenu_link_data', array('linkid' => $link->id, 'name' => 'pageid'));
-	                            $subpage = $DB->get_record('format_page', array('id' => $linkdata->value));
-	                            
-	                            $subelement = new StdClass;
-	                            $subelement->type = 'page';
-	                            $subelement->name = $subpage->nametwo;
-	                            
-	                            $subelement->subs = page_get_structure_from_page($subpage, $itemcount);
-	
-	                            if ($subpages = $DB->get_records('format_page', array('parent' => $subpage->id), 'sortorder')){
-	                            	foreach($subpages as $sp){
-	                            		if (in_array($sp->id, $VISITED_PAGES)) continue;
-	                            		if ($sp->display & DISP_PUBLISH){
-				                            $subsubelement = new StdClass;
-				                            $subsubelement->type = 'page';
-				                            $subsubelement->name = $sp->nametwo;		                            
-				                            $subsubelement->subs = page_get_structure_from_page($sp, $itemcount);
-											$subelement->subs[] = $subsubelement;
-				                        }
-	                            	}
-	                            }
-	
-	                            $element->subs[] = $subelement;
-	                            
-	                        }
-	                    }
-	                    $structure[] = $element;
-	                    
-	                }
-	                break;
+	                case 'customlabel':
+	                case 'label':
+	                case 'pagemenu':
+		                break;
 	                default:{
 	                    $element = new StdClass;
 	                    $element->type = $module->name;
@@ -226,6 +174,20 @@ function page_get_structure_from_page($page, &$itemcount){
 	        }
 		}
 	}
+	
+	if (!empty($page->childs)){
+        foreach($page->childs as $key => $child){
+            if (!($child->display > FORMAT_PAGE_DISP_HIDDEN)) continue;
+            
+            $pageelement = new StdClass;
+            $pageelement->type = 'page';
+            $pageelement->name = format_string($child->nametwo);
+            
+            $pageelement->subs = page_get_structure_from_page($child, $itemcount);
+            $structure[] = $pageelement;
+        }
+	}
+	
     return $structure;
 }
 
@@ -281,21 +243,31 @@ function page_get_structure_in_content($source, &$itemcount){
 
 /**
 * special time formating
-*
+* xlsd stands for xls duration
 */
 function training_reports_format_time($timevalue, $mode = 'html'){
     if ($timevalue){
         if ($mode == 'html'){
             return format_time($timevalue);
-        } elseif($mode == 'xlst') {
-            return  $timevalue / DAYSECS;
+        } elseif($mode == 'xlsd') {
+        	$secs = $timevalue % 60;
+        	$mins = floor($timevalue / 60);
+        	$hours = floor($mins / 60);
+        	$mins = $mins % 60;
+        	
+	        if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
+	        if ($mins > 0) return "{$mins}m {$secs}s";
+	        return "{$secs}s";
         } else {
             // for excel time format we need have a fractional day value
             return strftime('%Y-%m-%d %H:%I:%S (%a)', $timevalue);
             // return  $timevalue / DAYSECS;
         }
     } else {
-        return get_string('unvisited', 'report_trainingsessions');
+    	if ($mode == 'html'){
+	        return get_string('unvisited', 'report_trainingsessions');
+	    }
+	    return '';
     }
 }
 
@@ -314,28 +286,38 @@ function training_reports_format_time($timevalue, $mode = 'html'){
 */
 function training_reports_xls_formats(&$workbook){
 	$xls_formats = array();
-    $xls_formats['t'] =& $workbook->add_format();
+	// titles
+    $xls_formats['t'] = $workbook->add_format();
     $xls_formats['t']->set_size(20);
-    $xls_formats['tt'] =& $workbook->add_format();
+    $xls_formats['tt'] = $workbook->add_format();
     $xls_formats['tt']->set_size(10);
     $xls_formats['tt']->set_color(1);
     $xls_formats['tt']->set_fg_color(4);
     $xls_formats['tt']->set_bold(1);
-    $xls_formats['p'] =& $workbook->add_format();
-    $xls_formats['p']->set_bold(1);
-    $xls_formats['a1'] =& $workbook->add_format();
+
+	// paragraphs
+    $xls_formats['p'] = $workbook->add_format();
+    $xls_formats['p']->set_size(10);
+    $xls_formats['p']->set_bold(0);
+
+    $xls_formats['pb'] = $workbook->add_format();
+    $xls_formats['pb']->set_size(10);
+    $xls_formats['pb']->set_bold(1);
+
+    $xls_formats['a1'] = $workbook->add_format();
     $xls_formats['a1']->set_size(14);
     $xls_formats['a1']->set_fg_color(31);
-    $xls_formats['a2'] =& $workbook->add_format();
+    $xls_formats['a2'] = $workbook->add_format();
     $xls_formats['a2']->set_size(12);
-    $xls_formats['a3'] =& $workbook->add_format();
-    $xls_formats['a3']->set_size(9);
-    $xls_formats['z'] =& $workbook->add_format();
+    $xls_formats['a3'] = $workbook->add_format();
+    $xls_formats['a3']->set_size(10);
+
+    $xls_formats['z'] = $workbook->add_format();
     $xls_formats['z']->set_size(9);
-    $xls_formats['zt'] =& $workbook->add_format();
+    $xls_formats['zt'] = $workbook->add_format();
     $xls_formats['zt']->set_size(9);
     $xls_formats['zt']->set_num_format('[h]:mm:ss');
-    $xls_formats['zd'] =& $workbook->add_format();
+    $xls_formats['zd'] = $workbook->add_format();
     $xls_formats['zd']->set_size(9);
     $xls_formats['zd']->set_num_format('aaaa/mm/dd hh:mm');
     
@@ -371,8 +353,8 @@ function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$wo
 
     $worksheet = $workbook->add_worksheet($sheettitle);
 	if ($purpose == 'usertimes'){
-    	$worksheet->set_column(0,0,20);
-	    $worksheet->set_column(1,1,74);
+    	$worksheet->set_column(0,0,24);
+	    $worksheet->set_column(1,1,64);
     	$worksheet->set_column(2,2,12);
     	$worksheet->set_column(3,3,4);
 	} elseif ($purpose == 'allcourses'){
@@ -398,8 +380,8 @@ function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$wo
     $worksheet->set_column(13,13,4);
 
     $worksheet->set_row($startrow - 1, 12, $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 0, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_blank($startrow - 1,1, $xls_formats['tt']);
+    $worksheet->write_string($startrow - 1, 0, get_string('firstaccess', 'report_trainingsessions'), $xls_formats['tt']);
+    $worksheet->write_string($startrow - 1, 1, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
     $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
     $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
     

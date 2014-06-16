@@ -7,19 +7,19 @@ if (!defined('MOODLE_INTERNAL')) {
 require_once($CFG->dirroot . '/lib/formslib.php');
 
 class SelectorForm extends moodleform{
-	
-	var $courseid;
-	var $mode;
-	
-	public function __construct($courseid, $mode = 'user'){
-		$this->courseid = $courseid;
-		$this->mode = $mode;
-		parent::__construct();
-	}
-	
-	public function definition(){
-		global $USER;
-		
+
+    var $courseid;
+    var $mode;
+
+    public function __construct($courseid, $mode = 'user'){
+        $this->courseid = $courseid;
+        $this->mode = $mode;
+        parent::__construct();
+    }
+    
+    public function definition(){
+        global $USER;
+        
         $mform = $this->_form;
         
         $mform->addElement('hidden', 'id', $this->courseid);
@@ -32,14 +32,14 @@ class SelectorForm extends moodleform{
         $mform->setType('output', PARAM_INT);
         
         $dateparms = array(
-		    'startyear' => 2008, 
-		    'stopyear'  => 2020,
-		    'timezone'  => 99,
-		    'applydst'  => true, 
-		    'optional'  => false
-		);
-		$group[] = & $mform->createElement('date_selector', 'from', get_string('from'), $dateparms);
-	
+            'startyear' => 2008, 
+            'stopyear'  => 2020,
+            'timezone'  => 99,
+            'applydst'  => true, 
+            'optional'  => false
+        );
+        $group[] = & $mform->createElement('date_selector', 'from', get_string('from'), $dateparms);
+    
         $context = context_course::instance($this->courseid);
         
         $allgroupaccess = has_capability('moodle/site:accessallgroups', $context, $USER->id);
@@ -47,50 +47,72 @@ class SelectorForm extends moodleform{
         
         if ($this->mode == 'user' || $this->mode == 'allcourses'){
         
-	        if (has_capability('report/trainingsessions:viewother', $context)){
-		        $users = get_enrolled_users($context);
-		        $useroptions = array();
+            if (has_capability('report/trainingsessions:viewother', $context)){
+                $users = get_enrolled_users($context);
+                $useroptions = array();
 
-		        foreach($users as $user){
-		        	if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) continue;
-		        	
-		        	if (!$allgroupaccess){
-		        		$keep = false;
-		        		foreach($mygroups as $g){ // is the user in my groups ?
-			        		if (groups_is_member($g->id, $user->id)) $keep = true;
-			        	}
-			        	if (!$keep) continue;
-		        	}
+                foreach($users as $user){
+                    if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) continue;
+                    
+                    if (!$allgroupaccess){
+                        $keep = false;
+                        foreach($mygroups as $g){ // is the user in my groups ?
+                            if (groups_is_member($g->id, $user->id)) $keep = true;
+                        }
+                        if (!$keep) continue;
+                    }
 
-		            $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
-		        }
-		        $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);
-		
-				$mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('user').':&nbsp; &nbsp;'), false);
-			}
-		} else {
-			$groups = groups_get_all_groups($this->courseid);
+                    $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
+                }
+                $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);
+        
+                $mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('user').':&nbsp; &nbsp;'), false);
+            }
+        } else {
+            $groups = groups_get_all_groups($this->courseid);
 
-			$groupoptions = array();
-			if ($allgroupaccess){
-				$groupoptions[0] = get_string('allgroups');
-			}
-			foreach($groups as $g){
-				if ($allgroupaccess || groups_is_member($g->id, $USER->id)){
-					$groupoptions[$g->id] = $g->name;
-				}
-			}
-	        $group[] = & $mform->createElement('select', 'groupid', get_string('group'), $groupoptions);
-	
-			$mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('group').':&nbsp; &nbsp;'), false);
-	
-			if ($this->mode == 'courseraw'){
-				$mform->addElement('date_selector', 'to', get_string('to'), $dateparms);
-			} 
-		
-		}		
-		$updatefromstr = ($this->mode == 'user') ? get_string('updatefromcoursestart', 'report_trainingsessions') : get_string('updatefromaccountstart', 'report_trainingsessions') ;
-		$mform->addElement('checkbox', 'fromstart', $updatefromstr);
-		$mform->addElement('submit', 'go_btn', get_string('update')); 
-	}
+            $groupoptions = array();
+            if ($allgroupaccess){
+                $groupoptions[0] = get_string('allgroups');
+            }
+            foreach($groups as $g){
+                if ($allgroupaccess || groups_is_member($g->id, $USER->id)){
+                    $groupoptions[$g->id] = $g->name;
+                }
+            }
+            $group[] = & $mform->createElement('select', 'groupid', get_string('group'), $groupoptions);
+    
+            $mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('group').':&nbsp; &nbsp;'), false);
+    
+            if ($this->mode == 'courseraw'){
+                $mform->addElement('date_selector', 'to', get_string('to'), $dateparms);
+            } 
+        
+        }        
+        $updatefromstr = ($this->mode == 'user') ? get_string('updatefromcoursestart', 'report_trainingsessions') : get_string('updatefromaccountstart', 'report_trainingsessions') ;
+        $mform->addElement('checkbox', 'fromstart', $updatefromstr);
+        $mform->addElement('submit', 'go_btn', get_string('update')); 
+    }
+}
+
+/**
+* Moodle 2.5 Backport
+* @see lib/grouplib.php M2.5
+*/
+
+/**
+ * Gets array of all groups in current user.
+ *
+ * @since Moodle 2.5
+ * @category group
+ * @return array Returns an array of the group objects.
+ */
+function groups_get_my_groups() {
+    global $DB, $USER;
+    return $DB->get_records_sql("SELECT *
+                                   FROM {groups_members} gm
+                                   JOIN {groups} g
+                                    ON g.id = gm.groupid
+                                  WHERE gm.userid = ?
+                                   ORDER BY name ASC", array($USER->id));
 }

@@ -27,11 +27,11 @@ require('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/lib/statslib.php');
 
-$id            = required_param('id', PARAM_INT); // course id
-$output        = optional_param('output', 'html', PARAM_ALPHA);
-$view        = optional_param('view', 'user', PARAM_ALPHA);
-$report        = optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
-$time        = optional_param('time', 0, PARAM_INT);
+$id = required_param('id', PARAM_INT); // course id
+$output = optional_param('output', 'html', PARAM_ALPHA);
+$view = optional_param('view', 'user', PARAM_ALPHA);
+$report = optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
+$time = optional_param('time', 0, PARAM_INT);
 
 // form bounce somewhere ? 
 $view = (empty($view)) ? 'user' : $view ;
@@ -83,4 +83,6 @@ if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")){
     print_error('errorbadviewid', 'report_trainingsessions');
 }
 
-	if ($output == 'html') echo $OUTPUT->footer();
+if ($output == 'html') {
+    echo $OUTPUT->footer();
+}

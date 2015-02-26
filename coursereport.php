@@ -85,10 +85,11 @@ if ($data->groupid) {
     }
 }
 
-// filter out non compiling users
+// Filter out non compiling users.
+
 $compiledusers = array();
 foreach ($targetusers as $u) {
-    if (has_capability('report/trainingsessions:iscompiled', $context, $u->id)) {
+    if (has_capability('report/trainingsessions:iscompiled', $context, $u->id, false)) {
         $compiledusers[$u->id] = $u;
     }
 }
@@ -106,7 +107,7 @@ if ($data->output == 'html'){
     echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
     if (!empty($compiledusers)) {
-        foreach($compiledusers as $auser) {
+        foreach ($compiledusers as $auser) {
 
             $logusers = $auser->id;
             $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);

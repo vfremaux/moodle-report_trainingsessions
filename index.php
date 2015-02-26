@@ -23,63 +23,64 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-	require_once('../../config.php');
-	require_once($CFG->libdir.'/adminlib.php');
-	require_once($CFG->dirroot.'/lib/statslib.php');
+require('../../config.php');
+require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->dirroot.'/lib/statslib.php');
 
-	$id			= required_param('id', PARAM_INT); // course id
-	$output		= optional_param('output', 'html', PARAM_ALPHA);
-	$view		= optional_param('view', 'user', PARAM_ALPHA);
-	$report		= optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
-	$time		= optional_param('time', 0, PARAM_INT);
+$id = required_param('id', PARAM_INT); // course id
+$output = optional_param('output', 'html', PARAM_ALPHA);
+$view = optional_param('view', 'user', PARAM_ALPHA);
+$report = optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
+$time = optional_param('time', 0, PARAM_INT);
 
-	// form bounce somewhere ? 
-	$view = (empty($view)) ? 'user' : $view ;
-	$output = (empty($output)) ? 'html' : $output ;
-    
-	if (!$course = $DB->get_record('course', array('id' => $id))) {
-		print_error('invalidcourse');
-	}
+// form bounce somewhere ? 
+$view = (empty($view)) ? 'user' : $view ;
+$output = (empty($output)) ? 'html' : $output ;
 
+if (!$course = $DB->get_record('course', array('id' => $id))) {
+    print_error('invalidcourse');
+}
 
-	require_course_login($course);
-	$context = context_course::instance($course->id);
-	require_capability('report/trainingsessions:view', $context);
+require_course_login($course);
+$context = context_course::instance($course->id);
+require_capability('report/trainingsessions:view', $context);
 
-	$PAGE->set_url('/report/trainingsessions/index.php', array('id' => $id));
-	$PAGE->set_heading(get_string($view, 'report_trainingsessions'));
-	$PAGE->set_title(get_string($view, 'report_trainingsessions'));
-	$PAGE->navbar->add(get_string($view, 'report_trainingsessions'));
+$PAGE->set_url('/report/trainingsessions/index.php', array('id' => $id));
+$PAGE->set_heading(get_string($view, 'report_trainingsessions'));
+$PAGE->set_title(get_string($view, 'report_trainingsessions'));
+$PAGE->navbar->add(get_string($view, 'report_trainingsessions'));
 
-	add_to_log($course->id, 'course', 'trainingreports view', $CFG->wwwroot."/report/trainingsessions/index.php?id=$course->id", $course->id);
+$strreports = get_string('reports');
+$strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 
-	$strreports = get_string('reports');
-	$strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
+if ($output == 'html') {
+    echo $OUTPUT->header();
+    $OUTPUT->container_start();
 
-	if ($output == 'html'){
-		echo $OUTPUT->header();	    
-	    $OUTPUT->container_start();
+    // Print tabs with options for user.
+    $userurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'user'));
+    $rows[0][] = new tabobject('user', $userurl, get_string('user', 'report_trainingsessions'));
+    if (has_capability('report/trainingsessions:viewother', $context)) {
+        $courseurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'course'));
+        $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));
+        $courserawurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'courseraw'));
+        $rows[0][] = new tabobject('courseraw', $courserawurl, get_string('courseraw', 'report_trainingsessions'));
+    }
+    $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'allcourses'));
+    $rows[0][] = new tabobject('allcourses', $allcoursesurl, get_string('allcourses', 'report_trainingsessions'));
 
-		/// Print tabs with options for user
-		$rows[0][] = new tabobject('user', $CFG->wwwroot."/report/trainingsessions/index.php?id={$course->id}&amp;view=user", get_string('user', 'report_trainingsessions'));
-        if (has_capability('report/trainingsessions:viewother', $context)){
-	        $rows[0][] = new tabobject('course', $CFG->wwwroot."/report/trainingsessions/index.php?id={$course->id}&amp;view=course", get_string('course', 'report_trainingsessions'));
-	        $rows[0][] = new tabobject('courseraw', $CFG->wwwroot."/report/trainingsessions/index.php?id={$course->id}&amp;view=courseraw", get_string('courseraw', 'report_trainingsessions'));
-	    }
-        $rows[0][] = new tabobject('allcourses', $CFG->wwwroot."/report/trainingsessions/index.php?id={$course->id}&amp;view=allcourses", get_string('allcourses', 'report_trainingsessions'));
-		
-	    print_tabs($rows, $view);
-	
-	    $OUTPUT->container_end();
-	}
+    print_tabs($rows, $view);
 
-	@ini_set('max_execution_time','3000');
-	raise_memory_limit('250M');
+    $OUTPUT->container_end();
+}
 
-	if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")){
-	    include_once $CFG->dirroot."/report/trainingsessions/{$view}report.php";
-	} else {
-	    print_error('errorbadviewid', 'report_trainingsessions');
-	}
+@ini_set('max_execution_time','3000');
+raise_memory_limit('250M');
 
-	if ($output == 'html') echo $OUTPUT->footer();
+if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")){
+    include_once $CFG->dirroot."/report/trainingsessions/{$view}report.php";
+} else {
+    print_error('errorbadviewid', 'report_trainingsessions');
+}
+
+if ($output == 'html') echo $OUTPUT->footer();

@@ -19,14 +19,14 @@
  *
  * @package    report
  * @subpackage trainingsessions
- * @copyright  2014 Valery Fremaux {valery.fremaux@gmail.com}
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2013031900; // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2013040500; // Requires this Moodle version
+$plugin->version   = 2014051800; // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2013111800; // Requires this Moodle version
 $plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_STABLE; 
-$plugin->release = '2.5.0 (build 2013031900)';
+$plugin->release = '2.7.0 (build 2014051800)';

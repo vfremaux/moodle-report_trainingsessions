@@ -101,3 +101,17 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
     session_get_instance()->write_close();
     send_stored_file($file, 60*60, 0, $forcedownload);
 }
+
+/**
+ * Callback to verify if the given instance of store is supported by this report or not.
+ *
+ * @param string $instance store instance.
+ *
+ * @return bool returns true if the store is supported by the report, false otherwise.
+ */
+function report_trainingsessions_supports_logstore($instance) {
+    if ($instance instanceof \core\log\sql_internal_reader || $instance instanceof \logstore_legacy\log\store) {
+        return true;
+    }
+    return false;
+}

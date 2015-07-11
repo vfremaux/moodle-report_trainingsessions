@@ -50,7 +50,7 @@ function training_reports_print_allcourses_html(&$str, &$aggregate) {
             $str .= $elapsedstr.' : '.format_time($output[0][SITEID]->elapsed).'<br/>';
             $str .= $hitsstr.' : '.$output[0][SITEID]->events;
         }
-        
+
         foreach ($output as $catid => $catdata) {
             if ($catid == 0) continue;
             $str .= '<h2>'.$coursecats[$catid]->name.'</h2>';
@@ -152,7 +152,7 @@ function training_reports_print_html(&$str, $structure, &$aggregate, &$done, $in
                     $res = training_reports_print_html($suboutput, $structure->subs, $aggregate, $done, $indent, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
-                }                
+                }
 
                 if (!in_array($structure->type, $ignoremodulelist)) {
                     if (!empty($dataobject->timesource) && $dataobject->timesource == 'credit' && $dataobject->elapsed) {
@@ -224,7 +224,7 @@ function training_reports_print_header_html($userid, $courseid, $data, $short = 
         echo ':</b> ';
         foreach($usergroups as $group) {
             $str = $group->name;
-            if ($group->id == get_current_group($courseid)) {
+            if ($group->id == groups_get_course_group($course)) {
                 $str = "$str";
             }
             $groupnames[] = $str;
@@ -345,11 +345,12 @@ function training_reports_print_session_list(&$str, $sessions, $courseid = 0){
     $str .= '<td width="33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
     $str .= '<td width="33%"><b>'.get_string('duration', 'report_trainingsessions').'<sup>*</sup></b></td>';
     $str .= '</tr>';
-    
+
     $totalelapsed = 0;
 
     foreach ($sessions as $s) {
 
+        if (empty($s->courses)) continue;
         if ($courseid && !array_key_exists($courseid, $s->courses)) continue; // omit all sessions not visiting this course
 
         if (!isset($s->sessionstart)) continue;

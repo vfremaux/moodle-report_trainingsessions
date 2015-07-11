@@ -102,6 +102,7 @@ if (!empty($compiledusers)) {
     $rawstr = '';
     $resultset[] = get_string('group'); // groupname
     $resultset[] = get_string('idnumber'); // userid
+    $resultset[] = get_string('username'); // username
     $resultset[] = get_string('lastname'); // user name 
     $resultset[] = get_string('firstname'); // user name 
     $resultset[] = get_string('firstenrolldate', 'report_trainingsessions'); // enrol start date
@@ -112,6 +113,8 @@ if (!empty($compiledusers)) {
     $resultset[] = get_string('weekstartdate', 'report_trainingsessions'); // last week start date 
     $resultset[] = get_string('timeelapsed', 'report_trainingsessions');
     $resultset[] = get_string('timeelapsedcurweek', 'report_trainingsessions');
+    $resultset[] = get_string('completion', 'report_trainingsessions');
+    $resultset[] = get_string('coursegrade', 'report_trainingsessions');
 
     if (!empty($CFG->report_trainingsessions_csv_iso)) {
         $rawstr = mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');

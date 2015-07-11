@@ -65,7 +65,7 @@ if ($data->output == 'html'){
     echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
     echo '<br/>';
-    
+
     $str = '';
     $dataobject = training_reports_print_allcourses_html($str, $aggregate);
     $dataobject->course = new StdClass;
@@ -92,7 +92,7 @@ if ($data->output == 'html'){
     training_reports_print_session_list($str2, @$aggregate['sessions'], 0);
     echo $str2;
 
-    $url = $CFG->wwwroot.'/report/trainingsessions/index.php?id='.$course->id.'&amp;view=allcourses&amp;userid='.$userid.'&amp;from='.$data->from.'&amp;output=xls';
+    $url = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'allcourses', 'userid' => $userid, 'from' => $data->from, 'output' => 'xls'));
     echo '<br/><center>';
     // echo count($targetusers).' found in this selection';
     echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');

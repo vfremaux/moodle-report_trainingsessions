@@ -17,17 +17,16 @@
 /**
  * Version info
  *
- * @package    report
- * @subpackage trainingsessions
+ * @package    report_trainingsessions
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2014051800; // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2015100800; // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2013111800; // Requires this Moodle version
 $plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_STABLE; 
-$plugin->release = '2.7.0 (build 2014051800)';
-$plugin->dependencies = array('block_use_stats' => '2014041100');
+$plugin->release = '2.7.0 (build 2015100800)';
+$plugin->dependencies = array('block_use_stats' => '2014041100', 'auth_ticket' => '*');

@@ -26,6 +26,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 // no report settings
-	$yesnoopts = array(0 => get_string('no'), 1 => get_string('yes'));
-	$settings->add(new admin_setting_configselect('report_trainingsessions_csv_iso', get_string('csvoutputtoiso', 'report_trainingsessions'), get_string('csvoutputtoiso_desc', 'report_trainingsessions'), 0, $yesnoopts));
+$yesnoopts = array(0 => get_string('no'), 1 => get_string('yes'));
+$settings->add(new admin_setting_configselect('report_trainingsessions/csv_iso', get_string('csvoutputtoiso', 'report_trainingsessions'), get_string('csvoutputtoiso_desc', 'report_trainingsessions'), 0, $yesnoopts));
 

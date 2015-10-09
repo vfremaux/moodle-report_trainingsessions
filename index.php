@@ -50,35 +50,25 @@ $PAGE->set_heading(get_string($view, 'report_trainingsessions'));
 $PAGE->set_title(get_string($view, 'report_trainingsessions'));
 $PAGE->navbar->add(get_string($view, 'report_trainingsessions'));
 
+$renderer = $PAGE->get_renderer('report_trainingsessions');
+
 $strreports = get_string('reports');
 $strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 
 if ($output == 'html') {
     echo $OUTPUT->header();
-    $OUTPUT->container_start();
+    echo $OUTPUT->container_start();
 
-    // Print tabs with options for user.
-    $userurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'user'));
-    $rows[0][] = new tabobject('user', $userurl, get_string('user', 'report_trainingsessions'));
-    if (has_capability('report/trainingsessions:viewother', $context)) {
-        $courseurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'course'));
-        $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));
-        $courserawurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'courseraw'));
-        $rows[0][] = new tabobject('courseraw', $courserawurl, get_string('courseraw', 'report_trainingsessions'));
-    }
-    $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'allcourses'));
-    $rows[0][] = new tabobject('allcourses', $allcoursesurl, get_string('allcourses', 'report_trainingsessions'));
+    echo $renderer->tabs($course, $view);
 
-    print_tabs($rows, $view);
-
-    $OUTPUT->container_end();
+    echo $OUTPUT->container_end();
 }
 
 @ini_set('max_execution_time','3000');
 raise_memory_limit('250M');
 
-if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")){
-    include_once $CFG->dirroot."/report/trainingsessions/{$view}report.php";
+if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")) {
+    include_once($CFG->dirroot."/report/trainingsessions/{$view}report.php");
 } else {
     print_error('errorbadviewid', 'report_trainingsessions');
 }

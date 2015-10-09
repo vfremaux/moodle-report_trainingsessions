@@ -1,4 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Course trainingsessions report
+ *
+ * @package    report_trainingsessions
+ * @version    moodle 2.x
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
 
 /**
  * direct log construction implementation
@@ -19,8 +43,10 @@ if ($data = $selform->get_data()) {
 } else {
     $data = new StdClass;
     $data->from = optional_param('from', -1, PARAM_NUMBER);
+    $data->to = optional_param('to', -1, PARAM_NUMBER);
     $data->userid = optional_param('userid', $USER->id, PARAM_INT);
     $data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
+    $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
     $data->groupid = optional_param('group', '0', PARAM_ALPHA);
 }
@@ -31,6 +57,10 @@ $context = context_course::instance($id);
 
 if ($data->from == -1 || @$data->fromstart) { // maybe we get it from parameters
     $data->from = $course->startdate;
+}
+
+if ($data->to == -1 || @$data->tonow){ // maybe we get it from parameters
+    $data->to = time();
 }
 
 if ($data->output == 'html') {
@@ -86,53 +116,50 @@ if ($data->groupid) {
 }
 
 // Filter out non compiling users.
-
-$compiledusers = array();
-foreach ($targetusers as $u) {
-    if (has_capability('report/trainingsessions:iscompiled', $context, $u->id)) {
-        $compiledusers[$u->id] = $u;
-    }
-}
+trainingsessions_filter_unwanted_users($targetusers);
 
 // get course structure
-
-$coursestructure = reports_get_course_structure($course->id, $items);
+$coursestructure = trainingsessions_get_course_structure($course->id, $items);
 
 // print result
 
-if ($data->output == 'html'){
+if ($data->output == 'html') {
 
-    require_once('htmlrenderers.php');
+    include_once($CFG->dirroot.'/report/trainingsessions/htmlrenderers.php');
 
     echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
-    if (!empty($compiledusers)) {
-        foreach ($compiledusers as $auser) {
+    if (!empty($targetusers)) {
+        foreach ($targetusers as $auser) {
 
             $logusers = $auser->id;
-            $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
+            $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course->id);
             $aggregate = use_stats_aggregate_logs($logs, 'module');
 
-            if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
+            if (empty($aggregate['sessions'])) {
+                $aggregate['sessions'] = array();
+            }
 
             $data->items = $items;
             $data->done = 0;
-            
-            if (!empty($aggregate)){
-                foreach(array_keys($aggregate) as $module){
+
+            if (!empty($aggregate)) {
+                foreach (array_keys($aggregate) as $module) {
                     // exclude from calculation some pseudo-modules that are not part of 
                     // a course structure.
-                    if (preg_match('/course|user|upload|sessions/', $module)) continue;
+                    if (preg_match('/course|user|upload|sessions|system|activities/', $module)) continue;
                     $data->done += count($aggregate[$module]);
                 }
                 $data->sessions = 0 + count(@$aggregate['sessions']);
             } else {
                 $data->sessions = 0;
             }
-            if ($data->done > $items) $data->done = $items;
+            if ($data->done > $items) {
+                $data->done = $items;
+            }
 
             $data->linktousersheet = 1;
-            training_reports_print_header_html($auser->id, $course->id, $data, true);
+            trainingsessions_print_header_html($auser->id, $course->id, $data, true);
 
         }
     }
@@ -140,11 +167,12 @@ if ($data->output == 'html'){
     $options['id'] = $course->id;
     $options['groupid'] = $data->groupid;
     $options['from'] = $data->from; // alternate way
+    $options['to'] = $data->to; // alternate way
     $options['output'] = 'xls'; // ask for XLS
     $options['asxls'] = 'xls'; // force XLS for index.php
     $options['view'] = 'course'; // force course view
 
-    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'output' => 'xls', 'asxls' => 1);
+    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls', 'asxls' => 1);
     $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo '<br/><center>';
     // echo count($targetusers).' found in this selection';
@@ -173,31 +201,33 @@ if ($data->output == 'html'){
     ob_end_clean();
     $workbook->send($filename);
 
-    $xls_formats = training_reports_xls_formats($workbook);
+    $xls_formats = trainingsessions_xls_formats($workbook);
     $startrow = 15;
 
-    foreach ($compiledusers as $auser) {
-
-        $row = $startrow;
-        $worksheet = training_reports_init_worksheet($auser->id, $row, $xls_formats, $workbook);
-
-        $logusers = $auser->id;
-        $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
-
-        if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
-        
-        $overall = training_reports_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-        $data->items = $items;
-        $data->done = $done;
-        $data->elapsed = $overall->elapsed;
-        $data->events = $overall->events;
-        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);    
-
-        $worksheet = training_reports_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-        training_reports_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $COURSE->id, $xls_formats);
-        training_reports_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
+    if (!empty($targetusers)) {
+        foreach ($targetusers as $auser) {
+    
+            $row = $startrow;
+            $worksheet = trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+    
+            $logusers = $auser->id;
+            $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
+            $aggregate = use_stats_aggregate_logs($logs, 'module');
+    
+            if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
+    
+            $overall = trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
+            $data->items = $items;
+            $data->done = $done;
+            $data->elapsed = $overall->elapsed;
+            $data->events = $overall->events;
+            trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+    
+            $worksheet = trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
+            trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $COURSE->id, $xls_formats);
+            trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+    
+        }
     }
     $workbook->close();
 }

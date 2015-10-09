@@ -150,14 +150,14 @@ if (!empty($options['launch'])) {
 
         // Sending HTTP headers
 
-        $overall = training_reports_print_allcourses_csv($csvfilecontent, $aggregate);
+        $overall = trainingsessions_print_allcourses_csv($csvfilecontent, $aggregate);
 
         $data->elapsed = $overall->elapsed;
         $data->events = $overall->events;
 
-        $csvfilecontentheader = training_reports_print_header_csv($userid, $courseid, $data);
+        $csvfilecontentheader = trainingsessions_print_header_csv($userid, $courseid, $data);
         
-        training_reports_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
+        trainingsessions_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
 
         echo "Opening output file as $filename\n";
         if ($FILE = fopen($options['outputpath'].'/'.$filename, 'w+')) {

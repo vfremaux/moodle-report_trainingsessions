@@ -1,43 +1,69 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* decodes a course structure giving an ordered and
-* recursive image of the course.
-* The course structure will recognize topic, weekly and flexipage
-* course format, keeping an accurate image of the course ordering.
-*
-* @param int $courseid
-* @param reference $itemcount a recursive propagating counter in case of flexipage
-* or recursive content.
-* @return a complex structure representing the course organisation
-*/
-function reports_get_course_structure($courseid, &$itemcount){
+ * Local functions for this module
+ *
+ * @package    report_trainingsessions
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @version    moodle 2.x
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
+
+/**
+ * decodes a course structure giving an ordered and
+ * recursive image of the course.
+ * The course structure will recognize topic, weekly and flexipage
+ * course format, keeping an accurate image of the course ordering.
+ *
+ * @param int $courseid
+ * @param reference $itemcount a recursive propagating counter in case of flexipage
+ * or recursive content.
+ * @return a complex structure representing the course organisation
+ */
+function trainingsessions_get_course_structure($courseid, &$itemcount) {
     global $CFG, $DB;
-    
+
     $structure = array();
 
-    if (!$course = $DB->get_record('course', array('id' => $courseid))){
+    if (!$course = $DB->get_record('course', array('id' => $courseid))) {
         print_error('errorbadcoursestructure', 'report_trainingsessions', $courseid);
     }
-    
-    if ($course->format == 'page'){
+
+    if ($course->format == 'page') {
         include_once $CFG->dirroot.'/course/format/page/lib.php';
         include_once $CFG->dirroot.'/course/format/page/page.class.php';
 
         // get first top level page (contains course structure)
         $nestedpages = course_page::get_all_pages($courseid, 'nested');
-        if (empty($nestedpages)){
-            print_error('errorcoursestructurefirstpage', 'report_trainingsessions');        
+        if (empty($nestedpages)) {
+            print_error('errorcoursestructurefirstpage', 'report_trainingsessions');
         }
-        
+
         // adapt structure from page format internal nested
-        foreach($nestedpages as $key => $page){
-            if (!($page->display > FORMAT_PAGE_DISP_HIDDEN)) continue;
-            
+        foreach ($nestedpages as $key => $page) {
+            if (!($page->display > FORMAT_PAGE_DISP_HIDDEN)) {
+                continue;
+            }
+
             $pageelement = new StdClass;
             $pageelement->type = 'page';
             $pageelement->name = format_string($page->nametwo);
-            
+
             $pageelement->subs = page_get_structure_from_page($page, $itemcount);
             $structure[] = $pageelement;
         }
@@ -45,7 +71,10 @@ function reports_get_course_structure($courseid, &$itemcount){
         // browse through course_sections and collect course items.
         $structure = array();
 
+        $maxsections = $DB->get_field('course_format_options', 'value', array('courseid' => $courseid, 'format' => $course->format, 'name' => 'numsections'));
+
         if ($sections = $DB->get_records('course_sections', array('course' => $courseid), 'section ASC')) {
+            $sectioncount = 0;
             foreach ($sections as $section) {
                 $element = new StdClass;
                 $element->type = 'section';
@@ -54,10 +83,10 @@ function reports_get_course_structure($courseid, &$itemcount){
                 $element->instance->visible = $section->visible;
                 $element->id = $section->id;
                 //shall we try to capture any title in there ?
-                if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $section->summary, $matches)){
+                if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $section->summary, $matches)) {
                     $element->name = $matches[1];
                 } else {
-                    if ($section->section){
+                    if ($section->section) {
                         $element->name = get_string('section').' '.$section->section ;
                     } else {
                         $element->name = get_string('headsection', 'report_trainingsessions') ;
@@ -68,25 +97,32 @@ function reports_get_course_structure($courseid, &$itemcount){
                     $element->subs = array();
                     $sequence = explode(",", $section->sequence);
                     foreach ($sequence as $seq) {
-                       if (!$cm = $DB->get_record('course_modules', array('id' => $seq))){
-                           // if (debugging()) notify("missing module of id $seq");
-                           continue;
-                       }
-                       $module = $DB->get_record('modules', array('id' => $cm->module));
-                       if (preg_match('/label$/', $module->name)) continue; // discard all labels
-                       $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
-                       $sub = new StdClass;
-                       $sub->id                 = $cm->id;
-                       $sub->plugin             = 'mod';
-                       $sub->type               = $module->name;
-                       $sub->instance           = $cm;
-                       $sub->name               = $moduleinstance->name;
-                       $sub->visible            = $cm->visible;
-                       $element->subs[] = $sub;
-                       $itemcount++;
+                        if (!$cm = $DB->get_record('course_modules', array('id' => $seq))) {
+                            // if (debugging()) notify("missing module of id $seq");
+                            continue;
+                        }
+                        $module = $DB->get_record('modules', array('id' => $cm->module));
+                        if (preg_match('/label$/', $module->name)) {
+                            continue; // discard all labels
+                        }
+                        $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
+                        $sub = new StdClass;
+                        $sub->id = $cm->id;
+                        $sub->plugin = 'mod';
+                        $sub->type = $module->name;
+                        $sub->instance = $cm;
+                        $sub->name = $moduleinstance->name;
+                        $sub->visible = $cm->visible;
+                        $element->subs[] = $sub;
+                        $itemcount++;
                     }
                 }
-                $structure[] = $element;    
+                $structure[] = $element;
+                if ($sectioncount == $maxsections) {
+                    // Do not go further, even if more sections are in database.
+                    break;
+                }
+                $sectioncount++;
             }
         }
     }
@@ -95,35 +131,42 @@ function reports_get_course_structure($courseid, &$itemcount){
 }
 
 /**
-* get the complete inner structure for one page of a page menu.
-* Recursive function.
-*
-* @param record $page
-* @param reference $itemcount a recursive propagating counter in case of flexipage
-* or recursive content.
-*/
-function page_get_structure_from_page($page, &$itemcount){
+ * get the complete inner structure for one page of a page menu.
+ * Recursive function.
+ *
+ * @param record $page
+ * @param reference $itemcount a recursive propagating counter in case of flexipage
+ * or recursive content.
+ */
+function page_get_structure_from_page($page, &$itemcount) {
     global $VISITED_PAGES, $DB;
-    
-    if (!isset($VISITED_PAGES)) $VISITED_PAGES = array();
 
-    if (in_array($page->id, $VISITED_PAGES)) return;    
+    if (!isset($VISITED_PAGES)) {
+        $VISITED_PAGES = array();
+    }
+
+    if (in_array($page->id, $VISITED_PAGES)) {
+        return;
+    }
     $VISITED_PAGES[] = $page->id;    
-    
+
     $structure = array();
-    
+
     // get page items from first page. They are located in the center column    
     $select = " pageid = ? AND (position = 'c' OR position = 'r') ";
     $pageitems = $DB->get_records_select('format_page_items', $select, array($page->id), 'position, sortorder');
-    
+
     // analyses course content component stack
-    if ($pageitems){
-        foreach($pageitems as $pi){
-            
-            if (!$pi->cmid){
+    if ($pageitems) {
+        foreach ($pageitems as $pi) {
+
+            if (!$pi->cmid) {
 
                 // is a block
                 $b = $DB->get_record('block_instances', array('id' => $pi->blockinstance));
+                if (!$b) {
+                    continue;
+                }
                 $bp = $DB->get_record('block_positions', array('blockinstanceid' => $pi->blockinstance));
                 $blockinstance = block_instance($b->blockname, $b);
 
@@ -131,34 +174,34 @@ function page_get_structure_from_page($page, &$itemcount){
                 $element->type = $b->blockname;
                 $element->plugintype = 'block';
                 $element->instance = $b;
-                if ($bp){
+                if ($bp) {
                     $element->instance->visible = $bp->visible * $pi->visible; // a block can be hidden by its page_module insertion.
                 } else {
                     $element->instance->visible = $pi->visible;
                 }
-                $element->name = (!empty($blockinstance->config->title)) ? $blockinstance->config->title : '' ;
+                $element->name = (!empty($blockinstance->config->title)) ? $blockinstance->config->title : '';
                 $element->id = $b->id;
                 // $itemcount++;
-                            
-                // tries to catch modules, pages or resources in content
+
+                // Tries to catch modules, pages or resources in content.
     
                 $source = @$blockinstance->config->text;
 
                 // if there is no subcontent, do not consider this bloc in reports.
-                if ($element->subs = page_get_structure_in_content($source, $itemcount)){
+                if ($element->subs = page_get_structure_in_content($source, $itemcount)) {
                     $structure[] = $element;
-                }            
+                }
             } else {
                 // is a module
                 $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
                 $module = $DB->get_record('modules', array('id' => $cm->module));
-                
-                switch($module->name){
+
+                switch ($module->name) {
                     case 'customlabel':
                     case 'label':
                     case 'pagemenu':
                         break;
-                    default:{
+                    default:
                         $element = new StdClass;
                         $element->type = $module->name;
                         $element->plugin = 'mod';
@@ -169,20 +212,21 @@ function page_get_structure_from_page($page, &$itemcount){
                         $element->id = $cm->id;
                         $structure[] = $element;
                         $itemcount++;
-                    }
                 }
             }
         }
     }
-    
-    if (!empty($page->childs)){
-        foreach($page->childs as $key => $child){
-            if (!($child->display > FORMAT_PAGE_DISP_HIDDEN)) continue;
-            
+
+    if (!empty($page->childs)) {
+        foreach ($page->childs as $key => $child) {
+            if (!($child->display > FORMAT_PAGE_DISP_HIDDEN)) {
+                continue;
+            }
+
             $pageelement = new StdClass;
             $pageelement->type = 'page';
             $pageelement->name = format_string($child->nametwo);
-            
+
             $pageelement->subs = page_get_structure_from_page($child, $itemcount);
             $structure[] = $pageelement;
         }
@@ -192,14 +236,14 @@ function page_get_structure_from_page($page, &$itemcount){
 }
 
 /**
-* get substructures hidden in content. this applies to content in HTML blocks that
-* may be inserted in page based formats. Not applicable to topic and weekly format.
-*
-* @param string $source the textual source code of the content
-* @param reference $itemcount a recursive propagating counter in case of flexipage
-* or recursive content.
-*/
-function page_get_structure_in_content($source, &$itemcount){
+ * get substructures hidden in content. this applies to content in HTML blocks that
+ * may be inserted in page based formats. Not applicable to topic and weekly format.
+ *
+ * @param string $source the textual source code of the content
+ * @param reference $itemcount a recursive propagating counter in case of flexipage
+ * or recursive content.
+ */
+function page_get_structure_in_content($source, &$itemcount) {
     global $VISITED_PAGES, $DB;
 
     $structure = array();
@@ -207,11 +251,13 @@ function page_get_structure_in_content($source, &$itemcount){
     // get all links
     $pattern = '/href=\\"(.*)\\"/';
     preg_match_all($pattern, $source, $matches);
-    if (isset($matches[1])){
-        foreach($matches[1] as $href){
+    if (isset($matches[1])) {
+        foreach ($matches[1] as $href) {
             // jump to another page
-            if (preg_match('/course\\/view.php\\?id=(\\d+)&page=(\\d+)/', $href, $matches)){
-                if (in_array($matches[2], $VISITED_PAGES)) continue;
+            if (preg_match('/course\\/view.php\\?id=(\\d+)&page=(\\d+)/', $href, $matches)) {
+                if (in_array($matches[2], $VISITED_PAGES)) {
+                    continue;
+                }
                 $page = $DB->get_record('format_page', array('id' => $matches[2]));
                 $element = new StdClass;
                 $element->type = 'pagemenu';
@@ -221,7 +267,7 @@ function page_get_structure_in_content($source, &$itemcount){
                 $VISITED_PAGES[] = $matches[2];
             }
             // points a module
-            if (preg_match('/mod\\/([a-z_]+)\\/.*\\?id=(\\d+)/', $href, $matches)){
+            if (preg_match('/mod\\/([a-z_]+)\\/.*\\?id=(\\d+)/', $href, $matches)) {
                 $element = new StdClass;
                 $element->type = $matches[1];
                 $element->plugin = 'mod';
@@ -242,12 +288,12 @@ function page_get_structure_in_content($source, &$itemcount){
 
 
 /**
-* special time formating
-* xlsd stands for xls duration
-*/
-function training_reports_format_time($timevalue, $mode = 'html'){
-    if ($timevalue){
-        if ($mode == 'html'){
+ * special time formating
+ * xlsd stands for xls duration
+ */
+function trainingsessions_format_time($timevalue, $mode = 'html') {
+    if ($timevalue) {
+        if ($mode == 'html') {
             return format_time($timevalue);
         } elseif($mode == 'xlsd') {
             $secs = $timevalue % 60;
@@ -264,7 +310,7 @@ function training_reports_format_time($timevalue, $mode = 'html'){
             // return  $timevalue / DAYSECS;
         }
     } else {
-        if ($mode == 'html'){
+        if ($mode == 'html') {
             return get_string('unvisited', 'report_trainingsessions');
         }
         return '';
@@ -272,19 +318,19 @@ function training_reports_format_time($timevalue, $mode = 'html'){
 }
 
 /**
-* sets up a set fo formats
-* @param object $workbook
-* @return array of usable formats keyed by a label
-*
-* Formats : 
-* t : Big Title
-* tt : section caption
-* p : bolded paragraph
-* z : numeric (normal)
-* zt : time format
-* zd : date format
-*/
-function training_reports_xls_formats(&$workbook){
+ * sets up a set fo formats
+ * @param object $workbook
+ * @return array of usable formats keyed by a label
+ *
+ * Formats : 
+ * t : Big Title
+ * tt : section caption
+ * p : bolded paragraph
+ * z : numeric (normal)
+ * zt : time format
+ * zd : date format
+ */
+function trainingsessions_xls_formats(&$workbook) {
     $xls_formats = array();
     // titles
     $xls_formats['t'] = $workbook->add_format();
@@ -325,26 +371,27 @@ function training_reports_xls_formats(&$workbook){
 }
 
 /**
-* initializes a new worksheet with static formats
-* @param int $userid
-* @param int $startrow
-* @param array $xls_formats
-* @param object $workbook
-* @return the initialized worksheet.
-*/
-function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes'){
+ * initializes a new worksheet with static formats
+ * @param int $userid
+ * @param int $startrow
+ * @param array $xls_formats
+ * @param object $workbook
+ * @return the initialized worksheet.
+ */
+function trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes') {
     global $DB, $CFG;
-    
+
+    $config = get_config('report_trainingsessions');
     $user = $DB->get_record('user', array('id' => $userid));
 
-    if ($purpose == 'usertimes' || $purpose == 'allcourses'){
-        if ($CFG->latinexcelexport){
-            $sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');        
+    if ($purpose == 'usertimes' || $purpose == 'allcourses') {
+        if ($config->csv_iso) {
+            $sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8');
         } else {
             $sheettitle = fullname($user);
         }
     } else {
-        if ($CFG->latinexcelexport){
+        if ($config->csv_iso) {
             $sheettitle = mb_convert_encoding(fullname($user), 'ISO-8859-1', 'UTF-8').' ('.get_string('sessions', 'report_trainingsessions').')';
         } else {
             $sheettitle = fullname($user).' ('.get_string('sessions', 'report_trainingsessions').')';
@@ -352,12 +399,12 @@ function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$wo
     }
 
     $worksheet = $workbook->add_worksheet($sheettitle);
-    if ($purpose == 'usertimes'){
+    if ($purpose == 'usertimes') {
         $worksheet->set_column(0,0,24);
         $worksheet->set_column(1,1,64);
         $worksheet->set_column(2,2,12);
         $worksheet->set_column(3,3,4);
-    } elseif ($purpose == 'allcourses'){
+    } elseif ($purpose == 'allcourses') {
         $worksheet->set_column(0,0,50);
         $worksheet->set_column(1,1,50);
         $worksheet->set_column(2,2,12);
@@ -384,20 +431,27 @@ function training_reports_init_worksheet($userid, $startrow, &$xls_formats, &$wo
     $worksheet->write_string($startrow - 1, 1, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
     $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
     $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
-    
+
     return $worksheet;
 }
 
 /**
- * a raster for printing in raw format 
- * with all the relevant data about a user.
- *
+ * A raster for printing in raw format with all the relevant data about a user. 
+ * @param int $userid user to compile info for
+ * @param int $courseid the course to compile reports in
+ * @param objectref &$data input data to aggregate. Provides time information as 'elapsed" and 'weekelapsed' members.
+ * @param string &$rawstr the output buffer reference. Column names come from outside.
+ * @param int $from compilation start time
+ * @param int $to compilation end time
+ * @return void. $rawstr is appended by reference.
  */
-function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$rawstr, $from, $to){
+function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$rawstr, $from, $to) {
     global $CFG, $COURSE, $DB;
 
+    $config = get_config('report_trainingsessions');
+
     $user = $DB->get_record('user', array('id' => $userid));
-    if ($courseid != $COURSE->id){
+    if ($courseid != $COURSE->id) {
         $course = $DB->get_record('course', array('id' => $courseid));
     } else {
         $course = &$COURSE;
@@ -405,11 +459,11 @@ function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$r
 
     $resultset = array();
 
-    // Group
+    // group
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
     if (!empty($usergroups)) {
-        foreach ($usergroups as $group){
+        foreach($usergroups as $group) {
             $str = $group->name;
             if ($group->id == groups_get_course_group($course)) {
                 $str = "$str";
@@ -418,108 +472,83 @@ function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$r
         }
         $resultset[] = implode(', ', $groupnames); // entity
     } else {
-        $resultset[] = get_string('outofgroup', 'report_trainingsessions'); // entity        
+        $resultset[] = get_string('outofgroup', 'report_trainingsessions'); // entity
     }
 
-    // User idnumber
-    $resultset[] = $user->idnumber;
+    // userid
+    $resultset[] = $user->id;
 
-    // Lastname
-    if (!empty($CFG->report_trainingsessions_csv_iso)){
+    // lastname
+    if (!empty($config->csv_iso)) {
         $namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname))), 'ISO-8859-1', 'UTF-8');
     } else {
         $namestr = strtoupper(trim(preg_replace('/\s+/', ' ', $user->lastname)));
     }
-    $resultset[] = collate_string($namestr);
+    $namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
+    $namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
+    $namestr = mb_ereg_replace('/ç/', 'C', $namestr);
+    $namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
+    $namestr = mb_ereg_replace('/î/', 'I', $namestr);
+    $resultset[] = $namestr;
 
-    // Firstname
-    if (!empty($CFG->report_trainingsessions_csv_iso)){
+    // firstname
+    if (!empty($config->csv_iso)) {
         $namestr = mb_convert_encoding(strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname))), 'ISO-8859-1', 'UTF-8');
     } else {
         $namestr = strtoupper(trim(preg_replace('/\s+/', ' ', $user->firstname)));
     }
-    $resultset[] = collate_string($namestr);
+    $namestr = mb_ereg_replace('/é|è|ë|ê/', 'E', $namestr);
+    $namestr = mb_ereg_replace('/ä|a/', 'A', $namestr);
+    $namestr = mb_ereg_replace('/ç/', 'C', $namestr);
+    $namestr = mb_ereg_replace('/ü|ù|/', 'U', $namestr);
+    $namestr = mb_ereg_replace('/î/', 'I', $namestr);
+    $resultset[] = $namestr;
 
-    // Firstenrol
+    // first enrol date
     $firstenroll = $DB->get_field_select('user_enrolments', 'MIN(timestart)', " timestart != 0 AND userid = ? ", array($user->id));
     $resultset[] = ($firstenroll) ? date('d/m/Y', $firstenroll) : '' ; // from date
 
-    // First access
+    // first login date
     $firstlogin = $DB->get_field_select('log', 'MIN(time)', " userid = ? AND action = 'login' ", array($user->id));
     $resultset[] = ($firstlogin) ? date('d/m/Y', $firstlogin) : '' ; // firstlogin
 
-    // Last login
+    // last login date
     $lastlogin = $DB->get_field_select('log', 'MAX(time)', " userid = ? AND action = 'login' ", array($user->id));
     $resultset[] = ($lastlogin) ? date('d/m/Y', $lastlogin) : '' ; // firstlogin
 
-    // From date
-    $resultset[] = date('d/m/Y', $from);
+    // Report from
+    $resultset[] = date('d/m/Y', $from); // from date
 
-    // To date
-    $resultset[] = date('d/m/Y', $to);
+    // report to
+    $resultset[] = date('d/m/Y', $to); // to date
 
-    // Last Week date
-    $resultset[] = date('d/m/Y', $to - DAYSECS * 7);
+    // last week start day
+    $resultset[] = date('d/m/Y', $to - DAYSECS * 7); // last week of period
 
-    // Time elapsed
+    // time
     $resultset[] = raw_format_duration(@$data->elapsed); // elapsed time
 
-    // Time spent last week
+    // time in last week
     $resultset[] = raw_format_duration(@$data->weekelapsed); // elapsed time this week
 
-    $completioninfo = course_completion_data($courseid, $userid);
+    // add grades
+    trainingsessions_add_graded_data($resultset, $userid);
+
     // $context = context_course::instance($courseid);
     // $roles = get_user_roles_in_context($userid, $context);
     // $resultset[] = $roles;
 
-    $resultset[] = $completioninfo->completion;
-    $resultset[] = $completioninfo->grade;
-
-    if (!empty($CFG->report_trainingsessions_csv_iso)){
+    if (!empty($config->csv_iso)) {
         $rawstr .= mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
     } else {
         $rawstr .= implode(';', $resultset)."\n";
     }
 }
 
-function course_completion_data($courseid, $userid) {
-    global $DB;
-
-    $sql = "
-        SELECT
-            FORMAT(g.finalgrade,1) as grade,
-            cc.timecompleted as completed
-        FROM
-            {course_completions} cc,
-            {grade_items} gi,
-            {grade_grades} g
-        WHERE
-            g.userid = cc.userid AND
-            cc.userid = ? AND
-            cc.course = gi.courseid AND
-            gi.itemtype = 'course' AND
-            gi.courseid = ? AND
-            g.itemid = gi.id
-    ";
-    if ($result = $DB->get_record_sql($sql, array($userid, $courseid))) {
-        return $result;
-    }
-    $return = new StdClass;
-    $return->grade = '';
-    $return->completion = 'N.C.';
-    return $return;
-} 
-
-function collate_string($str) {
-    $str = mb_ereg_replace('/é|è|ë|ê/', 'E', $str);
-    $str = mb_ereg_replace('/ä|a/', 'A', $str);
-    $str = mb_ereg_replace('/ç/', 'C', $str);
-    $str = mb_ereg_replace('/ü|ù|/', 'U', $str);
-    $str = mb_ereg_replace('/î/', 'I', $str);
-    return $str;
-}
-
-function raw_format_duration($secs){
+/**
+ * TODO : Remove this function and use get_string based formatting.
+ */
+function raw_format_duration($secs) {
     $min = floor($secs / 60);
     $hours = floor($min / 60);
     $days = floor($hours / 24);
@@ -527,14 +556,14 @@ function raw_format_duration($secs){
     $hours = $hours - $days * 24;
     $min = $min - ($days * 24 * 60 + $hours * 60);
     $secs = $secs - ($days * 24 * 60 * 60 + $hours * 60 * 60 + $min * 60);
-    
-    if ($days){    
+
+    if ($days) {
         return $days.' '.get_string('days')." $hours ".get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
     }
-    if ($hours){    
+    if ($hours) {
         return $hours.' '.get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
     }
-    if ($min){    
+    if ($min) {
         return $min.' '.get_string('min')." $secs ".get_string('secs');
     }
     return $secs.' '.get_string('secs');
@@ -542,31 +571,244 @@ function raw_format_duration($secs){
 
 
 /**
-*
-*
-*/
-function trainingsessions_get_course_users($courseid){
+ * Local qery to get course users.
+ *
+ */
+function trainingsessions_get_course_users($courseid) {
     global $DB;
 
-    $sql = "SELECT 
-                DISTINCT u.id, u.firstname, u.lastname, u.idnumber
-            FROM 
+    $sql = "SELECT
+                DISTINCT u.id, ".get_all_user_name_fields(true, 'u')."
+            FROM
                 {user} u
-            JOIN 
+            JOIN
                 {user_enrolments} ue 
-            ON 
+            ON
                 ue.userid = u.id
-            JOIN 
+            JOIN
                 {enrol} e 
-               ON 
+               ON
                    e.id = ue.enrolid
-            ORDER BY 
-                u.firstname ASC, 
+            ORDER BY
+                u.firstname ASC,
                 u.lastname ASC
     ";
-    
+
     $users = $DB->get_records_sql($sql, null);
-    
+
     return $users;
-    
+}
+
+function trainingsessions_get_graded_modules($courseid) {
+    global $DB;
+
+    return $DB->get_records_select_menu('report_trainingsessions', "courseid = ? AND moduleid != 0", array($courseid), 'sortorder', 'id, moduleid');
+}
+
+/**
+ * Get all graded modules into the course excluing those already linked to report.
+ */
+function trainingsessions_get_linkable_modules($courseid) {
+    global $DB;
+
+    $modinfo = get_fast_modinfo($courseid);
+
+    /*
+    $ignoreids = array();
+    if ($reported = trainingsessions_get_graded_modules($courseid)) {
+        $ignoreids = array_values($reported);
+    }
+    */
+
+    $cms = $modinfo->get_cms();
+    $linkables = array(0 => get_string('disabled', 'report_trainingsessions'));
+    foreach ($cms as $cminfo) {
+        // if (!in_array($cminfo->id, $ignoreids)) {
+            $linkables[$cminfo->id] = '['.$cminfo->modname.'] '.$cminfo->name;
+        // }
+    }
+    return $linkables;
+}
+
+/**
+ * Add extra column headers from grade settings.
+ * @param arrayref &$columns a reference to the array of column headings.
+ * @return void
+ */
+function trainingsessions_add_graded_columns(&$columns, &$formats = null, &$dformats = null) {
+    global $DB, $COURSE;
+
+    $coursemodinfo = get_fast_modinfo($COURSE->id);
+
+    if ($graderecs = $DB->get_records('report_trainingsessions', array('courseid' => $COURSE->id), 'sortorder')) {
+        $formatadds = array();
+        $dformatadds = array();
+        foreach ($graderecs as $rec) {
+            if ($rec->moduleid) {
+                // push in array
+                $cminfo = $coursemodinfo->get_cm($rec->moduleid);
+                $modlabel = (empty($rec->label)) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modulename.$cminfo->instance) : $rec->label;
+                array_push($columns, $modlabel);
+                $formatadds[] = 'p';
+                $dformatadds[] = 'a2';
+            } else {
+                // Retain for adding at the full end of array.
+                $courselabel = (empty($rec->label)) ? (($COURSE->idnumber) ? $COURSE->idnumber : $COURSE->shortname) : $rec->label;
+                $last = $courselabel;
+            }
+        }
+
+        if (isset($last)) {
+            $columns[] = $last;
+            $formatadds[] = 'p';
+            $dformatadds[] = 'a2';
+        }
+
+        if (!is_null($formats)) {
+            $formats = array_merge($formats, $formatadds);
+        }
+
+        if (!is_null($dformats)) {
+            $dformats = array_merge($dformats, $dformatadds);
+        }
+    }
+}
+
+/**
+ * Fetch scores and aggregate them to results.
+ * @param arrayref &$results a reference to the array of reports values.
+ * @return void
+ */
+function trainingsessions_add_graded_data(&$columns, $userid) {
+    global $DB, $COURSE;
+
+    if ($graderecs = $DB->get_records('report_trainingsessions', array('courseid' => $COURSE->id), 'sortorder')) {
+        foreach ($graderecs as $rec) {
+            if ($rec->moduleid) {
+
+                $modulegrade = trainingsessions_get_module_grade($rec->moduleid, $userid);
+                // push in array
+                array_push($columns, $modulegrade);
+            } else {
+                // Retain the coursegrade for adding at the full end of array.
+                $coursegrade = trainingsessions_get_course_grade($rec->courseid, $userid);
+            }
+        }
+
+        if (isset($coursegrade)) {
+            array_push($columns, $coursegrade);
+        }
+    }
+}
+
+/**
+ * Gets the final course grade in gradebook.
+ * @param int $courseid
+ * @param int $userid
+ * @return int the grade, or empty value
+ */
+function trainingsessions_get_course_grade($courseid, $userid) {
+    global $DB;
+
+    $sql = "
+        SELECT
+            g.finalgrade as grade
+        FROM
+            {grade_items} gi,
+            {grade_grades} g
+        WHERE
+            g.userid = ? AND
+            gi.itemtype = 'course' AND
+            gi.courseid = ? AND
+            g.itemid = gi.id
+    ";
+    $result = $DB->get_record_sql($sql, array($userid, $courseid));
+
+    if ($result) {
+        return $result->grade;
+    }
+    return '';
+}
+
+/**
+ * Gets a final grade for a specific course module if exists
+ * @param int $moduleid the course module ID
+ * @param int $userid
+ * @return the grade or empty value.
+ */
+function trainingsessions_get_module_grade($moduleid, $userid) {
+    global $DB, $COURSE;
+
+    $modinfo = get_fast_modinfo($COURSE->id);
+    $cm = $modinfo->get_cm($moduleid);
+
+    $sql = "
+        SELECT
+            g.finalgrade as grade
+        FROM
+            {grade_items} gi,
+            {grade_grades} g
+        WHERE
+            g.userid = ? AND
+            gi.itemtype = 'mod' AND
+            gi.itemmodule = ? AND
+            gi.iteminstance = ? AND
+            g.itemid = gi.id
+    ";
+    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->id));
+
+    if ($result) {
+        return $result->grade;
+    }
+    return '';
+}
+
+/**
+ * Given a prefed tzarget list of users from a previous selection, discard users
+ * that should not appear in reports
+ * @param arrayref &$targetusers an array of selected users to filter out.
+ * @return void
+ */
+function trainingsessions_filter_unwanted_users(&$targetusers) {
+    global $COURSE;
+
+    $context = context_course::instance($COURSE->id);
+
+    foreach ($targetusers as $uid => $unused) {
+        if (!has_capability('report/trainingsessions:iscompiled', $context, $uid, false)) {
+            unset($targetusers[$uid]);
+        }
+    }
+}
+
+function trainingsessions_back_office_access($course) {
+    global $CFG;
+
+    $securitytoken = optional_param('ticket', '', PARAM_RAW);
+    if ($securitytoken) {
+        if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
+            include_once($CFG->dirroot.'/auth/ticket/lib.php');
+            if (!ticket_decodeTicket($securitytoken)) {
+                die('Access is denied by Ticket Auth');
+            }
+        } else {
+            die('Ticket presented but no library for it');
+        }
+    } else {
+        require_login($course);
+        $context = context_course::instance($course->id);
+        require_capability('report/trainingsessions:viewother', $context);
+    }
+}
+
+function trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
+    $count = 0;
+    if (!empty($sessions)) {
+        foreach ($sessions as $s) {
+            foreach($s->courses as $cid) {
+                if ($cid == $courseid) $count++;
+            }
+        }
+    }
+    return $count;
 }

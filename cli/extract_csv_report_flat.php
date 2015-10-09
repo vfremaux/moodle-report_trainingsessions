@@ -140,7 +140,7 @@ if (!empty($options['launch'])) {
     echo "Opening output file as $filename\n";
     if ($FILE = fopen($options['outputpath'].'/'.$filename, 'w+')) {
 
-        training_reports_print_courses_line_header_csv($strhead);
+        trainingsessions_print_courses_line_header_csv($strhead);
         fputs($FILE, $strhead);
 
         foreach ($processedusers as $userid) {
@@ -157,7 +157,7 @@ if (!empty($options['launch'])) {
     
             // Sending HTTP headers
             $str = '';
-            training_reports_print_courses_line_csv($str, $aggregate, $user);
+            trainingsessions_print_courses_line_csv($str, $aggregate, $user);
     
             fputs($FILE, $str);
         }

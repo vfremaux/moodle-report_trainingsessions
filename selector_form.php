@@ -1,10 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Course trainingsessions report
+ *
+ * @package    report_trainingsessions
+ * @version    moodle 2.x
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
 }
 
-require_once($CFG->dirroot . '/lib/formslib.php');
+require_once($CFG->dirroot.'/lib/formslib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
 
 class SelectorForm extends moodleform {
 
@@ -30,7 +53,13 @@ class SelectorForm extends moodleform {
 
         $mform->addElement('hidden', 'output', 'html');
         $mform->setType('output', PARAM_TEXT);
-        
+
+        $grid = &$mform->addElement('elementgrid', 'grid', '', '');
+
+        $titles = array();
+        $row = array();
+        $row2 = array();
+
         $dateparms = array(
             'startyear' => 2008, 
             'stopyear'  => 2020,
@@ -38,7 +67,11 @@ class SelectorForm extends moodleform {
             'applydst'  => true, 
             'optional'  => false
         );
-        $group[] = & $mform->createElement('date_selector', 'from', get_string('from'), $dateparms);
+        $titles[] = get_string('from');
+        $row[] = & $mform->createElement('date_selector', 'from', '', $dateparms);
+
+        $titles[] = get_string('to');
+        $row[] = & $mform->createElement('date_selector', 'to', '', $dateparms);
 
         $context = context_course::instance($this->courseid);
 
@@ -56,17 +89,21 @@ class SelectorForm extends moodleform {
 
                     if (!$allgroupaccess) {
                         $keep = false;
-                        foreach ($mygroups as $g) { // is the user in my groups ?
+                        foreach ($mygroups as $g){ // is the user in my groups ?
                             if (groups_is_member($g->id, $user->id)) $keep = true;
                         }
                         if (!$keep) continue;
                     }
 
                     $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
+                    if (!array_key_exists($USER->id, $useroptions)) {
+                        // In some case, you may also want to see your data even if NOT
+                        // primarily concerned with reports.
+                        $useroptions[$USER->id] = fullname($USER);
+                    }
                 }
-                $group[] = & $mform->createElement('select', 'userid', get_string('user'), $useroptions);
-        
-                $mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('user').':&nbsp; &nbsp;'), false);
+                $titles[] = get_string('user');
+                $row[] = & $mform->createElement('select', 'userid', '', $useroptions);
             }
         } else {
             $groups = groups_get_all_groups($this->courseid);
@@ -76,21 +113,31 @@ class SelectorForm extends moodleform {
                 $groupoptions[0] = get_string('allgroups');
             }
             foreach ($groups as $g) {
-                if ($allgroupaccess || groups_is_member($g->id, $USER->id)){
+                if ($allgroupaccess || groups_is_member($g->id, $USER->id)) {
                     $groupoptions[$g->id] = $g->name;
                 }
             }
-            $group[] = & $mform->createElement('select', 'groupid', get_string('group'), $groupoptions);
-    
-            $mform->addGroup($group, 'selectarr', get_string('from').':', array('&nbsp; &nbsp;'.get_string('group').':&nbsp; &nbsp;'), false);
-    
-            if ($this->mode == 'courseraw'){
-                $mform->addElement('date_selector', 'to', get_string('to'), $dateparms);
-            } 
+            $titles[] = get_string('group');
+            $row[] = & $mform->createElement('select', 'groupid', '', $groupoptions);
 
         }
         $updatefromstr = ($this->mode == 'user') ? get_string('updatefromcoursestart', 'report_trainingsessions') : get_string('updatefromaccountstart', 'report_trainingsessions') ;
-        $mform->addElement('checkbox', 'fromstart', $updatefromstr);
-        $mform->addElement('submit', 'go_btn', get_string('update')); 
+        $updatetostr = get_string('tonow', 'report_trainingsessions');
+
+        $row[] = $mform->createElement('submit', 'go_btn', get_string('update'));
+
+        $row2[] = & $mform->createElement('checkbox', 'fromstart', '', $updatefromstr);
+        $row2[] = & $mform->createElement('checkbox', 'tonow', '', $updatetostr);
+        $row2[] = $mform->createElement('html', ''); // this stands for an empty cell, but needs being a Quickform object.
+        $row2[] = $mform->createElement('html', ''); // this stands for an empty cell, but needs being a Quickform object.
+
+        $grid->setColumnNames($titles);
+        $grid->setColumnWidths(array('30%', '30%', '25%', '15%'));
+        $grid->addRow($row);
+        $grid->addRow($row2);
+
+        $mform->disabledIf('from[\'day\']', 'fromstart', 'checked');
+        $mform->disabledIf('to[\'day\']', 'tonow', 'checked');
+
     }
 }

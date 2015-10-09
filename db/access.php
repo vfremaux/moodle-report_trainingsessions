@@ -17,8 +17,7 @@
 /**
  * Report capabilities
  *
- * @package    report
- * @subpackage trainingsessions
+ * @package    report_trainingsessions
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -37,7 +36,7 @@ $capabilities = array(
 
         'clonepermissionsfrom' => 'moodle/site:viewreports',
     ),
-    
+
     'report/trainingsessions:viewother' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
@@ -57,6 +56,17 @@ $capabilities = array(
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
             'student' => CAP_ALLOW,
+        ),
+    ),
+
+    'report/trainingsessions:downloadreports' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
         ),
     )
 );

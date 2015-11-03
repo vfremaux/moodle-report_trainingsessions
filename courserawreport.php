@@ -50,7 +50,6 @@ $endday = optional_param('endday', -1, PARAM_INT) ; // to (-1 is till now)
 $endmonth = optional_param('endmonth', -1, PARAM_INT) ; // to (-1 is till now)
 $endyear = optional_param('endyear', -1, PARAM_INT) ; // to (-1 is till now)
 
-
 // calculate start time
 
 $selform = new SelectorForm($id, 'courseraw');
@@ -81,6 +80,11 @@ if ($data->to == -1 || @$data->tonow) {
 }
 
 if ($data->output == 'html') {
+    echo $OUTPUT->header();
+    echo $OUTPUT->container_start();
+    echo $renderer->tabs($course, $view, $data->from, $data->to);
+    echo $OUTPUT->container_end();
+
     echo $OUTPUT->box_start('block');
     $selform->set_data($data);
     $selform->display();

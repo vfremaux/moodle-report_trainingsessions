@@ -805,8 +805,10 @@ function trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
     $count = 0;
     if (!empty($sessions)) {
         foreach ($sessions as $s) {
-            foreach($s->courses as $cid) {
-                if ($cid == $courseid) $count++;
+            if (!empty($s->courses)) {
+                foreach($s->courses as $cid) {
+                    if ($cid == $courseid) $count++;
+                }
             }
         }
     }

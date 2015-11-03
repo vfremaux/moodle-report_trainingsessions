@@ -99,6 +99,7 @@ $string['nothing'] = 'No users to compile';
 $string['now'] = 'Now !';
 $string['onefulluserpersheet'] = 'One full user information per sheet';
 $string['oneuserperrow'] = 'One user summary information per row in a single sheet';
+$string['othertime'] = 'Other (non activity) time';
 $string['outofgroup'] = 'No group';
 $string['outofstructure'] = 'Other course use time';
 $string['outputdir'] = 'Output directory ';
@@ -185,4 +186,8 @@ $string['learningtimecheckadvice_help'] = '
 any student interaction in the course, some apparent information discrepancy may appear.</p>
 <p>This is a normal situation that reports consistant information regarding the effective
     use of the platform</p>
+';
+
+$string['othertime_help'] = '
+<p>Elapsed time that cannot be directly assigned to a course activity module.</p>
 ';

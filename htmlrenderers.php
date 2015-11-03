@@ -29,6 +29,7 @@ function trainingsessions_print_allcourses_html(&$str, &$aggregate) {
     $return = new StdClass;
     $return->elapsed = 0;
     $return->events = 0;
+    $catids = array();
 
     if (!empty($aggregate['coursetotal'])) {
         foreach ($aggregate['coursetotal'] as $cid => $cdata) {
@@ -38,7 +39,7 @@ function trainingsessions_print_allcourses_html(&$str, &$aggregate) {
                     $courseids[$cid] = '';
                 }
                 @$output[$courses[$cid]->category][$cid] = $cdata;
-                @$catids[$courses[$cid]->category] = '';
+                $catids[$courses[$cid]->category] = '';
             } else {
                 // echo "ignoring hidden $cdata->elapsed ";
                 if (!isset($output[0][SITEID])) {
@@ -58,13 +59,13 @@ function trainingsessions_print_allcourses_html(&$str, &$aggregate) {
         $elapsedstr = get_string('elapsed', 'report_trainingsessions');
         $hitsstr = get_string('hits', 'report_trainingsessions');
         $coursestr = get_string('course');
-        
+
         if (isset($output[0])) {
             $str .= '<h2>'.get_string('site').'</h2>';
             $str .= $elapsedstr.' : '.format_time($output[0][SITEID]->elapsed).'<br/>';
             $str .= $hitsstr.' : '.$output[0][SITEID]->events;
         }
-        
+
         foreach ($output as $catid => $catdata) {
             if ($catid == 0) continue;
             $str .= '<h2>'.$coursecats[$catid]->name.'</h2>';
@@ -262,7 +263,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
     echo implode (",", $uroles);
 
     if (!empty($data->linktousersheet)) {
-        $params = array('view' => 'user', 'id' => $courseid, 'userid' => $userid);
+        $params = array('view' => 'user', 'id' => $courseid, 'userid' => $userid, 'from' => $data->from, 'to' => $data->to);
         $detailurl = new moodle_url('/report/trainingsessions/index.php', $params);
         echo '<br/><a href="'.$detailurl.'">'.get_string('seedetails', 'report_trainingsessions').'</a>';
     }
@@ -292,18 +293,25 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
 
     // Start printing the overall times
 
-    if (!$short) {
+    echo '<br/><b>';
+    echo get_string('equlearningtime', 'report_trainingsessions');
+    echo ':</b> '.trainingsessions_format_time(0 + @$data->elapsed, 'html');
+    echo ' ('.(0 + @$data->hits).')';
+    echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
-        echo '<br/><b>';
-        echo get_string('equlearningtime', 'report_trainingsessions');
-        echo ':</b> '.trainingsessions_format_time(0 + @$data->elapsed, 'html');
-        echo ' ('.(0 + @$data->hits).')';
-        echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
+    if (!$short) {
 
         echo '<br/><b>';
         echo get_string('activitytime', 'report_trainingsessions');
         echo ':</b> '.trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
+        echo ' ('.(0 + @$data->activityhits).')';
         echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
+
+        echo '<br/><b>';
+        echo get_string('othertime', 'report_trainingsessions');
+        echo ':</b> '.trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
+        echo ' ('.(0 + @$data->otherhits + @$data->course->hits).')';
+        echo $OUTPUT->help_icon('othertime', 'report_trainingsessions');
 
         // plug here specific details
     }
@@ -323,11 +331,11 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
             echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));    
             echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
             echo "<tr class=\"sessionlevel2\" valign=\"top\">";
-            echo "<td class=\"sessionitem\">";
+            echo '<td class="sessionitem">';
             print_string('courseglobals', 'report_trainingsessions');
             echo '</td>';
-            echo "<td class=\"sessionvalue\">";
-            echo trainingsessions_format_time($data->course->elapsed).' ('.$data->course->hits.')';
+            echo '<td class="sessionvalue">';
+            echo trainingsessions_format_time($data->course->elapsed + $data->otherelapsed).' ('.($data->course->hits + $data->otherhits).')';
             echo '</td>';
             echo '</tr>';
         }
@@ -370,6 +378,10 @@ function trainingsessions_print_session_list(&$str, $sessions, $courseid = 0) {
     $totalelapsed = 0;
 
     foreach ($sessions as $s) {
+
+        if (empty($s->courses)) {
+            continue;
+        }
 
         if ($courseid && !array_key_exists($courseid, $s->courses)) {
             // omit all sessions not visiting this course

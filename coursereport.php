@@ -64,6 +64,11 @@ if ($data->to == -1 || @$data->tonow){ // maybe we get it from parameters
 }
 
 if ($data->output == 'html') {
+    echo $OUTPUT->header();
+    echo $OUTPUT->container_start();
+    echo $renderer->tabs($course, $view, $data->from, $data->to);
+    echo $OUTPUT->container_end();
+
     echo $OUTPUT->box_start('block');
     $selform->set_data($data);
     $selform->display();
@@ -133,7 +138,7 @@ if ($data->output == 'html') {
         foreach ($targetusers as $auser) {
 
             $logusers = $auser->id;
-            $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course->id);
+            $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
             $aggregate = use_stats_aggregate_logs($logs, 'module');
 
             if (empty($aggregate['sessions'])) {
@@ -141,16 +146,36 @@ if ($data->output == 'html') {
             }
 
             $data->items = $items;
+
+            $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
+            $data->activityhits = @$aggregate['activities'][$course->id]->events;
+            $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
+            $data->otherhits = @$aggregate['other'][$course->id]->events;
             $data->done = 0;
 
             if (!empty($aggregate)) {
+
+                $data->course->elapsed = 0;
+                $data->course->hits = 0;
+
+                if (!empty($aggregate['course'])) {
+                    $data->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
+                    $data->course->hits = 0 + @$aggregate['course'][$course->id]->hits;
+                }
+
+                // Calculate everything.
+
+                $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
+                $data->hits = $data->activityhits + $data->otherhits + $data->course->hits;
+
+                $data->sessions = (!empty($aggregate['sessions'])) ? trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
+
                 foreach (array_keys($aggregate) as $module) {
                     // exclude from calculation some pseudo-modules that are not part of 
                     // a course structure.
-                    if (preg_match('/course|user|upload|sessions|system|activities/', $module)) continue;
+                    if (preg_match('/course|user|upload|sessions|system|activities|other/', $module)) continue;
                     $data->done += count($aggregate[$module]);
                 }
-                $data->sessions = 0 + count(@$aggregate['sessions']);
             } else {
                 $data->sessions = 0;
             }

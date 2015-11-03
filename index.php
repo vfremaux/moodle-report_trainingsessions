@@ -55,15 +55,6 @@ $renderer = $PAGE->get_renderer('report_trainingsessions');
 $strreports = get_string('reports');
 $strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 
-if ($output == 'html') {
-    echo $OUTPUT->header();
-    echo $OUTPUT->container_start();
-
-    echo $renderer->tabs($course, $view);
-
-    echo $OUTPUT->container_end();
-}
-
 @ini_set('max_execution_time','3000');
 raise_memory_limit('250M');
 

@@ -63,15 +63,20 @@ if (!$canseeothers) {
 
 // calculate start time
 
-if ($data->from == -1 || @$data->fromstart){ // maybe we get it from parameters
+if ($data->from == -1 || @$data->fromstart) { // maybe we get it from parameters
     $data->from = $DB->get_field('user', 'firstaccess', array('id' => $userid));
 }
 
-if ($data->to == -1 || @$data->tonow){ // maybe we get it from parameters
+if ($data->to == -1 || @$data->tonow) { // maybe we get it from parameters
     $data->to = time();
 }
 
 if ($data->output == 'html') {
+    echo $OUTPUT->header();
+    echo $OUTPUT->container_start();
+    echo $renderer->tabs($course, $view, $data->from, $data->to);
+    echo $OUTPUT->container_end();
+
     echo $OUTPUT->box_start('block');
     $selform->set_data($data);
     $selform->display();
@@ -93,26 +98,36 @@ if ($data->output == 'html') {
 
     include_once($CFG->dirroot.'/report/trainingsessions/htmlrenderers.php');
 
-    echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
-
     echo '<br/>';
 
     $str = '';
     $dataobject = trainingsessions_print_allcourses_html($str, $aggregate);
-    $dataobject->course = new StdClass;
-    $dataobject->sessions = count(@$aggregate['sessions']);
 
-    // Fix global course times.
-    $dataobject->activityelapsed = @$aggregate['activities']->elapsed;
-    // $dataobject->elapsed += @$aggregate['course'][0]->elapsed;
-    $dataobject->course->elapsed = 0 + @$aggregate['course'][0]->elapsed;
-    $dataobject->course->hits = 0 + @$aggregate['course'][0]->hits;
+    $dataobject->activityelapsed = @$aggregate['activities'][$COURSE->id]->elapsed;
+    $dataobject->activityhits = @$aggregate['activities'][$COURSE->id]->events;
+    $dataobject->otherelapsed = @$aggregate['other'][$COURSE->id]->elapsed;
+    $dataobject->otherhits = @$aggregate['other'][$COURSE->id]->events;
+
+    $dataobject->course->elapsed = 0;
+    $dataobject->course->hits = 0;
+
+    if (!empty($aggregate['course'])) {
+        $dataobject->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
+        $dataobject->course->hits = 0 + @$aggregate['course'][$course->id]->hits;
+    }
+
+    // Calculate everything.
+
+    $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
+    $dataobject->hits = $dataobject->activityhits + $dataobject->otherhits + $dataobject->course->hits;
+
+    $dataobject->sessions = (!empty($aggregate['sessions'])) ? trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 
     if (array_key_exists('upload', $aggregate)) {
         $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
         $dataobject->upload = new StdClass;
         $dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
-        $dataobject->upload->hits = 0 + @$aggregate['upload'][0]->hits;
+        $dataobject->upload->hits = 0 + @$aggregate['upload'][0]->events;
     }
 
     trainingsessions_print_header_html($userid, $course->id, $dataobject, false, false, false);

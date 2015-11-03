@@ -95,6 +95,7 @@ $string['nothing'] = 'Aucun utilisateur à compiler';
 $string['now'] = 'Maintenant !';
 $string['onefulluserpersheet'] = 'Un participant (complet) par feuille';
 $string['oneuserperrow'] = 'Un participant (résumé) par ligne dans une feuille unique';
+$string['othertime'] = 'Autres temps du cours';
 $string['outofgroup'] = 'Hors groupe';
 $string['outofstructure'] = 'Autres temps du cours';
 $string['outputdir'] = 'Répertoire de sortie';
@@ -179,3 +180,7 @@ $string['learningtimecheckadvice_help'] = '
     dans ses différents indicateurs d\'usage.</p>
 ';
 
+$string['othertime_help'] = '
+<p>Le temps passé dans le cours qui n\'est pas directement affectable à une activité particulière. Il peut s\'agir de temps
+passés dans des écrans de service du cours, où dans des portions liées à des blocs.</p>
+';

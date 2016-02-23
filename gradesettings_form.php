@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Grade settings form
  *
  * @package    report_trainingsessions
+ * @category   report
  * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
-}
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
@@ -36,7 +36,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
     public function definition() {
         global $COURSE;
 
-        $this->linkablemodules = trainingsessions_get_linkable_modules($COURSE->id);
+        $this->linkablemodules = report_trainingsessions_get_linkable_modules($COURSE->id);
 
         $mform = $this->_form;
 
@@ -96,7 +96,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $moduleids = array();
 
         if (empty($fdata)) {
-            if ($linkedmodules = trainingsessions_get_graded_modules($COURSE->id)) {
+            if ($linkedmodules = report_trainingsessions_get_graded_modules($COURSE->id)) {
                 foreach ($linkedmodules as $cidx => $cmid) {
                     $moduleids[$cidx] = $cmid;
                 }

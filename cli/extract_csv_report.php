@@ -15,6 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * @package    report_trainingsessions
+ * @category   report
+ * @version    moodle 2.x
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
  * This script is to be used from PHP command line and will create a set
  * of Virtual VMoodle automatically from a CSV nodelist description.
  * Template names can be used to feed initial data of new VMoodles.
@@ -150,14 +158,14 @@ if (!empty($options['launch'])) {
 
         // Sending HTTP headers
 
-        $overall = trainingsessions_print_allcourses_csv($csvfilecontent, $aggregate);
+        $overall = report_trainingsessions_print_allcourses_csv($csvfilecontent, $aggregate);
 
         $data->elapsed = $overall->elapsed;
         $data->events = $overall->events;
 
-        $csvfilecontentheader = trainingsessions_print_header_csv($userid, $courseid, $data);
+        $csvfilecontentheader = report_trainingsessions_print_header_csv($userid, $courseid, $data);
         
-        trainingsessions_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
+        report_trainingsessions_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
 
         echo "Opening output file as $filename\n";
         if ($FILE = fopen($options['outputpath'].'/'.$filename, 'w+')) {

@@ -86,6 +86,10 @@ echo $OUTPUT->header();
 
 echo $renderer->tabs($course, 'gradesettings', $from, $to);
 
+echo $OUTPUT->heading(get_string('scoresettings', 'report_trainingsessions'));
+
+echo $OUTPUT->notification(get_string('scoresettingsadvice', 'report_trainingsessions'));
+
 // Prepare form feed in.
 $alldata = $DB->get_records('report_trainingsessions', array('courseid' => $COURSE->id), 'sortorder');
 if ($alldata) {
@@ -105,7 +109,6 @@ if ($alldata) {
     }
     $form->set_data($formdata);
 } else {
-    $form = new StdClass();
     $form->from = $from;
     $form->to = $to;
     $form->set_data($form);

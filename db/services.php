@@ -17,22 +17,20 @@
 defined('MOODLE_INTERNAL') || die;
 
 /**
- * Definition of trainingsessions report scheduled tasks.
- *
- * @package   report_trainingsessions
- * @category  task
- * @copyright 2014 Dan Poltawski <dan@moodle.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Web service for exporting trainingsession reports
+ * @package    report_trainingsessions
+ * @since      Moodle 2.7
+ * @copyright  2013 Valery Fremaux
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$tasks = array(
-    array(
-        'classname' => 'report_trainingsessions\task\batchreports_task',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '3',
-        'day' => '*',
-        'month' => '*',
-        'dayofweek' => '1,2,3,4,5'
-    )
+$functions = array(
+
+    'report_trainingsessions_fetch_report' => array(
+            'classname'   => 'report_trainingsessions_external',
+            'methodname'  => 'fetch_report',
+            'classpath'   => 'report/trainingsessions/externallib.php',
+            'description' => 'Returns a single document payload',
+            'type'        => 'read'
+    ),
 );

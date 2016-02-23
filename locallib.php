@@ -14,15 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Local functions for this module
  *
  * @package    report_trainingsessions
+ * @category   report
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
+
+define('TASK_SINGLE', 0);
+define('TASK_REPLAY', 1);
+define('TASK_SHIFT', 2);
+define('TASK_SHIFT_TO', 3);
 
 /**
  * decodes a course structure giving an ordered and
@@ -35,7 +42,7 @@ if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
  * or recursive content.
  * @return a complex structure representing the course organisation
  */
-function trainingsessions_get_course_structure($courseid, &$itemcount) {
+function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
     global $CFG, $DB;
 
     $structure = array();
@@ -291,7 +298,7 @@ function page_get_structure_in_content($source, &$itemcount) {
  * special time formating
  * xlsd stands for xls duration
  */
-function trainingsessions_format_time($timevalue, $mode = 'html') {
+function report_trainingsessions_format_time($timevalue, $mode = 'html') {
     if ($timevalue) {
         if ($mode == 'html') {
             return format_time($timevalue);
@@ -300,7 +307,7 @@ function trainingsessions_format_time($timevalue, $mode = 'html') {
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
             $mins = $mins % 60;
-            
+
             if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
             if ($mins > 0) return "{$mins}m {$secs}s";
             return "{$secs}s";
@@ -330,7 +337,7 @@ function trainingsessions_format_time($timevalue, $mode = 'html') {
  * zt : time format
  * zd : date format
  */
-function trainingsessions_xls_formats(&$workbook) {
+function report_trainingsessions_xls_formats(&$workbook) {
     $xls_formats = array();
     // titles
     $xls_formats['t'] = $workbook->add_format();
@@ -378,7 +385,7 @@ function trainingsessions_xls_formats(&$workbook) {
  * @param object $workbook
  * @return the initialized worksheet.
  */
-function trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes') {
+function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes') {
     global $DB, $CFG;
 
     $config = get_config('report_trainingsessions');
@@ -445,7 +452,7 @@ function trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$wo
  * @param int $to compilation end time
  * @return void. $rawstr is appended by reference.
  */
-function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$rawstr, $from, $to) {
+function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$rawstr, $from, $to) {
     global $CFG, $COURSE, $DB;
 
     $config = get_config('report_trainingsessions');
@@ -532,7 +539,7 @@ function trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$r
     $resultset[] = raw_format_duration(@$data->weekelapsed); // elapsed time this week
 
     // add grades
-    trainingsessions_add_graded_data($resultset, $userid);
+    report_trainingsessions_add_graded_data($resultset, $userid);
 
     // $context = context_course::instance($courseid);
     // $roles = get_user_roles_in_context($userid, $context);
@@ -574,7 +581,7 @@ function raw_format_duration($secs) {
  * Local qery to get course users.
  *
  */
-function trainingsessions_get_course_users($courseid) {
+function report_trainingsessions_get_course_users($courseid) {
     global $DB;
 
     $sql = "SELECT
@@ -599,7 +606,7 @@ function trainingsessions_get_course_users($courseid) {
     return $users;
 }
 
-function trainingsessions_get_graded_modules($courseid) {
+function report_trainingsessions_get_graded_modules($courseid) {
     global $DB;
 
     return $DB->get_records_select_menu('report_trainingsessions', "courseid = ? AND moduleid != 0", array($courseid), 'sortorder', 'id, moduleid');
@@ -608,14 +615,14 @@ function trainingsessions_get_graded_modules($courseid) {
 /**
  * Get all graded modules into the course excluing those already linked to report.
  */
-function trainingsessions_get_linkable_modules($courseid) {
+function report_trainingsessions_get_linkable_modules($courseid) {
     global $DB;
 
     $modinfo = get_fast_modinfo($courseid);
 
     /*
     $ignoreids = array();
-    if ($reported = trainingsessions_get_graded_modules($courseid)) {
+    if ($reported = report_trainingsessions_get_graded_modules($courseid)) {
         $ignoreids = array_values($reported);
     }
     */
@@ -635,7 +642,7 @@ function trainingsessions_get_linkable_modules($courseid) {
  * @param arrayref &$columns a reference to the array of column headings.
  * @return void
  */
-function trainingsessions_add_graded_columns(&$columns, &$formats = null, &$dformats = null) {
+function report_trainingsessions_add_graded_columns(&$columns, &$formats = null, &$dformats = null) {
     global $DB, $COURSE;
 
     $coursemodinfo = get_fast_modinfo($COURSE->id);
@@ -679,19 +686,19 @@ function trainingsessions_add_graded_columns(&$columns, &$formats = null, &$dfor
  * @param arrayref &$results a reference to the array of reports values.
  * @return void
  */
-function trainingsessions_add_graded_data(&$columns, $userid) {
+function report_trainingsessions_add_graded_data(&$columns, $userid) {
     global $DB, $COURSE;
 
     if ($graderecs = $DB->get_records('report_trainingsessions', array('courseid' => $COURSE->id), 'sortorder')) {
         foreach ($graderecs as $rec) {
             if ($rec->moduleid) {
 
-                $modulegrade = trainingsessions_get_module_grade($rec->moduleid, $userid);
+                $modulegrade = report_trainingsessions_get_module_grade($rec->moduleid, $userid);
                 // push in array
                 array_push($columns, $modulegrade);
             } else {
                 // Retain the coursegrade for adding at the full end of array.
-                $coursegrade = trainingsessions_get_course_grade($rec->courseid, $userid);
+                $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
             }
         }
 
@@ -707,7 +714,7 @@ function trainingsessions_add_graded_data(&$columns, $userid) {
  * @param int $userid
  * @return int the grade, or empty value
  */
-function trainingsessions_get_course_grade($courseid, $userid) {
+function report_trainingsessions_get_course_grade($courseid, $userid) {
     global $DB;
 
     $sql = "
@@ -736,7 +743,7 @@ function trainingsessions_get_course_grade($courseid, $userid) {
  * @param int $userid
  * @return the grade or empty value.
  */
-function trainingsessions_get_module_grade($moduleid, $userid) {
+function report_trainingsessions_get_module_grade($moduleid, $userid) {
     global $DB, $COURSE;
 
     $modinfo = get_fast_modinfo($COURSE->id);
@@ -769,10 +776,8 @@ function trainingsessions_get_module_grade($moduleid, $userid) {
  * @param arrayref &$targetusers an array of selected users to filter out.
  * @return void
  */
-function trainingsessions_filter_unwanted_users(&$targetusers) {
-    global $COURSE;
-
-    $context = context_course::instance($COURSE->id);
+function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
+    $context = context_course::instance($course->id);
 
     foreach ($targetusers as $uid => $unused) {
         if (!has_capability('report/trainingsessions:iscompiled', $context, $uid, false)) {
@@ -781,11 +786,24 @@ function trainingsessions_filter_unwanted_users(&$targetusers) {
     }
 }
 
-function trainingsessions_back_office_access($course) {
+function report_trainingsessions_back_office_get_ticket() {
+    global $CFG, $USER;
+
+    if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
+        include_once($CFG->dirroot.'/auth/ticket/lib.php');
+        return ticket_generate($USER, 'trainingsessions_generator', me(), 'des');
+    }
+}
+
+/**
+ * Controls access to script with valid interactive session OR
+ * non interactive token when batch is in progress.
+ */
+function report_trainingsessions_back_office_access($course = null) {
     global $CFG;
 
     $securitytoken = optional_param('ticket', '', PARAM_RAW);
-    if ($securitytoken) {
+    if (!empty($securitytoken)) {
         if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
             include_once($CFG->dirroot.'/auth/ticket/lib.php');
             if (!ticket_decodeTicket($securitytoken)) {
@@ -795,13 +813,19 @@ function trainingsessions_back_office_access($course) {
             die('Ticket presented but no library for it');
         }
     } else {
-        require_login($course);
-        $context = context_course::instance($course->id);
-        require_capability('report/trainingsessions:viewother', $context);
+        if (!is_null($course)) {
+            require_login($course);
+            $context = context_course::instance($course->id);
+            require_capability('report/trainingsessions:viewother', $context);
+        } else {
+            require_login();
+            $context = context_system::instance();
+            require_capability('report/trainingsessions:viewother', $context);
+        }
     }
 }
 
-function trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
+function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
     $count = 0;
     if (!empty($sessions)) {
         foreach ($sessions as $s) {
@@ -813,4 +837,202 @@ function trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
         }
     }
     return $count;
+}
+
+function report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec = null, $reportscope = 'currentcourse') {
+    mtrace('Compile_users for user : '.fullname($user)."<br/>\n");
+
+    $fs = get_file_storage();
+
+    $rqfields = array();
+    $rqfields[] = 'id='.$id;
+    $rqfields[] = 'from='.$from;
+    $rqfields[] = 'to='.$to;
+    $rqfields[] = 'userid='.$user->id;
+    $rqfields[] = 'timesession='.$timesession;
+    $rqfields[] = 'scope='.$reportscope;
+    $rqfields[] = 'ticket='.report_trainingsessions_back_office_get_ticket();
+
+    $rq = implode('&', $rqfields);
+
+    $ch = curl_init($uri.'?'.$rq);
+    debug_trace("Firing url : {$uri}?{$rq}<br/>\n");
+    if (debugging()) {
+        mtrace('Calling : '.$uri.'?'.$rq."<br/>\n");
+        mtrace('direct link : <a href="'.$uri.'?'.$rq."\">Generate direct single doc</a><br/>\n");
+    }
+
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+    $raw = curl_exec($ch);
+
+    // check for curl errors
+    $curlerrno = curl_errno($ch);
+    if ($curlerrno != 0) {
+        debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno");
+    }
+
+    // check HTTP error code
+    $info =  curl_getinfo($ch);
+    if (!empty($info['http_code']) && ($info['http_code'] != 200) && ($info['http_code'] != 303)) {
+        debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code']);
+    } else {
+        if (!is_null($filerec)) {
+            // feed pdf result in file storage.
+            $oldfile = $fs->get_file($filerec->contextid, $filerec->component, $filerec->filearea, $filerec->itemid, $filerec->filepath, $filerec->filename);
+            if ($oldfile) {
+                // clean old file before.
+                $oldfile->delete();
+            }
+            $newfile = $fs->create_file_from_string($filerec, $raw);
+    
+            $createdurl = moodle_url::make_pluginfile_url($filerec->contextid, $filerec->component, $filerec->filearea, $filerec->itemid, $filerec->filepath, $filerec->filename);
+            mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+        } else {
+            return $raw;
+        }
+    }
+
+    curl_close($ch);
+}
+
+function report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec = null, $reportscope = 'currentcourse') {
+    mtrace('Compile_users for group : '.$group->name."<br/>\n");
+
+    $fs = get_file_storage();
+
+    $rqfields = array();
+    $rqfields[] = 'id='.$id;
+    $rqfields[] = 'from='.$from;
+    $rqfields[] = 'to='.$to;
+    $rqfields[] = 'groupid='.$group->id;
+    $rqfields[] = 'timesession='.$timesession;
+    $rqfields[] = 'scope='.$reportscope;
+    $rqfields[] = 'ticket='.report_trainingsessions_back_office_get_ticket();
+
+    $rq = implode('&', $rqfields);
+
+    $ch = curl_init($uri.'?'.$rq);
+    debug_trace("Firing url : {$uri}?{$rq}<br/>\n");
+    if (debugging()) {
+        mtrace('Calling : '.$uri.'?'.$rq."<br/>\n");
+        mtrace('direct link : <a href="'.$uri.'?'.$rq."\">Generate direct single doc</a><br/>\n");
+    }
+
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+    $raw = curl_exec($ch);
+
+    // check for curl errors
+    $curlerrno = curl_errno($ch);
+    if ($curlerrno != 0) {
+        debugging("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with curl error $curlerrno");
+    }
+
+    // check HTTP error code
+    $info =  curl_getinfo($ch);
+    if (!empty($info['http_code']) && ($info['http_code'] != 200) && ($info['http_code'] != 303)) {
+        debugging("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with HTTP code ".$info['http_code']);
+    } else {
+        if (!is_null($filerec)) {
+            // feed xls result in file storage.
+            $oldfile = $fs->get_file($filerec->contextid, $filerec->component, $filerec->filearea, $filerec->itemid, $filerec->filepath, $filerec->filename);
+            if ($oldfile) {
+                // clean old file before.
+                $oldfile->delete();
+            }
+            $newfile = $fs->create_file_from_string($filerec, $raw);
+    
+            $createdurl = moodle_url::make_pluginfile_url($filerec->contextid, $filerec->component, $filerec->filearea, $filerec->itemid, $filerec->filepath, $filerec->filename);
+            mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+        } else {
+            return $raw;
+        }
+    }
+
+    curl_close($ch);
+}
+
+function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
+
+    // If no groups existing, get all course
+    $groups = groups_get_all_groups($courseid);
+    if (!$groups && !$groupid) {
+        $groups = array();
+        $group = new StdClass;
+        $group->id = 0;
+        $group->name = get_string('course');
+        if ($range == 'user') {
+            $context = context_course::instance($courseid);
+            $group->target = get_enrolled_users($context);
+        }
+        $groups[] = $group;
+    } elseif ($groups && !$groupid) {
+        if ($range == 'user') {
+            foreach ($groups as $group) {
+                $group->target = groups_get_members($group->id);
+            }
+        }
+    } else {
+        // Only one group. Reduce group list to this group.
+        if ($range == 'user') {
+            $group = $groups[$groupid];
+            $group->target = groups_get_members($groupid);
+            $groups = array();
+            $groups[] = $group;
+        }
+    }
+    return $groups;
+}
+
+/**
+ * Given a session that might overpass day boundaries, splice into single day sessions.
+ * @see report_learningtimecheck for similar implementation and full unit tests.
+ * @param object $session a session object with sessionstart, sessionend and elapsed members.
+ */
+function report_trainingsessions_splice_session($session) {
+    $daytimestart = date('G', $session->sessionstart) * HOURSECS + date('i', $session->sessionstart) * MINSECS + date('s', $session->sessionstart);
+    $endofday = 24 * HOURSECS;
+    $daygap = $endofday - $daytimestart;
+    $startstamp = $session->sessionstart;
+
+    $sessions = array();
+
+    while ($startstamp + $daygap < $session->sessionend) {
+        $daysess = new StdClass();
+        $daysess->sessionstart = $startstamp;
+        $daysess->sessionend = $startstamp + $daygap;
+        $daysess->courses = $session->courses;
+        $daysess->elapsed = $daygap;
+        $daytimestart = 0; // back to midnight;
+        $daygap = $endofday - $daytimestart;
+        $startstamp = $daysess->sessionend;
+        $sessions[] = $daysess;
+    }
+
+    // We now need to keep the last segment
+    if ($startstamp < $session->sessionend) {
+        $daysess = new stdClass();
+        $daysess->sessionstart = $startstamp;
+        $daysess->sessionend = $session->sessionend;
+        $daysess->courses = $session->courses;
+        $daysess->elapsed = $session->sessionend - $daysess->sessionstart;
+        $sessions[] = $daysess;
+    }
+
+    return $sessions;
 }

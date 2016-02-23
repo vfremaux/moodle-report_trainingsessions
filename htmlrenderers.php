@@ -14,13 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * @package    report_trainingsessions
+ * @category   report
+ * @version    moodle 2.x
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 /**
 * a raster for html printing of a report structure.
 *
 * @param string ref $str a buffer for accumulating output
 * @param object $structure a course structure object.
 */
-function trainingsessions_print_allcourses_html(&$str, &$aggregate) {
+function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
     global $CFG, $COURSE, $OUTPUT, $DB;
 
     $output = array();
@@ -100,7 +110,7 @@ function trainingsessions_print_allcourses_html(&$str, &$aggregate) {
  * @param string ref $str a buffer for accumulating output
  * @param object $structure a course structure object.
  */
-function trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 1){
+function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 1){
     global $CFG, $COURSE;
 
     $usconfig = get_config('use_stats');
@@ -132,7 +142,7 @@ function trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $in
             if (isset($element->instance) && empty($element->instance->visible)) {
                 continue; // non visible items should not be displayed
             }
-            $res = trainingsessions_print_html($str, $element, $aggregate, $done, $indent, $level);
+            $res = report_trainingsessions_print_html($str, $element, $aggregate, $done, $indent, $level);
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += (0 + @$res->events);
         } 
@@ -167,7 +177,7 @@ function trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $in
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 } 
                 if (!empty($structure->subs)) {
-                    $res = trainingsessions_print_html($suboutput, $structure->subs, $aggregate, $done, $indent, $level + 1);
+                    $res = report_trainingsessions_print_html($suboutput, $structure->subs, $aggregate, $done, $indent, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
@@ -179,7 +189,7 @@ function trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $in
                     if (!empty($dataobject->timesource) && $dataobject->timesource == 'declared' && $dataobject->elapsed) {
                         $nodestr .= get_string('declaredtime', 'block_use_stats');
                     }
-                    $nodestr .= trainingsessions_format_time($dataobject->elapsed, 'html');
+                    $nodestr .= report_trainingsessions_format_time($dataobject->elapsed, 'html');
                     $nodestr .= ' ('.(0 + @$dataobject->events).')';
                 } else {
                     $nodestr .= get_string('ignored', 'block_use_stats');
@@ -195,7 +205,7 @@ function trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $in
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 }
                 if (!empty($structure->subs)) {
-                    $res = trainingsessions_print_html($suboutput, $structure->subs, $aggregate, $done, $indent, $level);
+                    $res = report_trainingsessions_print_html($suboutput, $structure->subs, $aggregate, $done, $indent, $level);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
@@ -222,7 +232,7 @@ function trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $in
  * with all the relevant data about a user.
  *
  */
-function trainingsessions_print_header_html($userid, $courseid, $data, $short = false, $withcompletion = true, $withnooutofstructure = false) {
+function report_trainingsessions_print_header_html($userid, $courseid, $data, $short = false, $withcompletion = true, $withnooutofstructure = false) {
     global $CFG, $DB, $OUTPUT;
 
     $user = $DB->get_record('user', array('id' => $userid));
@@ -233,7 +243,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
 
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
     echo '<h1>';
-    echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));    
+    echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
     echo '&nbsp;&nbsp;&nbsp;'.fullname($user).'</h1>';
 
     // print group status
@@ -242,7 +252,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
         echo ':</b> ';
         foreach ($usergroups as $group) {
             $str = $group->name;
-            if ($group->id == groups_get_course_group($courseid)) {
+            if ($group->id == groups_get_course_group($course)) {
                 $str = "$str";
             }
             $groupnames[] = $str;
@@ -270,7 +280,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
 
     if ($withcompletion) {
         // Print completion bar.
-        echo trainingsessions_print_completionbar($data->items, $data->done, 500);
+        echo report_trainingsessions_print_completionbar($data->items, $data->done, 500);
         /*
         if (!empty($data->items)) {
             $completed = $data->done / $data->items;
@@ -295,7 +305,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
 
     echo '<br/><b>';
     echo get_string('equlearningtime', 'report_trainingsessions');
-    echo ':</b> '.trainingsessions_format_time(0 + @$data->elapsed, 'html');
+    echo ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
     echo ' ('.(0 + @$data->hits).')';
     echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
@@ -303,13 +313,13 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
 
         echo '<br/><b>';
         echo get_string('activitytime', 'report_trainingsessions');
-        echo ':</b> '.trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
+        echo ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
         echo ' ('.(0 + @$data->activityhits).')';
         echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
 
         echo '<br/><b>';
         echo get_string('othertime', 'report_trainingsessions');
-        echo ':</b> '.trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
+        echo ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
         echo ' ('.(0 + @$data->otherhits + @$data->course->hits).')';
         echo $OUTPUT->help_icon('othertime', 'report_trainingsessions');
 
@@ -335,7 +345,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
             print_string('courseglobals', 'report_trainingsessions');
             echo '</td>';
             echo '<td class="sessionvalue">';
-            echo trainingsessions_format_time($data->course->elapsed + $data->otherelapsed).' ('.($data->course->hits + $data->otherhits).')';
+            echo report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed).' ('.($data->course->hits + $data->otherhits).')';
             echo '</td>';
             echo '</tr>';
         }
@@ -345,7 +355,7 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
             print_string('uploadglobals', 'report_trainingsessions');
             echo '</td>';
             echo "<td class=\"sessionvalue\">";
-            echo trainingsessions_format_time($data->upload->elapsed).' ('.$data->upload->hits.')';
+            echo report_trainingsessions_format_time($data->upload->elapsed).' ('.$data->upload->hits.')';
             echo '</td>';
             echo '</tr>';
         }
@@ -357,8 +367,16 @@ function trainingsessions_print_header_html($userid, $courseid, $data, $short = 
  * prints a report over each connection session
  *
  */
-function trainingsessions_print_session_list(&$str, $sessions, $courseid = 0) {
-    global $OUTPUT;
+function report_trainingsessions_print_session_list(&$str, $sessions, $courseid = 0, $userid = 0) {
+    global $OUTPUT, $CFG;
+
+    $config = get_config('report_trainingsessions');
+    if (!empty($config->enablelearningtimecheckcoupling)) {
+        require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
+        $ltcconfig = get_config('report_learningtimecheck');
+    }
+
+    $debug = optional_param('debug', false, PARAM_BOOL);
 
     $sessionsstr = ($courseid) ? get_string('coursesessions', 'report_trainingsessions') : get_string('sessions', 'report_trainingsessions');
     $str .= $OUTPUT->heading($sessionsstr, 2);
@@ -376,29 +394,96 @@ function trainingsessions_print_session_list(&$str, $sessions, $courseid = 0) {
     $str .= '</tr>';
 
     $totalelapsed = 0;
+    $induration = 0;
+    $outduration = 0;
 
-    foreach ($sessions as $s) {
+    foreach ($sessions as $session) {
 
-        if (empty($s->courses)) {
+        if ($debug) {
+            print_object($session);
+        }
+
+        if (!isset($session->sessionend)) {
+            // this is a "not true" session reliquate. Ignore it
             continue;
         }
 
-        if ($courseid && !array_key_exists($courseid, $s->courses)) {
-            // omit all sessions not visiting this course
-            continue;
-        }
+        // Fix all incoming sessions. possibly cropped by threshold effect.
+        $session->sessionend = $session->sessionstart + $session->elapsed;
 
-        if (!isset($s->sessionstart)) {
-            continue;
-        }
+        $daysessions = report_trainingsessions_splice_session($session);
 
-        $sessionenddate = (isset($s->sessionend)) ? userdate(@$s->sessionend) : '';
-        $str .= '<tr valign="top">';
-        $str .= '<td>'.userdate($s->sessionstart).'</td>';
-        $str .= '<td>'.$sessionenddate.'</td>';
-        $str .= '<td>'.format_time(@$s->elapsed).'</td>';
-        $str .= '</tr>';
-        $totalelapsed += @$s->elapsed;
+        foreach($daysessions as $s) {
+
+            if (empty($s->courses)) {
+                continue;
+            }
+
+            if ($courseid && !array_key_exists($courseid, $s->courses)) {
+                // omit all sessions not visiting this course
+                continue;
+            }
+
+            if (!isset($s->sessionstart)) {
+                continue;
+            }
+
+            $startstyle = '';
+            $endstyle = '';
+            $checkstyle = '';
+            if (!empty($config->enablelearningtimecheckcoupling)) {
+
+                if (!empty($ltcconfig->checkworkingdays) || !empty($ltcconfig->checkworkinghours)) {
+
+                    // Always mark in html rendering.
+                    // Start check :
+                    $fakecheck = new StdClass();
+                    $fakecheck->usertimestamp = $s->sessionstart;
+                    $fakecheck->userid = $userid;
+    
+                    $outtime = false;
+                    if (!empty($ltcconfig->checkworkingdays) && !report_learningtimecheck_is_valid($fakecheck)) {
+                        $startstyle = 'style="color:#A0A0A0"';
+                        $endstyle = 'style="color:#A0A0A0"';
+                        $checkstyle = 'style="color:#A0A0A0"';
+                        $outtime = true;
+                        if ($outtime) $outduration += $s->elapsed;
+                        if (!$outtime) $induration += $s->elapsed;
+                    } else {
+                        if (!empty($ltcconfig->checkworkinghours)) {
+                            if (!$startcheck = report_learningtimecheck_check_time($fakecheck, $ltcconfig)) {
+                                $startstyle = 'style="color:#ff0000"';
+                            }
+            
+                            // End check :
+                            $fakecheck = new StdClass();
+                            $fakecheck->userid = $userid;
+                            $fakecheck->usertimestamp = $s->sessionend;
+                            if (!$endcheck = report_learningtimecheck_check_time($fakecheck, $ltcconfig)) {
+                                $endstyle = 'style="color:#ff0000"';
+                            }
+            
+                            if (!$startcheck && !$endcheck) {
+                                $startstyle = 'style="color:#ff0000"';
+                                $startstyle = 'style="color:#ff0000"';
+                                $checkstyle = 'style="color:#ff0000"';
+                                $outtime = true;
+                            }
+                            if ($outtime) $outduration += $s->elapsed;
+                            if (!$outtime) $induration += $s->elapsed;
+                        }
+                    }
+                }
+            }
+
+            $sessionenddate = (isset($s->sessionend)) ? userdate(@$s->sessionend) : '';
+            $str .= '<tr valign="top">';
+            $str .= '<td '.$startstyle.'>'.userdate($s->sessionstart).'</td>';
+            $str .= '<td '.$endstyle.'>'.$sessionenddate.'</td>';
+            $str .= '<td '.$checkstyle.'>'.format_time(@$s->elapsed).'</td>';
+            $str .= '</tr>';
+            $totalelapsed += @$s->elapsed;
+        }
     }
     $str .= '<tr valign="top">';
     $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
@@ -406,12 +491,28 @@ function trainingsessions_print_session_list(&$str, $sessions, $courseid = 0) {
     $str .= '<td><br/>'.format_time($totalelapsed).'</td>';
     $str .= '</tr>';
 
+    if (!empty($config->enablelearningtimecheckcoupling) && 
+            (!empty($ltcconfig->checkworkingdays) ||
+                    !empty($ltcconfig->checkworkinghours))) {
+        $str .= '<tr valign="top">';
+        $str .= '<td><br/><b>'.get_string('in', 'report_trainingsessions').' '.$OUTPUT->help_icon('insessiontime', 'report_trainingsessions').'</b></td>';
+        $str .= '<td></td>';
+        $str .= '<td><br/>'.format_time($induration).'</td>';
+        $str .= '</tr>';
+    
+        $str .= '<tr valign="top">';
+        $str .= '<td><br/><b>'.get_string('out', 'report_trainingsessions').' '.$OUTPUT->help_icon('outsessiontime', 'report_trainingsessions').'</b></td>';
+        $str .= '<td></td>';
+        $str .= '<td style="color:#ff0000"><br/>'.format_time($outduration).'</td>';
+        $str .= '</tr>';
+    }
+
     $str .= '</table>';
 
     $str .= '<p>(*) '.get_string('elapsedadvice', 'report_trainingsessions').'</p>';
 }
 
-function trainingsessions_print_total_site_html($dataobject) {
+function report_trainingsessions_print_total_site_html($dataobject) {
     global $OUTPUT;
 
     $str = '';
@@ -420,7 +521,7 @@ function trainingsessions_print_total_site_html($dataobject) {
     $hitsstr = get_string('hits', 'report_trainingsessions');
     $str .= '<br/>';
     $str .= '<b>'.$elapsedstr.':</b> ';
-    $str .= trainingsessions_format_time(0 + $dataobject->elapsed, 'html');
+    $str .= report_trainingsessions_format_time(0 + $dataobject->elapsed, 'html');
     $str .= $OUTPUT->help_icon('totalsitetime', 'report_trainingsessions');
     $str .= '<br/>';
     $str .= '<b>'.$hitsstr.':</b> ';
@@ -461,7 +562,7 @@ function reports_print_pager($maxsize, $offset, $pagesize, $url, $contextparms) 
     return $str;
 }
 
-function trainingsessions_print_completionbar($items, $done, $width) {
+function report_trainingsessions_print_completionbar($items, $done, $width) {
     global $CFG, $OUTPUT;
 
     $str = '';

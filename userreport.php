@@ -14,15 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Course trainingsessions report for a single user
  *
  * @package    report_trainingsessions
+ * @category   report
  * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if (!defined('MOODLE_INTERNAL')) die ('You cannot use this script directly');
 
 /**
  * direct log construction implementation
@@ -82,7 +84,7 @@ if (empty($aggregate['sessions'])) {
 
 // Get course structure.
 
-$coursestructure = trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // Print result.
 
@@ -93,7 +95,7 @@ if ($data->output == 'html') {
     // Time period form.
 
     $str = '';
-    $dataobject = trainingsessions_print_html($str, $coursestructure, $aggregate, $done);
+    $dataobject = report_trainingsessions_print_html($str, $coursestructure, $aggregate, $done);
     $dataobject->items = $items;
     $dataobject->done = $done;
 
@@ -125,7 +127,7 @@ if ($data->output == 'html') {
     $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
     $dataobject->hits = $dataobject->activityhits + $dataobject->otherhits + $dataobject->course->hits;
 
-    $dataobject->sessions = (!empty($aggregate['sessions'])) ? trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
+    $dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 
     if (array_key_exists('upload', $aggregate)) {
         $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
@@ -134,9 +136,9 @@ if ($data->output == 'html') {
         $dataobject->upload->hits = 0 + @$aggregate['upload'][0]->events;
     }
 
-    trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
+    report_trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
 
-    trainingsessions_print_session_list($str, @$aggregate['sessions'], $course->id);
+    report_trainingsessions_print_session_list($str, @$aggregate['sessions'], $course->id, $data->userid);
 
     echo $str;
 
@@ -144,6 +146,7 @@ if ($data->output == 'html') {
     $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo '<br/><center>';
     echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+    echo $renderer->user_session_reports_buttons($data->userid, 'course');
     echo '</center>';
     echo '<br/>';
 
@@ -165,10 +168,10 @@ if ($data->output == 'html') {
 
     // Preparing some formats.
 
-    $xls_formats = trainingsessions_xls_formats($workbook);
+    $xls_formats = report_trainingsessions_xls_formats($workbook);
     $startrow = 15;
-    $worksheet = trainingsessions_init_worksheet($data->userid, $startrow, $xls_formats, $workbook);
-    $overall = trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $startrow, $xls_formats);
+    $worksheet = report_trainingsessions_init_worksheet($data->userid, $startrow, $xls_formats, $workbook);
+    $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $startrow, $xls_formats);
     $datarec = new StdClass;
     $datarec->items = $items;
     $datarec->done = $done;
@@ -176,11 +179,11 @@ if ($data->output == 'html') {
     $datarec->to = $data->to;
     $datarec->elapsed = $overall->elapsed;
     $datarec->events = $overall->events;
-    trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
+    report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
 
-    $worksheet = trainingsessions_init_worksheet($data->userid, $startrow, $xls_formats, $workbook, 'sessions');
-    trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $course->id, $xls_formats);
-    trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $data, $xls_formats);
+    $worksheet = report_trainingsessions_init_worksheet($data->userid, $startrow, $xls_formats, $workbook, 'sessions');
+    report_trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $course->id, $xls_formats);
+    report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $data, $xls_formats);
 
     $workbook->close();
 }

@@ -31,11 +31,10 @@
  */
 
 require('../../config.php');
-ob_start();
+// ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
-require_once($CFG->libdir.'/excellib.class.php');
+require_once($CFG->dirroot.'/report/trainingsessions/pdfrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
 $groupid = required_param('groupid', PARAM_INT) ; // group id
@@ -51,9 +50,9 @@ $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when
 $timesession = optional_param('timesession', time(), PARAM_INT) ; // time of the generation batch
 $readabletimesession = date('Ymd_H_i_s', $timesession);
 $sessionday = date('Ymd', $timesession);
-$reportscope = required_param('scope', PARAM_TEXT); // Only currentcourse is consistant
 
 ini_set('memory_limit', '512M');
+$config = get_config('report_trainingsessions');
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('Invalid course ID');
@@ -102,57 +101,92 @@ if ($groupid) {
     $targetusers = groups_get_members($groupid);
 
     // Filter out non compiling users.
-    report_trainingsessions_filter_unwanted_users($targetusers);
+    report_trainingsessions_filter_unwanted_users($targetusers, $course);
 } else {
-    $targetusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.id, '.get_all_user_name_fields(true, 'u').', email, institution, idnumber', 'lastname');
+    $targetusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.id, '.get_all_user_name_fields(true, 'u').', institution, idnumber', 'lastname');
 }
 
 // Print result.
 
 if (!empty($targetusers)) {
 
-    // generate XLS
+    // generate PDF
 
     if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".xls";
+        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".pdf";
     } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".xls";
+        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".pdf";
     }
 
-    $workbook = new MoodleExcelWorkbook("-");
-    if (!$workbook) {
-        die("Excel Librairies Failure");
-    }
+    // generate PDF
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+    $pdf->SetTitle(get_string('sessionreportdoctitle', 'report_trainingsessions'));
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetAutoPageBreak(false, 0);
 
     // Sending HTTP headers
-    ob_end_clean();
-    $workbook->send($filename);
 
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
-    $startrow = 15;
+    // Define cells params 
+    $table = new html_table();
+
+    $table->pdfhead1 = array(get_string('firstaccess'), get_string('elapsed', 'report_trainingsessions'), get_string('hits', 'report_trainingsessions'));
+    $table->pdfsize1 = array('30%', '30%', '30%');
+    $table->pdfalign1 = array('L', 'L', 'L');
+    $table->pdfbgcolor1 = array('#A0A0A0', '#A0A0A0', '#A0A0A0');
+    $table->pdfcolor1 = array('#606060', '#606060', '#606060');
+
+    $table->pdfalign2 = array('L', 'L', 'L', 'L', 'L');
+    $table->pdfsize2 = array('30%', '30%', '30%');
+
+    $table->pdfbgcolor3 = array('#808080', '#808080', '#808080', '#808080');
+    $table->pdfcolor3 = array('#ffffff', '#ffffff', '#ffffff', '#ffffff');
+    $table->pdfalign3 = array('L', 'L', 'L', 'L', 'L');
+    $table->pdfprintinfo = array(1,1,1,1,1);
 
     foreach ($targetusers as $auser) {
+        $pdf->AddPage();
 
-        $row = $startrow;
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+        // Define variables
+        // Portrait
+        $x = 20;
+        $y = $config->pdfabsoluteverticaloffset;
+        $lineincr = 8;
+        $dblelineincr = $lineincr * 2;
+        $smalllineincr = 4;
+    
+        // Set alpha to no-transparency
+        // $pdf->SetAlpha(1);
+    
+        // Add images and lines.
+        report_trainingsessions_draw_frame($pdf);
+    
+        // Add images and lines.
+        report_trainingsessions_print_header($pdf);
+    
+        // Add images and lines.
+        report_trainingsessions_print_footer($pdf);
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
         $aggregate = use_stats_aggregate_logs($logs, 'module');
+        $y = report_trainingsessions_print_userinfo($pdf, $y, $auser, $course, $from, $to, $config->recipient);
+        $y = report_trainingsessions_print_overheadline($pdf, $y, $table);
+        $overall = report_trainingsessions_print_course_structure($pdf, $y, $coursestructure, $aggregate, $done, $items, $table);
+        $dataline = new StdClass();
+        $dataline->items = $items;
+        $dataline->done = $done;
+        $dataline->elapsed = $overall->elapsed;
+        $dataline->events = $overall->events;
+        $y = report_trainingsessions_print_sumline($pdf, $y, $dataline, $table);
 
-        $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-        $data->items = $items;
-        $data->done = $done;
-        $data->from = $from;
-        $data->elapsed = $overall->elapsed;
-        $data->events = $overall->events;
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
     }
-    $workbook->close();
+    // Sending HTTP headers
+    // ob_end_clean();
+
+    $result = $pdf->Output('', 'S');
+    echo $result;
 }
 
 // echo '200';

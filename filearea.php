@@ -17,8 +17,8 @@
 /**
  * Manage files in folder in private area.
  *
- * @package   core_user
- * @category  files
+ * @package   report_trainingsessions
+ * @category  report
  * @copyright 2010 Petr Skoda (http://skodak.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,6 +26,8 @@
 require('../../config.php');
 require_once($CFG->dirroot.'/report/trainingsessions/files_form.php');
 require_once($CFG->dirroot.'/repository/lib.php');
+
+// Security.
 
 require_login();
 

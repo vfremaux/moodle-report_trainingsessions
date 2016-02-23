@@ -42,11 +42,10 @@ $groupid = optional_param('groupid', '', PARAM_INT) ; // compiling for given gro
 $outputdir = optional_param('outputdir', 'autoreports', PARAM_TEXT) ; // where to put the file
 $reportlayout = optional_param('reportlayout', 'onefulluserpersheet', PARAM_TEXT) ; // where to put the file
 $reportscope = optional_param('reportscope', 'onefulluserpersheet', PARAM_TEXT) ; // allcourses or currentcourse
-$reportformat = 'xls';
+$reportformat = 'csv';
 
 if ($reportlayout == 'onefulluserpersheet') {
-    $reporttype = 'peruser';
-    $range = 'user';
+    print_error('unsupported', 'report_trainingsessions');
 } elseif ($reportlayout == 'oneuserperrow') {
     $reporttype = 'summary';
     $range = 'group';
@@ -62,7 +61,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 
-// Security
+// Security.
 trainingsessions_back_office_access($course);
 
 // calculate start time. Defaults ranges to all course range.
@@ -115,7 +114,7 @@ foreach ($groups as $group) {
                 $filerec->filearea = 'reports';
                 $filerec->itemid = $course->id;
                 $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".date('Y-M-d', time()).".xls";
+                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".date('Y-M-d', time()).".csv";
 
                 report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
             }
@@ -131,7 +130,7 @@ foreach ($groups as $group) {
         $filerec->filearea = 'reports';
         $filerec->itemid = $course->id;
         $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".date('Y-M-d', time()).".xls";
+        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".date('Y-M-d', time()).".csv";
 
         report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
     }

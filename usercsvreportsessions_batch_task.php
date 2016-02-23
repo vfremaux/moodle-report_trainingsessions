@@ -15,30 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    report_trainingsessions
- * @category   report
- * @version    moodle 2.x
- * @author     Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-/**
- * This script handles the report generation in batch task for a single group. 
- * It will produce a group Excel worksheet report that is pushed immediately to output
+ * This script handles the session report generation in batch task for a single user.
+ * It will produce a single PDF report that is pushed immediately to output
  * for downloading by a batch agent. No file is stored into the system.
- * groupid must be provided.
+ * userid must be provided.
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  */
 
 require('../../config.php');
-ob_start();
+
+// ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
-require_once($CFG->libdir.'/excellib.class.php');
+require_once($CFG->dirroot.'/report/trainingsessions/csvrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
-$groupid = required_param('groupid', PARAM_INT) ; // group id
+$userid = required_param('userid', PARAM_INT) ; // user id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
 $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
 $startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
@@ -51,7 +43,6 @@ $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when
 $timesession = optional_param('timesession', time(), PARAM_INT) ; // time of the generation batch
 $readabletimesession = date('Ymd_H_i_s', $timesession);
 $sessionday = date('Ymd', $timesession);
-$reportscope = required_param('scope', PARAM_TEXT); // Only currentcourse is consistant
 
 ini_set('memory_limit', '512M');
 
@@ -61,9 +52,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-report_trainingsessions_back_office_access($course);
-
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+trainingsessions_back_office_access($course);
 
 // TODO : secure groupid access depending on proper capabilities
 
@@ -95,64 +84,20 @@ if ($to == -1) {
     }
 }
 
-// Compute target group.
-
-if ($groupid) {
-    $group = $DB->get_record('groups', array('id' => $groupid));
-    $targetusers = groups_get_members($groupid);
-
-    // Filter out non compiling users.
-    report_trainingsessions_filter_unwanted_users($targetusers);
-} else {
-    $targetusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.id, '.get_all_user_name_fields(true, 'u').', email, institution, idnumber', 'lastname');
-}
-
+$user = $DB->get_record('user', array('id' => $userid));
+// echo "Generating for user $user->id ";
 // Print result.
+if (!empty($user)) {
 
-if (!empty($targetusers)) {
-
-    // generate XLS
-
-    if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".xls";
-    } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".xls";
-    }
-
-    $workbook = new MoodleExcelWorkbook("-");
-    if (!$workbook) {
-        die("Excel Librairies Failure");
-    }
+    $csvbuffer = '';
+    report_trainingsessions_print_session_header($csvbuffer);
+    $y = report_trainingsessions_print_usersessions($csvbuffer, $userid, 0, $from, $to, $id);
 
     // Sending HTTP headers
-    ob_end_clean();
-    $workbook->send($filename);
+    // ob_end_clean();
+    header("Content-Type: text/plain\n\n");
+    echo $csvbuffer;
 
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
-    $startrow = 15;
-
-    foreach ($targetusers as $auser) {
-
-        $row = $startrow;
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
-
-        $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
-
-        $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-        $data->items = $items;
-        $data->done = $done;
-        $data->from = $from;
-        $data->elapsed = $overall->elapsed;
-        $data->events = $overall->events;
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-    }
-    $workbook->close();
 }
-
+exit(0);
 // echo '200';

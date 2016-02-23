@@ -15,6 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * @package    report_trainingsessions
+ * @category   report
+ * @version    moodle 2.x
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
  * This script handles the report generation in batch task for a single group. 
  * It may produce a group csv report.
  * groupid must be provided. 
@@ -53,9 +61,9 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course);
 
-$coursestructure = trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // TODO : secure groupid access depending on proper capabilities
 
@@ -95,7 +103,7 @@ if ($groupid) {
 }
 
 // Filter out non compiling users.
-trainingsessions_filter_unwanted_users($targetusers);
+report_trainingsessions_filter_unwanted_users($targetusers);
 
 // print result
 
@@ -112,7 +120,7 @@ if (!empty($targetusers)) {
     ob_end_clean();
     $workbook->send($filename);
 
-    $xls_formats = trainingsessions_xls_formats($workbook);
+    $xls_formats = report_trainingsessions_xls_formats($workbook);
 
     $row = 0;
     // $sheettitle = '';
@@ -138,9 +146,9 @@ if (!empty($targetusers)) {
     $headerformats = array('p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p');
     $dataformats = array('a2', 'a2', 'a2', 'a2', 'zd', 'zd', 'z', 'z', 'z', 'zt', 'z', 'zt', 'z');
 
-    trainingsessions_add_graded_columns($headdata, $headerformats, $dataformats);
+    report_trainingsessions_add_graded_columns($headdata, $headerformats, $dataformats);
 
-    $row = trainingsessions_print_rawline_xls($worksheet, $headdata, $headerformats, $row, $xls_formats);
+    $row = report_trainingsessions_print_rawline_xls($worksheet, $headdata, $headerformats, $row, $xls_formats);
 
     $logs = use_stats_extract_logs($from, $to, array_keys($targetusers), $course->id);
     $aggregate = use_stats_aggregate_logs_per_user($logs, 'module');
@@ -169,9 +177,9 @@ if (!empty($targetusers)) {
         $data[] = 0 + @$weekaggregate[$auser->id]['coursetotal'][$course->id]->elapsed;
         $data[] = 0 + @$weekaggregate[$auser->id]['coursetotal'][$course->id]->events;
 
-        trainingsessions_add_graded_data($data, $auser->id);
+        report_trainingsessions_add_graded_data($data, $auser->id);
 
-        $row = trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xls_formats);
+        $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xls_formats);
 
     }
     $workbook->close();

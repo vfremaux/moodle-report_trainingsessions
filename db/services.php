@@ -14,19 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
- * Version info
- *
+ * Web service for exporting trainingsession reports
  * @package    report_trainingsessions
- * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @since      Moodle 2.7
+ * @copyright  2013 Valery Fremaux
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+$functions = array(
 
-$plugin->version   = 2016011203; // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2015050500; // Requires this Moodle version
-$plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity = MATURITY_STABLE; 
-$plugin->release = '2.9.0 (build 2016011203)';
-$plugin->dependencies = array('block_use_stats' => '2014041100', 'auth_ticket' => '*');
+    'report_trainingsessions_fetch_report' => array(
+            'classname'   => 'report_trainingsessions_external',
+            'methodname'  => 'fetch_report',
+            'classpath'   => 'report/trainingsessions/externallib.php',
+            'description' => 'Returns a single document payload',
+            'type'        => 'read'
+    ),
+);

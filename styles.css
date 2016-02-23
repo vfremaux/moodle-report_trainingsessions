@@ -47,18 +47,47 @@ table * td {
 }
 
 .sessionitem.rangedate{
-	background-color:#d0d0d0;
-	font-size:0.9em;
-	border:1px solid #a0a0a0;
+    background-color:#d0d0d0;
+    font-size:0.9em;
+    border:1px solid #a0a0a0;
 }
 
 .report-trainingsession.userinfobox{
-	width:80%;
-	text-align:left;
-	padding:10px;
-	background-color:white;
-	border:1px #d0d0d0 solid;
-	border-radius:10px;
-	margin:10px;
-	font-size:1.2em;
+    width:80%;
+    text-align:left;
+    padding:10px;
+    background-color:white;
+    border:1px #d0d0d0 solid;
+    border-radius:10px;
+    margin:10px;
+    font-size:1.2em;
+}
+
+.trainingsessions-buttons-wrapper{
+    display:table-row;
+}
+
+.trainingsessions-inline-buttons {
+    display: table-cell;
+    height: 18px;
+}
+
+.trainingsessions-inline-buttons form {
+    margin-bottom:2px;
+}
+
+.trainingsessions-inline-buttons form,
+.trainingsessions-inline-buttons form * {
+    display: inline;
+    margin:0px;
+}
+
+.month-placeholder {
+    display: table-cell;
+    margin:0px 5px;
+    border:1px #e0e0e0 solid;
+    height:18px;
+    width:60px;
+    border-radius:4px;
+    -moz-border-radius:4px;
 }

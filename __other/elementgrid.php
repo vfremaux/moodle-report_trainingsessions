@@ -125,6 +125,6 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
     if (file_exists($CFG->libdir.'/form/elementgrid.php')){
         MoodleQuickForm::registerElementType('elementgrid', "$CFG->libdir/form/elementgrid.php", 'MoodleQuickForm_elementgrid');
     } else {
-        MoodleQuickForm::registerElementType('elementgrid', $CFG->dirroot.'/blocks/vmoodle/__other/elementgrid.php', 'MoodleQuickForm_elementgrid');
+        MoodleQuickForm::registerElementType('elementgrid', $CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php', 'MoodleQuickForm_elementgrid');
     }
 }

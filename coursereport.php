@@ -14,15 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Course trainingsessions report
  *
  * @package    report_trainingsessions
+ * @category   report
  * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
 
 /**
  * direct log construction implementation
@@ -121,10 +123,10 @@ if ($data->groupid) {
 }
 
 // Filter out non compiling users.
-trainingsessions_filter_unwanted_users($targetusers);
+report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // get course structure
-$coursestructure = trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // print result
 
@@ -168,7 +170,7 @@ if ($data->output == 'html') {
                 $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
                 $data->hits = $data->activityhits + $data->otherhits + $data->course->hits;
 
-                $data->sessions = (!empty($aggregate['sessions'])) ? trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
+                $data->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 
                 foreach (array_keys($aggregate) as $module) {
                     // exclude from calculation some pseudo-modules that are not part of 
@@ -184,7 +186,7 @@ if ($data->output == 'html') {
             }
 
             $data->linktousersheet = 1;
-            trainingsessions_print_header_html($auser->id, $course->id, $data, true);
+            report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
 
         }
     }
@@ -197,18 +199,25 @@ if ($data->output == 'html') {
     $options['asxls'] = 'xls'; // force XLS for index.php
     $options['view'] = 'course'; // force course view
 
-    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls', 'asxls' => 1);
-    $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo '<br/><center>';
     // echo count($targetusers).' found in this selection';
+    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls');
+    $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+
+    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'pdf');
+    $url = new moodle_url('/report/trainingsessions/index.php', $params);
+    echo $OUTPUT->single_button($url, get_string('generatePDF', 'report_trainingsessions'), 'get');
+
+    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'csv');
+    $url = new moodle_url('/report/trainingsessions/index.php', $params);
+    echo $OUTPUT->single_button($url, get_string('generateCSV', 'report_trainingsessions'), 'get');
     echo '</center>';
     echo '<br/>';
-    
-} else {
+} elseif ($output == 'xls') {
 
     require_once($CFG->libdir.'/excellib.class.php');
-    require_once('xlsrenderers.php');
+    require_once($CFG->dirroot.'/report/trainingsesions/xlsrenderers.php');
 
     /// generate XLS
 
@@ -226,14 +235,14 @@ if ($data->output == 'html') {
     ob_end_clean();
     $workbook->send($filename);
 
-    $xls_formats = trainingsessions_xls_formats($workbook);
+    $xls_formats = report_trainingsessions_xls_formats($workbook);
     $startrow = 15;
 
     if (!empty($targetusers)) {
         foreach ($targetusers as $auser) {
     
             $row = $startrow;
-            $worksheet = trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+            $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
     
             $logusers = $auser->id;
             $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
@@ -241,19 +250,22 @@ if ($data->output == 'html') {
     
             if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
     
-            $overall = trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
+            $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
             $data->items = $items;
             $data->done = $done;
             $data->elapsed = $overall->elapsed;
             $data->events = $overall->events;
-            trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+            report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
     
-            $worksheet = trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-            trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $COURSE->id, $xls_formats);
-            trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-    
+            $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
+            report_trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $COURSE->id, $xls_formats);
+            report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
         }
     }
     $workbook->close();
+} else {
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification('Not yet supported');
+    echo $OUTPUT->footer();
 }
 

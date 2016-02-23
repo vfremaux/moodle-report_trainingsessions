@@ -22,14 +22,15 @@
  * memory level available for huge batches. 
  *
  * @package    report_trainingsessions
+ * @category   report
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require('../../../config.php');
+require('../../config.php');
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
-require_once($CFG->dirroot.'/course/report/trainingsessions/locallib.php');
-require_once($CFG->libdir.'/excellib.class.php');
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/csvrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
@@ -54,9 +55,9 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course);
 
-$coursestructure = trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // TODO : secure groupid access depending on proper capabilities
 
@@ -93,48 +94,36 @@ $group = $DB->get_record('groups', array('id' => $groupid));
 $targetusers = groups_get_members($groupid);
 
 // Filter out non compiling users.
-trainingsessions_filter_unwanted_users($targetusers);
+report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Print result.
+
+$csvbuffer = '';
+report_trainingsessions_print_courses_line_header($csvbuffer);
 
 if (!empty($targetusers)) {
     // generate XLS
 
     if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".xls";
+        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".csv";
     } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".xls";
+        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".csv";
     }
-    $workbook = new MoodleExcelWorkbook("-");
-    // Sending HTTP headers.
-    ob_end_clean();
-    $workbook->send($filename);
-
-    $xls_formats = trainingsessions_xls_formats($workbook);
-    $startrow = 15;
 
     foreach ($targetusers as $auser) {
-
-        $row = $startrow;
-        $worksheet = trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
         $aggregate = use_stats_aggregate_logs($logs, 'module');
 
-        $overall = trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-        $data->items = $items;
-        $data->done = $done;
-        $data->from = $from;
-        $data->elapsed = $overall->elapsed;
-        $data->events = $overall->events;
-        trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
-        $worksheet = trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-        trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
-        trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+        report_trainingsessions_print_courses_line($csvbuffer, $aggregate, $auser);
     }
-    $workbook->close();
+
 }
+
+// Sending HTTP headers
+// ob_end_clean();
+header("Content-Type: text/plain\n\n");
+echo $csvbuffer;
 
 // echo '200';

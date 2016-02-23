@@ -17,9 +17,9 @@
 /**
  * Course trainingsessions report
  *
- * @package    report
+ * @package    report_trainingsessions
+ * @category   report
  * @version    moodle 2.x
- * @subpackage trainingsessions
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -40,6 +40,8 @@ $output = (empty($output)) ? 'html' : $output ;
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     print_error('invalidcourse');
 }
+
+// Security.
 
 require_course_login($course);
 $context = context_course::instance($course->id);

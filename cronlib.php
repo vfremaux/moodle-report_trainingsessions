@@ -14,15 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * Course trainingsessions report
  *
  * @package    report_trainingsessions
+ * @category   report
  * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 /**
 * This special report allows wrapping to course report crons
 * function that otherwise would not be considered by cron task.
@@ -47,9 +50,81 @@ function report_trainingsessions_cron() {
             continue;
         }
 
+        switch ($task->reportformat) {
+            case 'pdf':
+                switch ($task->reportlayout) {
+                    case 'onefulluserpersheet':
+                    $reporttype = 'peruser';
+                    $range = 'group';
+                    break;
+
+                case 'onefulluserperfile':
+                    $reporttype = 'peruser';
+                    $range = 'user';
+                    break;
+
+                case 'oneuserperrow':
+                    $reporttype = 'summary';
+                    $range = 'group';
+                    break;
+
+                case 'allusersessionssinglefile':
+                    $reporttype = 'sessions';
+                    $range = 'group';
+                    break;
+
+                default:
+                    $reporttype = 'sessions';
+                    $range = 'user';
+                }
+            case 'xls':
+                switch($task->reportlayout) {
+                    case 'onefulluserpersheet':
+                    $reporttype = 'peruser';
+                    $range = 'user';
+                    break;
+
+                case 'oneuserperrow':
+                    $reporttype = 'summary';
+                    $range = 'group';
+                    break;
+
+                case 'allusersessionssinglefile':
+                    $reporttype = 'sessions';
+                    $range = 'group';
+                    break;
+
+                default:
+                    $reporttype = 'sessions';
+                    $range = 'user';
+            }
+            case 'csv':
+                switch ($task->reportlayout) {
+                    case 'allusersessionssinglefile':
+                    case 'onefulluserpersheet':
+                        // Silently unseupported
+                        break;
+                    case 'oneuserperrow':
+                        $reporttype = 'summary';
+                        $range = 'group';
+                        break;
+                    default:
+                        $reporttype = 'sessions';
+                        $range = 'user';
+            }
+            default:
+        }
+
+        if ($range == 'group') {
+            $uri = new moodle_url('/report/trainingsessions/group'.$task->reportformat.'report'.$reporttype.'_batch_task.php');
+        } else {
+            $uri = new moodle_url('/report/trainingsessions/group'.$task->reportformat.'report'.'_batch.php');
+        }
+
         $taskarr = (array)$task;
         $rqarr = array();
         $taskarr['id'] = $taskarr['courseid']; // add the course reference of the batch
+        $taskarr['timesession'] = time(); // add the time
 
         // Setup the back office security. This ticket is used all along the batch chain
         // to allow cron or bounce processes to run.
@@ -64,9 +139,6 @@ function report_trainingsessions_cron() {
             $rqarr[] = $key.'='.urlencode($value);
         }
         $rq = implode('&', $rqarr);
-
-        /// launch tasks by firing CURL shooting
-        $uri = new moodle_url('/report/trainingsessions/groupxlsreport_batch.php');
 
         $ch[$taskid] = curl_init($uri.'?'.$rq);
         mtrace("CURL Registered : {$uri}?{$rq}\n");
@@ -129,10 +201,16 @@ function report_trainingsessions_cron() {
         //close the handles
         foreach ($ch as $taskid => $task) {
 
-            if ($tasks[$taskid]->replay) {
+            if ($tasks[$taskid]->replay > TASK_SINGLE) {
                 // replaydelay in seconds
                 $tasks[$taskid]->batchdate = $tasks[$taskid]->batchdate + $tasks[$taskid]->replaydelay * 60;
                 mtrace('Bouncing task '.$taskid.' to '.userdate($tasks[$taskid]->batchdate));
+                if ($tasks[$taskid]->replay >= TASK_SHIFT) {
+                    $tasks[$taskid]->to = $tasks[$taskid]->to + $tasks[$taskid]->to * 60;
+                }
+                if ($tasks[$taskid]->replay == TASK_SHIFT) {
+                    $tasks[$taskid]->from = $tasks[$taskid]->from + $tasks[$taskid]->from * 60;
+                }
             } else {
                 unset($tasks[$taskid]);
                 mtrace('Removing task '.$taskid);

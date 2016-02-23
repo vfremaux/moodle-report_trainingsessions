@@ -20,10 +20,13 @@
  * @todo MDL-44734 This job will be split up properly.
  *
  * @package    report_trainingsessions
+ * @category   report
  * @copyright  2014 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace report_trainingsessions\task;
+
+defined('MOODLE_INTERNAL') || die;
 
 class batchreports_task extends \core\task\scheduled_task {
 

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * This file contains functions used by the trainingsessions report
  *
- * @package    report
- * @subpackage trainingsessions
+ * @package    report_trainingsessions
+ * @category   report
  * @copyright  2012 Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die;
 
 /**
  * This function extends the navigation with the report items

@@ -14,22 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die;
+
 /**
  * General rendering functions for CSV files.
  *
  * @package    report_trainingsessions
+ * @category   report
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) die('You cannot use this script this way');
-
 /**
  * a raster for xls printing of a report structure header
  * with all the relevant data about a user.
  */
-function trainingsessions_print_header_csv($userid, $courseid, $data) {
+function report_trainingsessions_print_header_csv($userid, $courseid, $data) {
     global $CFG, $DB;
 
     $user = $DB->get_record('user', array('id' => $userid));
@@ -106,7 +107,7 @@ function trainingsessions_print_header_csv($userid, $courseid, $data) {
     $csvstr .= (0 + @$data->done). ' ' . get_string('over', 'report_trainingsessions'). ' '. (0 + @$data->items). ' ('.$completedpc.' %)'."\n";
 
     $csvstr .= '# '.get_string('elapsed', 'report_trainingsessions').' : ';
-    $csvstr .= trainingsessions_format_time((0 + @$data->elapsed), 'xlsd')."\n";
+    $csvstr .= report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd')."\n";
 
     $csvstr .= '# '.get_string('hits', 'report_trainingsessions').' : ';
     $csvstr .= (0 + @$data->events)."\n";
@@ -124,7 +125,7 @@ function trainingsessions_print_header_csv($userid, $courseid, $data) {
  * @param arrayref &$done an output variable that returns the "done" amount (number of items) 
  * @param int $level controls the recursion in course structure exploration
  */
-function trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $level = 1) {
+function report_trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $level = 1) {
 
     if (empty($structure)) {
         '# ';
@@ -145,7 +146,7 @@ function trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $le
             if (isset($element->instance) && empty($element->instance->visible)) {
                 continue; // non visible items should not be displayed
             }
-            $res = trainingsessions_print_csv($element, $aggregate, $done, $level);
+            $res = report_trainingsessions_print_csv($element, $aggregate, $done, $level);
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += $res->events;
         } 
@@ -166,13 +167,13 @@ function trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $le
 
                 if (!empty($structure->subs)) {
                     // debug_trace("with subs");
-                    $res = trainingsessions_print_csv($structure->subs, $aggregate, $done, $level + 1);
+                    $res = report_trainingsessions_print_csv($structure->subs, $aggregate, $done, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
 
-                $str = trainingsessions_format_time($dataobject->elapsed, 'xlsd');
-                $csvline .= ';'.trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
+                $str = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
+                $csvline .= ';'.report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
                 $csvline .= $str;
                 $csvline .= $dataobject->events;
 
@@ -182,7 +183,7 @@ function trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $le
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 }
                 if (!empty($structure->subs)) {
-                    $res = trainingsessions_print_csv($structure->subs, $aggregate, $done, $level);
+                    $res = report_trainingsessions_print_csv($structure->subs, $aggregate, $done, $level);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
@@ -192,34 +193,50 @@ function trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $le
     return $dataobject;
 }
 
+function report_trainingsessions_print_session_header(&$str) {
+    $csvline = 'start';
+    $csvline .= ';end';
+    $csvline .= ';elapsed';
+    $csvline .= ';mins';
+    $csvline .= "\n";
+    $str .= $csvline;
+}
+
 /**
  * print session table in an initialied worksheet
  * @param stringref &$str the output buffer
  * @param arrayref &$sessions the session aggregations
  * @param int $courseid
  */
-function trainingsessions_print_sessions_csv(&$str, &$sessions, $courseid) {
+function report_trainingsessions_print_usersessions(&$str, $userid, $unused, $from, $to, $courseid) {
+    global $DB;
 
+    // Get user.
+    $user = $DB->get_record('user', array('id' => $userid));
+
+    // Get data
+    $logs = use_stats_extract_logs($from, $to, $userid, $courseid);
+    $aggregate = use_stats_aggregate_logs($logs, 'module');
     $totalelapsed = 0;
 
-    if (!empty($sessions)) {
-        foreach ($sessions as $s) {
+    if (!empty($aggregate['sessions'])) {
+        foreach ($aggregate['sessions'] as $s) {
 
-            if ($courseid && !array_key_exists($courseid, $s->courses)) {
+            if (empty($s->courses) || ($courseid && !array_key_exists($courseid, $s->courses))) {
                 continue; // omit all sessions not visiting this course
             }
 
-            $csvline = trainingsessions_format_time(@$s->sessionstart, 'xls');
-            if (!empty($s->sessionend)){
-                $csvline .= ';'. trainingsessions_format_time(@$s->sessionend, 'xls');
+            $csvline = date('Y/m/d h:i', @$s->sessionstart);
+            if (!empty($s->sessionend)) {
+                $csvline .= ';'. date('Y/m/d h:i', @$s->sessionend);
             } else {
                 $csvline .= ';';
             }
             $csvline .= ';'.format_time(0 + @$s->elapsed);
-            $csvline .= ';'.trainingsessions_format_time(0 + @$s->elapsed, 'xlsd');
+            $csvline .= ';'.round($s->elapsed / 60);
             $totalelapsed += 0 + @$s->elapsed;
+            $str .= $csvline."\n";
         }
-        $str .= $csvline;
     }
     return $totalelapsed;
 }
@@ -229,7 +246,7 @@ function trainingsessions_print_sessions_csv(&$str, &$sessions, $courseid) {
  * @param stringref &$str the output buffer
  * @param object $aggregate aggregated logs to explore.
  */
-function trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
+function report_trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
     global $CFG, $COURSE, $DB;
 
     $output = array();
@@ -251,7 +268,6 @@ function trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
                 $output[$courses[$cid]->category][$cid] = $cdata;
                 $catids[$courses[$cid]->category] = '';
             } else {
-                // echo "ignoring hidden $cdata->elapsed ";
                 $output[0][SITEID]->elapsed += $cdata->elapsed;
                 $output[0][SITEID]->events += $cdata->events;
             }
@@ -270,7 +286,7 @@ function trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
 
         if (isset($output[0])) {
             $str .= $elapsedstr;
-            $str .= ';'.trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd');
+            $str .= ';'.report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd');
             $str .= ';'."\n";
 
             $str .= $hitsstr;
@@ -314,7 +330,7 @@ function trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
  * a raster for printing a header line in a CSV for course report.
  * @param stringref &$str the output buffer
  */
-function trainingsessions_print_courses_line_header_csv(&$str) {
+function report_trainingsessions_print_courses_line_header(&$str) {
 
     $dataline = array();
     $dataline[] = 'ix';
@@ -331,7 +347,7 @@ function trainingsessions_print_courses_line_header_csv(&$str) {
     $dataline[] = 'elapsed';
     $dataline[] = 'hits';
 
-    trainingsessions_add_graded_columns($dataline);
+    report_trainingsessions_add_graded_columns($dataline);
 
     $str .= implode(';', $dataline)."\n";
 }
@@ -343,7 +359,7 @@ function trainingsessions_print_courses_line_header_csv(&$str) {
  * @param arrayref $aggregate aggregated logs to explore.
  * @param objectref &$user 
  */
-function trainingsessions_print_courses_line_csv(&$str, &$aggregate, &$user) {
+function report_trainingsessions_print_courses_line(&$str, &$aggregate, &$user) {
     global $CFG, $COURSE, $DB;
     static $lineix = 1;
 
@@ -388,6 +404,6 @@ function trainingsessions_print_courses_line_csv(&$str, &$aggregate, &$user) {
 
             $lineix++;
         }
-        trainingsessions_add_graded_data($dataline, $user->id);
+        report_trainingsessions_add_graded_data($dataline, $user->id);
     }
 }

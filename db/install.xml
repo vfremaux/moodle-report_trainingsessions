@@ -1,0 +1,25 @@
+<?php
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="admin/report/etl/db" VERSION="20090603" COMMENT="XMLDB file for Moodle report/trainingsessions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="report_trainingsessions" COMMENT="Stores course settings for trainingsessions">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="courseid"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="courseid"/>
+        <FIELD NAME="moduleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="courseid" NEXT="sortorder" />
+        <FIELD NAME="label" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="moduleid" NEXT="sortorder" />
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="4" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="label"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="coursemodule_ix" UNIQUE="true" FIELDS="courseid,moduleid" />
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

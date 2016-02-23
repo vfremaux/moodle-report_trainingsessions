@@ -16,8 +16,8 @@
 
 /**
  * This script handles the report generation in batch task for a single group. 
- * It may produce a group csv report.
- * groupid must be provided. 
+ * It may produce a group pdf report, or a set of user single reports
+ * groupid must be provided.
  * This script should be sheduled in a redirect bouncing process for maintaining
  * memory level available for huge batches. 
  *
@@ -35,20 +35,26 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 $maxbatchduration = 4 * HOURSECS;
 
-$id = required_param('id', PARAM_INT) ; // the course id
+$id = required_param('id', PARAM_INT) ; // the course id from where the batch was created.
 $from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
 $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
 $groupid = optional_param('groupid', '', PARAM_INT) ; // compiling for given group or all groups
 $outputdir = optional_param('outputdir', 'autoreports', PARAM_TEXT) ; // where to put the file
 $reportlayout = optional_param('reportlayout', 'onefulluserpersheet', PARAM_TEXT) ; // where to put the file
 $reportscope = optional_param('reportscope', 'onefulluserpersheet', PARAM_TEXT) ; // allcourses or currentcourse
-$reportformat = 'xls';
+$reportformat = 'pdf';
 
 if ($reportlayout == 'onefulluserpersheet') {
+    $reporttype = 'peruser';
+    $range = 'group';
+} elseif ($reportlayout == 'onefulluserperfile') {
     $reporttype = 'peruser';
     $range = 'user';
 } elseif ($reportlayout == 'oneuserperrow') {
     $reporttype = 'summary';
+    $range = 'group';
+} elseif ($reportlayout == 'allusersessionssinglefile') {
+    $reporttype = 'sessions';
     $range = 'group';
 } else {
     $reporttype = 'sessions';
@@ -60,22 +66,12 @@ ini_set('memory_limit', '512M');
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('invalidcourse');
 }
+
 $context = context_course::instance($course->id);
-
-// Security
-trainingsessions_back_office_access($course);
-
-// calculate start time. Defaults ranges to all course range.
-
-if ($from == -1) { // maybe we get it from parameters
-    $from = $course->startdate;
-}
-
-if ($to == -1) { // maybe we get it from parameters
-    $to = time();
-}
+report_trainingsessions_back_office_access($course);
 
 // compute target groups
+
 $groups = report_trainingsessions_compute_groups($id, $groupid, $range);
 
 $timesession = time();
@@ -115,7 +111,7 @@ foreach ($groups as $group) {
                 $filerec->filearea = 'reports';
                 $filerec->itemid = $course->id;
                 $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".date('Y-M-d', time()).".xls";
+                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".date('Y-M-d', time()).".pdf";
 
                 report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
             }
@@ -131,8 +127,9 @@ foreach ($groups as $group) {
         $filerec->filearea = 'reports';
         $filerec->itemid = $course->id;
         $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".date('Y-M-d', time()).".xls";
+        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".date('Y-M-d', time()).".pdf";
 
         report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
     }
 }
+

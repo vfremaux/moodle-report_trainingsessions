@@ -15,18 +15,36 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version info
+ * A scheduled task for forum cron.
+ *
+ * @todo MDL-44734 This job will be split up properly.
  *
  * @package    report_trainingsessions
- * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @category   report
+ * @copyright  2014 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace report_trainingsessions\task;
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2016011203; // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2014050800; // Requires this Moodle version
-$plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
-$plugin->maturity = MATURITY_STABLE; 
-$plugin->release = '2.8.0 (build 2016011203)';
-$plugin->dependencies = array('block_use_stats' => '2014041100', 'auth_ticket' => '*');
+class batchreports_task extends \core\task\scheduled_task {
+
+    /**
+     * Get a descriptive name for this task (shown to admins).
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('batchreports_task', 'report_trainingsessions');
+    }
+
+    /**
+     * Run trainingsessions cron.
+     */
+    public function execute() {
+        global $CFG;
+        require_once($CFG->dirroot.'/report/trainingsessions/cronlib.php');
+        report_trainingsessions_cron();
+    }
+}

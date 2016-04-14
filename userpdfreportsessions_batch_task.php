@@ -60,7 +60,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
-trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course);
 $config = get_config('report_trainingsessions');
 
 // TODO : secure groupid access depending on proper capabilities

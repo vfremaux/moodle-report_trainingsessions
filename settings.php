@@ -49,14 +49,14 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
 
-    $settings->add(new admin_setting_configimage('pdfreportheader', get_string('pdfreportheader', 'report_trainingsessions'),
-                       get_string('pdfreportheader_desc', 'report_trainingsessions'), 'report_trainingsessions'));
+    $settings->add(new admin_setting_configstoredfile('pdfreportheader', get_string('pdfreportheader', 'report_trainingsessions'),
+                       get_string('pdfreportheader_desc', 'report_trainingsessions'), 'pdfreportheader', 0));
 
-    $settings->add(new admin_setting_configimage('pdfreportinnerheader', get_string('pdfreportinnerheader', 'report_trainingsessions'),
-                       get_string('pdfreportinnerheader_desc', 'report_trainingsessions'), 'report_trainingsessions'));
+    $settings->add(new admin_setting_configstoredfile('pdfreportinnerheader', get_string('pdfreportinnerheader', 'report_trainingsessions'),
+                       get_string('pdfreportinnerheader_desc', 'report_trainingsessions'), 'pdfreportinnerheader', 0));
 
-    $settings->add(new admin_setting_configimage('pdfreportfooter', get_string('pdfreportfooter', 'report_trainingsessions'),
-                       get_string('pdfreportfooter_desc', 'report_trainingsessions'), 'report_trainingsessions'));
+    $settings->add(new admin_setting_configstoredfile('pdfreportfooter', get_string('pdfreportfooter', 'report_trainingsessions'),
+                       get_string('pdfreportfooter_desc', 'report_trainingsessions'), 'pdfreportfooter'));
 
     $settings->add(new admin_setting_configtext('report_trainingsessions/pdfabsoluteverticaloffset', get_string('pdfabsoluteverticaloffset', 'report_trainingsessions'),
                        get_string('pdfabsoluteverticaloffset_desc', 'report_trainingsessions'), '70'));

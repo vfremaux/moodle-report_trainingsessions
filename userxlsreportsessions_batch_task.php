@@ -62,9 +62,9 @@ if ($id) {
     $context = context_course::instance($course->id);
 
     // Security
-    // report_trainingsessions_back_office_access($course);
+    report_trainingsessions_back_office_access($course);
 } else {
-    // report_trainingsessions_back_office_access();
+    report_trainingsessions_back_office_access();
 }
 
 // TODO : secure groupid access depending on proper capabilities

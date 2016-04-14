@@ -157,6 +157,7 @@ if ($data->output == 'html') {
 
             if (!empty($aggregate)) {
 
+                $data->course = new StdClass();
                 $data->course->elapsed = 0;
                 $data->course->hits = 0;
 
@@ -217,7 +218,7 @@ if ($data->output == 'html') {
 } elseif ($output == 'xls') {
 
     require_once($CFG->libdir.'/excellib.class.php');
-    require_once($CFG->dirroot.'/report/trainingsesions/xlsrenderers.php');
+    require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
 
     /// generate XLS
 

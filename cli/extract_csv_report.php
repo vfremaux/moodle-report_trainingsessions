@@ -19,6 +19,7 @@
  * @category   report
  * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @subpackage  cli
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

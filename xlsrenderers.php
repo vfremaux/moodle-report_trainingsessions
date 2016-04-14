@@ -210,7 +210,7 @@ function report_trainingsessions_print_usersessions($worksheet, $userid, $row, $
  * @param object $course
  * @param object $xls_formats
  */
-function report_trainingsessions_print_sessions_xls(&$worksheet, $row, &$sessions, &$course, &$xls_formats) {
+function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions, $course, &$xls_formats) {
     global $CFG;
 
     $config = get_config('report_traningsessions');
@@ -301,12 +301,21 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
         foreach ($aggregate['coursetotal'] as $cid => $cdata) {
             if ($cid != 0) {
                 if (!in_array($cid, $courseids)) {
-                    $courses[$cid] = $DB->get_record('course', array('id' => $cid), 'id,idnumber,shortname,fullname,category');
+                    if (!$courses[$cid] = $DB->get_record('course', array('id' => $cid), 'id,idnumber,shortname,fullname,category')) {
+                        // This course has gone away.
+                        continue;
+                    }
                     $courseids[$cid] = '';
                 }
-                $output[$courses[$cid]->category][$cid] = $cdata;
-                $catids[$courses[$cid]->category] = '';
+
+                $output[0 + @$courses[$cid]->category][$cid] = $cdata;
+                $catids[0 + @$courses[$cid]->category] = '';
             } else {
+                if (!isset($output[0][SITEID])) {
+                    $output[0][SITEID] = new StdClass();
+                    $output[0][SITEID]->elapsed = 0;
+                    $output[0][SITEID]->events = 0;
+                }
                 // echo "ignoring hidden $cdata->elapsed ";
                 $output[0][SITEID]->elapsed += $cdata->elapsed;
                 $output[0][SITEID]->events += $cdata->events;

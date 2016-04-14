@@ -49,7 +49,8 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
                     $courseids[$cid] = '';
                 }
                 @$output[$courses[$cid]->category][$cid] = $cdata;
-                $catids[$courses[$cid]->category] = '';
+                // If courses have been deleted, this may lead to a category '0';
+                $catids[0 + @$courses[$cid]->category] = '';
             } else {
                 // echo "ignoring hidden $cdata->elapsed ";
                 if (!isset($output[0][SITEID])) {

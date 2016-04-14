@@ -175,7 +175,7 @@ if ($data->output == 'html') {
     report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
 
     $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xls_formats, $workbook, 'sessions');
-    report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], 0, $xls_formats);
+    report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xls_formats);
     report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
 
     $workbook->close();

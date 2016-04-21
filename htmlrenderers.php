@@ -191,7 +191,9 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                         $nodestr .= get_string('declaredtime', 'block_use_stats');
                     }
                     $nodestr .= report_trainingsessions_format_time($dataobject->elapsed, 'html');
-                    $nodestr .= ' ('.(0 + @$dataobject->events).')';
+                    if (is_siteadmin()) {
+                        $nodestr .= ' ('.(0 + @$dataobject->events).')';
+                    }
                 } else {
                     $nodestr .= get_string('ignored', 'block_use_stats');
                 }
@@ -306,8 +308,10 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     echo '<br/><b>';
     echo get_string('equlearningtime', 'report_trainingsessions');
-    echo ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
-    echo ' ('.(0 + @$data->hits).')';
+    echo '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
+    if (is_siteadmin()) {
+        echo ' ('.(0 + @$data->hits).')';
+    }
     echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
     if (!$short) {
@@ -315,13 +319,17 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         echo '<br/><b>';
         echo get_string('activitytime', 'report_trainingsessions');
         echo ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
-        echo ' ('.(0 + @$data->activityhits).')';
+        if (is_siteadmin()) {
+            echo ' ('.(0 + @$data->activityhits).')';
+        }
         echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
 
         echo '<br/><b>';
         echo get_string('othertime', 'report_trainingsessions');
         echo ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
-        echo ' ('.(0 + @$data->otherhits + @$data->course->hits).')';
+        if (is_siteadmin()) {
+            echo ' ('.(0 + @$data->otherhits + @$data->course->events).')';
+        }
         echo $OUTPUT->help_icon('othertime', 'report_trainingsessions');
 
         // plug here specific details
@@ -336,12 +344,12 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     echo '</p></div></center>';
 
-    // add printing for global course time (out of activities)    
+    // add printing for global course time (out of activities)
     if (!$short){
         if (!$withnooutofstructure) {
             echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));    
             echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
-            echo "<tr class=\"sessionlevel2\" valign=\"top\">";
+            echo '<tr class="sessionlevel2" valign="top">';
             echo '<td class="sessionitem">';
             print_string('courseglobals', 'report_trainingsessions');
             echo '</td>';
@@ -351,11 +359,11 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             echo '</tr>';
         }
         if (isset($data->upload)) {
-            echo "<tr class=\"sessionlevel2\" valign=\"top\">";
-            echo "<td class=\"sessionitem\">";
+            echo '<tr class="sessionlevel2" valign="top">';
+            echo '<td class="sessionitem">';
             print_string('uploadglobals', 'report_trainingsessions');
             echo '</td>';
-            echo "<td class=\"sessionvalue\">";
+            echo '<td class="sessionvalue">';
             echo report_trainingsessions_format_time($data->upload->elapsed).' ('.$data->upload->hits.')';
             echo '</td>';
             echo '</tr>';
@@ -481,7 +489,7 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
             $str .= '<tr valign="top">';
             $str .= '<td '.$startstyle.'>'.userdate($s->sessionstart).'</td>';
             $str .= '<td '.$endstyle.'>'.$sessionenddate.'</td>';
-            $str .= '<td '.$checkstyle.'>'.report_trainingsessions_format_time(@$s->elapsed).'</td>';
+            $str .= '<td class="report-trainingsessions session-duration" '.$checkstyle.'>'.report_trainingsessions_format_time(@$s->elapsed).'</td>';
             $str .= '</tr>';
             $totalelapsed += @$s->elapsed;
         }

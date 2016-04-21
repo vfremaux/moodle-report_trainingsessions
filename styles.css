@@ -64,6 +64,10 @@ table * td {
     font-size:1.2em;
 }
 
+.report-trainingsessions.session-duration {
+    text-align:right;
+}
+
 .trainingsessions-buttons-wrapper{
     display:table-row;
 }

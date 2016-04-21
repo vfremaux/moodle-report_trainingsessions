@@ -340,10 +340,12 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     $sesscount = 0;
     if ($short) {
-        // We are in a course context, so we need refilter sessions.
-        foreach ($data->sessions as $s) {
-            if (array_key_exists($courseid, $s->courses)) {
-                $sesscount++;
+        if (!empty($data->sessions)) {
+            // We are in a course context, so we need refilter sessions.
+            foreach ($data->sessions as $s) {
+                if (array_key_exists($courseid, $s->courses)) {
+                    $sesscount++;
+                }
             }
         }
     } else {

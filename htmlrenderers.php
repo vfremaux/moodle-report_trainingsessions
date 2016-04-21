@@ -73,7 +73,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
 
         if (isset($output[0])) {
             $str .= '<h2>'.get_string('site').'</h2>';
-            $str .= $elapsedstr.' : '.format_time($output[0][SITEID]->elapsed).'<br/>';
+            $str .= $elapsedstr.' : '.report_trainingsessions_format_time($output[0][SITEID]->elapsed).'<br/>';
             $str .= $hitsstr.' : '.$output[0][SITEID]->events;
         }
 
@@ -86,7 +86,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
                 $ccontext = context_course::instance($cid);
                 if (has_capability('report/trainingsessions:view', $ccontext)) {
                     $str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td>';
-                    $str .= format_time($cdata->elapsed).'<br/>';
+                    $str .= report_trainingsessions_format_time($cdata->elapsed).'<br/>';
                     $str .= '</td><td>';
                     $str .= $cdata->events;
                     $str .= '</td></tr>';
@@ -212,6 +212,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 }
             }
 
+            $str .= $nodestr;
             if (!empty($structure->subs)) {
                 $str .= '<table class="trainingreport subs">';
                 $str .= '<tr valign="top">';
@@ -222,7 +223,6 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 $str .= '</tr>';
                 $str .= "</table>\n";
             }
-            $str .= $nodestr;
         }
     }
     return $dataobject;
@@ -481,7 +481,7 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
             $str .= '<tr valign="top">';
             $str .= '<td '.$startstyle.'>'.userdate($s->sessionstart).'</td>';
             $str .= '<td '.$endstyle.'>'.$sessionenddate.'</td>';
-            $str .= '<td '.$checkstyle.'>'.format_time(@$s->elapsed).'</td>';
+            $str .= '<td '.$checkstyle.'>'.report_trainingsessions_format_time(@$s->elapsed).'</td>';
             $str .= '</tr>';
             $totalelapsed += @$s->elapsed;
         }
@@ -489,7 +489,7 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
     $str .= '<tr valign="top">';
     $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
     $str .= '<td></td>';
-    $str .= '<td><br/>'.format_time($totalelapsed).'</td>';
+    $str .= '<td><br/>'.report_trainingsessions_format_time($totalelapsed).'</td>';
     $str .= '</tr>';
 
     if (!empty($config->enablelearningtimecheckcoupling) && 
@@ -498,13 +498,13 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
         $str .= '<tr valign="top">';
         $str .= '<td><br/><b>'.get_string('in', 'report_trainingsessions').' '.$OUTPUT->help_icon('insessiontime', 'report_trainingsessions').'</b></td>';
         $str .= '<td></td>';
-        $str .= '<td><br/>'.format_time($induration).'</td>';
+        $str .= '<td><br/>'.report_trainingsessions_format_time($induration).'</td>';
         $str .= '</tr>';
     
         $str .= '<tr valign="top">';
         $str .= '<td><br/><b>'.get_string('out', 'report_trainingsessions').' '.$OUTPUT->help_icon('outsessiontime', 'report_trainingsessions').'</b></td>';
         $str .= '<td></td>';
-        $str .= '<td style="color:#ff0000"><br/>'.format_time($outduration).'</td>';
+        $str .= '<td style="color:#ff0000"><br/>'.report_trainingsessions_format_time($outduration).'</td>';
         $str .= '</tr>';
     }
 

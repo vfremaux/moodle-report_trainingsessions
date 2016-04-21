@@ -301,7 +301,14 @@ function page_get_structure_in_content($source, &$itemcount) {
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
     if ($timevalue) {
         if ($mode == 'html') {
-            return format_time($timevalue);
+            $secs = $timevalue % 60;
+            $mins = floor($timevalue / 60);
+            $hours = floor($mins / 60);
+            $mins = $mins % 60;
+
+            if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
+            if ($mins > 0) return "{$mins}m {$secs}s";
+            return "{$secs}s";
         } elseif($mode == 'xlsd') {
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);

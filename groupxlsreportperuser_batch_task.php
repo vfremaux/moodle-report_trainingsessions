@@ -141,6 +141,7 @@ if (!empty($targetusers)) {
         $aggregate = use_stats_aggregate_logs($logs, 'module');
 
         $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
+        $data = new StdClass();
         $data->items = $items;
         $data->done = $done;
         $data->from = $from;

@@ -150,26 +150,26 @@ if ($data->output == 'html') {
             $data->items = $items;
 
             $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
-            $data->activityhits = @$aggregate['activities'][$course->id]->events;
+            $data->activityevents = @$aggregate['activities'][$course->id]->events;
             $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
-            $data->otherhits = @$aggregate['other'][$course->id]->events;
+            $data->otherevents = @$aggregate['other'][$course->id]->events;
             $data->done = 0;
 
             if (!empty($aggregate)) {
 
                 $data->course = new StdClass();
                 $data->course->elapsed = 0;
-                $data->course->hits = 0;
+                $data->course->events = 0;
 
                 if (!empty($aggregate['course'])) {
                     $data->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-                    $data->course->hits = 0 + @$aggregate['course'][$course->id]->hits;
+                    $data->course->events = 0 + @$aggregate['course'][$course->id]->events;
                 }
 
                 // Calculate everything.
 
                 $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
-                $data->hits = $data->activityhits + $data->otherhits + $data->course->hits;
+                $data->events = $data->activityevents + $data->otherevents + $data->course->events;
 
                 $data->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 

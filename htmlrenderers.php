@@ -197,7 +197,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 } else {
                     $nodestr .= get_string('ignored', 'block_use_stats');
                 }
-    
+
                 // plug here specific details
                 $nodestr .= '</td>';
                 $nodestr .= '</tr>';
@@ -310,7 +310,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     echo get_string('equlearningtime', 'report_trainingsessions');
     echo '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
     if (is_siteadmin()) {
-        echo ' ('.(0 + @$data->hits).')';
+        echo ' ('.(0 + @$data->events).')';
     }
     echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
@@ -320,7 +320,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         echo get_string('activitytime', 'report_trainingsessions');
         echo ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
         if (is_siteadmin()) {
-            echo ' ('.(0 + @$data->activityhits).')';
+            echo ' ('.(0 + @$data->activityevents).')';
         }
         echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
 
@@ -328,7 +328,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         echo get_string('othertime', 'report_trainingsessions');
         echo ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
         if (is_siteadmin()) {
-            echo ' ('.(0 + @$data->otherhits + @$data->course->events).')';
+            echo ' ('.(0 + @$data->otherevents + @$data->course->events).')';
         }
         echo $OUTPUT->help_icon('othertime', 'report_trainingsessions');
 
@@ -337,8 +337,23 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     echo '<br/><b>';
 
     echo get_string('workingsessions', 'report_trainingsessions');
-    echo ':</b> '.(0 + @$data->sessions);
-    if (@$data->sessions == 0 && (@$completedwidth > 0)){
+
+    $sesscount = 0;
+    if ($short) {
+        // We are in a course context, so we need refilter sessions.
+        foreach ($data->sessions as $s) {
+            if (array_key_exists($courseid, $s->courses)) {
+                $sesscount++;
+            }
+        }
+    } else {
+        // We should be in allcourse report.
+        $sesscount += (0 + @$data->sessions);
+    }
+
+    echo ':</b> '.(0 + $sessount);
+
+    if (@$data->sessions == 0 && (@$completedwidth > 0)) {
         echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
     }
 
@@ -354,7 +369,10 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             print_string('courseglobals', 'report_trainingsessions');
             echo '</td>';
             echo '<td class="sessionvalue">';
-            echo report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed).' ('.($data->course->hits + $data->otherhits).')';
+            echo report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed);
+            if (is_siteadmin()) {
+                echo ' ('.($data->course->events + $data->otherevents).')';
+            }
             echo '</td>';
             echo '</tr>';
         }
@@ -364,7 +382,10 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             print_string('uploadglobals', 'report_trainingsessions');
             echo '</td>';
             echo '<td class="sessionvalue">';
-            echo report_trainingsessions_format_time($data->upload->elapsed).' ('.$data->upload->hits.')';
+            echo report_trainingsessions_format_time($data->upload->elapsed);
+            if (is_siteadmin()) {
+                echo ' ('.$data->upload->events.')';
+            }
             echo '</td>';
             echo '</tr>';
         }

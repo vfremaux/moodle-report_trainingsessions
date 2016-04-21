@@ -768,7 +768,7 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
 
 /**
  * a raster for xls printing of a course structure in report. Scans recusrively the course structure
- * object, and prints a result line on leaf or title items, collects that "done", "elapsed" and "hits"
+ * object, and prints a result line on leaf or title items, collects that "done", "elapsed" and "events"
  * globalizers in the way.
  * @param objectref &$pdf the pdf document
  * @param int $y the current vertical position in page

@@ -106,23 +106,23 @@ if ($data->output == 'html') {
     $dataobject = report_trainingsessions_print_allcourses_html($str, $aggregate);
 
     $dataobject->activityelapsed = @$aggregate['activities'][$COURSE->id]->elapsed;
-    $dataobject->activityhits = @$aggregate['activities'][$COURSE->id]->events;
+    $dataobject->activityevents = @$aggregate['activities'][$COURSE->id]->events;
     $dataobject->otherelapsed = @$aggregate['other'][$COURSE->id]->elapsed;
-    $dataobject->otherhits = @$aggregate['other'][$COURSE->id]->events;
+    $dataobject->otherevents = @$aggregate['other'][$COURSE->id]->events;
 
     $dataobject->course = new StdClass();
     $dataobject->course->elapsed = 0;
-    $dataobject->course->hits = 0;
+    $dataobject->course->events = 0;
 
     if (!empty($aggregate['course'])) {
         $dataobject->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-        $dataobject->course->hits = 0 + @$aggregate['course'][$course->id]->hits;
+        $dataobject->course->events = 0 + @$aggregate['course'][$course->id]->events;
     }
 
     // Calculate everything.
 
     $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
-    $dataobject->hits = $dataobject->activityhits + $dataobject->otherhits + $dataobject->course->hits;
+    $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
     $dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 
@@ -130,7 +130,7 @@ if ($data->output == 'html') {
         $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
         $dataobject->upload = new StdClass;
         $dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
-        $dataobject->upload->hits = 0 + @$aggregate['upload'][0]->events;
+        $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
     }
 
     report_trainingsessions_print_header_html($userid, $course->id, $dataobject, false, false, false);

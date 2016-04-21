@@ -345,7 +345,7 @@ function report_trainingsessions_print_courses_line_header(&$str) {
     $dataline[] = 'fullname';
 
     $dataline[] = 'elapsed';
-    $dataline[] = 'hits';
+    $dataline[] = 'events';
 
     report_trainingsessions_add_graded_columns($dataline);
 

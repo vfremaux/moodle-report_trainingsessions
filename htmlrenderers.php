@@ -353,7 +353,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         $sesscount += (0 + @$data->sessions);
     }
 
-    echo ':</b> '.(0 + $sessount);
+    echo ':</b> '.(0 + $sesscount);
 
     if (@$data->sessions == 0 && (@$completedwidth > 0)) {
         echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');

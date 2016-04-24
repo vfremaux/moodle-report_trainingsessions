@@ -540,10 +540,10 @@ function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$da
     $resultset[] = date('d/m/Y', $to - DAYSECS * 7); // last week of period
 
     // time
-    $resultset[] = raw_format_duration(@$data->elapsed); // elapsed time
+    $resultset[] = report_trainingsessions_format_time(0 + @$data->elapsed, 'xlsd'); // elapsed time
 
     // time in last week
-    $resultset[] = raw_format_duration(@$data->weekelapsed); // elapsed time this week
+    $resultset[] = report_trainingsessions_format_time(@$data->weekelapsed, 'xlsd'); // elapsed time this week
 
     // add grades
     report_trainingsessions_add_graded_data($resultset, $userid);
@@ -558,31 +558,6 @@ function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$da
         $rawstr .= implode(';', $resultset)."\n";
     }
 }
-
-/**
- * TODO : Remove this function and use get_string based formatting.
- */
-function raw_format_duration($secs) {
-    $min = floor($secs / 60);
-    $hours = floor($min / 60);
-    $days = floor($hours / 24);
-
-    $hours = $hours - $days * 24;
-    $min = $min - ($days * 24 * 60 + $hours * 60);
-    $secs = $secs - ($days * 24 * 60 * 60 + $hours * 60 * 60 + $min * 60);
-
-    if ($days) {
-        return $days.' '.get_string('days')." $hours ".get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
-    }
-    if ($hours) {
-        return $hours.' '.get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
-    }
-    if ($min) {
-        return $min.' '.get_string('min')." $secs ".get_string('secs');
-    }
-    return $secs.' '.get_string('secs');
-}
-
 
 /**
  * Local qery to get course users.
@@ -834,12 +809,25 @@ function report_trainingsessions_back_office_access($course = null) {
 
 function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
     $count = 0;
+
     if (!empty($sessions)) {
         foreach ($sessions as $s) {
-            if (!empty($s->courses)) {
-                foreach($s->courses as $cid) {
-                    if ($cid == $courseid) $count++;
+
+            if (!isset($s->sessionend) && empty($s->elapsed)) {
+                // This is a "not true" session reliquate. Ignore it.
+                continue;
+            }
+
+            if (empty($s->courses)) {
+                continue;
+            }
+
+            if ($courseid) {
+                if (in_array($courseid, $s->courses)) {
+                    $count++;
                 }
+            } else {
+                $count++;
             }
         }
     }

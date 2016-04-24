@@ -306,15 +306,14 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     // Start printing the overall times
 
-    echo '<br/><b>';
-    echo get_string('equlearningtime', 'report_trainingsessions');
-    echo '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
-    if (is_siteadmin()) {
-        echo ' ('.(0 + @$data->events).')';
-    }
-    echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
-
     if (!$short) {
+        echo '<br/><b>';
+        echo get_string('equlearningtime', 'report_trainingsessions');
+        echo '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
+        if (is_siteadmin()) {
+            echo ' ('.(0 + @$data->events).')';
+        }
+        echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
         echo '<br/><b>';
         echo get_string('activitytime', 'report_trainingsessions');
@@ -337,23 +336,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     echo '<br/><b>';
 
     echo get_string('workingsessions', 'report_trainingsessions');
-
-    $sesscount = 0;
-    if ($short) {
-        if (!empty($data->sessions)) {
-            // We are in a course context, so we need refilter sessions.
-            foreach ($data->sessions as $s) {
-                if (array_key_exists($courseid, $s->courses)) {
-                    $sesscount++;
-                }
-            }
-        }
-    } else {
-        // We should be in allcourse report.
-        $sesscount += (0 + @$data->sessions);
-    }
-
-    echo ':</b> '.(0 + $sesscount);
+    echo ':</b> '.(0 + @$data->sessions);
 
     if (@$data->sessions == 0 && (@$completedwidth > 0)) {
         echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
@@ -428,33 +411,37 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
     $totalelapsed = 0;
     $induration = 0;
     $outduration = 0;
+    $truesessions = 0;
 
     foreach ($sessions as $session) {
-
         if ($debug) {
             print_object($session);
         }
 
-        if (!isset($session->sessionend)) {
-            // this is a "not true" session reliquate. Ignore it
+        if (empty($session->courses)) {
+            // This is not a true working session.
             continue;
         }
+
+        if ($courseid && !array_key_exists($courseid, $session->courses)) {
+            // Omit all sessions not visiting this course.
+            continue;
+        }
+
+        if (!isset($session->sessionend) && empty($session->elapsed)) {
+            // This is a "not true" session reliquate. Ignore it.
+            continue;
+        }
+
 
         // Fix all incoming sessions. possibly cropped by threshold effect.
         $session->sessionend = $session->sessionstart + $session->elapsed;
 
         $daysessions = report_trainingsessions_splice_session($session);
 
+        $truesessions++;
+
         foreach($daysessions as $s) {
-
-            if (empty($s->courses)) {
-                continue;
-            }
-
-            if ($courseid && !array_key_exists($courseid, $s->courses)) {
-                // omit all sessions not visiting this course
-                continue;
-            }
 
             if (!isset($s->sessionstart)) {
                 continue;
@@ -519,7 +506,7 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
     }
     $str .= '<tr valign="top">';
     $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
-    $str .= '<td></td>';
+    $str .= '<td><br/>'.$truesessions.' '.get_string('contiguoussessions', 'report_trainingsessions').'</td>';
     $str .= '<td><br/>'.report_trainingsessions_format_time($totalelapsed).'</td>';
     $str .= '</tr>';
 

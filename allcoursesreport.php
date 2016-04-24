@@ -124,7 +124,7 @@ if ($data->output == 'html') {
     $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
     $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
-    $dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
+    $dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], 0) : 0;
 
     if (array_key_exists('upload', $aggregate)) {
         $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
@@ -133,7 +133,7 @@ if ($data->output == 'html') {
         $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
     }
 
-    report_trainingsessions_print_header_html($userid, $course->id, $dataobject, false, false, false);
+    report_trainingsessions_print_header_html($userid, $course->id, $dataobject, true, false, false);
 
     echo $OUTPUT->heading(get_string('incourses', 'report_trainingsessions'));
     echo $str;

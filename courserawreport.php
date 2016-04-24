@@ -69,6 +69,7 @@ if (empty($selform->to) || @$selform->tonow) {
 } else {
     $to = mktime(0,0,0,$selform->to['month'], $selform->to['day'], $selform->to['year']);
 }
+
 $endday =  $selform->to['day']; // to (-1 is from course start)
 $endmonth = $selform->to['month']; // to (-1 is from course start)
 $endyear = $selform->to['year']; // to (-1 is from course start)
@@ -129,11 +130,13 @@ if (!empty($targetusers)) {
         // This is a quick immediate compilation for small groups.
         echo get_string('quickgroupcompile', 'report_trainingsessions', count($targetusers));
 
-        $logs = use_stats_extract_logs($from, $to, array_keys($targetusers), $COURSE->id);
-        $aggregate = use_stats_aggregate_logs_per_user($logs, 'module');
+        foreach($targetusers as $u) {
+            $logs = use_stats_extract_logs($from, $to, $u->id, $id);
+            $aggregate[$u->id] = use_stats_aggregate_logs($logs, 'module');
 
-        $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, array_keys($targetusers), $COURSE->id);
-        $weekaggregate = use_stats_aggregate_logs_per_user($weeklogs, 'module');
+            $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, $u->id, $id);
+            $weekaggregate[$u->id] = use_stats_aggregate_logs($weeklogs, 'module');
+        }
 
         $timestamp = time();
         $rawstr = '';
@@ -162,25 +165,8 @@ if (!empty($targetusers)) {
             $logusers = $auser->id;
             echo "Compiling for ".fullname($auser).'<br/>';
             $globalresults = new StdClass;
-            $globalresults->elapsed = 0;
-            if (isset($aggregate[$userid])) {
-                foreach ($aggregate[$userid] as $classname => $classarray) {
-                    foreach ($classarray as $modid => $modulestat) {
-                        // echo "$classname elapsed : $modulestat->elapsed <br/>";
-                        // echo "$classname events : $modulestat->events <br/>";
-                        $globalresults->elapsed += $modulestat->elapsed;
-                    }
-                }
-            }
-
-            $globalresults->weekelapsed = 0;
-            if (isset($weekaggregate[$userid])) {
-                foreach ($weekaggregate[$userid] as $classarray) {
-                    foreach ($classarray as $modid => $modulestat) {
-                        $globalresults->weekelapsed += $modulestat->elapsed;
-                    }
-                }
-            }
+            $globalresults->elapsed = 0 + @$aggregate[$userid]['course'][$id]->elapsed + @$aggregate[$userid]['activities'][$id]->elapsed + @$aggregate[$userid]['other'][$id]->elapsed;
+            $globalresults->weekelapsed = 0 + @$weekaggregate[$userid]['course'][$id]->elapsed + @$weekaggregate[$userid]['activities'][$id]->elapsed + @$weekaggregate[$userid]['other'][$id]->elapsed;
 
             report_trainingsessions_print_globalheader_raw($auser->id, $course->id, $globalresults, $rawstr, $from, $to);
         }

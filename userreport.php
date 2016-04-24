@@ -50,14 +50,18 @@ if ($data = $selform->get_data()) {
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
 }
 
-if ($data->from == -1 || @$data->fromstart) {
+if (($data->from == -1) || @$data->fromstart) {
     // maybe we get it from parameters
     $data->from = $course->startdate;
 }
 
-if ($data->to == -1 || @$data->tonow) {
+if (($data->to == -1) || @$data->tonow) {
     // maybe we get it from parameters
     $data->to = time();
+} else {
+    // the displayed time in form is giving a 0h00 time. We should push till
+    // 23h59 of the given day
+    $data->to = min(time(), $data->to + DAYSECS - 1);
 }
 
 if ($data->output == 'html') {
@@ -74,9 +78,9 @@ if ($data->output == 'html') {
 
 // Get data
 
-$logusers = $data->userid;
-$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course);
-$aggregate = use_stats_aggregate_logs($logs, 'module');
+$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
+
+$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
 
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
@@ -85,7 +89,6 @@ if (empty($aggregate['sessions'])) {
 // Get course structure.
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
-
 // Print result.
 
 if ($data->output == 'html') {

@@ -63,6 +63,10 @@ if ($data->from == -1 || @$data->fromstart) { // maybe we get it from parameters
 
 if ($data->to == -1 || @$data->tonow){ // maybe we get it from parameters
     $data->to = time();
+} else {
+    // the displayed time in form is giving a 0h00 time. We should push till
+    // 23h59 of the given day
+    $data->to = min(time(), $data->to + DAYSECS - 1);
 }
 
 if ($data->output == 'html') {
@@ -141,7 +145,7 @@ if ($data->output == 'html') {
 
             $logusers = $auser->id;
             $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
-            $aggregate = use_stats_aggregate_logs($logs, 'module');
+            $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
 
             if (empty($aggregate['sessions'])) {
                 $aggregate['sessions'] = array();

@@ -137,8 +137,8 @@ if (!empty($targetusers)) {
         $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
 
         $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
+        $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
+        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
         $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
         $data = new StdClass();

@@ -113,8 +113,8 @@ if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
 
         $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
+        $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
+        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
         report_trainingsessions_print_courses_line($csvbuffer, $aggregate, $auser);
     }

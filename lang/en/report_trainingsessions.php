@@ -55,6 +55,7 @@ $string['coursename'] = 'Group name';
 $string['courseraw'] = 'Batchs';
 $string['coursesessions'] = 'Working sessions in course (real guessed times)';
 $string['coursestart'] = 'Course start date';
+$string['contiguoussessions'] = 'Contiguous sessions';
 $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
 $string['csvoutputtoiso'] = 'Iso CSV Output';

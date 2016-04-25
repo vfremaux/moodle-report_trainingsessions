@@ -256,11 +256,6 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
 
             foreach($daysessions as $s) {
 
-                if ($courseid && !array_key_exists($courseid, $s->courses)) {
-                    // omit all sessions not visiting this course
-                    continue;
-                }
-
                 if (!empty($config->enablelearningtimecheckcoupling)) {
 
                     if (!empty($ltcconfig->checkworkingdays) || !empty($ltcconfig->checkworkinghours)) {

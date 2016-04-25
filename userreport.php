@@ -184,9 +184,9 @@ if ($data->output == 'html') {
     $datarec->events = $overall->events;
     report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
 
-    $worksheet = report_trainingsessions_init_worksheet($data->userid, $startrow, $xls_formats, $workbook, 'sessions');
+    $worksheet = report_trainingsessions_init_worksheet($data->userid, 15, $xls_formats, $workbook, 'sessions');
     report_trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $course->id, $xls_formats);
-    report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $data, $xls_formats);
+    report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
 
     $workbook->close();
 }

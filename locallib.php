@@ -320,7 +320,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             return "{$secs}s";
         } else {
             // for excel time format we need have a fractional day value
-            return strftime('%Y-%m-%d %H:%I:%S (%a)', $timevalue);
+            return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
             // return  $timevalue / DAYSECS;
         }
     } else {
@@ -440,11 +440,19 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_format
     $worksheet->set_column(12,12,12);
     $worksheet->set_column(13,13,4);
 
-    $worksheet->set_row($startrow - 1, 12, $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 0, get_string('firstaccess', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 1, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
+    if ($purpose == 'usertimes' || $purpose == 'allcourses') {
+        $worksheet->set_row($startrow - 1, 12, $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 0, get_string('firstaccess', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 1, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
+        if (!empty($config->showhits)) {
+            $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
+        }
+    } else {
+        $worksheet->write_string($startrow - 1, 0, get_string('sessionstart', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 1, get_string('sessionend', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 2, get_string('duration', 'report_trainingsessions'), $xls_formats['tt']);
+    }
 
     return $worksheet;
 }

@@ -49,6 +49,9 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
 
+    $settings->add(new admin_setting_configcheckbox('report_trainingsessions/showhits', get_string('showhits', 'report_trainingsessions'),
+                       get_string('showhits_desc', 'report_trainingsessions'), 0));
+
     $settings->add(new admin_setting_configstoredfile('pdfreportheader', get_string('pdfreportheader', 'report_trainingsessions'),
                        get_string('pdfreportheader_desc', 'report_trainingsessions'), 'pdfreportheader', 0));
 

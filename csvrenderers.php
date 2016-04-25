@@ -33,6 +33,8 @@ defined('MOODLE_INTERNAL') || die;
 function report_trainingsessions_print_header_csv($userid, $courseid, $data) {
     global $CFG, $DB;
 
+    $config = get_config('report_trainingsessions');
+
     $user = $DB->get_record('user', array('id' => $userid));
     if (!$course = $DB->get_record('course', array('id' => $courseid))) {
         die("No course for course id $courseid\n");
@@ -109,8 +111,10 @@ function report_trainingsessions_print_header_csv($userid, $courseid, $data) {
     $csvstr .= '# '.get_string('elapsed', 'report_trainingsessions').' : ';
     $csvstr .= report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd')."\n";
 
-    $csvstr .= '# '.get_string('hits', 'report_trainingsessions').' : ';
-    $csvstr .= (0 + @$data->events)."\n";
+    if (!empty($config->showhits)) {
+        $csvstr .= '# '.get_string('hits', 'report_trainingsessions').' : ';
+        $csvstr .= (0 + @$data->events)."\n";
+    }
 
     $csvstr .= "#\n";
 
@@ -126,6 +130,8 @@ function report_trainingsessions_print_header_csv($userid, $courseid, $data) {
  * @param int $level controls the recursion in course structure exploration
  */
 function report_trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$done, $level = 1) {
+
+    $config = get_config('report_trainingsessions');
 
     if (empty($structure)) {
         '# ';
@@ -175,8 +181,9 @@ function report_trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$do
                 $str = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
                 $csvline .= ';'.report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
                 $csvline .= $str;
-                $csvline .= $dataobject->events;
-
+                if (!empty($config->showhits)) {
+                    $csvline .= ';'.$dataobject->events;
+                }
             } else {
                 // It is only a structural module that should not impact on level
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -249,6 +256,8 @@ function report_trainingsessions_print_usersessions(&$str, $userid, $unused, $fr
 function report_trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
     global $CFG, $COURSE, $DB;
 
+    $config = get_config('report_trainingsessions');
+
     $output = array();
     $courses = array();
     $courseids = array();
@@ -289,9 +298,11 @@ function report_trainingsessions_print_allcourses_csv(&$str, &$aggregate) {
             $str .= ';'.report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd');
             $str .= ';'."\n";
 
-            $str .= $hitsstr;
-            $str .= ';'.$output[0][SITEID]->events;
-            $str .= ';'."\n";
+            if (!empty($config->showhits)) {
+                $str .= $hitsstr;
+                $str .= ';'.$output[0][SITEID]->events;
+                $str .= ';'."\n";
+            }
 
             $str .= "#\n";
             $str .= "#\n";

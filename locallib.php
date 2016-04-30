@@ -155,21 +155,21 @@ function page_get_structure_from_page($page, &$itemcount) {
     if (in_array($page->id, $VISITED_PAGES)) {
         return;
     }
-    $VISITED_PAGES[] = $page->id;    
+    $VISITED_PAGES[] = $page->id;
 
     $structure = array();
 
-    // get page items from first page. They are located in the center column    
+    // Get page items from first page. They are located in the center column.
     $select = " pageid = ? AND (position = 'c' OR position = 'r') ";
     $pageitems = $DB->get_records_select('format_page_items', $select, array($page->id), 'position, sortorder');
 
-    // analyses course content component stack
+    // Analyses course content component stack.
     if ($pageitems) {
         foreach ($pageitems as $pi) {
 
             if (!$pi->cmid) {
 
-                // is a block
+                // Is a block.
                 $b = $DB->get_record('block_instances', array('id' => $pi->blockinstance));
                 if (!$b) {
                     continue;
@@ -194,12 +194,12 @@ function page_get_structure_from_page($page, &$itemcount) {
     
                 $source = @$blockinstance->config->text;
 
-                // if there is no subcontent, do not consider this bloc in reports.
+                // If there is no subcontent, do not consider this bloc in reports.
                 if ($element->subs = page_get_structure_in_content($source, $itemcount)) {
                     $structure[] = $element;
                 }
             } else {
-                // is a module
+                // Is a module.
                 $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
                 $module = $DB->get_record('modules', array('id' => $cm->module));
 
@@ -260,7 +260,7 @@ function page_get_structure_in_content($source, &$itemcount) {
     preg_match_all($pattern, $source, $matches);
     if (isset($matches[1])) {
         foreach ($matches[1] as $href) {
-            // jump to another page
+            // Jump to another page.
             if (preg_match('/course\\/view.php\\?id=(\\d+)&page=(\\d+)/', $href, $matches)) {
                 if (in_array($matches[2], $VISITED_PAGES)) {
                     continue;
@@ -273,7 +273,7 @@ function page_get_structure_in_content($source, &$itemcount) {
                 $structure[] = $element;
                 $VISITED_PAGES[] = $matches[2];
             }
-            // points a module
+            // Points a module.
             if (preg_match('/mod\\/([a-z_]+)\\/.*\\?id=(\\d+)/', $href, $matches)) {
                 $element = new StdClass;
                 $element->type = $matches[1];
@@ -1038,4 +1038,22 @@ function report_trainingsessions_splice_session($session) {
     }
 
     return $sessions;
+}
+
+/**
+ * Gives the available format options.
+ */
+function report_trainingsessions_get_batch_formats() {
+    global $CFG;
+
+    $formatoptions = array(
+        'xls' => get_string('xls', 'report_trainingsessions'),
+        'csv' => get_string('csv', 'report_trainingsessions'),
+    );
+
+    if (!is_dir($CFG->dirroot.'/local/vflibs')) {
+        $formatoptions['pdf'] = get_string('pdf', 'report_trainingsessions');
+    }
+
+    return $formatoptions;
 }

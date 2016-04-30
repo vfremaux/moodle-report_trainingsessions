@@ -82,6 +82,12 @@ $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->i
 
 $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
 
+$automatondebug = optional_param('debug', 0, PARAM_BOOL) && is_siteadmin();
+if ($automatondebug) {
+    echo '<h2>Aggregator output</h2>';
+    block_use_stats_render_aggregate($aggregate);
+}
+
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
@@ -141,7 +147,7 @@ if ($data->output == 'html') {
 
     report_trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
 
-    report_trainingsessions_print_session_list($str, @$aggregate['sessions'], $course->id, $data->userid);
+    report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
 
     echo $str;
 

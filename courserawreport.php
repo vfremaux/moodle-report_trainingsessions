@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Course trainingsessions report
  *
@@ -23,7 +25,6 @@
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script');
 
 /**
  * direct log construction implementation
@@ -97,7 +98,7 @@ if (!empty($selform->groupid)) {
     if ($hasgroups && count($targetusers) > 50 || !has_capability('moodle/site:accessallgroups', $context)) {
         // In that case we need force groupid to some value.
         $selform->groupid = groups_get_course_group($COURSE);
-        $groupname = $DB->get_field('groups', 'name', array('id' => $group->id));
+        $groupname = $DB->get_field('groups', 'name', array('id' => $selform->groupid));
         $targetusers = groups_get_members($selform->groupid);
 
         if (count($targetusers) > 50) {
@@ -265,10 +266,13 @@ if (!empty($CFG->trainingreporttasks)) {
             }
 
             if (@$task->reportscope == 'allcourses') {
-                $scope = "$groupname@*";
+                $courseshort = $DB->get_field('course', 'shortname', array('id' => $task->courseid));
+                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', array('id' => $task->courseid, 'view' => 'courseraw', 'from' => $from, 'to' => $to, 'groupid' => $selform->groupid));
+                $scope = '<a href="'.$reportcontexturl.'">'.$groupname.'@*</a>';
             } else {
                 $courseshort = $DB->get_field('course', 'shortname', array('id' => $task->courseid));
-                $scope = "$groupname@$courseshort";
+                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', array('id' => $task->courseid, 'view' => 'courseraw', 'from' => $from, 'to' => $to, 'groupid' => $selform->groupid));
+                $scope = '<a href="'.$reportcontexturl.'">'.$groupname.'@'.$courseshort.'</a>';
             }
 
             switch($task->reportlayout) {
@@ -314,6 +318,7 @@ if (!empty($CFG->trainingreporttasks)) {
                 default:
             }
 
+            $table->rowclasses[] = ($id == $task->courseid) ? 'trainingsessions-green' : '';
             $table->data[] = array($task->taskname, $scope, userdate($task->batchdate), $task->outputdir, $layout, $format, ($task->replay) ? format_time($task->replaydelay * 60).' s<br/>'.$replayimg : '-' , $commands);
         }
     }

@@ -96,3 +96,7 @@ table * td {
     border-radius:4px;
     -moz-border-radius:4px;
 }
+
+.trainingsessions-green {
+    background-color:#C4FBAC !important;
+}

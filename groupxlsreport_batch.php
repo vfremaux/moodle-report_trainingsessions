@@ -63,7 +63,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course);
 
 // calculate start time. Defaults ranges to all course range.
 

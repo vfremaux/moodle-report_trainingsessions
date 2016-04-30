@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Course trainingsessions report
  *
@@ -23,7 +25,6 @@
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-if (!defined('MOODLE_INTERNAL')) die ('You cannot access directly to this script');
 
 /**
  * direct log construction implementation
@@ -69,6 +70,7 @@ if (empty($selform->to) || @$selform->tonow) {
 } else {
     $to = mktime(0,0,0,$selform->to['month'], $selform->to['day'], $selform->to['year']);
 }
+
 $endday =  $selform->to['day']; // to (-1 is from course start)
 $endmonth = $selform->to['month']; // to (-1 is from course start)
 $endyear = $selform->to['year']; // to (-1 is from course start)
@@ -96,7 +98,7 @@ if (!empty($selform->groupid)) {
     if ($hasgroups && count($targetusers) > 50 || !has_capability('moodle/site:accessallgroups', $context)) {
         // In that case we need force groupid to some value.
         $selform->groupid = groups_get_course_group($COURSE);
-        $groupname = $DB->get_field('groups', 'name', array('id' => $group->id));
+        $groupname = $DB->get_field('groups', 'name', array('id' => $selform->groupid));
         $targetusers = groups_get_members($selform->groupid);
 
         if (count($targetusers) > 50) {
@@ -129,11 +131,13 @@ if (!empty($targetusers)) {
         // This is a quick immediate compilation for small groups.
         echo get_string('quickgroupcompile', 'report_trainingsessions', count($targetusers));
 
-        $logs = use_stats_extract_logs($from, $to, array_keys($targetusers), $COURSE->id);
-        $aggregate = use_stats_aggregate_logs_per_user($logs, 'module');
+        foreach($targetusers as $u) {
+            $logs = use_stats_extract_logs($from, $to, $u->id, $id);
+            $aggregate[$u->id] = use_stats_aggregate_logs($logs, 'module');
 
-        $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, array_keys($targetusers), $COURSE->id);
-        $weekaggregate = use_stats_aggregate_logs_per_user($weeklogs, 'module');
+            $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, $u->id, $id);
+            $weekaggregate[$u->id] = use_stats_aggregate_logs($weeklogs, 'module');
+        }
 
         $timestamp = time();
         $rawstr = '';
@@ -162,25 +166,8 @@ if (!empty($targetusers)) {
             $logusers = $auser->id;
             echo "Compiling for ".fullname($auser).'<br/>';
             $globalresults = new StdClass;
-            $globalresults->elapsed = 0;
-            if (isset($aggregate[$userid])) {
-                foreach ($aggregate[$userid] as $classname => $classarray) {
-                    foreach ($classarray as $modid => $modulestat) {
-                        // echo "$classname elapsed : $modulestat->elapsed <br/>";
-                        // echo "$classname events : $modulestat->events <br/>";
-                        $globalresults->elapsed += $modulestat->elapsed;
-                    }
-                }
-            }
-
-            $globalresults->weekelapsed = 0;
-            if (isset($weekaggregate[$userid])) {
-                foreach ($weekaggregate[$userid] as $classarray) {
-                    foreach ($classarray as $modid => $modulestat) {
-                        $globalresults->weekelapsed += $modulestat->elapsed;
-                    }
-                }
-            }
+            $globalresults->elapsed = 0 + @$aggregate[$userid]['course'][$id]->elapsed + @$aggregate[$userid]['activities'][$id]->elapsed + @$aggregate[$userid]['other'][$id]->elapsed;
+            $globalresults->weekelapsed = 0 + @$weekaggregate[$userid]['course'][$id]->elapsed + @$weekaggregate[$userid]['activities'][$id]->elapsed + @$weekaggregate[$userid]['other'][$id]->elapsed;
 
             report_trainingsessions_print_globalheader_raw($auser->id, $course->id, $globalresults, $rawstr, $from, $to);
         }
@@ -279,10 +266,13 @@ if (!empty($CFG->trainingreporttasks)) {
             }
 
             if (@$task->reportscope == 'allcourses') {
-                $scope = "$groupname@*";
+                $courseshort = $DB->get_field('course', 'shortname', array('id' => $task->courseid));
+                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', array('id' => $task->courseid, 'view' => 'courseraw', 'from' => $from, 'to' => $to, 'groupid' => $selform->groupid));
+                $scope = '<a href="'.$reportcontexturl.'">'.$groupname.'@*</a>';
             } else {
                 $courseshort = $DB->get_field('course', 'shortname', array('id' => $task->courseid));
-                $scope = "$groupname@$courseshort";
+                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', array('id' => $task->courseid, 'view' => 'courseraw', 'from' => $from, 'to' => $to, 'groupid' => $selform->groupid));
+                $scope = '<a href="'.$reportcontexturl.'">'.$groupname.'@'.$courseshort.'</a>';
             }
 
             switch($task->reportlayout) {
@@ -328,6 +318,7 @@ if (!empty($CFG->trainingreporttasks)) {
                 default:
             }
 
+            $table->rowclasses[] = ($id == $task->courseid) ? 'trainingsessions-green' : '';
             $table->data[] = array($task->taskname, $scope, userdate($task->batchdate), $task->outputdir, $layout, $format, ($task->replay) ? format_time($task->replaydelay * 60).' s<br/>'.$replayimg : '-' , $commands);
         }
     }

@@ -73,7 +73,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
 
         if (isset($output[0])) {
             $str .= '<h2>'.get_string('site').'</h2>';
-            $str .= $elapsedstr.' : '.format_time($output[0][SITEID]->elapsed).'<br/>';
+            $str .= $elapsedstr.' : '.report_trainingsessions_format_time($output[0][SITEID]->elapsed).'<br/>';
             $str .= $hitsstr.' : '.$output[0][SITEID]->events;
         }
 
@@ -86,7 +86,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
                 $ccontext = context_course::instance($cid);
                 if (has_capability('report/trainingsessions:view', $ccontext)) {
                     $str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td>';
-                    $str .= format_time($cdata->elapsed).'<br/>';
+                    $str .= report_trainingsessions_format_time($cdata->elapsed).'<br/>';
                     $str .= '</td><td>';
                     $str .= $cdata->events;
                     $str .= '</td></tr>';
@@ -111,8 +111,12 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
  * @param string ref $str a buffer for accumulating output
  * @param object $structure a course structure object.
  */
-function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 1){
-    global $CFG, $COURSE;
+function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 0){
+    global $CFG, $COURSE, $OUTPUT;
+
+    if ($level == 0) {
+        $str .= $OUTPUT->heading(get_string('instructure', 'report_trainingsessions'));
+    }
 
     $usconfig = get_config('use_stats');
 
@@ -143,7 +147,9 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             if (isset($element->instance) && empty($element->instance->visible)) {
                 continue; // non visible items should not be displayed
             }
+            $level++;
             $res = report_trainingsessions_print_html($str, $element, $aggregate, $done, $indent, $level);
+            $level--;
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += (0 + @$res->events);
         } 
@@ -155,24 +161,24 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             if (!empty($structure->name)) {
                 $nodestr .= '<table class="sessionreport level'.$level.'">';
                 $nodestr .= '<tr class="sessionlevel'.$level.'" valign="top">';
-                $nodestr .= '<td class="sessionitem item" width="40%">';
+                $nodestr .= '<td class="sessionitem item" width="55%">';
                 $nodestr .= $indent;
                 if (debugging()) {
                     $nodestr .= '['.$structure->type.'] ';
                 }
                 $nodestr .= shorten_text($structure->name, 85);
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="sessionitem rangedate" width="20%">';
+                $nodestr .= '<td class="sessionitem rangedate" width="15%">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                    $nodestr .= date('Y/m/d h:i', 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess));
+                    $nodestr .= date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess));
                 }
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="sessionitem rangedate" width="20%">';
+                $nodestr .= '<td class="sessionitem rangedate" width="15%">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                    $nodestr .= date('Y/m/d h:i', 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess));
+                    $nodestr .= date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess));
                 }
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="reportvalue rangedate" align="right" width="20%">';
+                $nodestr .= '<td class="reportvalue rangedate" align="right" width="15%">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $done++;
                     $dataobject = $aggregate[$structure->type][$structure->id];
@@ -191,11 +197,13 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                         $nodestr .= get_string('declaredtime', 'block_use_stats');
                     }
                     $nodestr .= report_trainingsessions_format_time($dataobject->elapsed, 'html');
-                    $nodestr .= ' ('.(0 + @$dataobject->events).')';
+                    if (is_siteadmin()) {
+                        $nodestr .= ' ('.(0 + @$dataobject->events).')';
+                    }
                 } else {
                     $nodestr .= get_string('ignored', 'block_use_stats');
                 }
-    
+
                 // plug here specific details
                 $nodestr .= '</td>';
                 $nodestr .= '</tr>';
@@ -212,6 +220,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 }
             }
 
+            $str .= $nodestr;
             if (!empty($structure->subs)) {
                 $str .= '<table class="trainingreport subs">';
                 $str .= '<tr valign="top">';
@@ -222,7 +231,6 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 $str .= '</tr>';
                 $str .= "</table>\n";
             }
-            $str .= $nodestr;
         }
     }
     return $dataobject;
@@ -247,7 +255,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
     echo '&nbsp;&nbsp;&nbsp;'.fullname($user).'</h1>';
 
-    // print group status
+    // Print group status.
     if (!empty($usergroups)) {
         echo '<b>'.get_string('groups');
         echo ':</b> ';
@@ -304,24 +312,29 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     // Start printing the overall times
 
-    echo '<br/><b>';
-    echo get_string('equlearningtime', 'report_trainingsessions');
-    echo ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
-    echo ' ('.(0 + @$data->hits).')';
-    echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
-
     if (!$short) {
+        echo '<br/><b>';
+        echo get_string('equlearningtime', 'report_trainingsessions');
+        echo '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
+        if (is_siteadmin()) {
+            echo ' ('.(0 + @$data->events).')';
+        }
+        echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
         echo '<br/><b>';
         echo get_string('activitytime', 'report_trainingsessions');
         echo ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
-        echo ' ('.(0 + @$data->activityhits).')';
+        if (is_siteadmin()) {
+            echo ' ('.(0 + @$data->activityevents).')';
+        }
         echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
 
         echo '<br/><b>';
         echo get_string('othertime', 'report_trainingsessions');
         echo ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
-        echo ' ('.(0 + @$data->otherhits + @$data->course->hits).')';
+        if (is_siteadmin()) {
+            echo ' ('.(0 + @$data->otherevents + @$data->course->events).')';
+        }
         echo $OUTPUT->help_icon('othertime', 'report_trainingsessions');
 
         // plug here specific details
@@ -330,33 +343,40 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     echo get_string('workingsessions', 'report_trainingsessions');
     echo ':</b> '.(0 + @$data->sessions);
-    if (@$data->sessions == 0 && (@$completedwidth > 0)){
+
+    if (@$data->sessions == 0 && (@$completedwidth > 0)) {
         echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
     }
 
     echo '</p></div></center>';
 
-    // add printing for global course time (out of activities)    
+    // add printing for global course time (out of activities)
     if (!$short){
         if (!$withnooutofstructure) {
-            echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));    
-            echo "<table cellspacing=\"0\" cellpadding=\"0\" width=\"100%\" class=\"sessionreport\">";
-            echo "<tr class=\"sessionlevel2\" valign=\"top\">";
+            echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));
+            echo '<table cellspacing="0" cellpadding="0" width="100%" class="sessionreport">';
+            echo '<tr class="sessionlevel2" valign="top">';
             echo '<td class="sessionitem">';
             print_string('courseglobals', 'report_trainingsessions');
             echo '</td>';
-            echo '<td class="sessionvalue">';
-            echo report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed).' ('.($data->course->hits + $data->otherhits).')';
+            echo '<td class="sessionvalue report-trainingsessions session-duration">';
+            echo report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed);
+            if (is_siteadmin()) {
+                echo ' ('.($data->course->events + $data->otherevents).')';
+            }
             echo '</td>';
             echo '</tr>';
         }
         if (isset($data->upload)) {
-            echo "<tr class=\"sessionlevel2\" valign=\"top\">";
-            echo "<td class=\"sessionitem\">";
+            echo '<tr class="sessionlevel2" valign="top">';
+            echo '<td class="sessionitem">';
             print_string('uploadglobals', 'report_trainingsessions');
             echo '</td>';
-            echo "<td class=\"sessionvalue\">";
-            echo report_trainingsessions_format_time($data->upload->elapsed).' ('.$data->upload->hits.')';
+            echo '<td class="sessionvalue report-trainingsessions session-duration">';
+            echo report_trainingsessions_format_time($data->upload->elapsed);
+            if (is_siteadmin()) {
+                echo ' ('.$data->upload->events.')';
+            }
             echo '</td>';
             echo '</tr>';
         }
@@ -371,13 +391,25 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 function report_trainingsessions_print_session_list(&$str, $sessions, $courseid = 0, $userid = 0) {
     global $OUTPUT, $CFG;
 
+    if ($courseid) {
+        // Filter sessions that are not in the required course.
+        foreach($sessions as $sessid => $session) {
+            if (!empty($session->courses)) {
+                if (!array_key_exists($courseid, $session->courses)) {
+                    // Omit all sessions not visiting this course.
+                    unset($sessions[$sessid]);
+                }
+            } else {
+                unset($sessions[$sessid]);
+            }
+        }
+    }
+
     $config = get_config('report_trainingsessions');
     if (!empty($config->enablelearningtimecheckcoupling)) {
         require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
         $ltcconfig = get_config('report_learningtimecheck');
     }
-
-    $debug = optional_param('debug', false, PARAM_BOOL);
 
     $sessionsstr = ($courseid) ? get_string('coursesessions', 'report_trainingsessions') : get_string('sessions', 'report_trainingsessions');
     $str .= $OUTPUT->heading($sessionsstr, 2);
@@ -386,44 +418,42 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
         return;
     }
 
+    $str .= '<br/><p>'.get_string('elapsedadvice', 'report_trainingsessions').'</p>';
+
     // Effective printing of available sessions.
-    $str .= '<table width="100%" id="session-table">';
+    $str .= '<table width="70%" id="session-table">';
     $str .= '<tr valign="top">';
     $str .= '<td width="33%"><b>'.get_string('sessionstart', 'report_trainingsessions').'</b></td>';
     $str .= '<td width="33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
-    $str .= '<td width="33%"><b>'.get_string('duration', 'report_trainingsessions').'<sup>*</sup></b></td>';
+    $str .= '<td width="33%" class="report-trainingsessions session-duration"><b>'.get_string('duration', 'report_trainingsessions').'</b></td>';
     $str .= '</tr>';
 
     $totalelapsed = 0;
     $induration = 0;
     $outduration = 0;
+    $truesessions = 0;
 
     foreach ($sessions as $session) {
 
-        if ($debug) {
-            print_object($session);
-        }
-
-        if (!isset($session->sessionend)) {
-            // this is a "not true" session reliquate. Ignore it
+        if (empty($session->courses)) {
+            // This is not a true working session.
             continue;
         }
+
+        if (!isset($session->sessionend) && empty($session->elapsed)) {
+            // This is a "not true" session reliquate. Ignore it.
+            continue;
+        }
+
 
         // Fix all incoming sessions. possibly cropped by threshold effect.
         $session->sessionend = $session->sessionstart + $session->elapsed;
 
         $daysessions = report_trainingsessions_splice_session($session);
 
+        $truesessions++;
+
         foreach($daysessions as $s) {
-
-            if (empty($s->courses)) {
-                continue;
-            }
-
-            if ($courseid && !array_key_exists($courseid, $s->courses)) {
-                // omit all sessions not visiting this course
-                continue;
-            }
 
             if (!isset($s->sessionstart)) {
                 continue;
@@ -481,36 +511,37 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
             $str .= '<tr valign="top">';
             $str .= '<td '.$startstyle.'>'.userdate($s->sessionstart).'</td>';
             $str .= '<td '.$endstyle.'>'.$sessionenddate.'</td>';
-            $str .= '<td '.$checkstyle.'>'.format_time(@$s->elapsed).'</td>';
+            $str .= '<td class="report-trainingsessions session-duration" '.$checkstyle.'>'.report_trainingsessions_format_time(@$s->elapsed).'</td>';
             $str .= '</tr>';
             $totalelapsed += @$s->elapsed;
         }
     }
-    $str .= '<tr valign="top">';
-    $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
-    $str .= '<td></td>';
-    $str .= '<td><br/>'.format_time($totalelapsed).'</td>';
-    $str .= '</tr>';
 
-    if (!empty($config->enablelearningtimecheckcoupling) && 
-            (!empty($ltcconfig->checkworkingdays) ||
-                    !empty($ltcconfig->checkworkinghours))) {
+    if (!empty($config->printsessiontotal)) {
         $str .= '<tr valign="top">';
-        $str .= '<td><br/><b>'.get_string('in', 'report_trainingsessions').' '.$OUTPUT->help_icon('insessiontime', 'report_trainingsessions').'</b></td>';
-        $str .= '<td></td>';
-        $str .= '<td><br/>'.format_time($induration).'</td>';
+        $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
+        $str .= '<td><br/>'.$truesessions.' '.get_string('contiguoussessions', 'report_trainingsessions').'</td>';
+        $str .= '<td><br/>'.report_trainingsessions_format_time($totalelapsed).'</td>';
         $str .= '</tr>';
     
-        $str .= '<tr valign="top">';
-        $str .= '<td><br/><b>'.get_string('out', 'report_trainingsessions').' '.$OUTPUT->help_icon('outsessiontime', 'report_trainingsessions').'</b></td>';
-        $str .= '<td></td>';
-        $str .= '<td style="color:#ff0000"><br/>'.format_time($outduration).'</td>';
-        $str .= '</tr>';
+        if (!empty($config->enablelearningtimecheckcoupling) && 
+                (!empty($ltcconfig->checkworkingdays) ||
+                        !empty($ltcconfig->checkworkinghours))) {
+            $str .= '<tr valign="top">';
+            $str .= '<td><br/><b>'.get_string('in', 'report_trainingsessions').' '.$OUTPUT->help_icon('insessiontime', 'report_trainingsessions').'</b></td>';
+            $str .= '<td></td>';
+            $str .= '<td><br/>'.report_trainingsessions_format_time($induration).'</td>';
+            $str .= '</tr>';
+        
+            $str .= '<tr valign="top">';
+            $str .= '<td><br/><b>'.get_string('out', 'report_trainingsessions').' '.$OUTPUT->help_icon('outsessiontime', 'report_trainingsessions').'</b></td>';
+            $str .= '<td></td>';
+            $str .= '<td style="color:#ff0000"><br/>'.report_trainingsessions_format_time($outduration).'</td>';
+            $str .= '</tr>';
+        }
     }
 
     $str .= '</table>';
-
-    $str .= '<p>(*) '.get_string('elapsedadvice', 'report_trainingsessions').'</p>';
 }
 
 function report_trainingsessions_print_total_site_html($dataobject) {

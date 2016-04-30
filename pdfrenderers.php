@@ -400,14 +400,16 @@ function report_trainingsessions_print_header(&$pdf, $alternateheader = false) {
     $systemcontext = context_system::instance();
 
     if ($alternateheader) {
-        $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportinnerheader', 0);
-    
+        // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportinnerheader', 0);
+        $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportinnerheader', 0);
+
         if (!empty($files)) {
             $headerfile = array_pop($files);
         } else {
             // Take cover header as default if exists.
-            $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
-        
+            // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
+            $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportheader', 0);
+
             if (!empty($files)) {
                 $headerfile = array_pop($files);
             } else {
@@ -415,8 +417,9 @@ function report_trainingsessions_print_header(&$pdf, $alternateheader = false) {
             }
         }
     } else {
-        $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
-    
+        $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportheader', 0);
+        // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
+
         if (!empty($files)) {
             $headerfile = array_pop($files);
         } else {
@@ -445,7 +448,8 @@ function report_trainingsessions_print_footer(&$pdf) {
     $fs = get_file_storage();
     $systemcontext = context_system::instance();
 
-    $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportfooter', 0);
+    $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportfooter', 0);
+    // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportfooter', 0);
 
     if (!empty($files)) {
         $footerfile = array_pop($files);
@@ -481,7 +485,7 @@ function report_trainingsessions_print_usersessions(&$pdf, $userid, $y, $from, $
 
     // Get data
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
-    $aggregate = use_stats_aggregate_logs($logs, 'module');
+    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
     // Make report.
     $title = get_config('sessionreportdoctitle', 'report_trainingsessions');
@@ -557,8 +561,13 @@ function report_trainingsessions_print_usersessions(&$pdf, $userid, $y, $from, $
     foreach ($aggregate['sessions'] as $sessionid => $session) {
         // theses are real tracked sessions
 
+        if ($course->id && !array_key_exists($course->id, $session->courses)) {
+            // Omit all sessions not visiting this course.
+            continue;
+        }
+
         // Fix eventual missing session end.
-        if (empty($session->sessionend)) {
+        if (!isset($session->sessionend) && empty($session->elapsed)) {
             // This is a "not true" session reliquate. Ignore it.
             continue;
         }
@@ -768,7 +777,7 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
 
 /**
  * a raster for xls printing of a course structure in report. Scans recusrively the course structure
- * object, and prints a result line on leaf or title items, collects that "done", "elapsed" and "hits"
+ * object, and prints a result line on leaf or title items, collects that "done", "elapsed" and "events"
  * globalizers in the way.
  * @param objectref &$pdf the pdf document
  * @param int $y the current vertical position in page

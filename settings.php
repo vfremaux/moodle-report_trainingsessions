@@ -39,6 +39,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('report_trainingsessions/printidnumber', get_string('printidnumber', 'report_trainingsessions'),
                        get_string('printidnumber_desc', 'report_trainingsessions'), ''));
 
+    $settings->add(new admin_setting_configcheckbox('report_trainingsessions/printsessiontotal', get_string('printsessiontotal', 'report_trainingsessions'),
+                       get_string('printsessiontotal_desc', 'report_trainingsessions'), 1));
+
     $novalue = array('0' => get_string('disabled', 'report_trainingsessions'));
     $fieldoptions = array_merge($novalue, $DB->get_records_menu('user_info_field', array(), 'id', 'id,name'));
     $settings->add(new admin_setting_configselect('report_trainingsessions/extrauserinfo1', get_string('extrauserinfo', 'report_trainingsessions').' 1',
@@ -48,6 +51,9 @@ if ($ADMIN->fulltree) {
                        get_string('extrauserinfo_desc', 'report_trainingsessions'), '', $fieldoptions));
 
     $settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
+
+    $settings->add(new admin_setting_configcheckbox('report_trainingsessions/showhits', get_string('showhits', 'report_trainingsessions'),
+                       get_string('showhits_desc', 'report_trainingsessions'), 0));
 
     $settings->add(new admin_setting_configstoredfile('pdfreportheader', get_string('pdfreportheader', 'report_trainingsessions'),
                        get_string('pdfreportheader_desc', 'report_trainingsessions'), 'pdfreportheader', 0));

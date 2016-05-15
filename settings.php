@@ -50,6 +50,71 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('report_trainingsessions/extrauserinfo2', get_string('extrauserinfo', 'report_trainingsessions').' 2',
                        get_string('extrauserinfo_desc', 'report_trainingsessions'), '', $fieldoptions));
 
+    $settings->add(new admin_setting_heading('colors', get_string('colors', 'report_trainingsessions'), ''));
+
+    // PDF Text colour setting.
+    $name = 'report_trainingsessions/textcolor';
+    $title = get_string('textcolor', 'report_trainingsessions');
+    $description = get_string('textapplication', 'report_trainingsessions');
+    $default = '#000000';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
+    // PDF Head1 BackgroundColour setting.
+    $name = 'report_trainingsessions/head1bgcolor';
+    $title = get_string('bgcolor', 'report_trainingsessions').' 1';
+    $description = get_string('head1application', 'report_trainingsessions');
+    $default = '#91C1CA';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
+    // PDF Head1 Text setting.
+    $name = 'report_trainingsessions/head1textcolor';
+    $title = get_string('textcolor', 'report_trainingsessions').' 1';
+    $description = get_string('head1application', 'report_trainingsessions');
+    $default = '#ffffff';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
+    // PDF Head1 BackgroundColour setting.
+    $name = 'report_trainingsessions/head2bgcolor';
+    $title = get_string('bgcolor', 'report_trainingsessions').' 2';
+    $description = get_string('head2application', 'report_trainingsessions');
+    $default = '#91C1CA';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
+    // PDF Head1 Text setting.
+    $name = 'report_trainingsessions/head2textcolor';
+    $title = get_string('textcolor', 'report_trainingsessions').' 2';
+    $description = get_string('head2application', 'report_trainingsessions');
+    $default = '#ffffff';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
+    // PDF Summarizer Colour setting.
+    $name = 'report_trainingsessions/head3bgcolor';
+    $title = get_string('bgcolor', 'report_trainingsessions').' 3';
+    $description = get_string('head3application', 'report_trainingsessions');
+    $default = '#C06361';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
+    // PDF Summarizer Text setting.
+    $name = 'report_trainingsessions/head3textcolor';
+    $title = get_string('textcolor', 'report_trainingsessions').' 3';
+    $description = get_string('head3application', 'report_trainingsessions');
+    $default = '#ffffff';
+    $previewconfig = null;
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
+    $settings->add($setting);
+
     $settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
 
     $settings->add(new admin_setting_configcheckbox('report_trainingsessions/showhits', get_string('showhits', 'report_trainingsessions'),

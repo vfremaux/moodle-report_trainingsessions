@@ -30,6 +30,8 @@ defined('MOODLE_INTERNAL') || die();
 function report_trainingsessions_print_header_xls(&$worksheet, $userid, $courseid, $data, $xls_formats) {
     global $CFG, $DB;
 
+    $config = get_config('report_trainingsessions');
+
     $user = $DB->get_record('user', array('id' => $userid));
     $course = $DB->get_record('course', array('id' => $courseid));
 
@@ -108,9 +110,12 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $row++;
     $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd'), $xls_formats['p']);
-    $row++;
-    $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xls_formats['pb']);
-    $worksheet->write_number($row, 1, (0 + @$data->events));
+
+    if (!empty($config->showhits)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xls_formats['pb']);
+        $worksheet->write_number($row, 1, (0 + @$data->events));
+    }
 
     return $row;
 }
@@ -120,6 +125,8 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
  *
  */
 function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate, &$done, &$row, &$xls_formats, $level = 1) {
+
+    $config = get_config('report_trainingsessions');
 
     if (empty($structure)) {
         $str = get_string('nostructure', 'report_trainingsessions');
@@ -174,8 +181,9 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 $str = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
                 $worksheet->write_string($thisrow, 0, report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls'), $xls_formats['p']);
                 $worksheet->write_string($thisrow, 2, $str, $xls_formats['p']);
-                $worksheet->write_number($thisrow, 3, $dataobject->events, $xls_formats['p']);
-
+                if (!empty($config->showhits)) {
+                    $worksheet->write_number($thisrow, 3, $dataobject->events, $xls_formats['p']);
+                }
             } else {
                 // It is only a structural module that should not impact on level
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -197,7 +205,7 @@ function report_trainingsessions_print_usersessions($worksheet, $userid, $row, $
 
     // Get data
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
-    $aggregate = use_stats_aggregate_logs($logs, 'module');
+    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
     report_trainingsessions_print_sessions_xls($worksheet, $row, $aggregate['sessions'], $course, $xls_formats);
 }
@@ -210,8 +218,14 @@ function report_trainingsessions_print_usersessions($worksheet, $userid, $row, $
  * @param object $course
  * @param object $xls_formats
  */
-function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions, $course, &$xls_formats) {
+function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions, $courseorid, &$xls_formats) {
     global $CFG;
+
+    if (is_object($courseorid)) {
+        $courseid = $courseorid->id;
+    } else {
+        $courseid = $courseorid;
+    }
 
     $config = get_config('report_traningsessions');
     if (!empty($config->enablelearningtimecheckcoupling)) {
@@ -222,10 +236,16 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
     $totalelapsed = 0;
 
     if (!empty($sessions)) {
-        foreach ($sessions as $s) {
+        foreach ($sessions as $session) {
 
-            if (!isset($session->sessionend)) {
-                // this is a "not true" session reliquate. Ignore it
+            if ($courseid && !array_key_exists($courseid, $session->courses)) {
+                // Omit all sessions not visiting this course.
+                continue;
+            }
+
+            // Fix eventual missing session end.
+            if (!isset($session->sessionend) && empty($session->elapsed)) {
+                // This is a "not true" session reliquate. Ignore it.
                 continue;
             }
 
@@ -235,11 +255,6 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
             $daysessions = report_trainingsessions_splice_session($session);
 
             foreach($daysessions as $s) {
-
-                if ($course->id && !array_key_exists($course->id, $s->courses)) {
-                    // omit all sessions not visiting this course
-                    continue;
-                }
 
                 if (!empty($config->enablelearningtimecheckcoupling)) {
 
@@ -291,6 +306,8 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
 function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, $row, &$xls_formats) {
     global $CFG, $COURSE, $DB;
 
+    $config = get_config('report_trainingsessions');
+
     $output = array();
     $courses = array();
     $courseids = array();
@@ -339,9 +356,11 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
             $worksheet->write_string($row, 0, $elapsedstr, $xls_formats['p']);
             $worksheet->write_string($row, 1, report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd'), $xls_formats['p']);
             $row++;
-            $worksheet->write_string($row, 0, $hitsstr, $xls_formats['p']);
-            $worksheet->write_number($row, 1, $output[0][SITEID]->events, $xls_formats['z']);
-            $row++;
+            if (!empty($config->showhits)) {
+                $worksheet->write_string($row, 0, $hitsstr, $xls_formats['p']);
+                $worksheet->write_number($row, 1, $output[0][SITEID]->events, $xls_formats['z']);
+                $row++;
+            }
         }
 
         foreach ($output as $catid => $catdata) {
@@ -360,7 +379,9 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
                 if (has_capability('report/trainingsessions:view', $ccontext)) {
                     $worksheet->write_string($row, 0, $courses[$cid]->fullname, $xls_formats['p']);
                     $worksheet->write_string($row, 1, report_trainingsessions_format_time($cdata->elapsed, 'xlsd'), $xls_formats['p']);
-                    $worksheet->write_number($row, 2, $cdata->events, $xls_formats['z']);
+                    if (!empty($config->showhits)) {
+                        $worksheet->write_number($row, 2, $cdata->events, $xls_formats['z']);
+                    }
                     $row++;
                 } else {
                     $worksheet->write_string($row, 0, $courses[$cid]->fullname, $xls_formats['p']);

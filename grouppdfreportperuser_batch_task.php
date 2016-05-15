@@ -169,8 +169,8 @@ if (!empty($targetusers)) {
         report_trainingsessions_print_footer($pdf);
 
         $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
+        $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
+        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
         $y = report_trainingsessions_print_userinfo($pdf, $y, $auser, $course, $from, $to, $config->recipient);
         $y = report_trainingsessions_print_overheadline($pdf, $y, $table);
         $overall = report_trainingsessions_print_course_structure($pdf, $y, $coursestructure, $aggregate, $done, $items, $table);

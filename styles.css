@@ -44,6 +44,7 @@ table * td {
 .trainingreport.subs,
 .sessionreport{
     width:100%;
+    margin-bottom:15px;
 }
 
 .sessionitem.rangedate{
@@ -61,6 +62,10 @@ table * td {
     border-radius:10px;
     margin:10px;
     font-size:1.2em;
+}
+
+.report-trainingsessions.session-duration {
+    text-align:right;
 }
 
 .trainingsessions-buttons-wrapper{
@@ -90,4 +95,8 @@ table * td {
     width:60px;
     border-radius:4px;
     -moz-border-radius:4px;
+}
+
+.trainingsessions-green {
+    background-color:#C4FBAC !important;
 }

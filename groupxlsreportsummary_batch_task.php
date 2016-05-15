@@ -150,17 +150,13 @@ if (!empty($targetusers)) {
 
     $row = report_trainingsessions_print_rawline_xls($worksheet, $headdata, $headerformats, $row, $xls_formats);
 
-    $logs = use_stats_extract_logs($from, $to, array_keys($targetusers), $course->id);
-    $aggregate = use_stats_aggregate_logs_per_user($logs, 'module');
-
-    // print_object($aggregate);
-
-    $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, array_keys($targetusers), $course->id);
-    $weekaggregate = use_stats_aggregate_logs_per_user($weeklogs, 'module');
-
-    // print_object($weekaggregate);
-
     foreach ($targetusers as $auser) {
+
+        $logs = use_stats_extract_logs($from, $to, array($auser->id), $course->id);
+        $aggregate = use_stats_aggregate_logs($logs, 'module');
+
+        $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, array($auser->id), $course->id);
+        $weekaggregate = use_stats_aggregate_logs($weeklogs, 'module');
 
         $data = array();
         $data[] = $auser->idnumber;
@@ -169,13 +165,13 @@ if (!empty($targetusers)) {
         $data[] = $auser->institution;
         $data[] = $auser->firstaccess;
         $data[] = $auser->lastlogin;
-        $data[] = count(@$aggregate[$auser->id]['sessions']);
+        $data[] = count(@$aggregate['sessions']);
         $data[] = 0 + @$items;
-        $data[] = (is_array(@$aggregate[$auser->id]['activities']->instances)) ? count(@$aggregate[$auser->id]['activities']->instances) : 0;
-        $data[] = 0 + @$aggregate[$auser->id]['coursetotal'][$course->id]->elapsed;
-        $data[] = 0 + @$aggregate[$auser->id]['coursetotal'][$course->id]->events;
-        $data[] = 0 + @$weekaggregate[$auser->id]['coursetotal'][$course->id]->elapsed;
-        $data[] = 0 + @$weekaggregate[$auser->id]['coursetotal'][$course->id]->events;
+        $data[] = (is_array(@$aggregate['activities']->instances)) ? count(@$aggregate['activities']->instances) : 0;
+        $data[] = 0 + @$aggregate['coursetotal'][$course->id]->elapsed;
+        $data[] = 0 + @$aggregate['coursetotal'][$course->id]->events;
+        $data[] = 0 + @$weekaggregate['coursetotal'][$course->id]->elapsed;
+        $data[] = 0 + @$weekaggregate['coursetotal'][$course->id]->events;
 
         report_trainingsessions_add_graded_data($data, $auser->id);
 

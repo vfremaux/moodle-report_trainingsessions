@@ -370,7 +370,10 @@ class HTML_QuickForm_ElementGrid extends HTML_QuickForm_element {
                     if (is_array($value)) {
                         $values = HTML_QuickForm::arrayMerge($values, $value);
                     } else {
-                        $values[$this->_rows[$key][$key2]->getName()] = $value;
+                        $dataname = $this->_rows[$key][$key2]->getName();
+                        if (!empty($dataname)) {
+                            $values[$dataname] = $value;
+                        }
                     }
                 }
             }

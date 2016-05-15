@@ -33,6 +33,16 @@ if (!defined('MOODLE_INTERNAL')) {
     die('Direct access to this script is forbidden.'); // It must be included from view.php
 }
 
+/**
+ * Checks if vertical position needs to be recalculated because reaching the end of the page, and
+ * generates the PDF page break
+ * @param object $pdf the TCPDF document
+ * @param int $y the present vertical position issued from last write
+ * @param boolref $isnewpage tels the calling environment if a new page has been required
+ * @param bool $isfront let the caller tell we need to add a new "front document header" and not a "inner header".
+ * @param bool $islast if set to true for the last page, will print the nuber of total pages of the document anyway
+ * @return the new y position
+ */
 function report_trainingsessions_check_page_break(&$pdf, $y, &$isnewpage, $isfront = false, $last = false) {
     static $pdfpage = 1;
 
@@ -400,14 +410,16 @@ function report_trainingsessions_print_header(&$pdf, $alternateheader = false) {
     $systemcontext = context_system::instance();
 
     if ($alternateheader) {
-        $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportinnerheader', 0);
-    
+        // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportinnerheader', 0);
+        $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportinnerheader', 0);
+
         if (!empty($files)) {
             $headerfile = array_pop($files);
         } else {
             // Take cover header as default if exists.
-            $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
-        
+            // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
+            $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportheader', 0);
+
             if (!empty($files)) {
                 $headerfile = array_pop($files);
             } else {
@@ -415,8 +427,9 @@ function report_trainingsessions_print_header(&$pdf, $alternateheader = false) {
             }
         }
     } else {
-        $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
-    
+        $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportheader', 0);
+        // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportheader', 0);
+
         if (!empty($files)) {
             $headerfile = array_pop($files);
         } else {
@@ -445,7 +458,8 @@ function report_trainingsessions_print_footer(&$pdf) {
     $fs = get_file_storage();
     $systemcontext = context_system::instance();
 
-    $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportfooter', 0);
+    $files = $fs->get_area_files($systemcontext->id, 'core', 'pdfreportfooter', 0);
+    // $files = $fs->get_area_files($systemcontext->id, 'report_trainingsessions', 'pdfreportfooter', 0);
 
     if (!empty($files)) {
         $footerfile = array_pop($files);
@@ -481,7 +495,7 @@ function report_trainingsessions_print_usersessions(&$pdf, $userid, $y, $from, $
 
     // Get data
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
-    $aggregate = use_stats_aggregate_logs($logs, 'module');
+    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
     // Make report.
     $title = get_config('sessionreportdoctitle', 'report_trainingsessions');
@@ -557,8 +571,13 @@ function report_trainingsessions_print_usersessions(&$pdf, $userid, $y, $from, $
     foreach ($aggregate['sessions'] as $sessionid => $session) {
         // theses are real tracked sessions
 
+        if ($course->id && !array_key_exists($course->id, $session->courses)) {
+            // Omit all sessions not visiting this course.
+            continue;
+        }
+
         // Fix eventual missing session end.
-        if (empty($session->sessionend)) {
+        if (!isset($session->sessionend) && empty($session->elapsed)) {
             // This is a "not true" session reliquate. Ignore it.
             continue;
         }
@@ -768,7 +787,7 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
 
 /**
  * a raster for xls printing of a course structure in report. Scans recusrively the course structure
- * object, and prints a result line on leaf or title items, collects that "done", "elapsed" and "hits"
+ * object, and prints a result line on leaf or title items, collects that "done", "elapsed" and "events"
  * globalizers in the way.
  * @param objectref &$pdf the pdf document
  * @param int $y the current vertical position in page
@@ -1025,4 +1044,44 @@ function report_trainingsessions_get_object_coords($orientation, $format = 'A4',
             return array(10, 10, 277, 190);
     }
     return array(0,0,0,0);
+}
+
+function report_trainingsessions_print_courseline_head(&$pdf, $y, &$table) {
+
+    $config = get_config('report_trainingsessions');
+
+    $table->pdfhead2 = array();
+    $table->pdfhead2[] = get_string('idnumber');
+    $table->pdfhead2[] = get_string('shortname');
+    $table->pdfhead2[] = get_string('elapsed', 'report_trainingsessions');
+    if (!empty($config->showhits)) {
+        $table->pdfhead2[] = get_string('hits', 'report_trainingsessions');
+    }
+
+    $y = report_trainingsessions_print_headline($pdf, $y, $table);
+    return $y;
+}
+
+/**
+ * @param object $pdf the TCPDF object
+ * @param $dataline, the data flat array to print 
+ * @param $table the pdf attributes for layout and display settings
+ */
+function report_trainingsessions_print_courseline(&$pdf, $y, &$courseline, &$table) {
+
+    $lineincr = 5;
+
+    $dataline = array();
+    $dataline[] = $courseline->idnumber;
+    $dataline[] = $courseline->shortname;
+    $dataline[] = report_trainingsessions_format_time($courseline->elapsed, 'xlsd');
+    if (!empty($config->showhits)) {
+        $dataline[] = $courseline->events;
+    }
+
+    $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
+    $y += $lineincr;
+    $y = report_trainingsessions_check_page_break($pdf, $y, $isnewpageunused, true, false);
+
+    return $y;
 }

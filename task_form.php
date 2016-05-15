@@ -99,11 +99,7 @@ class Task_Form extends moodleform {
         $mform->addElement('select', 'reportscope', get_string('reportscope', 'report_trainingsessions'), $scopeoptions);
 
         // What file format (file renderer) to use.
-        $formatoptions = array(
-            'xls' => get_string('xls', 'report_trainingsessions'),
-            'csv' => get_string('csv', 'report_trainingsessions'),
-            'pdf' => get_string('pdf', 'report_trainingsessions')
-        );
+        $formatoptions = report_trainingsessions_get_batch_formats();
         $mform->addHelpButton('reportscope', 'reportscope', 'report_trainingsessions');
 
         $mform->addElement('select', 'reportformat', get_string('reportformat', 'report_trainingsessions'), $formatoptions);

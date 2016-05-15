@@ -53,6 +53,17 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/site:viewreports',
     ),
 
+    'report/trainingsessions:batch' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:viewreports',
+    ),
+
     'report/trainingsessions:iscompiled' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',

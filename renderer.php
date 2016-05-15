@@ -36,7 +36,9 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         if (has_capability('report/trainingsessions:viewother', $context)) {
             $courseurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'course', 'from' => $from, 'to' => $to));
             $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));
+        }
 
+        if (has_capability('report/trainingsessions:batch', $context)) {
             $params = array('id' => $course->id, 'view' => 'courseraw');
             $params["from[day]"] = date('d', $from);
             $params["from[month]"] = date('m', $from);
@@ -47,11 +49,13 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             $courserawurl = new moodle_url('/report/trainingsessions/index.php', $params);
             $rows[0][] = new tabobject('courseraw', $courserawurl, get_string('courseraw', 'report_trainingsessions'));
         }
-        $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'allcourses', 'from' => $from, 'to' => $to));
-        $rows[0][] = new tabobject('allcourses', $allcoursesurl, get_string('allcourses', 'report_trainingsessions'));
-
-        $gradesettingsurl = new moodle_url('/report/trainingsessions/gradessettings.php', array('id' => $course->id, 'from' => $from, 'to' => $to));
-        $rows[0][] = new tabobject('gradesettings', $gradesettingsurl, get_string('gradesettings', 'report_trainingsessions'));
+        if (has_capability('report/trainingsessions:viewother', $context)) {
+            $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'allcourses', 'from' => $from, 'to' => $to));
+            $rows[0][] = new tabobject('allcourses', $allcoursesurl, get_string('allcourses', 'report_trainingsessions'));
+    
+            $gradesettingsurl = new moodle_url('/report/trainingsessions/gradessettings.php', array('id' => $course->id, 'from' => $from, 'to' => $to));
+            $rows[0][] = new tabobject('gradesettings', $gradesettingsurl, get_string('gradesettings', 'report_trainingsessions'));
+        }
 
         $str = print_tabs($rows, $view, null, null, true);
 
@@ -59,7 +63,13 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
     }
 
     function user_session_reports_buttons($userid, $scope = 'course') {
-        global $DB, $OUTPUT, $COURSE;
+        global $DB, $OUTPUT, $COURSE, $CFG;
+
+        if (!is_dir($CFG->dirroot.'/local/vflibs')) {
+            if (debugging()) {
+                return $OUTPUT->notification(get_string('libsmissing', 'report_trainingsessions'));
+            }
+        }
 
         $MON = array('JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUI', 'JUIL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC');
 

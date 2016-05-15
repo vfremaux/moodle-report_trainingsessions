@@ -26,6 +26,13 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
+
+if (!function_exists('debug_trace')) {
+    function debug_trace($str) {
+        // Simulates the local/advancedperfs library.
+    }
+}
+
 /**
 * This special report allows wrapping to course report crons
 * function that otherwise would not be considered by cron task.

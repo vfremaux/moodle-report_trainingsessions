@@ -38,7 +38,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
-$groupid = required_param('groupid', PARAM_INT) ; // group id
+$userid = required_param('userid', PARAM_INT) ; // group id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
 $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
 $startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
@@ -95,65 +95,44 @@ if ($to == -1) {
     }
 }
 
-// Compute target group.
+// generate XLS
 
-if ($groupid) {
-    $group = $DB->get_record('groups', array('id' => $groupid));
-    $targetusers = groups_get_members($groupid);
+$filename = "trainingsessions_user_{$userid}_report_".date('d-M-Y', time()).".xls";
 
-    // Filter out non compiling users.
-    report_trainingsessions_filter_unwanted_users($targetusers);
-} else {
-    $targetusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.id, '.get_all_user_name_fields(true, 'u').', email, institution, idnumber', 'lastname');
+$workbook = new MoodleExcelWorkbook("-");
+if (!$workbook) {
+    die("Excel Librairies Failure");
 }
 
-// Print result.
+$auser = $DB->get_record('user', array('id' => $userid));
 
-if (!empty($targetusers)) {
+// Sending HTTP headers
+ob_end_clean();
+$workbook->send($filename);
 
-    // generate XLS
+$xls_formats = report_trainingsessions_xls_formats($workbook);
+$startrow = 15;
 
-    if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".xls";
-    } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".xls";
-    }
+$row = $startrow;
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
 
-    $workbook = new MoodleExcelWorkbook("-");
-    if (!$workbook) {
-        die("Excel Librairies Failure");
-    }
+$logusers = $auser->id;
+$logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
+$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
-    // Sending HTTP headers
-    ob_end_clean();
-    $workbook->send($filename);
+$overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
+$data = new StdClass();
+$data->items = $items;
+$data->done = $done;
+$data->from = $from;
+$data->elapsed = $overall->elapsed;
+$data->events = $overall->events;
+report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
 
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
-    $startrow = 15;
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
+report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xls_formats);
+report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
 
-    foreach ($targetusers as $auser) {
-
-        $row = $startrow;
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
-
-        $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
-
-        $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-        $data = new StdClass();
-        $data->items = $items;
-        $data->done = $done;
-        $data->from = $from;
-        $data->elapsed = $overall->elapsed;
-        $data->events = $overall->events;
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-    }
-    $workbook->close();
-}
+$workbook->close();
 
 // echo '200';

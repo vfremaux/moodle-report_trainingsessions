@@ -139,8 +139,8 @@ if (!empty($targetusers)) {
         $y = report_trainingsessions_print_courses_line_header($pdf, $y, $table);
 
         $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, time(), $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
+        $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
+        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
         report_trainingsessions_print_courses_line($pdf, $aggregate, $auser, $table);
     }

@@ -34,7 +34,7 @@ function report_trainingsessions_get_usersessions(&$result, $userid) {
 
     $total = new StdClass();
     $total->duration = 0;
-    $total->hits = 0;
+    $total->events = 0;
     foreach ($aggregate->sessions as $sessionid => $session) {
 
         // Fix eventual missing session end.
@@ -43,7 +43,7 @@ function report_trainingsessions_get_usersessions(&$result, $userid) {
         }
 
         $total->duration += $session->elapsed;
-        $total->hits++;
+        $total->events++;
     }
 
     $result->sessions = $aggregate->sessions;

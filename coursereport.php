@@ -63,6 +63,10 @@ if ($data->from == -1 || @$data->fromstart) { // maybe we get it from parameters
 
 if ($data->to == -1 || @$data->tonow){ // maybe we get it from parameters
     $data->to = time();
+} else {
+    // the displayed time in form is giving a 0h00 time. We should push till
+    // 23h59 of the given day
+    $data->to = min(time(), $data->to + DAYSECS - 1);
 }
 
 if ($data->output == 'html') {
@@ -141,7 +145,7 @@ if ($data->output == 'html') {
 
             $logusers = $auser->id;
             $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
-            $aggregate = use_stats_aggregate_logs($logs, 'module');
+            $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
 
             if (empty($aggregate['sessions'])) {
                 $aggregate['sessions'] = array();
@@ -150,26 +154,26 @@ if ($data->output == 'html') {
             $data->items = $items;
 
             $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
-            $data->activityhits = @$aggregate['activities'][$course->id]->events;
+            $data->activityevents = @$aggregate['activities'][$course->id]->events;
             $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
-            $data->otherhits = @$aggregate['other'][$course->id]->events;
+            $data->otherevents = @$aggregate['other'][$course->id]->events;
             $data->done = 0;
 
             if (!empty($aggregate)) {
 
                 $data->course = new StdClass();
                 $data->course->elapsed = 0;
-                $data->course->hits = 0;
+                $data->course->events = 0;
 
                 if (!empty($aggregate['course'])) {
                     $data->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-                    $data->course->hits = 0 + @$aggregate['course'][$course->id]->hits;
+                    $data->course->events = 0 + @$aggregate['course'][$course->id]->events;
                 }
 
                 // Calculate everything.
 
                 $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
-                $data->hits = $data->activityhits + $data->otherhits + $data->course->hits;
+                $data->events = $data->activityevents + $data->otherevents + $data->course->events;
 
                 $data->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 

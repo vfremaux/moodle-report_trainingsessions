@@ -50,14 +50,18 @@ if ($data = $selform->get_data()) {
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
 }
 
-if ($data->from == -1 || @$data->fromstart) {
+if (($data->from == -1) || @$data->fromstart) {
     // maybe we get it from parameters
     $data->from = $course->startdate;
 }
 
-if ($data->to == -1 || @$data->tonow) {
+if (($data->to == -1) || @$data->tonow) {
     // maybe we get it from parameters
     $data->to = time();
+} else {
+    // the displayed time in form is giving a 0h00 time. We should push till
+    // 23h59 of the given day
+    $data->to = min(time(), $data->to + DAYSECS - 1);
 }
 
 if ($data->output == 'html') {
@@ -74,9 +78,15 @@ if ($data->output == 'html') {
 
 // Get data
 
-$logusers = $data->userid;
-$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course);
-$aggregate = use_stats_aggregate_logs($logs, 'module');
+$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
+
+$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
+
+$automatondebug = optional_param('debug', 0, PARAM_BOOL) && is_siteadmin();
+if ($automatondebug) {
+    echo '<h2>Aggregator output</h2>';
+    block_use_stats_render_aggregate($aggregate);
+}
 
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
@@ -85,7 +95,6 @@ if (empty($aggregate['sessions'])) {
 // Get course structure.
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
-
 // Print result.
 
 if ($data->output == 'html') {
@@ -106,26 +115,26 @@ if ($data->output == 'html') {
     // In-activity.
 
     $dataobject->activityelapsed = @$aggregate['activities'][$COURSE->id]->elapsed;
-    $dataobject->activityhits = @$aggregate['activities'][$COURSE->id]->events;
+    $dataobject->activityevents = @$aggregate['activities'][$COURSE->id]->events;
     $dataobject->otherelapsed = @$aggregate['other'][$COURSE->id]->elapsed;
-    $dataobject->otherhits = @$aggregate['other'][$COURSE->id]->events;
+    $dataobject->otherevents = @$aggregate['other'][$COURSE->id]->events;
 
     $dataobject->course = new StdClass;
 
     // Calculate in-course-out-activities.
 
     $dataobject->course->elapsed = 0;
-    $dataobject->course->hits = 0;
+    $dataobject->course->events = 0;
 
     if (!empty($aggregate['course'])) {
         $dataobject->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-        $dataobject->course->hits = 0 + @$aggregate['course'][$course->id]->hits;
+        $dataobject->course->events = 0 + @$aggregate['course'][$course->id]->events;
     }
 
     // Calculate everything.
 
     $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
-    $dataobject->hits = $dataobject->activityhits + $dataobject->otherhits + $dataobject->course->hits;
+    $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
     $dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 
@@ -133,12 +142,12 @@ if ($data->output == 'html') {
         $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
         $dataobject->upload = new StdClass;
         $dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
-        $dataobject->upload->hits = 0 + @$aggregate['upload'][0]->events;
+        $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
     }
 
     report_trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
 
-    report_trainingsessions_print_session_list($str, @$aggregate['sessions'], $course->id, $data->userid);
+    report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
 
     echo $str;
 
@@ -181,9 +190,9 @@ if ($data->output == 'html') {
     $datarec->events = $overall->events;
     report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
 
-    $worksheet = report_trainingsessions_init_worksheet($data->userid, $startrow, $xls_formats, $workbook, 'sessions');
+    $worksheet = report_trainingsessions_init_worksheet($data->userid, 15, $xls_formats, $workbook, 'sessions');
     report_trainingsessions_print_sessions_xls($worksheet, 15, $aggregate['sessions'], $course->id, $xls_formats);
-    report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $data, $xls_formats);
+    report_trainingsessions_print_header_xls($worksheet, $data->userid, $course->id, $datarec, $xls_formats);
 
     $workbook->close();
 }

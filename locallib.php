@@ -155,21 +155,21 @@ function page_get_structure_from_page($page, &$itemcount) {
     if (in_array($page->id, $VISITED_PAGES)) {
         return;
     }
-    $VISITED_PAGES[] = $page->id;    
+    $VISITED_PAGES[] = $page->id;
 
     $structure = array();
 
-    // get page items from first page. They are located in the center column    
+    // Get page items from first page. They are located in the center column.
     $select = " pageid = ? AND (position = 'c' OR position = 'r') ";
     $pageitems = $DB->get_records_select('format_page_items', $select, array($page->id), 'position, sortorder');
 
-    // analyses course content component stack
+    // Analyses course content component stack.
     if ($pageitems) {
         foreach ($pageitems as $pi) {
 
             if (!$pi->cmid) {
 
-                // is a block
+                // Is a block.
                 $b = $DB->get_record('block_instances', array('id' => $pi->blockinstance));
                 if (!$b) {
                     continue;
@@ -194,12 +194,12 @@ function page_get_structure_from_page($page, &$itemcount) {
     
                 $source = @$blockinstance->config->text;
 
-                // if there is no subcontent, do not consider this bloc in reports.
+                // If there is no subcontent, do not consider this bloc in reports.
                 if ($element->subs = page_get_structure_in_content($source, $itemcount)) {
                     $structure[] = $element;
                 }
             } else {
-                // is a module
+                // Is a module.
                 $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
                 $module = $DB->get_record('modules', array('id' => $cm->module));
 
@@ -260,7 +260,7 @@ function page_get_structure_in_content($source, &$itemcount) {
     preg_match_all($pattern, $source, $matches);
     if (isset($matches[1])) {
         foreach ($matches[1] as $href) {
-            // jump to another page
+            // Jump to another page.
             if (preg_match('/course\\/view.php\\?id=(\\d+)&page=(\\d+)/', $href, $matches)) {
                 if (in_array($matches[2], $VISITED_PAGES)) {
                     continue;
@@ -273,7 +273,7 @@ function page_get_structure_in_content($source, &$itemcount) {
                 $structure[] = $element;
                 $VISITED_PAGES[] = $matches[2];
             }
-            // points a module
+            // Points a module.
             if (preg_match('/mod\\/([a-z_]+)\\/.*\\?id=(\\d+)/', $href, $matches)) {
                 $element = new StdClass;
                 $element->type = $matches[1];
@@ -301,7 +301,14 @@ function page_get_structure_in_content($source, &$itemcount) {
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
     if ($timevalue) {
         if ($mode == 'html') {
-            return format_time($timevalue);
+            $secs = $timevalue % 60;
+            $mins = floor($timevalue / 60);
+            $hours = floor($mins / 60);
+            $mins = $mins % 60;
+
+            if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
+            if ($mins > 0) return "{$mins}m {$secs}s";
+            return "{$secs}s";
         } elseif($mode == 'xlsd') {
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
@@ -313,7 +320,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             return "{$secs}s";
         } else {
             // for excel time format we need have a fractional day value
-            return strftime('%Y-%m-%d %H:%I:%S (%a)', $timevalue);
+            return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
             // return  $timevalue / DAYSECS;
         }
     } else {
@@ -433,11 +440,19 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_format
     $worksheet->set_column(12,12,12);
     $worksheet->set_column(13,13,4);
 
-    $worksheet->set_row($startrow - 1, 12, $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 0, get_string('firstaccess', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 1, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
-    $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
+    if ($purpose == 'usertimes' || $purpose == 'allcourses') {
+        $worksheet->set_row($startrow - 1, 12, $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 0, get_string('firstaccess', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 1, get_string('item', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 2, get_string('elapsed', 'report_trainingsessions'), $xls_formats['tt']);
+        if (!empty($config->showhits)) {
+            $worksheet->write_string($startrow - 1, 3, get_string('hits', 'report_trainingsessions'), $xls_formats['tt']);
+        }
+    } else {
+        $worksheet->write_string($startrow - 1, 0, get_string('sessionstart', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 1, get_string('sessionend', 'report_trainingsessions'), $xls_formats['tt']);
+        $worksheet->write_string($startrow - 1, 2, get_string('duration', 'report_trainingsessions'), $xls_formats['tt']);
+    }
 
     return $worksheet;
 }
@@ -533,10 +548,10 @@ function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$da
     $resultset[] = date('d/m/Y', $to - DAYSECS * 7); // last week of period
 
     // time
-    $resultset[] = raw_format_duration(@$data->elapsed); // elapsed time
+    $resultset[] = report_trainingsessions_format_time(0 + @$data->elapsed, 'xlsd'); // elapsed time
 
     // time in last week
-    $resultset[] = raw_format_duration(@$data->weekelapsed); // elapsed time this week
+    $resultset[] = report_trainingsessions_format_time(@$data->weekelapsed, 'xlsd'); // elapsed time this week
 
     // add grades
     report_trainingsessions_add_graded_data($resultset, $userid);
@@ -551,31 +566,6 @@ function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$da
         $rawstr .= implode(';', $resultset)."\n";
     }
 }
-
-/**
- * TODO : Remove this function and use get_string based formatting.
- */
-function raw_format_duration($secs) {
-    $min = floor($secs / 60);
-    $hours = floor($min / 60);
-    $days = floor($hours / 24);
-
-    $hours = $hours - $days * 24;
-    $min = $min - ($days * 24 * 60 + $hours * 60);
-    $secs = $secs - ($days * 24 * 60 * 60 + $hours * 60 * 60 + $min * 60);
-
-    if ($days) {
-        return $days.' '.get_string('days')." $hours ".get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
-    }
-    if ($hours) {
-        return $hours.' '.get_string('hours')." $min ".get_string('min')." $secs ".get_string('secs');
-    }
-    if ($min) {
-        return $min.' '.get_string('min')." $secs ".get_string('secs');
-    }
-    return $secs.' '.get_string('secs');
-}
-
 
 /**
  * Local qery to get course users.
@@ -827,12 +817,25 @@ function report_trainingsessions_back_office_access($course = null) {
 
 function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
     $count = 0;
+
     if (!empty($sessions)) {
         foreach ($sessions as $s) {
-            if (!empty($s->courses)) {
-                foreach($s->courses as $cid) {
-                    if ($cid == $courseid) $count++;
+
+            if (!isset($s->sessionend) && empty($s->elapsed)) {
+                // This is a "not true" session reliquate. Ignore it.
+                continue;
+            }
+
+            if (empty($s->courses)) {
+                continue;
+            }
+
+            if ($courseid) {
+                if (in_array($courseid, $s->courses)) {
+                    $count++;
                 }
+            } else {
+                $count++;
             }
         }
     }
@@ -1035,4 +1038,22 @@ function report_trainingsessions_splice_session($session) {
     }
 
     return $sessions;
+}
+
+/**
+ * Gives the available format options.
+ */
+function report_trainingsessions_get_batch_formats() {
+    global $CFG;
+
+    $formatoptions = array(
+        'xls' => get_string('xls', 'report_trainingsessions'),
+        'csv' => get_string('csv', 'report_trainingsessions'),
+    );
+
+    if (!is_dir($CFG->dirroot.'/local/vflibs')) {
+        $formatoptions['pdf'] = get_string('pdf', 'report_trainingsessions');
+    }
+
+    return $formatoptions;
 }

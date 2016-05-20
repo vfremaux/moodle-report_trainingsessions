@@ -98,7 +98,7 @@ if (empty($aggregate['sessions'])) {
 if ($data->output == 'html') {
     // time period form
 
-    include_once($CFG->dirroot.'/report/trainingsessions/htmlrenderers.php');
+    include_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
     echo '<br/>';
 
@@ -152,7 +152,7 @@ if ($data->output == 'html') {
 
 } else {
 
-    require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
+    require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 
     // $CFG->trace = 'x_temp/xlsreport.log';
     // debug_open_trace();

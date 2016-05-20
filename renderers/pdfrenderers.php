@@ -150,14 +150,15 @@ function report_trainingsessions_print_headline($pdf, $y, &$table) {
 
     $x = 10;
     $pdf->SetXY($x, $y);
-    $pdf->SetFontSize(11);
     if (!empty($table->level) && $table->level > 1) {
         $pdf->SetFontSize(11 + $table->level - 1);
     }
     $border = array('LTBR' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255)));
 
-    $i = 0;
-    foreach ($table->pdfhead2 as $header) {
+    $outy = 0;
+    $count = count($table->pdfhead2);
+    for ($i = 0 ; $i < $count ; $i++) {
+        $header = $table->pdfhead2[$i];
         $bgcolor = (empty($table->pdfbgcolor2[$i])) ? '#606060' : $table->pdfbgcolor2[$i];
         $color = (empty($table->pdfcolor2[$i])) ? '#ffffff' : $table->pdfcolor2[$i];
         if ($table->pdfprintinfo[$i]) {
@@ -166,16 +167,19 @@ function report_trainingsessions_print_headline($pdf, $y, &$table) {
             $pdf->SetFillColor($r, $v, $b);
             list($r, $v, $b) = tcpdf_decode_html_color($color, true);
             $pdf->SetTextColor($r, $v, $b);
-            $pdf->writeHTMLCell($cellsize, 0, $x, $y, $header, $border, 0, 1, true, $table->pdfalign2[$i]);
+            $pdf->writeHTMLCell($cellsize, 0, $x, $y, $header, $border, 2, 1, true, $table->pdfalign2[$i]);
+            $outy = max($outy, $pdf->GetY());
             $x += $cellsize;
         }
-        $i++;
     }
-
+    $lasty = $pdf->GetY();
+    if ($outy > $lasty) {
+        debug_trace("in $y Out $outy / Last ".$lasty);
+    }
     $pdf->SetFillColor(255);
     $pdf->SetTextColor(0);
 
-    return $pdf->getY() + 8;
+    return $outy;
 }
 
 /**
@@ -216,17 +220,17 @@ function report_trainingsessions_print_dataline(&$pdf, $y, $dataline, &$table) {
 
     $x = 10;
     $pdf->SetXY($x, $y);
-    $pdf->SetFontSize(9);
 
     $i = 0;
+    $outy = $y;
     foreach ($dataline as $datum) {
         // debug_trace("Data Cell $i: ".$table->pdfprintinfo[$i]."<br/>\n");
         if ($table->pdfprintinfo[$i]) {
             // debug_trace("Printing Data Cell\n");
             $cellsize = str_replace('%', '', @$table->pdfsize2[$i]) * PDF_WIDTH_FACTOR;
 
-            $bgcolor = @(empty($table->pdfbgcolor[$i])) ? '#000000' : $table->pdfbgcolor[$i];
-            $color = @(empty($table->pdfcolor[$i])) ? '#000000' : $table->pdfcolor[$i];
+            $bgcolor = (empty($table->pdfbgcolor[$i])) ? '#ffffff' : $table->pdfbgcolor[$i];
+            $color = (empty($table->pdfcolor[$i])) ? '#000000' : $table->pdfcolor[$i];
             list($r, $v, $b) = tcpdf_decode_html_color($bgcolor);
             $pdf->SetFillColor($r, $v, $b);
             list($r, $v, $b) = tcpdf_decode_html_color($color, true);
@@ -248,7 +252,8 @@ function report_trainingsessions_print_dataline(&$pdf, $y, $dataline, &$table) {
                 } elseif (!isset($span)) {
                     // Non spanning single cell
                     // debug_trace("Data $i) normal out ($x, $y, $cellsize) with ".htmlentities($datum->text)."<br/>\n");
-                    $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum->text, 0, 0, 0, true, @$table->pfdalign2[$i]);
+                    $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum->text, 0, 2, true, true, @$table->pdfalign2[$i]);
+                    $outy = max($outy, $pdf->GetY());
                     $x += $cellsize;
                     $i++;
                     continue;
@@ -266,7 +271,8 @@ function report_trainingsessions_print_dataline(&$pdf, $y, $dataline, &$table) {
                     unset($spantoreach);
                     unset($span);
                     // debug_trace("Data $i) resolve at ($x,$y, $cellsize) with ".htmlentities($content)."<br/>\n");
-                    $pdf->writeHTMLCell($size, 0, $x, $y, $content, 0, 0, 0, true, $align);
+                    $pdf->writeHTMLCell($size, 0, $x, $y, $content, 0, 2, true, true, $align);
+                    $outy = max($outy, $pdf->GetY());
                     $x += $size;
                     $i++;
                     continue;
@@ -276,14 +282,15 @@ function report_trainingsessions_print_dataline(&$pdf, $y, $dataline, &$table) {
             } else {
                 debug_trace("Data $i) scalar out ($x, $y, $cellsize) with ".htmlentities($datum)."\n");
                 // $datum = ''.@$table->pdfdata[$line][$i];
-                $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum, 0, 0, 0, true, $table->pdfalign2[$i]);
+                $pdf->writeHTMLCell($cellsize, 0, $x, $y, $datum, 0, 2, true, true, $table->pdfalign2[$i]);
+                $outy = max($outy, $pdf->GetY());
                 $x += $cellsize;
             }
         }
         $i++;
     }
 
-    return $pdf->getY();
+    return $outy;
 }
 
 /**
@@ -300,7 +307,6 @@ function report_trainingsessions_print_sumline($pdf, $y, $dataline, &$table) {
     $x = 10;
     $lineincr = 8;
     $pdf->SetXY($x, $y);
-    $pdf->SetFontSize(10);
     $border = array('LTBR' => array('width' => 2, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(255, 255, 255)));
 
     $sumbgcolor = '#ffffff';
@@ -687,7 +693,7 @@ function report_trainingsessions_print_usersessions(&$pdf, $userid, $y, $from, $
     return $y;
 }
 
-function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $from = 0, $to = 0, $recipient = null) {
+function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $from = 0, $to = 0, $data = null, $recipient = null) {
     global $DB;
 
     $config = get_config('report_trainingsessions');
@@ -695,6 +701,7 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
     $x = 20;
     $lineincr = 8;
     $dblelineincr = 16;
+    $dataxoffset = 80;
 
     // Make report.
     $pdf->SetTextColor(0, 0, 120);
@@ -706,54 +713,71 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
     // $y += $dblelineincr;
     if ($recipient) {
         $label = get_string('recipient', 'report_trainingsessions').':';
-        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
         $recipient = get_config('report_trainingsessions', 'recipient');
-        $y = report_trainingsessions_print_text($pdf, $recipient, $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        $y = report_trainingsessions_print_text($pdf, $recipient, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     }
 
     $y += $lineincr;
     $label = get_string('reportdate', 'report_trainingsessions').':';
-    report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-    $y = report_trainingsessions_print_text($pdf, userdate(time()), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+    report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+    $y = report_trainingsessions_print_text($pdf, userdate(time()), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
 
     if ($from) {
         $label = get_string('from', 'report_trainingsessions').':';
-        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-        $y = report_trainingsessions_print_text($pdf, userdate($from), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, userdate($from), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     }
 
     if ($to) {
         $label = get_string('to', 'report_trainingsessions').':';
-        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-        $y = report_trainingsessions_print_text($pdf, userdate($to), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, userdate($to), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     }
 
     $y += $lineincr;
     $label = get_string('reportforuser', 'report_trainingsessions').':';
-    report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-    $y = report_trainingsessions_print_text($pdf, fullname($user), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+    report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+    $y = report_trainingsessions_print_text($pdf, fullname($user), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
 
     if (!empty($config->printidnumber)) {
         // $y += $dblelineincr;
         $label = get_string('idnumber').':';
-        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-        $y = report_trainingsessions_print_text($pdf, $user->idnumber, $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $user->idnumber, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     }
 
     // Add some custom info from profile
     if (!empty($config->extrauserinfo1)) {
         $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->extrauserinfo1)).':';
         $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->extrauserinfo1));
-        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', '', 13);
-        $y = report_trainingsessions_print_text($pdf, $info, $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     } 
 
     if (!empty($config->extrauserinfo2)) {
         $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->extrauserinfo2)).':';
         $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->extrauserinfo2));
-        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', '', 13);
-        $y = report_trainingsessions_print_text($pdf, $info, $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     } 
+
+    if ($data) {
+        $fieldname = get_string('equlearningtime', 'report_trainingsessions');
+        $info = report_trainingsessions_format_time(0 + @$data->elapsed, 'xlsd');
+        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
+    
+        $fieldname = get_string('activitytime', 'report_trainingsessions');
+        $info = report_trainingsessions_format_time(0 + @$data->activityelapsed, 'xlsd');
+        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
+
+        $fieldname = get_string('othertime', 'report_trainingsessions');
+        $info = report_trainingsessions_format_time((0 + @$data->otherelapsed + @$data->courseelapsed), 'xlsd');
+        report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
+    }
 
     $usergroups = groups_get_all_groups($course->id, $user->id, 0, 'g.id, g.name');
 
@@ -768,19 +792,19 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
         $str = implode(', ', $groupnames);
         // print group status
         $label = get_string('groups').':';
-        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
-        $y = report_trainingsessions_print_text($pdf, $str, $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+        report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
+        $y = report_trainingsessions_print_text($pdf, $str, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     }
 
     $context = context_course::instance($course->id);
     $label = get_string('roles').':';
-    report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
+    report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
     $roles = get_user_roles($context, $user->id);
     $rolenames = array();
     foreach ($roles as $role) {
         $rolenames[] = $role->shortname;
     }
-    $y = report_trainingsessions_print_text($pdf, strip_tags(implode(",", $rolenames)), $x + 50, $y, '', '', 'L', 'freesans', '', 13);
+    $y = report_trainingsessions_print_text($pdf, strip_tags(implode(",", $rolenames)), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     
     return $pdf->getY();
 } 
@@ -796,17 +820,141 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
  * @param intref &$done the "done items" counter
  * @param int $level the current recursion level in structure
  */
-function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure, &$aggregate, &$done, &$items, &$table, $level = 1) {
+function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure, &$aggregate, &$table, $level = 1) {
     static $indent = array();
+
+    $config = get_config('report_trainingsessions');
 
     $x = 20;
     $lineincr = 8;
     $dblelineincr = 16;
-    $y += $lineincr; // Leave some room over course structure.
+    $y += $lineincr; // Leave some room under user info.
 
     if (empty($structure)) {
         $label = get_string('nostructure', 'report_trainingsessions');
         $y = report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', '', 13);
+        return;
+    }
+
+    if (is_array($structure)) {
+        // recurse in sub structures
+        foreach ($structure as $element) {
+            if (isset($element->instance) && empty($element->instance->visible)) {
+                // non visible items should not be displayed.
+                continue;
+            }
+            if (!empty($config->hideemptymodules) && empty($element->elapsed) && empty($element->events)) {
+                // discard empty items.
+                continue;
+            }
+            report_trainingsessions_print_course_structure($pdf, $y, $element, $aggregate, $table, $level);
+        } 
+    } else {
+        // Prints a single row.
+
+        if (!isset($structure->instance) || !empty($structure->instance->visible)) {
+            // Non visible items should not be displayed.
+            if (!empty($structure->name)) {
+                // Write element title.
+                // TODO : Check how to force spanning on title.
+                $dataline = array();
+                $indentstr = implode('', $indent);
+                $table->level = $level;
+                if (($structure->plugintype == 'page') || ($structure->plugintype == 'section')) {
+                    $dataline[0] = $indentstr.$structure->name;
+                    $table->pdfhead2 = $dataline;
+                    $memsize = $table->pdfsize2;
+                    $memcolor = $table->pdfbgcolor2;
+                    $table->pdfsize2 = array('100%');
+                    $table->pdfbgcolor2 = array('#d0d0d0');
+                    $table->pdfcolor2 = array('#000000');
+                    $fontsize = $pdf->getFontSizePt();
+                    $pdf->SetFontSize($fontsize + 3);
+                    $y = report_trainingsessions_print_headline($pdf, $y, $table);
+                    $pdf->SetFontSize($fontsize);
+                    $table->pdfsize2 = $memsize;
+                    $table->pdfbgcolor2 = $memcolor;
+
+                    if (!empty($config->showhits)) {
+                        $dataline[0] = get_string('structuretotal', 'report_trainingsessions', $structure->name);
+                        $dataline[1] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $dataline[2] = $dataobject->events;
+                        $table->pdfsize2 = array('70%', '20%', '10%');
+                        $y = report_trainingsessions_print_sumline($pdf, $y, $dataline, $table);
+                    } else {
+                        $dataline[0] = get_string('structuretotal', 'report_trainingsessions', $structure->name);
+                        $dataline[1] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $table->pdfsize2 = array('75%', '25%');
+                        $y = report_trainingsessions_print_sumline($pdf, $y, $dataline, $table);
+                    }
+                } else {
+                    $dataline = array();
+                    $dataline[0] = shorten_text(get_string('pluginname', $structure->type), 40);
+                    $table->pdfhead2 = $dataline;
+                    $table->pdfcolor2 = array('#ffffff');
+                    if (!empty($config->showhits)) {
+                        $dataline[1] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
+                        $dataline[2] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $dataline[3] = $structure->events;
+                        $table->pdfsize2 = array('50%', '20%', '20%', '10%');
+                        $table->pdfalign2 = array('L', 'L', 'R', 'R');
+                        $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
+                    } else {
+                        $dataline[1] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
+                        $dataline[2] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $table->pdfsize2 = array('50%', '25%', '25%');
+                        $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
+                    }
+
+                    $dataline = array();
+                    $dataline[0] = $indentstr.shorten_text($structure->name, 85);
+                    $pdf->setFontSize(8);
+                    $table->pdfsize2 = array('100%');
+                    $bgcolormem = $table->pdfbgcolor;
+                    $colormem = $table->pdfcolor;
+                    $table->pdfbgcolor = array('#ffffff');
+                    $table->pdfcolor = array('#000000');
+                    $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
+                    $table->pdfbgcolor = $bgcolormem;
+                    $table->pdfcolor = $colormem;
+                    $pdf->setFontSize(9);
+                }
+
+                $false = false;
+                $y = report_trainingsessions_check_page_break($pdf, $y, $false, false, false);
+
+                if (!empty($structure->subs)) {
+                    // debug_trace("with subs");
+                    array_push($indent, ' ');
+                    report_trainingsessions_print_course_structure($pdf, $y, $structure->subs, $aggregate, $table, $level + 1);
+                    array_pop($indent);
+                }
+
+            } else {
+                // It is only a structural module that should not impact on level
+                if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                    $dataobject = $aggregate[$structure->type][$structure->id];
+                }
+                if (!empty($structure->subs)) {
+                    report_trainingsessions_print_course_structure($pdf, $y, $structure->subs, $aggregate, $table, $level);
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Precalculates subtree aggregates without printing anything
+ * @param objectref &$pdf the pdf document
+ * @param int $y the current vertical position in page
+ * @param objectref &$structure the course structure subtree
+ * @param objectref &$aggregate the log aggregation
+ * @param intref &$done the "done items" counter
+ * @param int $level the current recursion level in structure
+ */
+function report_trainingsessions_calculate_course_structure(&$structure, &$aggregate, &$done, &$items) {
+
+    if (empty($structure)) {
         return;
     }
 
@@ -817,66 +965,57 @@ function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure,
 
     if (is_array($structure)) {
         // recurse in sub structures
-        foreach ($structure as $element) {
+        foreach ($structure as &$element) {
             if (isset($element->instance) && empty($element->instance->visible)) {
                 // non visible items should not be displayed.
                 continue;
             }
-            $res = report_trainingsessions_print_course_structure($pdf, $y, $element, $aggregate, $done, $items, $table, $level);
+            $res = report_trainingsessions_calculate_course_structure($element, $aggregate, $done, $items);
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += $res->events;
         } 
     } else {
-        // Prints a single row.
-
-        if (!isset($element->instance) || !empty($element->instance->visible)) {
+        debug_trace('Item>');
+        if (!empty($structure->visible) || !isset($structure->instance) || !empty($structure->instance->visible)) {
             // Non visible items should not be displayed.
             if (!empty($structure->name)) {
-                // Write element title.
-                // TODO : Check how to force spanning on title.
-                $dataline = array();
-                $indentstr = implode('', $indent);
-                $dataline[0] = $indentstr.shorten_text($structure->name, 85);
-                $table->pdfhead2 = $dataline;
-                $table->level = $level;
-                $y = report_trainingsessions_print_headline($pdf, $y, $table);
-
                 $items++;
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                    debug_trace('Done.');
                     $done++;
-                    $dataobject = $aggregate[$structure->type][$structure->id];
+                    $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
+                    $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
+                } else {
+                    debug_trace('No track.');
+                    $dataobject->elapsed = 0;
+                    $dataobject->events = 0;
                 }
 
                 if (!empty($structure->subs)) {
-                    // debug_trace("with subs");
-                    array_push($indent, ' ');
-                    $res = report_trainingsessions_print_course_structure($pdf, $y, $structure->subs, $aggregate, $done, $items, $table, $level + 1);
-                    array_pop($indent);
+                    $res = report_trainingsessions_calculate_course_structure($structure->subs, $aggregate, $done, $items);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
-
-                $dataline = array();
-                $dataline[0] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
-                $dataline[1] = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
-                $dataline[2] = $dataobject->events;
-                $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
-                $false = false;
-                $y = report_trainingsessions_check_page_break($pdf, $y, $false, false, false);
-
             } else {
                 // It is only a structural module that should not impact on level
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                    $dataobject = $aggregate[$structure->type][$structure->id];
+                    debug_trace('Not structural.');
+                    $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
+                    $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
                 }
                 if (!empty($structure->subs)) {
-                    $res = report_trainingsessions_print_course_structure($pdf, $y, $structure->subs, $aggregate, $done, $items, $table, $level);
+                    $res = report_trainingsessions_calculate_course_structure($structure->subs, $aggregate, $done, $items);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
             }
+
+            // Report in element.
+            $structure->elapsed = $dataobject->elapsed;
+            $structure->events = $dataobject->events;
         }
     }
+
     // Returns acumulated aggregates.
     return $dataobject;
 }

@@ -112,7 +112,7 @@ if (!empty($user)) {
     $pdf->SetFontSize(9);
     $pdf->setCellPaddings(2,2,2,2);
     $pdf->SetAutoPageBreak(false, 0);
-    
+
     // Sending HTTP headers
 
     // Define cells params 
@@ -197,7 +197,11 @@ if (!empty($user)) {
     report_trainingsessions_print_course_structure($pdf, $y, $coursestructure, $aggregate, $table);
     $dataline = array();
 
-    $dataline[] = "$done / $items ".get_string('done', 'report_trainingsessions');
+    if (!empty($config->showhits)) {
+        $dataline[] = "$done / $items ".get_string('done', 'report_trainingsessions');
+    } else {
+        $dataline[] = '';
+    }
     $dataline[] = report_trainingsessions_format_time($grantotal->elapsed, 'xlsd');
     if (!empty($config->showhits)) {
         $dataline->events = $grantotal->events;

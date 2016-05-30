@@ -801,11 +801,12 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
     report_trainingsessions_print_text($pdf, $label, $x, $y, '', '', 'L', 'freesans', 'B', 13);
     $roles = get_user_roles($context, $user->id);
     $rolenames = array();
-    foreach ($roles as $role) {
-        $rolenames[] = $role->shortname;
+    $rolenames = role_fix_names(get_all_roles(), context_system::instance(), ROLENAME_ORIGINAL);
+    foreach ($roles as $r) {
+        $rolenamesarr[] = $rolenames[$r->roleid]->localname;
     }
-    $y = report_trainingsessions_print_text($pdf, strip_tags(implode(",", $rolenames)), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
-    
+    $y = report_trainingsessions_print_text($pdf, strip_tags(implode(",", $rolenamesarr)), $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
+
     return $pdf->getY();
 } 
 

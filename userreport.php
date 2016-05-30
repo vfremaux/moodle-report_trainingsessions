@@ -99,7 +99,7 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 if ($data->output == 'html') {
 
-    require_once($CFG->dirroot.'/report/trainingsessions/htmlrenderers.php');
+    require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
     // Time period form.
 
@@ -152,15 +152,24 @@ if ($data->output == 'html') {
     echo $str;
 
     $params = array('id' => $course->id, 'view' => 'user', 'userid' => $data->userid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls');
-    $url = new moodle_url('/report/trainingsessions/index.php', $params);
+    $xlsurl = new moodle_url('/report/trainingsessions/index.php', $params);
+
+    $now = time();
+    $filename = 'report_user_detail_'.$data->userid.'_'.$course->id.'_'.date('Ymd_His', $now).'.pdf';
+    $params = array('id' => $COURSE->id, 'userid' => $data->userid, 'from' => $data->from, 'to' => $data->to, 'timesession' => $now, 'outputname' => $filename);
+    $pdfurl = new moodle_url('/report/trainingsessions/tasks/userpdfreportperuser_batch_task.php', $params);
     echo '<br/><center>';
-    echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+    echo '<div class="trainingsessions-inline">';
+    echo $OUTPUT->single_button($xlsurl, get_string('generateXLS', 'report_trainingsessions'));
+    echo $OUTPUT->single_button($pdfurl, get_string('generatePDF', 'report_trainingsessions'));
+    echo '</div>';
+    echo '<h3>'.get_string('quickmonthlyreport', 'report_trainingsessions').'</h3>';
     echo $renderer->user_session_reports_buttons($data->userid, 'course');
     echo '</center>';
     echo '<br/>';
 
 } else {
-    require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
+    require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 
     // $CFG->trace = 'x_temp/xlsreport.log';
 

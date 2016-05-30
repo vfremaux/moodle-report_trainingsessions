@@ -120,7 +120,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             if ($startmonth == 1 && $notfirst) {
                 $str .= '</div><div class="trainingsessions-buttons-wrapper">';
             }
-            $url = new moodle_url('/report/trainingsessions/userpdfreportsessions_batch_task.php', $params);
+            $url = new moodle_url('/report/trainingsessions/tasks/userpdfreportsessions_batch_task.php', $params);
             $attribs = array('target' => '_blank', 'class' => 'trainingsessions-inline-buttons');
             $str .= $this->single_button($url, $MON[(int)($startmonth - 1)].' '.$startyear, $attribs);
             $startmonth = $nextmonth;

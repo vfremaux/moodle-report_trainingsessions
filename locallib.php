@@ -69,6 +69,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
 
             $pageelement = new StdClass;
             $pageelement->type = 'page';
+            $pageelement->plugintype = 'page';
             $pageelement->name = format_string($page->nametwo);
 
             $pageelement->subs = page_get_structure_from_page($page, $itemcount);
@@ -115,7 +116,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
                         $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
                         $sub = new StdClass;
                         $sub->id = $cm->id;
-                        $sub->plugin = 'mod';
+                        $sub->plugintype = 'mod';
                         $sub->type = $module->name;
                         $sub->instance = $cm;
                         $sub->name = $moduleinstance->name;

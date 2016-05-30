@@ -27,10 +27,10 @@
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require('../../config.php');
+require('../../../config.php');
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/pdfrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/pdfrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)

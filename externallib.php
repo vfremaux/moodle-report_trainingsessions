@@ -58,19 +58,19 @@ class report_trainingsessions_external {
                         $reporttype = 'report';
                         $range = 'user';
                         $rangeid = $user->username;
-                        $uri = new moodle_url('/report/trainingsessions/groupxlsreportperuser_batch_task.php');
+                        $uri = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php');
                         break;
                     case 'oneuserperrow':
                         $reporttype = 'summary';
                         $range = 'group';
                         $rangeid = $groupid;
-                        $uri = new moodle_url('/report/trainingsessions/groupxlsreportsummary_batch_task.php');
+                        $uri = new moodle_url('/report/trainingsessions/tasks/groupxlsreportsummary_batch_task.php');
                         break;
                     default:
                         $reporttype = 'sessions';
                         $range = 'user';
                         $rangeid = $user->username;
-                        $uri = new moodle_url('/report/trainingsessions/userxlssessionsreport_batch_task.php');
+                        $uri = new moodle_url('/report/trainingsessions/tasks/userxlssessionsreport_batch_task.php');
                         break;
                 }
                 break;
@@ -113,7 +113,7 @@ class report_trainingsessions_external {
                 }
         }
 
-        $uri = new moodle_url('/report/trainingsessions/'.$range.$reportformat.'report'.$reporttype.'_batch_task.php');
+        $uri = new moodle_url('/report/trainingsessions/tasks/'.$range.$reportformat.'report'.$reporttype.'_batch_task.php');
         if ($reportformat != 'json') {
             $filename = 'trainingsessions_'.$range.'_'.$rangeid.'_'.$reporttype.'_'.date('Y-M-d', time()).'.'.$reportformat;
         } else {

@@ -100,3 +100,7 @@ table * td {
 .trainingsessions-green {
     background-color:#C4FBAC !important;
 }
+
+.trainingsessions-inline * {
+    display: inline
+}

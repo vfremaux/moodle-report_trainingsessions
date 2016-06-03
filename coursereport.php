@@ -136,7 +136,7 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 if ($data->output == 'html') {
 
-    include_once($CFG->dirroot.'/report/trainingsessions/htmlrenderers.php');
+    include_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
     echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
 
@@ -222,7 +222,7 @@ if ($data->output == 'html') {
 } elseif ($output == 'xls') {
 
     require_once($CFG->libdir.'/excellib.class.php');
-    require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
+    require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 
     /// generate XLS
 

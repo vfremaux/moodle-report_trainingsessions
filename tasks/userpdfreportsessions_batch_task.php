@@ -30,14 +30,14 @@
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  */
 
-require('../../config.php');
+require('../../;;/config.php');
 
 ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/pdfrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/pdfrenderers.php');
 
-$id = optional_param('id', 0, PARAM_INT) ; // the course id
+$id = required_param('id', PARAM_INT) ; // the course id (context for user targets)
 $userid = required_param('userid', PARAM_INT) ; // user id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
 $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
@@ -51,20 +51,17 @@ $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when
 $timesession = optional_param('timesession', time(), PARAM_INT) ; // time of the generation batch
 $readabletimesession = date('Ymd_H_i_s', $timesession);
 $sessionday = date('Ymd', $timesession);
+$reportscope = required_param('scope', PARAM_TEXT); // Scope for reported data
+$filename = optional_param('outputname', '', PARAM_FILE);
 
 ini_set('memory_limit', '512M');
 
-if ($id) {
-    if (!$course = $DB->get_record('course', array('id' => $id))) {
-        die ('Invalid course ID');
-    }
-    $context = context_course::instance($course->id);
-
-    // Security
-    // report_trainingsessions_back_office_access($course);
-} else {
-    // report_trainingsessions_back_office_access();
+if (!$course = $DB->get_record('course', array('id' => $id))) {
+    die ('Invalid course ID');
 }
+$context = context_course::instance($course->id);
+report_trainingsessions_back_office_access($course);
+$config = get_config('report_trainingsessions');
 
 // TODO : secure groupid access depending on proper capabilities
 
@@ -96,22 +93,54 @@ if ($to == -1) {
     }
 }
 
-if (!$user = $DB->get_record('user', array('id' => $id))) {
-    die(-1);
-}
-
-$result = new StdClass;
-$result->from = $from;
-$result->to = $to;
-$result->userid = $user->id;
-$result->idnumber = $user->idnumber;
-$result->firstname = $user->firstname;
-$result->lastname = $user->lastname;
+$user = $DB->get_record('user', array('id' => $userid));
 
 // Print result.
 if (!empty($user)) {
-    report_trainingsessions_get_usersessions($result, $userid);
-    echo json_encode($result);
+
+    // generate PDF
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+    $pdf->SetTitle(get_string('sessionreportdoctitle', 'report_trainingsessions'));
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetAutoPageBreak(false, 0);
+    $pdf->AddPage();
+
+    // Define variables
+    // Portrait
+    $x = 20;
+    $y = $config->pdfabsoluteverticaloffset;
+    $lineincr = 8;
+    $dblelineincr = $lineincr * 2;
+    $smalllineincr = 4;
+
+    // Set alpha to no-transparency
+    // $pdf->SetAlpha(1);
+
+    // Add images and lines.
+    report_trainingsessions_draw_frame($pdf);
+
+    // Add images and lines.
+    report_trainingsessions_print_header($pdf);
+
+    // Add images and lines.
+    report_trainingsessions_print_footer($pdf);
+
+    if ($reportscope == 'allcourses') {
+        $y = report_trainingsessions_print_usersessions($pdf, $userid, $y, $from, $to, 0);
+    } else {
+        $y = report_trainingsessions_print_usersessions($pdf, $userid, $y, $from, $to, $course);
+    }
+    report_trainingsessions_print_signboxes($pdf, $y + $lineincr, array('student' => true, 'authority' => true));
+
+    // Sending HTTP headers
+    ob_end_clean();
+    $loadmode = (empty($filename)) ? 'S' : 'D';
+    $result = $pdf->Output($filename, $loadmode);
+    if ($loadmode == 'S') {
+        echo $result;
+    }
 }
 exit(0);
 // echo '200';

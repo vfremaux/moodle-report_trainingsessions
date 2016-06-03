@@ -123,9 +123,9 @@ function report_trainingsessions_cron() {
         }
 
         if ($range == 'group') {
-            $uri = new moodle_url('/report/trainingsessions/group'.$task->reportformat.'report'.$reporttype.'_batch_task.php');
+            $uri = new moodle_url('/report/trainingsessions/tasks/group'.$task->reportformat.'report'.$reporttype.'_batch_task.php');
         } else {
-            $uri = new moodle_url('/report/trainingsessions/group'.$task->reportformat.'report'.'_batch.php');
+            $uri = new moodle_url('/report/trainingsessions/batchs/group'.$task->reportformat.'report'.'_batch.php');
         }
 
         $taskarr = (array)$task;

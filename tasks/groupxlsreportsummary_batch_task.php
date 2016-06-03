@@ -29,7 +29,7 @@
  * This script should be sheduled in a redirect bouncing process for maintaining
  * memory level available for huge batches. 
  */
-require('../../config.php');
+require('../../../config.php');
 
 ob_start();
 require_once $CFG->dirroot.'/blocks/use_stats/locallib.php';

@@ -229,12 +229,17 @@ $string['updatefromcoursestart'] = 'Get from course start';
 $string['uploadglobals'] = 'File uploads';
 $string['uploadresult'] = 'Download raw results';
 $string['user'] = 'Per participant';
+$string['coursesummary'] = 'Participant summary';
+$string['usersummary'] = 'Participant summary';
 $string['userlist'] = 'One row per participant';
 $string['usersheets'] = 'One sheetset per participant';
 $string['visiteditems'] = 'Visited Items.';
 $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions: ';
 $string['xls'] = 'XLS';
+$string['id'] = 'ID';
+$string['idnumber'] = 'IDNumber';
+$string['email'] = 'Email';
 
 $string['csvoutputtoiso_desc'] = 'If enabled, the course raw report will be generated in ISO-8859-1 encoding for old CSV compliant applications.';
 

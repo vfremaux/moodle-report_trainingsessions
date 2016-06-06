@@ -226,12 +226,17 @@ $string['updatefromcoursestart'] = 'A partir du début de la formation';
 $string['uploadglobals'] = 'Téléchargements';
 $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
+$string['coursesummary'] = 'Résumé du participant';
+$string['usersummary'] = 'Résumé du participant';
 $string['userlist'] = 'Une ligne par participant';
 $string['usersheets'] = 'Un rapport (feuilles) par participant';
 $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail ';
 $string['xls'] = 'XLS';
+$string['id'] = 'ID';
+$string['idnumber'] = 'N° d\'identification';
+$string['email'] = 'Mail';
 
 $string['csvoutputtoiso_desc'] = 'Si activé, le rapport brut de cours sortira au format ISO-8859-1 pour les applications anciennes.';
 

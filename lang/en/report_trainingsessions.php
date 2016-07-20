@@ -238,7 +238,7 @@ $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions: ';
 $string['xls'] = 'XLS';
 $string['id'] = 'ID';
-$string['idnumber'] = 'IDNumber';
+$string['idnumber'] = 'ID Number';
 $string['email'] = 'Email';
 
 $string['csvoutputtoiso_desc'] = 'If enabled, the course raw report will be generated in ISO-8859-1 encoding for old CSV compliant applications.';

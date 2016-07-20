@@ -30,7 +30,7 @@
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  */
 
-require('../../;;/config.php');
+require('../../../config.php');
 
 ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');

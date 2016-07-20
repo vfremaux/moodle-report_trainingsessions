@@ -14,46 +14,63 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
- * A Selector form for course summary.
+ * Course trainingsessions report
  *
- * @package    coursereport_trainingsessions
+ * @package    report_trainingsessions
+ * @category   report
+ * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) die('You cannot use this scirpt this way');
+require_once($CFG->dirroot.'/lib/formslib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
 
+class CourseSummarySelectorForm extends moodleform {
+
+    function definition() {
+        
+        $mform = $this->_form;
+        
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
+
+        $mform->addElement('hidden', 'output');
+        $mform->setType('output', PARAM_ALPHA);
+
+        $mform->addElement('hidden', 'asxls');
+        $mform->setType('asxls', PARAM_BOOL);
+
+        $mform->addElement('hidden', 'view', 'coursesummary');
+        $mform->setType('asxls', PARAM_ALPHA);
+
+        $grid = &$mform->addElement('elementgrid', 'grid', '', '');
+
+        $titles = array();
+        $row = array();
+        $row2 = array();
+
+        $dateparms = array(
+            'startyear' => 2008, 
+            'stopyear'  => 2020,
+            'timezone'  => 99,
+            'applydst'  => true, 
+            'optional'  => false
+        );
+        $titles[] = get_string('from');
+        $row[] = & $mform->createElement('date_selector', 'from', '', $dateparms);
+
+        $titles[] = get_string('to');
+        $row[] = & $mform->createElement('date_selector', 'to', '', $dateparms);
+
+    }
 ?>
 
-<style type="text/css">
-    #menugroupid{width:100%}
-    #go_btn{width:100%}
-</style>
-
 <center>
-<form action="#" name="courseselector" class="courseselector" method="get">
-<input type="hidden" name="id" value="<?php p($course->id) ?>" />
-<input type="hidden" name="startday" value="<?php p($startday) ?>" />
-<input type="hidden" name="startmonth" value="<?php p($startmonth) ?>" />
-<input type="hidden" name="startyear" value="<?php p($startyear) ?>" />
-<input type="hidden" name="fromstart" value="" />
-<input type="hidden" name="endday" value="<?php p($endday) ?>" />
-<input type="hidden" name="endmonth" value="<?php p($endmonth) ?>" />
-<input type="hidden" name="endyear" value="<?php p($endyear) ?>" />
-<input type="hidden" name="toend" value="" />
-<input type="hidden" name="output" value="html" />
-<input type="hidden" name="asxls" value="" />
-<input type="hidden" name="view" value="coursesummary" />
-<table>
 <tr valign="top">
-    <td align="right">
-        <?php
-            print_string('from');
-            echo ' :&nbsp;</td><td align="left">';
-            print_date_selector('startday', 'startmonth', 'startyear', $from);
-        ?>
-    </td>
     <td align="right">
         <?php
             print_string('chooseagroup', 'report_trainingsessions');

@@ -95,6 +95,7 @@ if (empty($aggregate['sessions'])) {
 // Get course structure.
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+
 // Print result.
 
 if ($data->output == 'html') {

@@ -95,6 +95,7 @@ if (empty($aggregate['sessions'])) {
 // Get course structure.
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+
 // Print result.
 
 if ($data->output == 'html') {
@@ -145,7 +146,7 @@ if ($data->output == 'html') {
         $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
     }
 
-    report_trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
+    echo report_trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
 
     report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
 

@@ -33,6 +33,9 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         $userurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'user', 'from' => $from, 'to' => $to));
         $rows[0][] = new tabobject('user', $userurl, get_string('user', 'report_trainingsessions'));
 
+        $usersummaryurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'coursesummary', 'from' => $from, 'to' => $to));
+        $rows[0][] = new tabobject('coursesummary', $usersummaryurl, get_string('usersummary', 'report_trainingsessions'));
+
         if (has_capability('report/trainingsessions:viewother', $context)) {
             $courseurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'course', 'from' => $from, 'to' => $to));
             $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));

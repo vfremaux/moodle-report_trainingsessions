@@ -34,8 +34,8 @@ $report = optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
 $time = optional_param('time', 0, PARAM_INT);
 
 // form bounce somewhere ? 
-$view = (empty($view)) ? 'user' : $view ;
-$output = (empty($output)) ? 'html' : $output ;
+$view = (empty($view)) ? 'user' : $view;
+$output = (empty($output)) ? 'html' : $output;
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     print_error('invalidcourse');
@@ -57,7 +57,7 @@ $renderer = $PAGE->get_renderer('report_trainingsessions');
 $strreports = get_string('reports');
 $strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 
-@ini_set('max_execution_time','3000');
+@ini_set('max_execution_time', '3000');
 raise_memory_limit('250M');
 
 if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")) {

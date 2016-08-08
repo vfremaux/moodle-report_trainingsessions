@@ -138,7 +138,7 @@ if ($data->output == 'html') {
 
     include_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
-    echo "<link rel=\"stylesheet\" href=\"reports.css\" type=\"text/css\" />";
+    echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
 
     if (!empty($targetusers)) {
         foreach ($targetusers as $auser) {
@@ -191,9 +191,11 @@ if ($data->output == 'html') {
             }
 
             $data->linktousersheet = 1;
-            report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
+            echo report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
 
         }
+    } else {
+        echo $OUTPUT->notification(get_string('nousers'));
     }
 
     $options['id'] = $course->id;

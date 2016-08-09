@@ -127,7 +127,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
 
     if (empty($structure)) {
         $str .= get_string('nostructure', 'report_trainingsessions');
-        return;
+        return new StdClass;
     }
 
     if (!$titled) {

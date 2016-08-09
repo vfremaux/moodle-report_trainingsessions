@@ -84,7 +84,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
         $maxsections = $DB->get_field('course_format_options', 'value', array('courseid' => $courseid, 'format' => $course->format, 'name' => 'numsections'));
 
         if ($sections = $DB->get_records('course_sections', array('course' => $courseid), 'section ASC')) {
-            trainingsessions_fill_structure_from_sections($sections, $structure, $itemcount);
+            trainingsessions_fill_structure_from_sections($structure, $sections, $itemcount);
         }
     }
 

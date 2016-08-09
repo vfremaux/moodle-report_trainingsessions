@@ -54,8 +54,8 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
          * @param mixed $attributes (optional) Either a typical HTML attribute string
          *              or an associative array
          */
-        function MoodleQuickForm_elementgrid($elementName=null, $label=null, $options=null) {
-            parent::HTML_QuickForm_elementgrid($elementName, $label, $options);
+        function __construct($elementName=null, $label=null, $options=null) {
+            parent::__construct($elementName, $label, $options);
         }
     
         /**

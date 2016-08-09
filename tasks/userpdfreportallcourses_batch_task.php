@@ -29,14 +29,13 @@
  * userid must be provided.
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  */
-
-require('../../config.php');
+require('../../../config.php');
 
 ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/blocks/use_stats/xlib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/pdfrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/pdfrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id (context for user targets)
 $userid = required_param('userid', PARAM_INT) ; // user id
@@ -61,6 +60,8 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
+
+// Security.
 report_trainingsessions_back_office_access($course);
 $config = get_config('report_trainingsessions');
 
@@ -166,7 +167,7 @@ if (!empty($user)) {
         $table->pdfprintinfo = array(1,1,1,1);
     }
 
-    $y = report_trainingsessions_print_userinfo($pdf, $y, $user, $course, $from, $to, $config->recipient);
+    $y = report_trainingsessions_print_userinfo($pdf, $y, $user, $course, $from, $to, null, $config->recipient);
 
     $y = report_trainingsessions_print_courseline_head($pdf, $y, $table);
 

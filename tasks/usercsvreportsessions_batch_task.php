@@ -15,24 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script handles the report generation in batch task for a single group. 
- * It may produce a group csv report.
- * groupid must be provided. 
- * This script should be sheduled in a redirect bouncing process for maintaining
- * memory level available for huge batches. 
- *
- * @package    report_trainingsessions
- * @category   report
- * @author     Valery Fremaux (valery.fremaux@gmail.com)
- * @version    moodle 2.x
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * This script handles the session report generation in batch task for a single user.
+ * It will produce a single PDF report that is pushed immediately to output
+ * for downloading by a batch agent. No file is stored into the system.
+ * userid must be provided.
+ * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  */
-require('../../config.php');
+
+require('../../../config.php');
+
+// ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/csvrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
+$userid = required_param('userid', PARAM_INT) ; // user id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
 $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
 $startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
@@ -42,8 +40,7 @@ $endyear = optional_param('endyear', -1, PARAM_INT) ; // to (-1 is till now)
 $fromstart = optional_param('fromstart', 0, PARAM_INT) ; // force reset to course startdate
 $from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
 $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
-$groupid = required_param('groupid', PARAM_INT) ; // group id
-$timesession = required_param('timesession', PARAM_INT) ; // time of the generation batch
+$timesession = optional_param('timesession', time(), PARAM_INT) ; // time of the generation batch
 $readabletimesession = date('Ymd_H_i_s', $timesession);
 $sessionday = date('Ymd', $timesession);
 
@@ -55,15 +52,14 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-report_trainingsessions_back_office_access($course);
-
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+trainingsessions_back_office_access($course);
 
 // TODO : secure groupid access depending on proper capabilities
 
 // calculate start time
 
-if ($from == -1) { // maybe we get it from parameters
+if ($from == -1) {
+    // maybe we get it from parameters
     if ($startday == -1 || $fromstart) {
         $from = $course->startdate;
     } else {
@@ -75,55 +71,33 @@ if ($from == -1) { // maybe we get it from parameters
     }
 }
 
-if ($to == -1) { // maybe we get it from parameters
+if ($to == -1) {
+    // maybe we get it from parameters
     if ($endday == -1) {
         $to = time();
     } else {
         if ($endmonth != -1 && $endyear != -1) {
             $to = mktime(0,0,8,$endmonth, $endday, $endyear);
-        } else { 
+        } else {
             print_error('Bad end date');
         }
     }
 }
 
-// Compute target group.
-
-$group = $DB->get_record('groups', array('id' => $groupid));
-
-$targetusers = groups_get_members($groupid);
-
-// Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
-
+$user = $DB->get_record('user', array('id' => $userid));
+// echo "Generating for user $user->id ";
 // Print result.
+if (!empty($user)) {
 
-$csvbuffer = '';
-report_trainingsessions_print_courses_line_header($csvbuffer);
+    $csvbuffer = '';
+    report_trainingsessions_print_session_header($csvbuffer);
+    $y = report_trainingsessions_print_usersessions($csvbuffer, $userid, 0, $from, $to, $id);
 
-if (!empty($targetusers)) {
-    // generate XLS
-
-    if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".date('d-M-Y', time()).".csv";
-    } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".date('d-M-Y', time()).".csv";
-    }
-
-    foreach ($targetusers as $auser) {
-
-        $logusers = $auser->id;
-        $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
-
-        report_trainingsessions_print_courses_line($csvbuffer, $aggregate, $auser);
-    }
+    // Sending HTTP headers
+    // ob_end_clean();
+    header("Content-Type: text/plain\n\n");
+    echo $csvbuffer;
 
 }
-
-// Sending HTTP headers
-// ob_end_clean();
-header("Content-Type: text/plain\n\n");
-echo $csvbuffer;
-
+exit(0);
 // echo '200';

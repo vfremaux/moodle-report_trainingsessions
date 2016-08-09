@@ -78,7 +78,9 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
         }
 
         foreach ($output as $catid => $catdata) {
-            if ($catid == 0) continue;
+            if ($catid == 0) {
+                continue;
+            }
             $str .= '<h2>'.$coursecats[$catid]->name.'</h2>';
             $str .= '<table class="generaltable" width="100%">';
             $str .= '<tr class="header"><td class="header c0" width="70%"><b>'.$coursestr.'</b></td><td class="header c1" width="15%"><b>'.$elapsedstr.'</b></td><td class="header c2" width="15%"><b>'.$hitsstr.'</b></td></tr>';
@@ -113,10 +115,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
  */
 function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 0){
     global $CFG, $COURSE, $OUTPUT;
-
-    if ($level == 0) {
-        $str .= $OUTPUT->heading(get_string('instructure', 'report_trainingsessions'));
-    }
+    static $titled = false;
 
     $usconfig = get_config('use_stats');
 
@@ -128,7 +127,22 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
 
     if (empty($structure)) {
         $str .= get_string('nostructure', 'report_trainingsessions');
-        return;
+        return new StdClass;
+    }
+
+    if (!$titled) {
+        $titled = true;
+        $str .= $OUTPUT->heading(get_string('instructure', 'report_trainingsessions'));
+
+        // effective printing of available sessions
+        $str .= '<table width="100%" id="structure-table">';
+        $str .= '<tr valign="top">';
+        $str .= '<td class="rangedate userreport-col0"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></td>';
+        $str .= '<td class="rangedate userreport-col1"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></td>';
+        $str .= '<td class="rangedate userreport-col2"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></td>';
+        $str .= '<td class="rangedate userreport-col3"><b>'.get_string('duration', 'report_trainingsessions').'</b></td>';
+        $str .= '</tr>';
+        $str .= '</table>';
     }
 
     $indent = str_repeat('&nbsp;&nbsp;', $level);
@@ -182,7 +196,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $done++;
                     $dataobject = $aggregate[$structure->type][$structure->id];
-                } 
+                }
                 if (!empty($structure->subs)) {
                     $res = report_trainingsessions_print_html($suboutput, $structure->subs, $aggregate, $done, $indent, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
@@ -207,7 +221,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 // plug here specific details
                 $nodestr .= '</td>';
                 $nodestr .= '</tr>';
-                $nodestr .= "</table>\n";
+                $nodestr .= '</table>';
             } else {
                 // It is only a structural module that should not impact on level
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -247,141 +261,139 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     $user = $DB->get_record('user', array('id' => $userid));
     $course = $DB->get_record('course', array('id' => $courseid));
 
-    echo '<center>';
-    echo '<div class="report-trainingsession userinfobox">';
+    $str = '';
+    $str .= '<center>';
+    $str .= '<div class="report-trainingsession userinfobox">';
 
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
-    echo '<h1>';
-    echo $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
-    echo '&nbsp;&nbsp;&nbsp;'.fullname($user).'</h1>';
+    $str .= '<h1>';
+    $str .= $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
+    $str .= '&nbsp;&nbsp;&nbsp;'.fullname($user).'</h1>';
 
     // Print group status.
     if (!empty($usergroups)) {
-        echo '<b>'.get_string('groups');
-        echo ':</b> ';
+        $str .= '<b>'.get_string('groups');
+        $str .= ':</b> ';
         foreach ($usergroups as $group) {
-            $str = $group->name;
+            $strbuf = $group->name;
             if ($group->id == groups_get_course_group($course)) {
-                $str = "$str";
+                $strbuf = "<b>$strbuf</b>";
             }
-            $groupnames[] = $str;
+            $groupnames[] = $strbuf;
         }
-        echo implode(', ', $groupnames);
+        $str .= implode(', ', $groupnames);
     }
+
+    // print IDNumber
+    $str .= '<div class="attribute"><span class="attribute-name">'.get_string('idnumber').'</span>';
+    $str .= ' : ';
+    $str .= '<span class="attribute-value">'.$user->idnumber.'</span></div>';
+    // print Institution
+    $str .= '<div class="attribute"><span class="attribute-name">'.get_string('institution').'</span>';
+    $str .= ' : ';
+    $str .= '<span class="attribute-value">'.$user->institution.'</span></div>';
+    // print Department
+    $str .= '<div class="attribute"><span class="attribute-name">'.get_string('department').'</span>';
+    $str .= ' : ';
+    $str .= '<span class="attribute-value">'.$user->department.'</span></div>';
 
     // print roles list
     $context = context_course::instance($courseid);
     $roles = role_fix_names(get_all_roles(), context_system::instance(), ROLENAME_ORIGINAL);
-    echo '<br/><b>'.get_string('roles').':</b> ';
+    $str .= '<br/><b>'.get_string('roles').':</b> ';
     $userroles = get_user_roles($context, $userid);
     $uroles = array();
 
     foreach ($userroles as $rid => $r) {
         $uroles[] = $roles[$r->roleid]->localname;
     }
-    echo implode (",", $uroles);
+    $str .= implode (",", $uroles);
 
     if (!empty($data->linktousersheet)) {
         $params = array('view' => 'user', 'id' => $courseid, 'userid' => $userid, 'from' => $data->from, 'to' => $data->to);
         $detailurl = new moodle_url('/report/trainingsessions/index.php', $params);
-        echo '<br/><a href="'.$detailurl.'">'.get_string('seedetails', 'report_trainingsessions').'</a>';
+        $str .= '<br/><a href="'.$detailurl.'">'.get_string('seedetails', 'report_trainingsessions').'</a>';
     }
 
     if ($withcompletion) {
         // Print completion bar.
-        echo report_trainingsessions_print_completionbar($data->items, $data->done, 500);
-        /*
-        if (!empty($data->items)) {
-            $completed = $data->done / $data->items;
-        } else {
-            $completed = 0;
-        }
-        $remaining = 1 - $completed;
-        $completedpc = ceil($completed * 100);
-        $remainingpc = 100 - $completedpc;
-        $completedwidth = floor(500 * $completed);
-        $remainingwidth = floor(500 * $remaining);
-
-        echo '<p class="completionbar">';
-        echo '<b>'.get_string('done', 'report_trainingsessions').'</b>';
-
-        echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/green.gif\" style=\"width:{$completedwidth}px\" class=\"donebar\" align=\"top\" title=\"{$completedpc} %\" />";
-        echo "<img src=\"{$CFG->wwwroot}/report/trainingsessions/pix/blue.gif\" style=\"width:{$remainingwidth}px\" class=\"remainingbar\" align=\"top\"  title=\"{$remainingpc} %\" />";
-        */
+        $str .= report_trainingsessions_print_completionbar($data->items, $data->done, 500);
     }
 
     // Start printing the overall times
 
     if (!$short) {
-        echo '<br/><b>';
-        echo get_string('equlearningtime', 'report_trainingsessions');
-        echo '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
+        $str .= '<br/><b>';
+        $str .= get_string('equlearningtime', 'report_trainingsessions');
+        $str .= '</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
         if (is_siteadmin()) {
-            echo ' ('.(0 + @$data->events).')';
+            $str .= ' ('.(0 + @$data->events).')';
         }
-        echo $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
+        $str .= $OUTPUT->help_icon('equlearningtime', 'report_trainingsessions');
 
-        echo '<br/><b>';
-        echo get_string('activitytime', 'report_trainingsessions');
-        echo ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
+        $str .= '<br/><b>';
+        $str .= get_string('activitytime', 'report_trainingsessions');
+        $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
         if (is_siteadmin()) {
-            echo ' ('.(0 + @$data->activityevents).')';
+            $str .= ' ('.(0 + @$data->activityevents).')';
         }
-        echo $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
+        $str .= $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
 
-        echo '<br/><b>';
-        echo get_string('othertime', 'report_trainingsessions');
-        echo ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
+        $str .= '<br/><b>';
+        $str .= get_string('othertime', 'report_trainingsessions');
+        $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed + @$data->course->elapsed, 'html');
         if (is_siteadmin()) {
-            echo ' ('.(0 + @$data->otherevents + @$data->course->events).')';
+            $str .= ' ('.(0 + @$data->otherevents + @$data->course->events).')';
         }
-        echo $OUTPUT->help_icon('othertime', 'report_trainingsessions');
+        $str .= $OUTPUT->help_icon('othertime', 'report_trainingsessions');
 
         // plug here specific details
     }
-    echo '<br/><b>';
+    $str .= '<br/><b>';
 
-    echo get_string('workingsessions', 'report_trainingsessions');
-    echo ':</b> '.(0 + @$data->sessions);
+    $str .= get_string('workingsessions', 'report_trainingsessions');
+    $str .= ':</b> '.(0 + @$data->sessions);
 
     if (@$data->sessions == 0 && (@$completedwidth > 0)) {
-        echo $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+        $str .= $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
     }
 
-    echo '</p></div></center>';
+    $str .= '</p></div></center>';
 
     // add printing for global course time (out of activities)
     if (!$short){
         if (!$withnooutofstructure) {
-            echo $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));
-            echo '<table cellspacing="0" cellpadding="0" width="100%" class="sessionreport">';
-            echo '<tr class="sessionlevel2" valign="top">';
-            echo '<td class="sessionitem">';
-            print_string('courseglobals', 'report_trainingsessions');
-            echo '</td>';
-            echo '<td class="sessionvalue report-trainingsessions session-duration">';
-            echo report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed);
+            $str .= $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));
+            $str .= '<table cellspacing="0" cellpadding="0" width="100%" class="sessionreport">';
+            $str .= '<tr class="sessionlevel2" valign="top">';
+            $str .= '<td class="sessionitem">';
+            $str .= get_string('courseglobals', 'report_trainingsessions');
+            $str .= '</td>';
+            $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
+            $str .= report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed);
             if (is_siteadmin()) {
-                echo ' ('.($data->course->events + $data->otherevents).')';
+                $str .= ' ('.($data->course->events + $data->otherevents).')';
             }
-            echo '</td>';
-            echo '</tr>';
+            $str .= '</td>';
+            $str .= '</tr>';
         }
         if (isset($data->upload)) {
-            echo '<tr class="sessionlevel2" valign="top">';
-            echo '<td class="sessionitem">';
-            print_string('uploadglobals', 'report_trainingsessions');
-            echo '</td>';
-            echo '<td class="sessionvalue report-trainingsessions session-duration">';
-            echo report_trainingsessions_format_time($data->upload->elapsed);
+            $str .= '<tr class="sessionlevel2" valign="top">';
+            $str .= '<td class="sessionitem">';
+            $str .= get_string('uploadglobals', 'report_trainingsessions');
+            $str .= '</td>';
+            $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
+            $str .= report_trainingsessions_format_time($data->upload->elapsed);
             if (is_siteadmin()) {
-                echo ' ('.$data->upload->events.')';
+                $str .= ' ('.$data->upload->events.')';
             }
-            echo '</td>';
-            echo '</tr>';
+            $str .= '</td>';
+            $str .= '</tr>';
         }
-        echo '</table>';
+        $str .= '</table>';
     }
+
+    return $str;
 }
 
 /**

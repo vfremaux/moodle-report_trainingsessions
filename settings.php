@@ -39,6 +39,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('report_trainingsessions/printidnumber', get_string('printidnumber', 'report_trainingsessions'),
                        get_string('printidnumber_desc', 'report_trainingsessions'), ''));
 
+    $settings->add(new admin_setting_configcheckbox('report_trainingsessions/hideemptymodules', get_string('hideemptymodules', 'report_trainingsessions'),
+                       get_string('hideemptymodules_desc', 'report_trainingsessions'), 1));
+
     $settings->add(new admin_setting_configcheckbox('report_trainingsessions/printsessiontotal', get_string('printsessiontotal', 'report_trainingsessions'),
                        get_string('printsessiontotal_desc', 'report_trainingsessions'), 1));
 

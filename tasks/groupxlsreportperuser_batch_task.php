@@ -30,11 +30,11 @@
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  */
 
-require('../../config.php');
+require('../../../config.php');
 ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/xlsrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id

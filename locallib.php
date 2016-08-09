@@ -69,11 +69,14 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
 
             $pageelement = new StdClass;
             $pageelement->type = 'page';
+            $pageelement->plugintype = 'page';
             $pageelement->name = format_string($page->nametwo);
 
             $pageelement->subs = page_get_structure_from_page($page, $itemcount);
             $structure[] = $pageelement;
         }
+    } else if($course->format == 'flexsections') {
+            trainingsessions_fill_structure_from_flexiblesections($structure, 0, $itemcount);
     } else {
         // browse through course_sections and collect course items.
         $structure = array();
@@ -81,60 +84,142 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
         $maxsections = $DB->get_field('course_format_options', 'value', array('courseid' => $courseid, 'format' => $course->format, 'name' => 'numsections'));
 
         if ($sections = $DB->get_records('course_sections', array('course' => $courseid), 'section ASC')) {
-            $sectioncount = 0;
-            foreach ($sections as $section) {
-                $element = new StdClass;
-                $element->type = 'section';
-                $element->plugintype = 'section';
-                $element->instance = $section;
-                $element->instance->visible = $section->visible;
-                $element->id = $section->id;
-                //shall we try to capture any title in there ?
-                if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $section->summary, $matches)) {
-                    $element->name = $matches[1];
-                } else {
-                    if ($section->section) {
-                        $element->name = get_string('section').' '.$section->section ;
-                    } else {
-                        $element->name = get_string('headsection', 'report_trainingsessions') ;
-                    }
-                }
-
-                if (!empty($section->sequence)) {
-                    $element->subs = array();
-                    $sequence = explode(",", $section->sequence);
-                    foreach ($sequence as $seq) {
-                        if (!$cm = $DB->get_record('course_modules', array('id' => $seq))) {
-                            // if (debugging()) notify("missing module of id $seq");
-                            continue;
-                        }
-                        $module = $DB->get_record('modules', array('id' => $cm->module));
-                        if (preg_match('/label$/', $module->name)) {
-                            continue; // discard all labels
-                        }
-                        $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
-                        $sub = new StdClass;
-                        $sub->id = $cm->id;
-                        $sub->plugin = 'mod';
-                        $sub->type = $module->name;
-                        $sub->instance = $cm;
-                        $sub->name = $moduleinstance->name;
-                        $sub->visible = $cm->visible;
-                        $element->subs[] = $sub;
-                        $itemcount++;
-                    }
-                }
-                $structure[] = $element;
-                if ($sectioncount == $maxsections) {
-                    // Do not go further, even if more sections are in database.
-                    break;
-                }
-                $sectioncount++;
-            }
+            trainingsessions_fill_structure_from_sections($structure, $sections, $itemcount);
         }
     }
 
     return $structure;
+}
+
+function trainingsessions_fill_structure_from_flexiblesections(&$structure, $parentid, &$itemcount) {
+    global $DB, $COURSE;
+
+    $sql = "
+        SELECT
+            cs.*,
+            cfo.value as parent
+        FROM
+            {course_sections} cs,
+            {course_format_options} cfo
+        WHERE
+            cs.course = cfo.courseid AND
+            cfo.name = 'parent' AND
+            cs.id = cfo.sectionid AND
+            cs.course = ? AND
+            cfo.value = ?
+    ";
+    $sections = $DB->get_records_sql($sql, array($COURSE->id, $parentid));
+    if ($sections) {
+        foreach ($sections as $s) {
+            $element = new StdClass;
+            $element->type = 'section';
+            $element->plugintype = 'section';
+            $element->instance = $s;
+            $element->instance->visible = $s->visible;
+            $element->id = $s->id;
+            //shall we try to capture any title in there ?
+            if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $s->summary, $matches)) {
+                $element->name = $matches[1];
+            } else {
+                if ($s->section) {
+                    $element->name = get_string('section').' '.$s->section ;
+                } else {
+                    $element->name = get_string('headsection', 'report_trainingsessions');
+                }
+            }
+    
+            if (!empty($s->sequence)) {
+                $element->subs = array();
+                $sequence = explode(",", $s->sequence);
+                foreach ($sequence as $seq) {
+                    if (!$cm = $DB->get_record('course_modules', array('id' => $seq))) {
+                        // if (debugging()) notify("missing module of id $seq");
+                        continue;
+                    }
+                    $module = $DB->get_record('modules', array('id' => $cm->module));
+                    if (preg_match('/label$/', $module->name)) {
+                        continue; // discard all labels
+                    }
+                    $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
+                    $sub = new StdClass;
+                    $sub->id = $cm->id;
+                    $sub->plugintype = 'mod';
+                    $sub->type = $module->name;
+                    $sub->instance = $cm;
+                    $sub->name = $moduleinstance->name;
+                    $sub->visible = $cm->visible;
+                    $element->subs[] = $sub;
+                    $itemcount++;
+                }
+            }
+            $subsections = array();
+            trainingsessions_fill_structure_from_flexiblesections($subsections, $s->section, $itemcount);
+            if (!empty($subsections)) {
+                foreach ($subsections as $s) {
+                    $element->subs[] = $s;
+                }
+            }
+            $structure[] = $element;
+        }
+        return true;
+    }
+    // No subsections.
+    return false;
+}
+
+function trainingsessions_fill_structure_from_sections(&$structure, $sections, &$itemcount) {
+    global $DB;
+
+    $sectioncount = 0;
+    foreach ($sections as $section) {
+        $element = new StdClass;
+        $element->type = 'section';
+        $element->plugintype = 'section';
+        $element->instance = $section;
+        $element->instance->visible = $section->visible;
+        $element->id = $section->id;
+        //shall we try to capture any title in there ?
+        if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $section->summary, $matches)) {
+            $element->name = $matches[1];
+        } else {
+            if ($section->section) {
+                $element->name = get_string('section').' '.$section->section ;
+            } else {
+                $element->name = get_string('headsection', 'report_trainingsessions') ;
+            }
+        }
+
+        if (!empty($section->sequence)) {
+            $element->subs = array();
+            $sequence = explode(",", $section->sequence);
+            foreach ($sequence as $seq) {
+                if (!$cm = $DB->get_record('course_modules', array('id' => $seq))) {
+                    // if (debugging()) notify("missing module of id $seq");
+                    continue;
+                }
+                $module = $DB->get_record('modules', array('id' => $cm->module));
+                if (preg_match('/label$/', $module->name)) {
+                    continue; // discard all labels
+                }
+                $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
+                $sub = new StdClass;
+                $sub->id = $cm->id;
+                $sub->plugintype = 'mod';
+                $sub->type = $module->name;
+                $sub->instance = $cm;
+                $sub->name = $moduleinstance->name;
+                $sub->visible = $cm->visible;
+                $element->subs[] = $sub;
+                $itemcount++;
+            }
+        }
+        $structure[] = $element;
+        if ($sectioncount == $maxsections) {
+            // Do not go further, even if more sections are in database.
+            break;
+        }
+        $sectioncount++;
+    }
 }
 
 /**

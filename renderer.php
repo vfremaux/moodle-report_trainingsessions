@@ -33,6 +33,9 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         $userurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'user', 'from' => $from, 'to' => $to));
         $rows[0][] = new tabobject('user', $userurl, get_string('user', 'report_trainingsessions'));
 
+        $usersummaryurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'coursesummary', 'from' => $from, 'to' => $to));
+        $rows[0][] = new tabobject('coursesummary', $usersummaryurl, get_string('usersummary', 'report_trainingsessions'));
+
         if (has_capability('report/trainingsessions:viewother', $context)) {
             $courseurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'course', 'from' => $from, 'to' => $to));
             $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));
@@ -120,7 +123,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             if ($startmonth == 1 && $notfirst) {
                 $str .= '</div><div class="trainingsessions-buttons-wrapper">';
             }
-            $url = new moodle_url('/report/trainingsessions/userpdfreportsessions_batch_task.php', $params);
+            $url = new moodle_url('/report/trainingsessions/tasks/userpdfreportsessions_batch_task.php', $params);
             $attribs = array('target' => '_blank', 'class' => 'trainingsessions-inline-buttons');
             $str .= $this->single_button($url, $MON[(int)($startmonth - 1)].' '.$startyear, $attribs);
             $startmonth = $nextmonth;

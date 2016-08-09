@@ -30,6 +30,7 @@ require('../../../config.php');
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/course/report/trainingsessions/locallib.php');
 require_once($CFG->libdir.'/excellib.class.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/pdfrenderers.php');
 
 $id = required_param('id', PARAM_INT) ; // the course id
 $startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)

@@ -26,7 +26,7 @@
 
 if (!class_exists('MoodleQuickForm_elementgrid')) {
     if (file_exists($CFG->libdir.'/pear/HTML/QuickForm/elementgrid.php')) {
-        require_once("HTML/QuickForm/elementgrid.php");
+        require_once('HTML/QuickForm/elementgrid.php');
     } else {
         require_once($CFG->dirroot.'/report/trainingsessions/__other/HTML/QuickForm/elementgrid.php');
     }
@@ -41,8 +41,7 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
  * @copyright 2010 Valery Fremaux <valery.fremaux@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-    class MoodleQuickForm_elementgrid extends HTML_QuickForm_elementgrid
-    {
+    class MoodleQuickForm_elementgrid extends HTML_QuickForm_elementgrid {
         /** @var string html for help button, if empty then no help */
         var $_helpbutton='';
     
@@ -54,8 +53,8 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
          * @param mixed $attributes (optional) Either a typical HTML attribute string
          *              or an associative array
          */
-        function __construct($elementName=null, $label=null, $options=null) {
-            parent::__construct($elementName, $label, $options);
+        function MoodleQuickForm_elementgrid($elementName=null, $label=null, $options=null) {
+            parent::HTML_QuickForm_elementgrid($elementName, $label, $options);
         }
     
         /**
@@ -79,7 +78,7 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
                 return 'default';
             }
         }
-    
+
         /**
          * Returns Html for the element
          *
@@ -121,7 +120,7 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
 
         }
     }
-    
+
     if (file_exists($CFG->libdir.'/form/elementgrid.php')){
         MoodleQuickForm::registerElementType('elementgrid', "$CFG->libdir/form/elementgrid.php", 'MoodleQuickForm_elementgrid');
     } else {

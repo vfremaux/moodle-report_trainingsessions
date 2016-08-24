@@ -114,7 +114,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
  * @param object $structure a course structure object.
  */
 function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$done, $indent='', $level = 0){
-    global $CFG, $COURSE, $OUTPUT;
+    global $OUTPUT;
     static $titled = false;
 
     $usconfig = get_config('use_stats');
@@ -256,7 +256,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
  *
  */
 function report_trainingsessions_print_header_html($userid, $courseid, $data, $short = false, $withcompletion = true, $withnooutofstructure = false) {
-    global $CFG, $DB, $OUTPUT;
+    global $DB, $OUTPUT;
 
     $user = $DB->get_record('user', array('id' => $userid));
     $course = $DB->get_record('course', array('id' => $courseid));

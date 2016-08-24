@@ -179,7 +179,7 @@ if ($data->output == 'html') {
     echo '<br/>';
 
     if (!empty($summarizedusers)) {
-        echo '<table class="coursesummary">';
+        echo '<table class="coursesummary" width="100%">';
         // Add a table header row.
         echo '<tr><th></th>';
         foreach (array_values($summarizedusers)[0] as $fieldname => $field) {
@@ -226,7 +226,7 @@ if ($data->output == 'html') {
         echo '</center>';
         echo '<br/>';
     } else {
-        echo $OUTPUT->notification('nousers');
+        echo $OUTPUT->notification('nousersfound');
     }
 
 } else { // generate XLS

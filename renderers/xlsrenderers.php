@@ -161,7 +161,7 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
             if (!empty($structure->name)) {
                 // Write element title.
                 $indent = str_pad('', 3 * $level, ' ');
-                $str = $indent.shorten_text($structure->name, 85);
+                $str = $indent.shorten_text(strip_tags($structure->name), 85);
                 $worksheet->write_string($row, 1, $str, $format);
 
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {

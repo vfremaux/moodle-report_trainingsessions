@@ -184,7 +184,7 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
  * @param type $itemcount
  */
 function trainingsessions_fill_structure_from_sections(&$structure, $sections, &$itemcount) {
-    global $DB;
+    global $DB, $COURSE;
 
     $sectioncount = 0;
     foreach ($sections as $section) {

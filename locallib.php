@@ -217,16 +217,17 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
                 if (preg_match('/label$/', $module->name)) {
                     continue; // discard all labels
                 }
-                $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
-                $sub = new StdClass;
-                $sub->id = $cm->id;
-                $sub->plugintype = 'mod';
-                $sub->type = $module->name;
-                $sub->instance = $cm;
-                $sub->name = $moduleinstance->name;
-                $sub->visible = $cm->visible;
-                $element->subs[] = $sub;
-                $itemcount++;
+                if ($moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance))) {
+                    $sub = new StdClass;
+                    $sub->id = $cm->id;
+                    $sub->plugintype = 'mod';
+                    $sub->type = $module->name;
+                    $sub->instance = $cm;
+                    $sub->name = $moduleinstance->name;
+                    $sub->visible = $cm->visible;
+                    $element->subs[] = $sub;
+                    $itemcount++;
+                }
             }
         }
         $structure[] = $element;

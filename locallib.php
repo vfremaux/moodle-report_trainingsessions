@@ -795,7 +795,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid) {
             }
         }
 
-        if ( havecoursegrade === true ) {
+        if ( $havecoursegrade === true ) {
             array_push($columns, $coursegrade);
         }
     }
@@ -855,7 +855,7 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
             gi.iteminstance = ? AND
             g.itemid = gi.id
     ";
-    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->id));
+    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->instance));
 
     if ($result) {
         return $result->grade;

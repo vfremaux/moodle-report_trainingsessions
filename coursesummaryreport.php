@@ -142,7 +142,7 @@ foreach ($targetusers as $user) {
     // SADGE SAYS: The following 2 lines were commented out at the request of MISchool - it would probably be sensible to add a configuration option to allow them to be reactivated
     //$thisuser['activitytime'] = training_reports_format_time($aggregate['activities']->elapsed, $output);
     //$thisuser['equlearningtime'] = training_reports_format_time($aggregate['activities']->elapsed+@$aggregate['course'][0]->elapsed, $output);
-    $thisuser['elapsed'] = report_trainingsessions_format_time(0 + @$aggregate['totaltime'], $output);
+    $thisuser['elapsed'] = report_trainingsessions_format_time(0 + @$aggregate['coursetotal'][$course->id]->elapsed, $data->output == 'xls' ? 'xlsd' : 'html');
 
     // Fetch and add eventual additional score columns.
 
@@ -151,7 +151,9 @@ foreach ($targetusers as $user) {
 
     if (!empty($gradecolumns)) {
         $gradeduser = array_combine($gradecolumns, $gradedata);
-        $thisuser += $gradeduser;
+        foreach ($gradeduser as $k => $v) {
+            $thisuser[$k] = ($v) ? sprintf('%.1f', $v) : '';
+        }
     }
 
     $summarizedusers[] = $thisuser;
@@ -179,7 +181,7 @@ if ($data->output == 'html') {
     echo '<br/>';
 
     if (!empty($summarizedusers)) {
-        echo '<table class="coursesummary">';
+        echo '<table class="coursesummary" width="100%">';
         // Add a table header row.
         echo '<tr><th></th>';
         foreach (array_values($summarizedusers)[0] as $fieldname => $field) {
@@ -226,7 +228,7 @@ if ($data->output == 'html') {
         echo '</center>';
         echo '<br/>';
     } else {
-        echo $OUTPUT->notification('nousers');
+        echo $OUTPUT->notification('nousersfound');
     }
 
 } else { // generate XLS
@@ -272,7 +274,7 @@ if ($data->output == 'html') {
             if (in_array($fieldname, $namedcols)) {
                 // This is a named column so content is either text or duration.
                 if (in_array($fieldname, $durationcols)) {
-                    $worksheet->write_number($row, $col, $field, $xls_formats['zt']);
+                    $worksheet->write_string($row, $col, $field, $xls_formats['z']);
                 } else {
                     $worksheet->write_string($row, $col, $field, $xls_formats['z']);
                 }

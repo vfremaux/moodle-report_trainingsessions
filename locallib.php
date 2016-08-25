@@ -91,6 +91,15 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
     return $structure;
 }
 
+/**
+ * 
+ * @global type $DB
+ * @global type $COURSE
+ * @param type $structure
+ * @param type $parentid
+ * @param type $itemcount
+ * @return boolean
+ */
 function trainingsessions_fill_structure_from_flexiblesections(&$structure, $parentid, &$itemcount) {
     global $DB, $COURSE;
 
@@ -167,8 +176,15 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
     return false;
 }
 
+/**
+ * 
+ * @global type $DB
+ * @param type $structure
+ * @param type $sections
+ * @param type $itemcount
+ */
 function trainingsessions_fill_structure_from_sections(&$structure, $sections, &$itemcount) {
-    global $DB;
+    global $DB, $COURSE;
 
     $sectioncount = 0;
     foreach ($sections as $section) {
@@ -201,19 +217,21 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
                 if (preg_match('/label$/', $module->name)) {
                     continue; // discard all labels
                 }
-                $moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance));
-                $sub = new StdClass;
-                $sub->id = $cm->id;
-                $sub->plugintype = 'mod';
-                $sub->type = $module->name;
-                $sub->instance = $cm;
-                $sub->name = $moduleinstance->name;
-                $sub->visible = $cm->visible;
-                $element->subs[] = $sub;
-                $itemcount++;
+                if ($moduleinstance = $DB->get_record($module->name, array('id' => $cm->instance))) {
+                    $sub = new StdClass;
+                    $sub->id = $cm->id;
+                    $sub->plugintype = 'mod';
+                    $sub->type = $module->name;
+                    $sub->instance = $cm;
+                    $sub->name = $moduleinstance->name;
+                    $sub->visible = $cm->visible;
+                    $element->subs[] = $sub;
+                    $itemcount++;
+                }
             }
         }
         $structure[] = $element;
+        $maxsections = $DB->get_field('course_format_options', 'value', array('courseid' => $COURSE->id, 'format' => $COURSE->format, 'name' => 'numsections'));
         if ($sectioncount == $maxsections) {
             // Do not go further, even if more sections are in database.
             break;
@@ -382,6 +400,9 @@ function page_get_structure_in_content($source, &$itemcount) {
 /**
  * special time formating
  * xlsd stands for xls duration
+ * @param type $timevalue
+ * @param type $mode
+ * @return string
  */
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
     if ($timevalue) {
@@ -478,7 +499,7 @@ function report_trainingsessions_xls_formats(&$workbook) {
  * @return the initialized worksheet.
  */
 function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes') {
-    global $DB, $CFG;
+    global $DB;
 
     $config = get_config('report_trainingsessions');
     $user = $DB->get_record('user', array('id' => $userid));
@@ -553,7 +574,7 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_format
  * @return void. $rawstr is appended by reference.
  */
 function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$data, &$rawstr, $from, $to) {
-    global $CFG, $COURSE, $DB;
+    global $COURSE, $DB;
 
     $config = get_config('report_trainingsessions');
 
@@ -653,8 +674,8 @@ function report_trainingsessions_print_globalheader_raw($userid, $courseid, &$da
 }
 
 /**
- * Local qery to get course users.
- *
+ * Local query to get course users.
+ * // TODO check if yet usefull before delete
  */
 function report_trainingsessions_get_course_users($courseid) {
     global $DB;
@@ -681,6 +702,12 @@ function report_trainingsessions_get_course_users($courseid) {
     return $users;
 }
 
+/**
+ * 
+ * @global type $DB
+ * @param type $courseid
+ * @return type
+ */
 function report_trainingsessions_get_graded_modules($courseid) {
     global $DB;
 
@@ -691,23 +718,12 @@ function report_trainingsessions_get_graded_modules($courseid) {
  * Get all graded modules into the course excluing those already linked to report.
  */
 function report_trainingsessions_get_linkable_modules($courseid) {
-    global $DB;
-
     $modinfo = get_fast_modinfo($courseid);
-
-    /*
-    $ignoreids = array();
-    if ($reported = report_trainingsessions_get_graded_modules($courseid)) {
-        $ignoreids = array_values($reported);
-    }
-    */
-
+    
     $cms = $modinfo->get_cms();
     $linkables = array(0 => get_string('disabled', 'report_trainingsessions'));
     foreach ($cms as $cminfo) {
-        // if (!in_array($cminfo->id, $ignoreids)) {
-            $linkables[$cminfo->id] = '['.$cminfo->modname.'] '.$cminfo->name;
-        // }
+        $linkables[$cminfo->id] = '['.$cminfo->modname.'] '.$cminfo->name;
     }
     return $linkables;
 }
@@ -758,13 +774,14 @@ function report_trainingsessions_add_graded_columns(&$columns, &$formats = null,
 
 /**
  * Fetch scores and aggregate them to results.
- * @param arrayref &$results a reference to the array of reports values.
+ * @param arrayref &$columns a reference to the array of report values.
  * @return void
  */
 function report_trainingsessions_add_graded_data(&$columns, $userid) {
     global $DB, $COURSE;
 
     if ($graderecs = $DB->get_records('report_trainingsessions', array('courseid' => $COURSE->id), 'sortorder')) {
+        $havecoursegrade = false;
         foreach ($graderecs as $rec) {
             if ($rec->moduleid) {
 
@@ -773,11 +790,12 @@ function report_trainingsessions_add_graded_data(&$columns, $userid) {
                 array_push($columns, $modulegrade);
             } else {
                 // Retain the coursegrade for adding at the full end of array.
+                $havecoursegrade = true;
                 $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
             }
         }
 
-        if (isset($coursegrade)) {
+        if ( $havecoursegrade === true ) {
             array_push($columns, $coursegrade);
         }
     }
@@ -837,7 +855,7 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
             gi.iteminstance = ? AND
             g.itemid = gi.id
     ";
-    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->id));
+    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->instance));
 
     if ($result) {
         return $result->grade;
@@ -861,6 +879,12 @@ function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
     }
 }
 
+/**
+ * 
+ * @global type $CFG
+ * @global type $USER
+ * @return type
+ */
 function report_trainingsessions_back_office_get_ticket() {
     global $CFG, $USER;
 
@@ -900,6 +924,12 @@ function report_trainingsessions_back_office_access($course = null) {
     }
 }
 
+/**
+ * 
+ * @param type $sessions
+ * @param type $courseid
+ * @return int
+ */
 function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
     $count = 0;
 
@@ -927,6 +957,18 @@ function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid)
     return $count;
 }
 
+/**
+ * 
+ * @param type $user
+ * @param type $id
+ * @param type $from
+ * @param type $to
+ * @param type $timesession
+ * @param type $uri
+ * @param type $filerec
+ * @param type $reportscope
+ * @return type
+ */
 function report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec = null, $reportscope = 'currentcourse') {
     mtrace('Compile_users for user : '.fullname($user)."<br/>\n");
 
@@ -991,6 +1033,18 @@ function report_trainingsessions_process_user_file($user, $id, $from, $to, $time
     curl_close($ch);
 }
 
+/**
+ * 
+ * @param type $group
+ * @param type $id
+ * @param type $from
+ * @param type $to
+ * @param type $timesession
+ * @param type $uri
+ * @param type $filerec
+ * @param type $reportscope
+ * @return type
+ */
 function report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec = null, $reportscope = 'currentcourse') {
     mtrace('Compile_users for group : '.$group->name."<br/>\n");
 
@@ -1055,6 +1109,13 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
     curl_close($ch);
 }
 
+/**
+ * 
+ * @param type $courseid
+ * @param type $groupid
+ * @param type $range
+ * @return type
+ */
 function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
 
     // If no groups existing, get all course

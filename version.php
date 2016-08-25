@@ -30,3 +30,8 @@ $plugin->component = 'report_trainingsessions'; // Full name of the plugin (used
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = '2.9.0 (build 2016051700)';
 $plugin->dependencies = array('block_use_stats' => '2016051700', 'auth_ticket' => '*');
+
+// Non Moodle fields
+// This fields will help overmanagement code builders without forcing upgrade to play
+$plugin->codeversion = 2016051700.00;
+$plugin->codeincrement = 0;

@@ -415,7 +415,9 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
             if ($mins > 0) return "{$mins}m {$secs}s";
             return "{$secs}s";
-        } elseif($mode == 'xlsd') {
+        } elseif ($mode == 'xlsd') {
+            /*
+            // text mode
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
@@ -424,6 +426,9 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
             if ($mins > 0) return "{$mins}m {$secs}s";
             return "{$secs}s";
+            */
+            // Time format mode
+            return ($timevalue)? ($timevalue / DAYSECS): 0;
         } else {
             // for excel time format we need have a fractional day value
             return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');

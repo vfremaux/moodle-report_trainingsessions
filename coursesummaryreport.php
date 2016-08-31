@@ -19,7 +19,6 @@
  *
  * @package    report_trainingsessions
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
- * @version    moodle 1.9
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -116,8 +115,8 @@ if ($data->groupid) {
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // setup local constants
-$namedcols=array('id', 'idnumber', 'firstname', 'lastname', 'email', 'activitytime', 'equlearningtime', 'elapsed');
-$durationcols=array('activitytime', 'equlearningtime', 'elapsed');
+$namedcols = array('id', 'idnumber', 'firstname', 'lastname', 'email', 'activitytime', 'equlearningtime', 'elapsed');
+$durationcols = array('activitytime', 'equlearningtime', 'elapsed');
 
 // get base data from moodle and bake it into a local format
 $courseid = $course->id;
@@ -274,7 +273,10 @@ if ($data->output == 'html') {
             if (in_array($fieldname, $namedcols)) {
                 // This is a named column so content is either text or duration.
                 if (in_array($fieldname, $durationcols)) {
-                    $worksheet->write_string($row, $col, $field, $xls_formats['z']);
+                    // $worksheet->write_string($row, $col, $field, $xls_formats['z']);
+                    if ($field) {
+                        $worksheet->write_number($row, $col, $field, $xls_formats['zt']);
+                    }
                 } else {
                     $worksheet->write_string($row, $col, $field, $xls_formats['z']);
                 }

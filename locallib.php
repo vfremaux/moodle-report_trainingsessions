@@ -454,7 +454,9 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
  * z : numeric (normal)
  * zt : time format
  * zd : date format
- */
+ *
+ * Moved to renderers/xlsrenderers.php
+ *
 function report_trainingsessions_xls_formats(&$workbook) {
     $xls_formats = array();
     // titles
@@ -493,7 +495,7 @@ function report_trainingsessions_xls_formats(&$workbook) {
     $xls_formats['zd']->set_num_format('aaaa/mm/dd hh:mm');
     
     return $xls_formats;
-}
+}*/
 
 /**
  * initializes a new worksheet with static formats
@@ -502,7 +504,9 @@ function report_trainingsessions_xls_formats(&$workbook) {
  * @param array $xls_formats
  * @param object $workbook
  * @return the initialized worksheet.
- */
+ *
+ * Moved to renderers/xmlrenderers.php
+ *
 function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes') {
     global $DB;
 
@@ -566,7 +570,7 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_format
     }
 
     return $worksheet;
-}
+} */
 
 /**
  * A raster for printing in raw format with all the relevant data about a user. 

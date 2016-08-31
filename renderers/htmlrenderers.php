@@ -81,19 +81,19 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
             if ($catid == 0) {
                 continue;
             }
-            $str .= '<h2>'.$coursecats[$catid]->name.'</h2>';
+            $str .= '<h2>'.strip_tags(format_string($coursecats[$catid]->name)).'</h2>';
             $str .= '<table class="generaltable" width="100%">';
             $str .= '<tr class="header"><td class="header c0" width="70%"><b>'.$coursestr.'</b></td><td class="header c1" width="15%"><b>'.$elapsedstr.'</b></td><td class="header c2" width="15%"><b>'.$hitsstr.'</b></td></tr>';
             foreach ($catdata as $cid => $cdata) {
                 $ccontext = context_course::instance($cid);
                 if (has_capability('report/trainingsessions:view', $ccontext)) {
-                    $str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td>';
+                    $str .= '<tr valign="top"><td>'.format_string($courses[$cid]->fullname).'</td><td>';
                     $str .= report_trainingsessions_format_time($cdata->elapsed).'<br/>';
                     $str .= '</td><td>';
                     $str .= $cdata->events;
                     $str .= '</td></tr>';
                 } else {
-                    $str .= '<tr valign="top"><td>'.$courses[$cid]->fullname.'</td><td colspan="2">';
+                    $str .= '<tr valign="top"><td>'.format_string($courses[$cid]->fullname).'</td><td colspan="2">';
                     $str .= get_string('nopermissiontoview', 'report_trainingsessions');
                     $str .= '</td></tr>';
                 }
@@ -180,7 +180,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 if (debugging()) {
                     $nodestr .= '['.$structure->type.'] ';
                 }
-                $nodestr .= shorten_text($structure->name, 85);
+                $nodestr .= shorten_text(strip_tags(format_string($structure->name)), 85);
                 $nodestr .= '</td>';
                 $nodestr .= '<td class="sessionitem rangedate" width="15%">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -279,7 +279,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             if ($group->id == groups_get_course_group($course)) {
                 $strbuf = "<b>$strbuf</b>";
             }
-            $groupnames[] = $strbuf;
+            $groupnames[] = format_string($strbuf);
         }
         $str .= implode(', ', $groupnames);
     }

@@ -415,9 +415,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
             if ($mins > 0) return "{$mins}m {$secs}s";
             return "{$secs}s";
-        } elseif ($mode == 'xlsd') {
-            /*
-            // text mode
+        } elseif($mode == 'xlsd') {
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
@@ -426,9 +424,6 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             if ($hours > 0) return "{$hours}h {$mins}m {$secs}s";
             if ($mins > 0) return "{$mins}m {$secs}s";
             return "{$secs}s";
-            */
-            // Time format mode
-            return ($timevalue)? ($timevalue / DAYSECS): 0;
         } else {
             // for excel time format we need have a fractional day value
             return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
@@ -454,9 +449,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
  * z : numeric (normal)
  * zt : time format
  * zd : date format
- *
- * Moved to renderers/xlsrenderers.php
- *
+ */
 function report_trainingsessions_xls_formats(&$workbook) {
     $xls_formats = array();
     // titles
@@ -495,7 +488,7 @@ function report_trainingsessions_xls_formats(&$workbook) {
     $xls_formats['zd']->set_num_format('aaaa/mm/dd hh:mm');
     
     return $xls_formats;
-}*/
+}
 
 /**
  * initializes a new worksheet with static formats
@@ -504,9 +497,7 @@ function report_trainingsessions_xls_formats(&$workbook) {
  * @param array $xls_formats
  * @param object $workbook
  * @return the initialized worksheet.
- *
- * Moved to renderers/xmlrenderers.php
- *
+ */
 function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_formats, &$workbook, $purpose = 'usertimes') {
     global $DB;
 
@@ -570,7 +561,7 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xls_format
     }
 
     return $worksheet;
-} */
+}
 
 /**
  * A raster for printing in raw format with all the relevant data about a user. 
@@ -804,7 +795,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid) {
             }
         }
 
-        if ( $havecoursegrade === true ) {
+        if ( havecoursegrade === true ) {
             array_push($columns, $coursegrade);
         }
     }
@@ -864,7 +855,7 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
             gi.iteminstance = ? AND
             g.itemid = gi.id
     ";
-    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->instance));
+    $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->id));
 
     if ($result) {
         return $result->grade;

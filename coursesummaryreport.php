@@ -226,7 +226,7 @@ if ($data->output == 'html') {
         echo '</center>';
         echo '<br/>';
     } else {
-        echo $OUTPUT->notification('nousers');
+        echo $OUTPUT->notification('nousersfound');
     }
 
 } else { // generate XLS

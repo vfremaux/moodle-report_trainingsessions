@@ -25,18 +25,10 @@
 
 class report_trainingsessions_renderer extends plugin_renderer_base {
 
-    /**
-     * 
-     * @param type $course
-     * @param type $view
-     * @param type $from
-     * @param type $to
-     * @return type
-     */
     function tabs($course, $view, $from, $to) {
 
         $context = context_course::instance($course->id);
-        $rows = array();
+
         // Print tabs with options for user.
         $userurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'user', 'from' => $from, 'to' => $to));
         $rows[0][] = new tabobject('user', $userurl, get_string('user', 'report_trainingsessions'));
@@ -73,16 +65,6 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return $str;
     }
 
-    /**
-     * 
-     * @global type $DB
-     * @global type $OUTPUT
-     * @global type $COURSE
-     * @global type $CFG
-     * @param type $userid
-     * @param type $scope
-     * @return string
-     */
     function user_session_reports_buttons($userid, $scope = 'course') {
         global $DB, $OUTPUT, $COURSE, $CFG;
 
@@ -100,9 +82,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         $start = $user->firstaccess;
         $last = $user->lastaccess;
 
-        if (!$start) {
-            return;
-        }
+        if (!$start) return;
 
         $startmonth = date('m', $start);
         $startyear = date('Y', $start);
@@ -155,21 +135,10 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return $str;
     }
 
-    /**
-     * 
-     * @return string
-     */
     function placeholder() {
         return '<div class="month-placeholder"></div>';
     }
 
-    /**
-     * 
-     * @param type $url
-     * @param type $label
-     * @param type $attrs
-     * @return type
-     */
     function single_button($url, $label, $attrs) {
 
         // Gives a default method.
@@ -221,11 +190,6 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return html_writer::tag('div', $str, array('class' => @$attrs['class']));
     }
 
-    /**
-     * 
-     * @param int $m
-     * @param type $y
-     */
     function next_month(&$m, &$y) {
         $m++;
         if ($m > 12) {

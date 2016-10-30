@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Version info
  *
  * @package    report_trainingsessions
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
@@ -24,12 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2016051700; // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2015111100; // Requires this Moodle version.
-$plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics).
+$plugin->version   = 2016051700; // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2016051900; // Requires this Moodle version
+$plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.0.0 (build 2016051700)';
+$plugin->release = '3.1.0 (build 2016051700)';
 $plugin->dependencies = array('block_use_stats' => '2016051700', 'auth_ticket' => '*');
 
-// Non moodle attrbutes.
-$plugin->codeincrement = '3.0.0001';
+// Non Moodle attributes
+$plugin->codeincrement = '3.1.0002';

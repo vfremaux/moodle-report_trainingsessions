@@ -33,5 +33,4 @@ $plugin->dependencies = array('block_use_stats' => '2016051700', 'auth_ticket' =
 
 // Non Moodle fields
 // This fields will help overmanagement code builders without forcing upgrade to play
-$plugin->codeversion = 2016083100.02;
-$plugin->codeincrement = 2;
+$plugin->codeincrement = '2.7.0002';

@@ -228,7 +228,7 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 1, $user->institution);
     $row++;
     $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xls_formats['pb']);    
-    $worksheet->write_string($row, 1, format_string($course->fullname));
+    $worksheet->write_string($row, 1, $course->fullname);
     $row++;
     $worksheet->write_string($row, 0, get_string('from').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, userdate($data->from));
@@ -248,7 +248,7 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
             if ($group->id == groups_get_course_group($course)) {
                 $str = "[$str]";
             }
-            $groupnames[] = format_string($str);
+            $groupnames[] = $str;
         }
         $str = implode(', ', $groupnames);
     }

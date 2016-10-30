@@ -195,7 +195,7 @@ if ($data->output == 'html') {
 
         }
     } else {
-        echo $OUTPUT->notification(get_string('nousersfound'));
+        echo $OUTPUT->notification(get_string('nousers'));
     }
 
     $options['id'] = $course->id;

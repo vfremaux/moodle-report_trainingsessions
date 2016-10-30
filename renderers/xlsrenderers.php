@@ -92,7 +92,6 @@ function report_trainingsessions_xls_formats(&$workbook) {
     $xls_formats['a2']  = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorhd2, $fgcolorhd2);
     $xls_formats['a3']  = report_trainingsessions_build_xls_format($workbook, $sizehd3, $notbold, $colorhd3, $fgcolorhd3);
     $xls_formats['b']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $bold,    $colorbdy, $fgcolorbdy);
-    $xls_formats['p']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
 
     // number formats
     $xls_formats['z']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
@@ -213,35 +212,35 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 0, get_string('sessionreports', 'report_trainingsessions'), $xls_formats['t']);
     $worksheet->merge_cells($row, 0, 0, 12);
     $row++;
-    $worksheet->write_string($row, 0, get_string('user').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('user').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, fullname($user));
     $row++;
-    $worksheet->write_string($row, 0, get_string('idnumber').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('idnumber').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, $user->idnumber);
     $row++;
-    $worksheet->write_string($row, 0, get_string('email').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('email').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, $user->email);
     $row++;
-    $worksheet->write_string($row, 0, get_string('city').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('city').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, $user->city);
     $row++;
-    $worksheet->write_string($row, 0, get_string('institution').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('institution').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, $user->institution);
     $row++;
-    $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xls_formats['pb']);    
     $worksheet->write_string($row, 1, format_string($course->fullname));
     $row++;
-    $worksheet->write_string($row, 0, get_string('from').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('from').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, userdate($data->from));
     $row++;
-    $worksheet->write_string($row, 0, get_string('to').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('to').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, userdate(time()));
     $row++;
 
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
     // print group status
-    $worksheet->write_string($row, 0, get_string('groups').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('groups').' :', $xls_formats['pb']);
     $str = '';
     if (!empty($usergroups)) {
         foreach ($usergroups as $group) {
@@ -258,7 +257,7 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $row++;
 
     $context = context_course::instance($courseid);
-    $worksheet->write_string($row, 0, get_string('roles').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('roles').' :', $xls_formats['pb']);
     $roles = get_user_roles($context, $userid);
     $rolenames = array();
     foreach ($roles as $role) {
@@ -277,15 +276,15 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $completedpc = ceil($completed * 100);
     $remainingpc = 100 - $completedpc;
 
-    $worksheet->write_string($row, 0, get_string('done', 'report_trainingsessions'), $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('done', 'report_trainingsessions'), $xls_formats['pb']);
     $worksheet->write_string($row, 1, (0 + @$data->done).' '.get_string('over', 'report_trainingsessions'). ' '. (0 + @$data->items). ' ('.$completedpc.' %)');
     $row++;
-    $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xls_formats['b']);
+    $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xls_formats['pb']);
     $worksheet->write_string($row, 1, report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd'), $xls_formats['p']);
 
     if (!empty($config->showhits)) {
         $row++;
-        $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xls_formats['b']);
+        $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xls_formats['pb']);
         $worksheet->write_number($row, 1, (0 + @$data->events));
     }
 

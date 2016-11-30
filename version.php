@@ -31,6 +31,5 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->release = '2.7.0 (build 2016051700)';
 $plugin->dependencies = array('block_use_stats' => '2016051700', 'auth_ticket' => '*');
 
-// Non Moodle fields
-// This fields will help overmanagement code builders without forcing upgrade to play
+// Non Moodle attributes
 $plugin->codeincrement = '2.7.0002';

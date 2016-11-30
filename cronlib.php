@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Course trainingsessions report
  *
@@ -25,6 +23,8 @@ defined('MOODLE_INTERNAL') || die;
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
+
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 if (!function_exists('debug_trace')) {
@@ -34,11 +34,11 @@ if (!function_exists('debug_trace')) {
 }
 
 /**
-* This special report allows wrapping to course report crons
-* function that otherwise would not be considered by cron task.
-*
-* for repetitive tasks, we will not delete the task record and push the batchdate ahead to the next date.
-*/
+ * This special report allows wrapping to course report crons
+ * function that otherwise would not be considered by cron task.
+ *
+ * for repetitive tasks, we will not delete the task record and push the batchdate ahead to the next date.
+ */
 function report_trainingsessions_cron() {
     global $CFG;
 
@@ -53,7 +53,9 @@ function report_trainingsessions_cron() {
         mtrace("\tStarting registering $task->taskname...");
         if (time() < $task->batchdate && !optional_param('force', false, PARAM_BOOL)) {
             mtrace("\t\tnot yet.");
-            debug_trace(time().": task $task->id not in time ($task->batchdate) to run");
+            if (function_exists('debug_trace')) {
+                debug_trace(time().": task $task->id not in time ($task->batchdate) to run");
+            }
             continue;
         }
 
@@ -84,6 +86,7 @@ function report_trainingsessions_cron() {
                     $reporttype = 'sessions';
                     $range = 'user';
                 }
+
             case 'xls':
                 switch($task->reportlayout) {
                     case 'onefulluserpersheet':
@@ -105,6 +108,7 @@ function report_trainingsessions_cron() {
                     $reporttype = 'sessions';
                     $range = 'user';
             }
+
             case 'csv':
                 switch ($task->reportlayout) {
                     case 'allusersessionssinglefile':
@@ -119,6 +123,7 @@ function report_trainingsessions_cron() {
                         $reporttype = 'sessions';
                         $range = 'user';
             }
+
             default:
         }
 
@@ -130,11 +135,13 @@ function report_trainingsessions_cron() {
 
         $taskarr = (array)$task;
         $rqarr = array();
-        $taskarr['id'] = $taskarr['courseid']; // add the course reference of the batch
-        $taskarr['timesession'] = time(); // add the time
+        $taskarr['id'] = $taskarr['courseid']; // Add the course reference of the batch.
+        $taskarr['timesession'] = time(); // Add the time.
 
-        // Setup the back office security. This ticket is used all along the batch chain
-        // to allow cron or bounce processes to run.
+        /*
+         * Setup the back office security. This ticket is used all along the batch chain
+         * to allow cron or bounce processes to run.
+         */
         if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
             $user = new StdClass();
             $user->username = 'admin';
@@ -172,7 +179,7 @@ function report_trainingsessions_cron() {
 
         $active = null;
 
-        //execute the handles
+        // Execute the handles.
         mtrace('Starting processing... ');
         do {
             mtrace('Exec... ');
@@ -192,24 +199,24 @@ function report_trainingsessions_cron() {
         }
         mtrace('Processing done...');
 
-        // process hanlde results once done
+        // Process hanlde results once done.
         while ($result = curl_multi_info_read($mh)) {
             $httpurl = curl_getinfo($result['handle'], CURLINFO_EFFECTIVE_URL);
             $httpresult = curl_getinfo($result['handle'], CURLINFO_HTTP_CODE);
             if ($result['result'] != CURLE_OK) {
                 mtrace('Error on '.$httpurl);
                 mtrace('   Curl Error: '.curl_error($result['handle']));
-            } elseif ($httpresult != 200) {
+            } else if ($httpresult != 200) {
                 mtrace('Remote Error on '.$httpurl);
                 mtrace('   HTTP Error: '.$httpresult);
             }
         }
 
-        //close the handles
+        // Close the handles.
         foreach ($ch as $taskid => $task) {
 
             if ($tasks[$taskid]->replay > TASK_SINGLE) {
-                // replaydelay in seconds
+                // replaydelay in seconds.
                 $tasks[$taskid]->batchdate = $tasks[$taskid]->batchdate + $tasks[$taskid]->replaydelay * 60;
                 mtrace('Bouncing task '.$taskid.' to '.userdate($tasks[$taskid]->batchdate));
                 if ($tasks[$taskid]->replay >= TASK_SHIFT) {
@@ -223,13 +230,15 @@ function report_trainingsessions_cron() {
                 mtrace('Removing task '.$taskid);
             }
 
-            debug_trace('closing task handle '.$taskid);
+            if (function_exists('debug_trace')) {
+                debug_trace('closing task handle '.$taskid);
+            }
             curl_multi_remove_handle($mh, $task);
         }
 
         curl_multi_close($mh);
 
-        // update in config
+        // Update in config.
         set_config('trainingreporttasks', serialize($tasks));
 
         mtrace("\tdone.");

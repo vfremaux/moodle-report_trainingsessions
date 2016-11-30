@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Course trainingsessions report
  *
@@ -25,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
@@ -32,9 +31,9 @@ require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
 class CourseSummarySelectorForm extends moodleform {
 
     function definition() {
-        
+
         $mform = $this->_form;
-        
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
@@ -54,10 +53,10 @@ class CourseSummarySelectorForm extends moodleform {
         $row2 = array();
 
         $dateparms = array(
-            'startyear' => 2008, 
+            'startyear' => 2008,
             'stopyear'  => 2020,
             'timezone'  => 99,
-            'applydst'  => true, 
+            'applydst'  => true,
             'optional'  => false
         );
         $titles[] = get_string('from');
@@ -74,24 +73,24 @@ class CourseSummarySelectorForm extends moodleform {
     <td align="right">
         <?php
             print_string('chooseagroup', 'report_trainingsessions');
-		    echo " :&nbsp;";
+            echo " :&nbsp;";
         ?>
     </td>
     <td>
         <?php
-            if (has_capability('moodle/site:accessallgroups', $context)){
+            if (has_capability('moodle/site:accessallgroups', $context)) {
                 $groups = groups_get_all_groups($course->id);
             } else {
                 $groups = groups_get_all_groups($course->id, $USER->id);
             }
             $groupoptions[0] = get_string('allgroups', 'report_trainingsessions');
-            if ($groupid === false){
-                $groupid=0;
+            if ($groupid === false) {
+                $groupid = 0;
             }
-            foreach($groups as $group){
+            foreach ($groups as $group) {
                 $groupoptions[$group->id] = $group->name;
             }
-            choose_from_menu($groupoptions, 'groupid', $groupid);
+            echo html_writer::select($groupoptions, 'groupid', $groupid);
         ?>
     </td>
 </tr>

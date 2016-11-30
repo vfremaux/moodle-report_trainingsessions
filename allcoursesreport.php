@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Course trainingsessions report. Gives a transversal view of all courses for a user.
  * this script is used as inclusion of the index.php file.
@@ -26,6 +24,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * direct log construction implementation
@@ -37,13 +36,12 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
-$id = required_param('id', PARAM_INT) ; // the course id
+$id = required_param('id', PARAM_INT) ; // The course id.
 
-// calculate start time
+// Calculate start time.
 $selform = new SelectorForm($id, 'allcourses');
 
-if ($data = $selform->get_data()) {
-} else {
+if (!$data = $selform->get_data()) {
     $data = new StdClass();
     $data->from = optional_param('from', -1, PARAM_NUMBER);
     $data->to = optional_param('to', -1, PARAM_NUMBER);
@@ -57,19 +55,21 @@ $context = context_course::instance($id);
 $canseeothers = has_capability('report/trainingsessions:viewother', $context);
 
 if (!$canseeothers) {
-    // restrict to view yourself only
+    // Restrict to view yourself only.
     $userid = $USER->id;
 } else {
     $userid = $data->userid;
 }
 
-// calculate start time
+// Calculate start time.
 
-if ($data->from == -1 || @$data->fromstart) { // maybe we get it from parameters
+if ($data->from == -1 || @$data->fromstart) {
+    // Maybe we get it from parameters.
     $data->from = $DB->get_field('user', 'firstaccess', array('id' => $userid));
 }
 
-if ($data->to == -1 || @$data->tonow) { // maybe we get it from parameters
+if ($data->to == -1 || @$data->tonow) {
+    // Maybe we get it from parameters.
     $data->to = time();
 }
 
@@ -96,7 +96,7 @@ if (empty($aggregate['sessions'])) {
 // Print result.
 
 if ($data->output == 'html') {
-    // time period form
+    // Time period form.
 
     include_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
@@ -141,9 +141,13 @@ if ($data->output == 'html') {
     report_trainingsessions_print_session_list($str2, @$aggregate['sessions'], 0, $userid);
     echo $str2;
 
-    $params = array('id' => $course->id, 'view' => 'allcourses', 'userid' => $userid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls');
+    $params = array('id' => $course->id,
+                    'view' => 'allcourses',
+                    'userid' => $userid,
+                    'from' => $data->from,
+                    'to' => $data->to,
+                    'output' => 'xls');
     echo '<br/><center>';
-    // echo count($targetusers).' found in this selection';
     $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
     echo $renderer->user_session_reports_buttons($data->userid, 'allcourses');
@@ -154,18 +158,17 @@ if ($data->output == 'html') {
 
     require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 
-    // $CFG->trace = 'x_temp/xlsreport.log';
-    // debug_open_trace();
     require_once($CFG->libdir.'/excellib.class.php');
 
     $filename = 'allcourses_sessions_report_'.date('d-M-Y', time()).'.xls';
     $workbook = new MoodleExcelWorkbook("-");
-    // Sending HTTP headers
+
+    // Sending HTTP headers.
     ob_end_clean();
 
     $workbook->send($filename);
 
-    // preparing some formats
+    // Preparing some formats.
     $xls_formats = report_trainingsessions_xls_formats($workbook);
     $startrow = 15;
     $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xls_formats, $workbook, 'allcourses');

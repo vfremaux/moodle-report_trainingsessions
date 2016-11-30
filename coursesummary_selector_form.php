@@ -22,6 +22,8 @@
  * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+ * @TODO : WORK IN PROGRESS Reconstruction of the form
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -66,6 +68,7 @@ class CourseSummarySelectorForm extends moodleform {
         $row[] = & $mform->createElement('date_selector', 'to', '', $dateparms);
 
     }
+}
 ?>
 
 <center>

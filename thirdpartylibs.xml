@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>__other</location>
+    <name>Quickform Extensions</name>
+    <license>GPL</license>
+    <version>v3</version>
+    <licenseversion></licenseversion>
+  </library>
+</libraries>

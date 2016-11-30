@@ -33,7 +33,6 @@ defined('MOODLE_INTERNAL') || die;
  * @param stdClass $context The context of the course
  */
 function report_trainingsessions_extend_navigation_course($navigation, $course, $context) {
-    global $CFG, $OUTPUT;
     if (has_capability('report/trainingsessions:view', $context)) {
         $url = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id));
         $navigation->add(get_string('pluginname', 'report_trainingsessions'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
@@ -63,7 +62,6 @@ function report_trainingsessions_can_access_user_report($user, $course) {
     global $USER;
 
     $coursecontext = context_course::instance($course->id);
-    $personalcontext = context_user::instance($user->id);
 
     if (has_capability('report/trainingsessions:view', $coursecontext)) {
         return true;
@@ -101,9 +99,7 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
         send_file_not_found();
     }
 
-    $forcedownload = true;
-
-    send_stored_file($file, 60*60, 0, $forcedownload);
+    send_stored_file($file, 60*60, 0, true);
 }
 
 /**

@@ -27,7 +27,7 @@ require('../../config.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/task_form.php');
 
-$id = required_param('id', PARAM_INT); // origin course id.
+$id = required_param('id', PARAM_INT); // Origin course id.
 $context = context_course::instance($id);
 $url = new moodle_url('/report/trainingsessions/courseraw.task_receiver.php', array('id' => $id));
 $PAGE->set_url($url);
@@ -63,7 +63,7 @@ if ($tdata = $form->get_data()) {
     $task->id = $tdata->taskid;
     $task->courseid = $id;
     $task->taskname = $tdata->taskname;
-    $task->outputdir = preg_replace('#/$#', '', $tdata->outputdir); //removes trailing slash if given
+    $task->outputdir = preg_replace('#/$#', '', $tdata->outputdir); // Removes trailing slash if given.
     $task->batchdate = $tdata->batchdate;
     $task->reportlayout = $tdata->reportlayout;
     $task->reportscope = $tdata->reportscope;
@@ -86,7 +86,8 @@ if ($tdata = $form->get_data()) {
     set_config('trainingreporttasks', serialize($tasks));
     echo $OUTPUT->header();
     echo $OUTPUT->notification(get_string('taskrecorded', 'report_trainingsessions'));
-    echo $OUTPUT->continue_button(new moodle_url('/report/trainingsessions/index.php', array('id' => $id, 'view' => 'courseraw', 'groupid' => $tdata->groupid)));
+    $params = array('id' => $id, 'view' => 'courseraw', 'groupid' => $tdata->groupid);
+    echo $OUTPUT->continue_button(new moodle_url('/report/trainingsessions/index.php', $params));
     echo $OUTPUT->footer();
     exit;
 }

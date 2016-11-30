@@ -106,6 +106,9 @@ if ($data->output == 'html') {
 
     $str = '';
     $dataobject = report_trainingsessions_print_html($str, $coursestructure, $aggregate, $done);
+    if (empty($dataobject)) {
+        $dataobject = new stdClass();
+    }
     $dataobject->items = $items;
     $dataobject->done = $done;
 

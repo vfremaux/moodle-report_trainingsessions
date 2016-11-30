@@ -66,6 +66,7 @@ class CourseSummarySelectorForm extends moodleform {
         $row[] = & $mform->createElement('date_selector', 'to', '', $dateparms);
 
     }
+}
 ?>
 
 <center>

@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * This file keeps track of upgrades to the wiki module
  *
@@ -34,6 +32,7 @@ defined('MOODLE_INTERNAL') || die;
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  *
  */
+defined('MOODLE_INTERNAL') || die;
 
 function xmldb_report_trainingsessions_upgrade($oldversion) {
     global $CFG, $DB, $OUTPUT;
@@ -41,29 +40,29 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
 
-    // Moodle v2.2.0 release upgrade line
-    // Put any upgrade step following this
+    // Moodle v2.2.0 release upgrade line.
+    // Put any upgrade step following this.
 
-    // Moodle v2.3.0 release upgrade line
-    // Put any upgrade step following this
+    // Moodle v2.3.0 release upgrade line.
+    // Put any upgrade step following this.
 
     if ($oldversion < 2015092201) {
 
-    /// Define table report_trainingsessions to be created
+        // Define table report_trainingsessions to be created.
         $table = new xmldb_table('report_trainingsessions');
 
-    /// Adding fields to table flashcard_card
+        // Adding fields to table flashcard_card.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null, null);
         $table->add_field('courseid', XMLDB_TYPE_INTEGER, '11', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, null);
         $table->add_field('moduleid', XMLDB_TYPE_INTEGER, '11', XMLDB_UNSIGNED, null, null, null, null, null);
         $table->add_field('label', XMLDB_TYPE_CHAR, '32', null, null, null, null, null, null);
         $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, null);
 
-    /// Adding keys to table report_trainingsessions
+        // Adding keys to table report_trainingsessions.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
         if (!$dbman->table_exists($table)) {
-        /// Launch create table for flashcard_card
+            // Launch create table for flashcard_card.
             $dbman->create_table($table);
         }
 

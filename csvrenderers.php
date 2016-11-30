@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * General rendering functions for CSV files.
  *
@@ -25,6 +23,7 @@ defined('MOODLE_INTERNAL') || die;
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * a raster for xls printing of a report structure header
@@ -95,7 +94,7 @@ function report_trainingsessions_print_header_csv($userid, $courseid, $data) {
     }
     $csvstr .= strip_tags(implode(",", $rolenames))."\n";
 
-    // print completion bar
+    // Print completion bar.
     if (empty($data->items)) {
         $completed = 0;
     } else {
@@ -139,7 +138,7 @@ function report_trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$do
         return $str;
     }
 
-    // makes a blank dataobject.
+    // Makes a blank dataobject.
     if (!isset($dataobject)) {
         $dataobject = new StdClass;
         $dataobject->elapsed = 0;
@@ -147,17 +146,17 @@ function report_trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$do
     }
 
     if (is_array($structure)) {
-        // recurs in sub structures
+        // Recurse in sub structures.
         foreach ($structure as $element) {
             if (isset($element->instance) && empty($element->instance->visible)) {
-                continue; // non visible items should not be displayed
+                continue; // Non visible items should not be displayed.
             }
             $res = report_trainingsessions_print_csv($element, $aggregate, $done, $level);
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += $res->events;
         } 
     } else {
-        // prints a single row
+        // Prints a single row.
         if (!isset($element->instance) || !empty($element->instance->visible)) {
             // Non visible items should not be displayed.
             if (!empty($structure->name)) {
@@ -169,10 +168,9 @@ function report_trainingsessions_print_csv(&$str, &$structure, &$aggregate, &$do
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 }
 
-                $csvline = $str; // saves the current row for post writing aggregates
+                $csvline = $str; // Saves the current row for post writing aggregates.
 
                 if (!empty($structure->subs)) {
-                    // debug_trace("with subs");
                     $res = report_trainingsessions_print_csv($structure->subs, $aggregate, $done, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;

@@ -61,10 +61,10 @@ class SelectorForm extends moodleform {
         $row2 = array();
 
         $dateparms = array(
-            'startyear' => 2008, 
+            'startyear' => 2008,
             'stopyear'  => 2020,
             'timezone'  => 99,
-            'applydst'  => true, 
+            'applydst'  => true,
             'optional'  => false
         );
         $titles[] = get_string('from');

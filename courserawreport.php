@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Course trainingsessions report
+ * direct log construction implementation
  *
  * @package    report_trainingsessions
  * @category   report
@@ -25,11 +24,8 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
-/**
- * direct log construction implementation
- *
- */
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
@@ -40,42 +36,42 @@ $page = 20;
 
 ini_set('memory_limit', '2048M');
 
-// TODO : secure groupid access depending on proper capabilities
+// TODO : secure groupid access depending on proper capabilities.
 
-$id = required_param('id', PARAM_INT) ; // the course id
+$id = required_param('id', PARAM_INT) ; // The course id.
 
 // For tasks
 $selform = new StdClass();
 $selform->from = optional_param_array('from', null, PARAM_INT);
 if (empty($selform->from) || @$selform->fromstart) {
-    // maybe we get it from parameters
+    // Maybe we get it from parameters.
     $from = $course->startdate;
     $selform->from['day'] = date('d', $from);
     $selform->from['year'] = date('Y', $from);
     $selform->from['month'] = date('m', $from);
 } else {
-    $from = mktime(0,0,0,$selform->from['month'], $selform->from['day'], $selform->from['year']);
+    $from = mktime(0, 0, 0, $selform->from['month'], $selform->from['day'], $selform->from['year']);
 }
-$startday =  $selform->from['day']; // from (-1 is from course start)
-$startmonth = $selform->from['month']; // from (-1 is from course start)
-$startyear = $selform->from['year']; // from (-1 is from course start)
+$startday =  $selform->from['day']; // From (-1 is from course start).
+$startmonth = $selform->from['month']; // From (-1 is from course start).
+$startyear = $selform->from['year']; // From (-1 is from course start).
 
 $selform->to = optional_param_array('to', null, PARAM_INT);
 if (empty($selform->to) || @$selform->tonow) {
-    // maybe we get it from parameters
+    // Maybe we get it from parameters.
     $to = time();
     $selform->to['day'] = date('d', $to);
     $selform->to['year'] = date('Y', $to);
     $selform->to['month'] = date('m', $to);
 } else {
-    $to = mktime(0,0,0,$selform->to['month'], $selform->to['day'], $selform->to['year']);
+    $to = mktime(0, 0, 0, $selform->to['month'], $selform->to['day'], $selform->to['year']);
 }
 
-$endday =  $selform->to['day']; // to (-1 is from course start)
-$endmonth = $selform->to['month']; // to (-1 is from course start)
-$endyear = $selform->to['year']; // to (-1 is from course start)
+$endday =  $selform->to['day']; // To (-1 is from course start).
+$endmonth = $selform->to['month']; // To (-1 is from course start).
+$endyear = $selform->to['year']; // To (-1 is from course start).
 
-// calculate start time
+// Calculate start time.
 $selform->groupid = optional_param('groupid', '', PARAM_INT);
 $selform->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
 $selform->tonow = optional_param('tonow', 0, PARAM_BOOL);
@@ -85,7 +81,7 @@ $selformform = new SelectorForm($id, 'courseraw');
 $context = context_course::instance($id);
 $config = get_config('report_trainingsessions');
 
-// compute target group
+// Compute target group.
 
 if (!empty($selform->groupid)) {
     $targetusers = groups_get_members($selform->groupid);
@@ -141,16 +137,16 @@ if (!empty($targetusers)) {
 
         $timestamp = time();
         $rawstr = '';
-        $resultset[] = get_string('group'); // groupname
-        $resultset[] = get_string('idnumber'); // userid
-        $resultset[] = get_string('lastname'); // user name 
-        $resultset[] = get_string('firstname'); // user name 
-        $resultset[] = get_string('firstenrolldate', 'report_trainingsessions'); // enrol start date
-        $resultset[] = get_string('firstaccess'); // fist trace
-        $resultset[] = get_string('lastaccess'); // last trace
-        $resultset[] = get_string('startdate', 'report_trainingsessions'); // compile start date
-        $resultset[] = get_string('todate', 'report_trainingsessions'); // compile end date
-        $resultset[] = get_string('weekstartdate', 'report_trainingsessions'); // last week start date 
+        $resultset[] = get_string('group'); // Groupname.
+        $resultset[] = get_string('idnumber'); // Userid.
+        $resultset[] = get_string('lastname'); // Last name.
+        $resultset[] = get_string('firstname'); // First name.
+        $resultset[] = get_string('firstenrolldate', 'report_trainingsessions'); // Enrol start date.
+        $resultset[] = get_string('firstaccess'); // First trace.
+        $resultset[] = get_string('lastaccess'); // Last trace.
+        $resultset[] = get_string('startdate', 'report_trainingsessions'); // Compile start date.
+        $resultset[] = get_string('todate', 'report_trainingsessions'); // Compile end date.
+        $resultset[] = get_string('weekstartdate', 'report_trainingsessions'); // last week start date.
         $resultset[] = get_string('timeelapsed', 'report_trainingsessions');
         $resultset[] = get_string('timeelapsedcurweek', 'report_trainingsessions');
 
@@ -164,7 +160,7 @@ if (!empty($targetusers)) {
         foreach ($targetusers as $userid => $auser) {
 
             $logusers = $auser->id;
-            echo "Compiling for ".fullname($auser).'<br/>';
+            echo 'Compiling for '.fullname($auser).'<br/>';
             $globalresults = new StdClass;
             $globalresults->elapsed = 0 + @$aggregate[$userid]['course'][$id]->elapsed + @$aggregate[$userid]['activities'][$id]->elapsed + @$aggregate[$userid]['other'][$id]->elapsed;
             $globalresults->weekelapsed = 0 + @$weekaggregate[$userid]['course'][$id]->elapsed + @$weekaggregate[$userid]['activities'][$id]->elapsed + @$weekaggregate[$userid]['other'][$id]->elapsed;
@@ -177,20 +173,22 @@ if (!empty($targetusers)) {
         // Prepare file record object.
 
         $fileinfo = array(
-            'contextid' => $context->id, // ID of context (course context)
-            'component' => 'report_trainingsessions',     // usually = table name
-            'filearea' => 'rawreports',     // usually = table name
-            'itemid' => $COURSE->id,               // usually = ID of row in table
-            'filepath' => '/',           // any path beginning and ending in /
-            'filename' => "raw_{$timestamp}.csv"); // any filename
+            'contextid' => $context->id, // ID of context (course context).
+            'component' => 'report_trainingsessions',     // Usually = table name.
+            'filearea' => 'rawreports',     // Usually = table name.
+            'itemid' => $COURSE->id,               // Usually = ID of row in table.
+            'filepath' => '/',           // Any path beginning and ending in /.
+            'filename' => "raw_{$timestamp}.csv"); // Any filename.
 
-        // Create file containing text
+        // Create file containing text.
         $fs->delete_area_files($context->id, 'report_trainingsessions', 'rawreports', $COURSE->id);
         $fs->create_file_from_string($fileinfo, $rawstr);
-    
+
         $strupload = get_string('uploadresult', 'report_trainingsessions');
-        $fileurl = moodle_url::make_pluginfile_url($context->id, 'report_trainingsessions', 'rawreports', $fileinfo['itemid'], '/', 'raw_'.$timestamp.'.csv');
-        echo '<p><br/>'.$strupload.': <a href="'.$fileurl.'"><img src="'.$OUTPUT->pix_url('f/spreadsheet').'" height="40" width="30" /></a></p>';
+        $fileurl = moodle_url::make_pluginfile_url($context->id, 'report_trainingsessions', 'rawreports', $fileinfo['itemid'],
+                                                   '/', 'raw_'.$timestamp.'.csv');
+        $pix = '<img src="'.$OUTPUT->pix_url('f/spreadsheet').'" height="40" width="30" />';
+        echo '<p><br/>'.$strupload.': <a href="'.$fileurl.'">'.$pix.'</a></p>';
 
     } else {
         echo $OUTPUT->box_start();
@@ -199,13 +197,13 @@ if (!empty($targetusers)) {
     }
 }
 
-// Print batch list
+// Print batch list.
 
 $maxtaskid = 0;
 if (!empty($CFG->trainingreporttasks)) {
     $tasks = unserialize($CFG->trainingreporttasks);
     if (!empty($tasks)) {
-        foreach($tasks as $tid => $t) {
+        foreach ($tasks as $tid => $t) {
             $maxtaskid = max($maxtaskid, $tid);
         }
     }
@@ -224,7 +222,7 @@ $currentcontext = array(
 
 $form = new Task_Form(new moodle_url('/report/trainingsessions/courseraw.task_receiver.php'), $currentcontext);
 
-// quick written controller for deletion
+// Quick written controller for deletion.
 if ($delete = optional_param('delete', '', PARAM_INT)) {
     unset($tasks[$delete]);
     set_config('trainingreporttasks', serialize($tasks));
@@ -242,7 +240,14 @@ if (!empty($CFG->trainingreporttasks)) {
     $reportformatstr = get_string('reportformat', 'report_trainingsessions');
     $groupstr = get_string('group');
     $table = new html_table();
-    $table->head = array("<b>$taskstr</b>", "<b>$coursestr</b>", "<b>$datestr</b>", "<b>$dirstr</b>", "<b>$reportlayoutstr</b>", "<b>$reportformatstr</b>", "<b>$replaystr</b>", '');
+    $table->head = array("<b>$taskstr</b>",
+                         "<b>$coursestr</b>",
+                         "<b>$datestr</b>",
+                         "<b>$dirstr</b>",
+                         "<b>$reportlayoutstr</b>",
+                         "<b>$reportformatstr</b>",
+                         "<b>$replaystr</b>",
+                         '');
     $table->align = array('left', 'left', 'left', 'left', 'center', 'center', 'center', 'center');
     $table->width = '100%';
     $table->size = array('30%', '15%', '10%', '10%', '10%', '10%', '10%', '5%');
@@ -267,11 +272,21 @@ if (!empty($CFG->trainingreporttasks)) {
 
             if (@$task->reportscope == 'allcourses') {
                 $courseshort = $DB->get_field('course', 'shortname', array('id' => $task->courseid));
-                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', array('id' => $task->courseid, 'view' => 'courseraw', 'from' => $from, 'to' => $to, 'groupid' => $selform->groupid));
+                $params = array('id' => $task->courseid,
+                                'view' => 'courseraw',
+                                'from' => $from,
+                                'to' => $to,
+                                'groupid' => $selform->groupid);
+                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', $params);
                 $scope = '<a href="'.$reportcontexturl.'">'.$groupname.'@*</a>';
             } else {
                 $courseshort = $DB->get_field('course', 'shortname', array('id' => $task->courseid));
-                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', array('id' => $task->courseid, 'view' => 'courseraw', 'from' => $from, 'to' => $to, 'groupid' => $selform->groupid));
+                $params = array('id' => $task->courseid,
+                                'view' => 'courseraw',
+                                'from' => $from,
+                                'to' => $to,
+                                'groupid' => $selform->groupid);
+                $reportcontexturl = new moodle_url('/report/trainingsessions/index.php', $params);
                 $scope = '<a href="'.$reportcontexturl.'">'.$groupname.'@'.$courseshort.'</a>';
             }
 
@@ -285,41 +300,67 @@ if (!empty($CFG->trainingreporttasks)) {
                 default:
                     $layoutimg = 'sessions';
             }
-            $layout = html_writer::tag('img', null, array('src' => $OUTPUT->pix_url($layoutimg, 'report_trainingsessions'), 'title' => get_string($layoutimg, 'report_trainingsessions')));
+            $attrs = array('src' => $OUTPUT->pix_url($layoutimg, 'report_trainingsessions'),
+                           'title' => get_string($layoutimg, 'report_trainingsessions'));
+            $layout = html_writer::tag('img', null, $attrs);
 
             if (empty($task->reportformat)) {
                 $task->reportformat = 'csv';
             }
-            $ICONS = array('pdf' => 'pdf', 'csv' => 'writer', 'xls' => 'spreadsheet');
-            $format = html_writer::tag('img', null, array('src' => $OUTPUT->pix_url('f/'.$ICONS[$task->reportformat].'-32'), 'title' => get_string($task->reportformat, 'report_trainingsessions')));
+            $icons = array('pdf' => 'pdf', 'csv' => 'writer', 'xls' => 'spreadsheet');
+            $attrs = array('src' => $OUTPUT->pix_url('f/'.$icons[$task->reportformat].'-32'),
+                           'title' => get_string($task->reportformat, 'report_trainingsessions'));
+            $format = html_writer::tag('img', null, $attrs);
 
-            $deleteurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $id, 'view' => 'courseraw', 'delete' => $task->id));
-            $deleteimg = html_writer::tag('img', null, array('src' => $OUTPUT->pix_url('/t/delete'), 'title' => get_string('delete')));
+            $params = array('id' => $id, 'view' => 'courseraw', 'delete' => $task->id);
+            $deleteurl = new moodle_url('/report/trainingsessions/index.php', $params);
+            $attrs = array('src' => $OUTPUT->pix_url('/t/delete'), 'title' => get_string('delete'));
+            $deleteimg = html_writer::tag('img', null, $attrs);
 
             $commands = '<a href="'.$deleteurl.'">'.$deleteimg.'</a>';
 
-            $params = array('id' => $id, 'from' => $task->from, 'to' => $task->to, 'outputdir' => urlencode($task->outputdir), 'reportlayout' => $task->reportlayout, 'reportscope' => @$task->reportscope, 'runmode' => 'url');
+            $params = array('id' => $id,
+                            'from' => $task->from,
+                            'to' => $task->to,
+                            'outputdir' => urlencode($task->outputdir),
+                            'reportlayout' => $task->reportlayout,
+                            'reportscope' => @$task->reportscope,
+                            'runmode' => 'url');
             if ($task->groupid) {
                 $params['groupid'] = $task->groupid;
             }
             $batchurl = new moodle_url('/report/trainingsessions/group'.$task->reportformat.'report_batch.php', $params);
-            $commands .= '&nbsp;'.html_writer::tag('a', get_string('interactive', 'report_trainingsessions'), array('href' => $batchurl, 'target' => '_blank', 'title' => get_string('interactivetitle', 'report_trainingsessions')));
+            $attrs = array('href' => $batchurl, 'target' => '_blank',
+                           'title' => get_string('interactivetitle', 'report_trainingsessions'));
+            $commands .= '&nbsp;'.html_writer::tag('a', get_string('interactive', 'report_trainingsessions'), $attrs);
 
             switch($task->replay) {
                 case TASK_REPLAY:
-                    $replayimg = html_writer::tag('img', '', array('src' => $OUTPUT->pix_url('replay', 'report_trainingsessions')));
+                    $attrs = array('src' => $OUTPUT->pix_url('replay', 'report_trainingsessions'));
+                    $replayimg = html_writer::tag('img', '', $attrs);
                     break;
+
                 case TASK_SHIFT:
-                    $replayimg = html_writer::tag('img', '', array('src' => $OUTPUT->pix_url('periodshift', 'report_trainingsessions')));
+                    $attrs = array('src' => $OUTPUT->pix_url('periodshift', 'report_trainingsessions'));
+                    $replayimg = html_writer::tag('img', '', $attrs);
                     break;
+
                 case TASK_SHIFT_TO:
-                    $replayimg = html_writer::tag('img', '', array('src' => $OUTPUT->pix_url('endshift', 'report_trainingsessions')));
+                    $attrs = array('src' => $OUTPUT->pix_url('endshift', 'report_trainingsessions'));
+                    $replayimg = html_writer::tag('img', '', $attrs);
                     break;
                 default:
             }
 
             $table->rowclasses[] = ($id == $task->courseid) ? 'trainingsessions-green' : '';
-            $table->data[] = array($task->taskname, $scope, userdate($task->batchdate), $task->outputdir, $layout, $format, ($task->replay) ? format_time($task->replaydelay * 60).' s<br/>'.$replayimg : '-' , $commands);
+            $table->data[] = array($task->taskname,
+                                   $scope,
+                                   userdate($task->batchdate),
+                                   $task->outputdir,
+                                   $layout,
+                                   $format,
+                                   ($task->replay) ? format_time($task->replaydelay * 60).' s<br/>'.$replayimg : '-',
+                                   $commands);
         }
     }
 

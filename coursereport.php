@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Course trainingsessions report
  *
@@ -25,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * direct log construction implementation
@@ -36,17 +35,16 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
-$id = required_param('id', PARAM_INT) ; // the course id
+$id = required_param('id', PARAM_INT) ; // The course id.
 
-// calculate start time
+// Calculate start time.
 
 $selform = new SelectorForm($id, 'course');
-if ($data = $selform->get_data()) {
-} else {
+if (!$data = $selform->get_data()) {
     $data = new StdClass;
     $data->from = optional_param('from', -1, PARAM_NUMBER);
     $data->to = optional_param('to', -1, PARAM_NUMBER);
-    $data->userid = optional_param('userid', $USER->id, PARAM_INT);
+   $data->userid = optional_param('userid', $USER->id, PARAM_INT);
     $data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
@@ -55,17 +53,21 @@ if ($data = $selform->get_data()) {
 
 $context = context_course::instance($id);
 
-// calculate start time
+// Calculate start time.
 
-if ($data->from == -1 || @$data->fromstart) { // maybe we get it from parameters
+if ($data->from == -1 || @$data->fromstart) {
+    // Maybe we get it from parameters.
     $data->from = $course->startdate;
 }
 
-if ($data->to == -1 || @$data->tonow){ // maybe we get it from parameters
+if ($data->to == -1 || @$data->tonow){
+    // Maybe we get it from parameters
     $data->to = time();
 } else {
-    // the displayed time in form is giving a 0h00 time. We should push till
-    // 23h59 of the given day
+    /*
+     * The displayed time in form is giving a 0h00 time. We should push till
+     * 23h59 of the given day
+     */
     $data->to = min(time(), $data->to + DAYSECS - 1);
 }
 
@@ -81,7 +83,7 @@ if ($data->output == 'html') {
     echo $OUTPUT->box_end();
 }
 
-// compute target group
+// Compute target group.
 
 $allgroupsaccess = has_capability('moodle/site:accessallgroups', $context);
 
@@ -115,10 +117,10 @@ if ($data->groupid) {
         if (!empty($allowedgroupids)) {
             $OUTPUT->notification(get_string('errorcoursetoolarge', 'report_trainingsessions'));
             $data->groupid = $allowedgroupids[0];
-            // refetch again after eventual group correction
+            // Refetch again after eventual group correction.
             $targetusers = get_enrolled_users($context, '', $data->groupid);
         } else {
-            // DO NOT COMPILE 
+            // DO NOT COMPILE.
             echo $OUTPUT->notification('Course is too large and no groups in. Cannot compile.');
             echo $OUTPUT->footer($course);
             die;
@@ -129,10 +131,10 @@ if ($data->groupid) {
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
-// get course structure
+// Get course structure.
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
-// print result
+// Print result.
 
 if ($data->output == 'html') {
 
@@ -178,9 +180,13 @@ if ($data->output == 'html') {
                 $data->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
 
                 foreach (array_keys($aggregate) as $module) {
-                    // exclude from calculation some pseudo-modules that are not part of 
-                    // a course structure.
-                    if (preg_match('/course|user|upload|sessions|system|activities|other/', $module)) continue;
+                    /*
+                     * Exclude from calculation some pseudo-modules that are not part of 
+                     * a course structure.
+                     */
+                    if (preg_match('/course|user|upload|sessions|system|activities|other/', $module)) {
+                        continue;
+                    }
                     $data->done += count($aggregate[$module]);
                 }
             } else {
@@ -195,38 +201,52 @@ if ($data->output == 'html') {
 
         }
     } else {
-        echo $OUTPUT->notification(get_string('nousers'));
+        echo $OUTPUT->notification(get_string('nousersfound'));
     }
 
     $options['id'] = $course->id;
     $options['groupid'] = $data->groupid;
-    $options['from'] = $data->from; // alternate way
-    $options['to'] = $data->to; // alternate way
-    $options['output'] = 'xls'; // ask for XLS
-    $options['asxls'] = 'xls'; // force XLS for index.php
-    $options['view'] = 'course'; // force course view
+    $options['from'] = $data->from; // Alternate way.
+    $options['to'] = $data->to; // Alternate way.
+    $options['output'] = 'xls'; // Ask for XLS.
+    $options['asxls'] = 'xls'; // Force XLS for index.php.
+    $options['view'] = 'course'; // Force course view.
 
     echo '<br/><center>';
-    // echo count($targetusers).' found in this selection';
-    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls');
+    $params = array('id' => $course->id,
+                    'view' => 'course',
+                    'groupid' => $data->groupid,
+                    'from' => $data->from,
+                    'to' => $data->to,
+                    'output' => 'xls');
     $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
 
-    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'pdf');
+    $params = array('id' => $course->id,
+                    'view' => 'course',
+                    'groupid' => $data->groupid,
+                    'from' => $data->from,
+                    'to' => $data->to,
+                    'output' => 'pdf');
     $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo $OUTPUT->single_button($url, get_string('generatePDF', 'report_trainingsessions'), 'get');
 
-    $params = array('id' => $course->id, 'view' => 'course', 'groupid' => $data->groupid, 'from' => $data->from, 'to' => $data->to, 'output' => 'csv');
+    $params = array('id' => $course->id,
+                    'view' => 'course',
+                    'groupid' => $data->groupid,
+                    'from' => $data->from,
+                    'to' => $data->to,
+                    'output' => 'csv');
     $url = new moodle_url('/report/trainingsessions/index.php', $params);
     echo $OUTPUT->single_button($url, get_string('generateCSV', 'report_trainingsessions'), 'get');
     echo '</center>';
     echo '<br/>';
-} elseif ($output == 'xls') {
+} else if ($output == 'xls') {
 
     require_once($CFG->libdir.'/excellib.class.php');
     require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 
-    /// generate XLS
+    // Generate XLS.
 
     if ($data->groupid) {
         $filename = 'training_group_'.$data->groupid.'_report_'.date('d-M-Y', time()).'.xls';
@@ -238,7 +258,7 @@ if ($data->output == 'html') {
     if (!$workbook) {
         die("Null workbook");
     }
-    // Sending HTTP headers
+    // Sending HTTP headers.
     ob_end_clean();
     $workbook->send($filename);
 
@@ -255,7 +275,9 @@ if ($data->output == 'html') {
             $logs = use_stats_extract_logs($data->from, time(), $auser->id, $course->id);
             $aggregate = use_stats_aggregate_logs($logs, 'module');
     
-            if (empty($aggregate['sessions'])) $aggregate['sessions'] = array();
+            if (empty($aggregate['sessions'])) {
+                $aggregate['sessions'] = array();
+            }
     
             $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
             $data->items = $items;

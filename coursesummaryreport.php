@@ -19,24 +19,21 @@
  *
  * @package    report_trainingsessions
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
- * @version    moodle 1.9
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**
+/*
  * direct log construction implementation
  *
  */
 
-// includes
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
-// parameters
+// Parameters.
 $selform = new SelectorForm($id, 'course');
-if ($data = $selform->get_data()) {
-} else {
+if (!$data = $selform->get_data()) {
     $data = new StdClass;
     $data->from = optional_param('from', -1, PARAM_NUMBER);
     $data->to = optional_param('to', -1, PARAM_NUMBER);
@@ -45,42 +42,44 @@ if ($data = $selform->get_data()) {
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
     $data->groupid = optional_param('group', '0', PARAM_ALPHA);
-    $data->asxls = optional_param('asxls', '0', PARAM_BOOL); // Obsolete
+    $data->asxls = optional_param('asxls', '0', PARAM_BOOL); // Obsolete.
 }
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     print_error('coursemisconf');
 }
 
-// require appropriate rights
+// Require appropriate rights.
 $context = context_course::instance($course->id);
 if (!has_capability('report/trainingsessions:viewother', $context, $USER->id)){
     throw new Exception("User doesn't have rights to see this view");
 }
 
-// calculate start time
-if ($data->from == -1) { // maybe we get it from parameters
+// Calculate start time.
+if ($data->from == -1) {
+    // Maybe we get it from parameters.
     if ($startday == -1 || $data->fromstart) {
         $data->from = $course->startdate;
-    } elseif ($data->startmonth != -1 && $data->startyear != -1) {
+    } else if ($data->startmonth != -1 && $data->startyear != -1) {
         $data->from = mktime(0, 0, 0, $data->startmonth, $data->startday, $data->startyear);
     } else {
         print_error('Bad start date');
     }
 }
 
-// calculate end time
-if ($data->to == -1) { // maybe we get it from parameters
+// Calculate end time.
+if ($data->to == -1) {
+    // Maybe we get it from parameters.
     if ($data->endday == -1 || $data->toend) {
         $data->to = time();
-    } elseif ($data->endmonth != -1 && $data->endyear != -1) {
+    } else if ($data->endmonth != -1 && $data->endyear != -1) {
         $data->to = mktime(23, 59, 59, $data->endmonth, $data->endday, $data->endyear);
     } else {
         print_error('Bad end date');
     }
 }
 
-// compute target group
+// Compute target group.
 
 $allgroupsaccess = has_capability('moodle/site:accessallgroups', $context);
 
@@ -115,11 +114,11 @@ if ($data->groupid) {
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
-// setup local constants
-$namedcols=array('id', 'idnumber', 'firstname', 'lastname', 'email', 'activitytime', 'equlearningtime', 'elapsed');
-$durationcols=array('activitytime', 'equlearningtime', 'elapsed');
+// Setup local constants.
+$namedcols = array('id', 'idnumber', 'firstname', 'lastname', 'email', 'activitytime', 'equlearningtime', 'elapsed');
+$durationcols = array('activitytime', 'equlearningtime', 'elapsed');
 
-// get base data from moodle and bake it into a local format
+// Get base data from moodle and bake it into a local format.
 $courseid = $course->id;
 $coursestructure = report_trainingsessions_get_course_structure($courseid, $items);
 $coursename = $course->fullname;
@@ -130,11 +129,13 @@ report_trainingsessions_add_graded_columns($gradecolumns, $formats, $dformats);
 $summarizedusers = array();
 foreach ($targetusers as $user) {
 
-    // get data from moodle
+    // Get data from moodle.
     $logs = use_stats_extract_logs($data->from, $data->to, $user->id);
     $aggregate = use_stats_aggregate_logs($logs, 'module', $user->id, $data->from, $data->to);
-    // sum activity components of the data to get 
-    // compose and store a derived user record
+    /*
+     * sum activity components of the data to get
+     * compose and store a derived user record
+     */
     $thisuser = array();
     $thisuser['lastname'] = $user->lastname;
     $thisuser['firstname'] = $user->firstname;
@@ -142,7 +143,7 @@ foreach ($targetusers as $user) {
     // SADGE SAYS: The following 2 lines were commented out at the request of MISchool - it would probably be sensible to add a configuration option to allow them to be reactivated
     //$thisuser['activitytime'] = training_reports_format_time($aggregate['activities']->elapsed, $output);
     //$thisuser['equlearningtime'] = training_reports_format_time($aggregate['activities']->elapsed+@$aggregate['course'][0]->elapsed, $output);
-    $thisuser['elapsed'] = report_trainingsessions_format_time(0 + @$aggregate['totaltime'], $output);
+    $thisuser['elapsed'] = report_trainingsessions_format_time(0 + @$aggregate['coursetotal'][$course->id]->elapsed, $data->output == 'xls' ? 'xlsd' : 'html');
 
     // Fetch and add eventual additional score columns.
 
@@ -151,7 +152,9 @@ foreach ($targetusers as $user) {
 
     if (!empty($gradecolumns)) {
         $gradeduser = array_combine($gradecolumns, $gradedata);
-        $thisuser += $gradeduser;
+        foreach ($gradeduser as $k => $v) {
+            $thisuser[$k] = ($v) ? sprintf('%.1f', $v) : '';
+        }
     }
 
     $summarizedusers[] = $thisuser;
@@ -170,7 +173,7 @@ if ($data->output == 'html') {
     echo $OUTPUT->box_end();
 }
 
-// print result
+// Print result.
 if ($data->output == 'html') {
 
     require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
@@ -199,7 +202,7 @@ if ($data->output == 'html') {
             echo '<tr><td>'.$line.'</td>';
             foreach ($user as $fieldname => $field) {
                 if (in_array($fieldname, $namedcols)) {
-                    $cssclass = (in_array($fieldname, $namedcols) && !in_array($fieldname, $durationcols))? 'left': 'right';
+                    $cssclass = (in_array($fieldname, $namedcols) && !in_array($fieldname, $durationcols)) ? 'left' : 'right';
                     echo '<td class="'.$cssclass.'">'.$field.'</td>';
                 } elseif(in_array($fieldname, $gradecolumns)) {
                     // Those may come from grade columns.
@@ -216,22 +219,24 @@ if ($data->output == 'html') {
         // Add a 'generate XLS' button after the table.
         $options['id']      = $course->id;
         $options['groupid'] = $data->groupid;
-        $options['from']    = $data->from;            // alternate way
-        $options['to']      = $data->to;              // alternate way
-        $options['output']  = 'xls';            // ask for XLS
-        $options['asxls']   = 'xls';            // force XLS for index.php
-        $options['view']    = 'coursesummary';  // force course summary view
+        $options['from']    = $data->from;            // Alternate way.
+        $options['to']      = $data->to;              // Alternate way.
+        $options['output']  = 'xls';            // Ask for XLS.
+        $options['asxls']   = 'xls';            // Force XLS for index.php.
+        $options['view']    = 'coursesummary';  // Force course summary view.
         echo '<center>';
-        echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/index.php', $options), get_string('generateXLS', 'report_trainingsessions'));
+        $label = get_string('generateXLS', 'report_trainingsessions');
+        echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/index.php', $options), $label);
         echo '</center>';
         echo '<br/>';
     } else {
         echo $OUTPUT->notification('nousersfound');
     }
 
-} else { // generate XLS
+} else {
+    // generate XLS.
 
-    // include xls libraries
+    // Include xls libraries.
     require_once($CFG->libdir.'/excellib.class.php');
     require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 
@@ -252,7 +257,7 @@ if ($data->output == 'html') {
     $worksheet = $workbook->add_worksheet($coursename);
     $worksheet->set_column(0, count($summarizedusers[0]) - 1, 30);
 
-    // add a table header row
+    // Add a table header row.
     $col = 0;
     foreach ($summarizedusers[0] as $fieldname => $field) {
         if (in_array($fieldname, $namedcols)) {
@@ -272,7 +277,9 @@ if ($data->output == 'html') {
             if (in_array($fieldname, $namedcols)) {
                 // This is a named column so content is either text or duration.
                 if (in_array($fieldname, $durationcols)) {
-                    $worksheet->write_number($row, $col, $field, $xls_formats['zt']);
+                    if ($field) {
+                        $worksheet->write_number($row, $col, $field, $xls_formats['zt']);
+                    }
                 } else {
                     $worksheet->write_string($row, $col, $field, $xls_formats['z']);
                 }

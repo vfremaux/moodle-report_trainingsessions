@@ -44,7 +44,7 @@ if (!$data = $selform->get_data()) {
     $data = new StdClass;
     $data->from = optional_param('from', -1, PARAM_NUMBER);
     $data->to = optional_param('to', -1, PARAM_NUMBER);
-   $data->userid = optional_param('userid', $USER->id, PARAM_INT);
+    $data->userid = optional_param('userid', $USER->id, PARAM_INT);
     $data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
@@ -148,7 +148,6 @@ if ($data->output == 'html') {
             $logusers = $auser->id;
             $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
             $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
-
             if (empty($aggregate['sessions'])) {
                 $aggregate['sessions'] = array();
             }

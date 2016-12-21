@@ -64,7 +64,7 @@ report_trainingsessions_back_office_access($course);
 $config = get_config('report_trainingsessions');
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
-
+debug_trace(print_r($coursestructure, true));
 // TODO : secure groupid access depending on proper capabilities
 
 // calculate start time

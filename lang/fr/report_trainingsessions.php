@@ -64,6 +64,7 @@ $string['coursesessions'] = 'Sessions de travail pour ce cours (au réel platefo
 $string['coursestart'] = 'Début du cours';
 $string['crop'] = 'Tronquer';
 $string['csv'] = 'Texte (CSV)';
+$string['csvseparator'] = 'Séparateur CSV';
 $string['csvoutputtoiso'] = 'CSV au format ISO';
 $string['currentcourse'] = 'Cours courant';
 $string['disabled'] = '|--------- non actif -----------|';

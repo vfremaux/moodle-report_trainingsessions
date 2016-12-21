@@ -155,15 +155,29 @@ if ($data->output == 'html') {
 
     echo $str;
 
+    $now = time();
+
     $params = array('id' => $course->id, 'view' => 'user', 'userid' => $data->userid, 'from' => $data->from, 'to' => $data->to, 'output' => 'xls');
     $xlsurl = new moodle_url('/report/trainingsessions/index.php', $params);
 
-    $now = time();
+    $params = array('id' => $course->id,
+                    'userid' => $data->userid,
+                    'from' => $data->from,
+                    'to' => $data->to,
+                    'timesession' => $now);
+    $csvurl = new moodle_url('/report/trainingsessions/tasks/usercsvreportperuser_batch_task.php', $params);
+
     $filename = 'report_user_detail_'.$data->userid.'_'.$course->id.'_'.date('Ymd_His', $now).'.pdf';
-    $params = array('id' => $COURSE->id, 'userid' => $data->userid, 'from' => $data->from, 'to' => $data->to, 'timesession' => $now, 'outputname' => $filename);
+    $params = array('id' => $course->id,
+                    'userid' => $data->userid,
+                    'from' => $data->from,
+                    'to' => $data->to,
+                    'timesession' => $now,
+                    'outputname' => $filename);
     $pdfurl = new moodle_url('/report/trainingsessions/tasks/userpdfreportperuser_batch_task.php', $params);
     echo '<br/><center>';
     echo '<div class="trainingsessions-inline">';
+    echo $OUTPUT->single_button($csvurl, get_string('generateCSV', 'report_trainingsessions'));
     echo $OUTPUT->single_button($xlsurl, get_string('generateXLS', 'report_trainingsessions'));
     echo $OUTPUT->single_button($pdfurl, get_string('generatePDF', 'report_trainingsessions'));
     echo '</div>';

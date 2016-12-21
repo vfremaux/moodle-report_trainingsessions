@@ -444,7 +444,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             }
             return "{$secs}s";
         } else if ($mode == 'xlsd') {
-            return ($timevalue)? ($timevalue / DAYSECS): 0;
+            return ($timevalue) ? ($timevalue / DAYSECS): 0;
         } else {
             // For excel time format we need have a fractional day value.
             return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');

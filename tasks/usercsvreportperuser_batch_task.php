@@ -34,12 +34,12 @@ require('../../../config.php');
 ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
-$id = required_param('id', PARAM_INT) ; // the course id
-$userid = required_param('userid', PARAM_INT) ; // group id
-$startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
+$id = required_param('id', PARAM_INT) ; // The course id.
+$userid = required_param('userid', PARAM_INT) ; // User id.
+$startday = optional_param('startday', -1, PARAM_INT) ; // From (-1 is from course start).
 $startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
 $startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
 $endday = optional_param('endday', -1, PARAM_INT) ; // to (-1 is till now)
@@ -51,7 +51,7 @@ $to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when
 $timesession = optional_param('timesession', time(), PARAM_INT) ; // time of the generation batch
 $readabletimesession = date('Ymd_H_i_s', $timesession);
 $sessionday = date('Ymd', $timesession);
-$reportscope = required_param('scope', PARAM_TEXT); // Only currentcourse is consistant
+$reportscope = optional_param('scope', '', PARAM_TEXT); // Only currentcourse is consistant
 
 ini_set('memory_limit', '512M');
 
@@ -95,44 +95,36 @@ if ($to == -1) {
     }
 }
 
-// Generate XLS.
+// generate XLS
 
-$filename = "trainingsessions_user_{$userid}_report_".date('d-M-Y', time()).".xls";
-
-$workbook = new MoodleExcelWorkbook("-");
-if (!$workbook) {
-    die("Excel Librairies Failure");
-}
+$filename = "trainingsessions_user_{$userid}_report_".date('d-M-Y', time()).".csv";
 
 $auser = $DB->get_record('user', array('id' => $userid));
 
-// Sending HTTP headers.
-ob_end_clean();
-$workbook->send($filename);
+if ($auser) {
+    // Sending HTTP headers.
 
-$xls_formats = report_trainingsessions_xls_formats($workbook);
-$startrow = 15;
+    $logusers = $auser->id;
+    $logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
+    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
 
-$row = $startrow;
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+    $csvbuffer = '';
+    report_trainingsessions_print_userinfo($csvbuffer, $auser);
+    report_trainingsessions_print_header($csvbuffer);
+    report_trainingsessions_print_course_structure($csvbuffer, $coursestructure, $aggregate);
 
-$logusers = $auser->id;
-$logs = use_stats_extract_logs($from, $to, $auser->id, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
+    // Sending HTTP headers.
+    ob_end_clean();
 
-$overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-$data = new StdClass();
-$data->items = $items;
-$data->done = $done;
-$data->from = $from;
-$data->elapsed = $overall->elapsed;
-$data->events = $overall->events;
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xls_formats);
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
-
-$workbook->close();
+    // Output CSV-specific headers.
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private",false);
+    header("Content-Type: application/octet-stream");
+    header("Content-Disposition: attachment filename=\"$filename.csv\";" );
+    header("Content-Transfer-Encoding: binary");
+    echo $csvbuffer;
+}
 
 // echo '200';

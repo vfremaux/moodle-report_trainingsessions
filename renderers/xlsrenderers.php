@@ -306,7 +306,7 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
         return;
     }
 
-    // makes a blank dataobject.
+    // Makes a blank dataobject.
     if (!isset($dataobject)) {
         $dataobject = new StdClass;
         $dataobject->elapsed = 0;
@@ -314,10 +314,10 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
     }
 
     if (is_array($structure)) {
-        // recurse in sub structures
+        // Recurse in sub structures.
         foreach ($structure as $element) {
             if (isset($element->instance) && empty($element->instance->visible)) {
-                // non visible items should not be displayed.
+                // Non visible items should not be displayed.
                 continue;
             }
             $res = report_trainingsessions_print_xls($worksheet, $element, $aggregate, $done, $row, $xls_formats, $level);
@@ -341,10 +341,9 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 }
 
-                $thisrow = $row; // saves the current row for post writing aggregates
+                $thisrow = $row; // Saves the current row for post writing aggregates.
                 $row++;
                 if (!empty($structure->subs)) {
-                    // debug_trace("with subs");
                     $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done, $row, $xls_formats, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
@@ -357,7 +356,7 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                     $worksheet->write_number($thisrow, 3, $dataobject->events, $xls_formats['p']);
                 }
             } else {
-                // It is only a structural module that should not impact on level
+                // It is only a structural module that should not impact on level.
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 }
@@ -372,7 +371,7 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
     return $dataobject;
 }
 
-// public wrapper for unified API
+// Public wrapper for unified API.
 function report_trainingsessions_print_usersessions($worksheet, $userid, $row, $from, $to, &$course, &$xls_formats) {
 
     // Get data
@@ -505,7 +504,6 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
                     $output[0][SITEID]->elapsed = 0;
                     $output[0][SITEID]->events = 0;
                 }
-                // echo "ignoring hidden $cdata->elapsed ";
                 $output[0][SITEID]->elapsed += $cdata->elapsed;
                 $output[0][SITEID]->events += $cdata->events;
             }
@@ -521,7 +519,7 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
         $elapsedstr = get_string('elapsed', 'report_trainingsessions');
         $hitsstr = get_string('hits', 'report_trainingsessions');
         $coursestr = get_string('course');
-        
+
         if (isset($output[0])) {
             $worksheet->write_string($row, 0, get_string('site'), $xls_formats['tt']);
             $row++;
@@ -576,7 +574,7 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
  */
 function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataformats, $row, &$xls_formats) {
 
-    for ($i = 0 ; $i < count($data) ; $i++) {
+    for ($i = 0; $i < count($data); $i++) {
 
         if (!array_key_exists($dataformats[$i], $xls_formats)) {
             throw new Exception('Unknown XLS format '.$dataformats[$i]);

@@ -764,17 +764,17 @@ function report_trainingsessions_print_userinfo(&$pdf, $y, &$user, &$course, $fr
 
     if ($data) {
         $fieldname = get_string('equlearningtime', 'report_trainingsessions');
-        $info = report_trainingsessions_format_time(0 + @$data->elapsed, 'xlsd');
+        $info = report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
         report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
         $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     
         $fieldname = get_string('activitytime', 'report_trainingsessions');
-        $info = report_trainingsessions_format_time(0 + @$data->activityelapsed, 'xlsd');
+        $info = report_trainingsessions_format_time(0 + @$data->activityelapsed, 'html');
         report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
         $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
 
         $fieldname = get_string('othertime', 'report_trainingsessions');
-        $info = report_trainingsessions_format_time((0 + @$data->otherelapsed + @$data->courseelapsed), 'xlsd');
+        $info = report_trainingsessions_format_time((0 + @$data->otherelapsed + @$data->courseelapsed), 'html');
         report_trainingsessions_print_text($pdf, $fieldname, $x, $y, '', '', 'L', 'freesans', 'B', 13);
         $y = report_trainingsessions_print_text($pdf, $info, $x + $dataxoffset, $y, '', '', 'L', 'freesans', '', 13);
     }
@@ -838,20 +838,23 @@ function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure,
     }
 
     if (is_array($structure)) {
-        // recurse in sub structures
+        // Recurse in sub structures.
         foreach ($structure as $element) {
             if (isset($element->instance) && empty($element->instance->visible)) {
-                // non visible items should not be displayed.
+                // Non visible items should not be displayed.
+                debug_trace('Discard non visible');
                 continue;
             }
             if (!empty($config->hideemptymodules) && empty($element->elapsed) && empty($element->events)) {
-                // discard empty items.
+                // Discard empty items.
+                debug_trace('Discard empty');
                 continue;
             }
             report_trainingsessions_print_course_structure($pdf, $y, $element, $aggregate, $table, $level);
         } 
     } else {
         // Prints a single row.
+        debug_trace('Struct element');
 
         if (!isset($structure->instance) || !empty($structure->instance->visible)) {
             // Non visible items should not be displayed.
@@ -878,13 +881,13 @@ function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure,
 
                     if (!empty($config->showhits)) {
                         $dataline[0] = get_string('structuretotal', 'report_trainingsessions', $structure->name);
-                        $dataline[1] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $dataline[1] = report_trainingsessions_format_time($structure->elapsed, 'html');
                         $dataline[2] = $dataobject->events;
                         $table->pdfsize2 = array('70%', '20%', '10%');
                         $y = report_trainingsessions_print_sumline($pdf, $y, $dataline, $table);
                     } else {
                         $dataline[0] = get_string('structuretotal', 'report_trainingsessions', $structure->name);
-                        $dataline[1] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $dataline[1] = report_trainingsessions_format_time($structure->elapsed, 'html');
                         $table->pdfsize2 = array('75%', '25%');
                         $y = report_trainingsessions_print_sumline($pdf, $y, $dataline, $table);
                     }
@@ -895,14 +898,14 @@ function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure,
                     $table->pdfcolor2 = array('#ffffff');
                     if (!empty($config->showhits)) {
                         $dataline[1] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
-                        $dataline[2] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $dataline[2] = report_trainingsessions_format_time($structure->elapsed, 'html');
                         $dataline[3] = $structure->events;
                         $table->pdfsize2 = array('50%', '20%', '20%', '10%');
                         $table->pdfalign2 = array('L', 'L', 'R', 'R');
                         $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
                     } else {
                         $dataline[1] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
-                        $dataline[2] = report_trainingsessions_format_time($structure->elapsed, 'xlsd');
+                        $dataline[2] = report_trainingsessions_format_time($structure->elapsed, 'html');
                         $table->pdfsize2 = array('50%', '25%', '25%');
                         $y = report_trainingsessions_print_dataline($pdf, $y, $dataline, $table);
                     }
@@ -925,7 +928,6 @@ function report_trainingsessions_print_course_structure(&$pdf, &$y, &$structure,
                 $y = report_trainingsessions_check_page_break($pdf, $y, $false, false, false);
 
                 if (!empty($structure->subs)) {
-                    // debug_trace("with subs");
                     array_push($indent, ' ');
                     report_trainingsessions_print_course_structure($pdf, $y, $structure->subs, $aggregate, $table, $level + 1);
                     array_pop($indent);
@@ -1214,7 +1216,7 @@ function report_trainingsessions_print_courseline(&$pdf, $y, &$courseline, &$tab
     $dataline = array();
     $dataline[] = $courseline->idnumber;
     $dataline[] = $courseline->shortname;
-    $dataline[] = report_trainingsessions_format_time($courseline->elapsed, 'xlsd');
+    $dataline[] = report_trainingsessions_format_time($courseline->elapsed, 'html');
     if (!empty($config->showhits)) {
         $dataline[] = $courseline->events;
     }

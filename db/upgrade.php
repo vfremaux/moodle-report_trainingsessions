@@ -35,7 +35,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_report_trainingsessions_upgrade($oldversion) {
-    global $CFG, $DB, $OUTPUT;
+    global $OUTPUT;
 
     $dbman = $DB->get_manager();
 

@@ -103,7 +103,8 @@ if ($groupid) {
     // Filter out non compiling users.
     report_trainingsessions_filter_unwanted_users($targetusers, $course);
 } else {
-    $targetusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.id, '.get_all_user_name_fields(true, 'u').', institution, idnumber', 'lastname');
+    $fields = 'u.id, '.get_all_user_name_fields(true, 'u').', institution, idnumber';
+    $targetusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', $fields, 'lastname', '', '', '', '', true);
 }
 
 // Print result.

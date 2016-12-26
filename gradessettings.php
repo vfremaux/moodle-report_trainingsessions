@@ -30,7 +30,7 @@
 require('../../config.php');
 require_once($CFG->dirroot.'/report/trainingsessions/gradesettings_form.php');
 
-$id = required_param('id', PARAM_INT); // course id
+$id = required_param('id', PARAM_INT); // Course id.
 $from = required_param('from', PARAM_INT);
 $to = required_param('to', PARAM_INT);
 
@@ -55,10 +55,10 @@ $renderer = $PAGE->get_renderer('report_trainingsessions');
 $coursemodinfo = get_fast_modinfo($course->id);
 
 if ($data = $form->get_data()) {
-    // delete all previous recordings
+    // Delete all previous recordings.
     $DB->delete_records('report_trainingsessions', array('courseid' => $COURSE->id));
 
-    // activate course grade
+    // Activate course grade.
     if (!empty($data->coursegrade)) {
         $rec = new StdClass();
         $rec->courseid = $COURSE->id;
@@ -114,7 +114,7 @@ if ($alldata) {
     $form->set_data($form);
 }
 
-// display form.
+// Display form.
 $form->display();
 
 echo $OUTPUT->footer();

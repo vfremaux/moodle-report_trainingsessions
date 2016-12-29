@@ -52,7 +52,7 @@ if ($tdata = $form->get_data()) {
     if (!empty($CFG->trainingreporttasks)) {
         $tasks = unserialize($CFG->trainingreporttasks);
         if (!empty($tasks)) {
-            foreach($tasks as $tid => $t) {
+            foreach ($tasks as $tid => $t) {
                 $maxtaskid = max($maxtaskid, $tid);
             }
         }

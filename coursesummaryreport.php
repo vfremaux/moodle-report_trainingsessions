@@ -22,14 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/*
- * direct log construction implementation
- *
- */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
 // Parameters.
 $selform = new SelectorForm($id, 'course');
@@ -114,8 +112,8 @@ if ($data->groupid) {
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
-// Setup local constants.
-$namedcols = array('id', 'idnumber', 'firstname', 'lastname', 'email', 'activitytime', 'equlearningtime', 'elapsed');
+// Setup column list.
+$namedcols = report_trainingsessions_get_summary_cols();
 $durationcols = array('activitytime', 'equlearningtime', 'elapsed');
 
 // Get base data from moodle and bake it into a local format.
@@ -123,175 +121,107 @@ $courseid = $course->id;
 $coursestructure = report_trainingsessions_get_course_structure($courseid, $items);
 $coursename = $course->fullname;
 
-$gradecolumns = array();
-report_trainingsessions_add_graded_columns($gradecolumns, $formats, $dformats);
+// Initialize summary cols.
+$colskeys = report_trainingsessions_get_summary_cols();
+$colstitles = report_trainingsessions_get_summary_cols('title');
+$colsformats = report_trainingsessions_get_summary_cols('format');
+
+// Add potential additional grading cols.
+report_trainingsessions_add_graded_columns($colskeys, $colstitles, $colsformats);
 
 $summarizedusers = array();
 foreach ($targetusers as $user) {
 
     // Get data from moodle.
-    $logs = use_stats_extract_logs($data->from, $data->to, $user->id);
+    $logs = use_stats_extract_logs($data->from, $data->to, $user->id, $courseid);
     $aggregate = use_stats_aggregate_logs($logs, 'module', $user->id, $data->from, $data->to);
-    /*
-     * sum activity components of the data to get
-     * compose and store a derived user record
-     */
-    $thisuser = array();
-    $thisuser['lastname'] = $user->lastname;
-    $thisuser['firstname'] = $user->firstname;
-    $thisuser['email'] = $user->email;
-    // SADGE SAYS: The following 2 lines were commented out at the request of MISchool - it would probably be sensible to add a configuration option to allow them to be reactivated
-    //$thisuser['activitytime'] = training_reports_format_time($aggregate['activities']->elapsed, $output);
-    //$thisuser['equlearningtime'] = training_reports_format_time($aggregate['activities']->elapsed+@$aggregate['course'][0]->elapsed, $output);
-    $thisuser['elapsed'] = report_trainingsessions_format_time(0 + @$aggregate['coursetotal'][$course->id]->elapsed, $data->output == 'xls' ? 'xlsd' : 'html');
+
+    $weeklogs = use_stats_extract_logs($data->to - DAYSECS * 7, $data->to, array($user->id), $courseid);
+    $weekaggregate = use_stats_aggregate_logs($weeklogs, 'module');
+
+    @$aggregate['coursetotal'][$courseid]->items = $items;
+
+    $elapsed = 0 + @$aggregate['coursetotal'][$course->id]->elapsed;
+
+    $colsdata = report_trainingsessions_map_summary_cols($colskeys, $user, $aggregate, $weekaggregate, $courseid);
 
     // Fetch and add eventual additional score columns.
 
-    $gradedata = array();
-    report_trainingsessions_add_graded_data($gradedata, $user->id);
+    report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
 
-    if (!empty($gradecolumns)) {
-        $gradeduser = array_combine($gradecolumns, $gradedata);
-        foreach ($gradeduser as $k => $v) {
-            $thisuser[$k] = ($v) ? sprintf('%.1f', $v) : '';
-        }
+    // Assemble keys and data.
+    if (!empty($colskeys)) {
+        $userrow = array_combine($colskeys, $colsdata);
+        $summarizedusers[] = $userrow;
     }
-
-    $summarizedusers[] = $thisuser;
 }
 
-if ($data->output == 'html') {
-    echo $OUTPUT->header();
-    echo $OUTPUT->container_start();
-    echo $renderer->tabs($course, $view, $data->from, $data->to);
-    echo $OUTPUT->container_end();
+echo $OUTPUT->header();
+echo $OUTPUT->container_start();
+echo $renderer->tabs($course, $view, $data->from, $data->to);
+echo $OUTPUT->container_end();
 
-    echo $OUTPUT->box_start('block');
-    $data->view = $view;
-    $selform->set_data($data);
-    $selform->display();
-    echo $OUTPUT->box_end();
-}
+echo $OUTPUT->box_start('block');
+$data->view = $view;
+$selform->set_data($data);
+$selform->display();
+echo $OUTPUT->box_end();
 
-// Print result.
-if ($data->output == 'html') {
+// Time and group period form.
+echo '<br/>';
 
-    require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+if (!empty($summarizedusers)) {
+    echo '<table class="coursesummary" width="100%">';
+    // Add a table header row.
+    echo '<tr>';
+    echo '<th></th>';
 
-    // Time and group period form.
-    echo '<br/>';
+    foreach ($colstitles as $title) {
+        echo '<th>'.$title.'</th>';
+    }
+    echo '</tr>';
 
-    if (!empty($summarizedusers)) {
-        echo '<table class="coursesummary" width="100%">';
-        // Add a table header row.
-        echo '<tr><th></th>';
-        foreach (array_values($summarizedusers)[0] as $fieldname => $field) {
+    // Add a row for each user.
+    $line = 1;
+    foreach ($summarizedusers as $auser) {
+        echo '<tr>';
+        echo '<td>'.$line.'</td>';
+        foreach ($auser as $fieldname => $field) {
             if (in_array($fieldname, $namedcols)) {
-                // These are fixed translatable fields.
-                echo '<th>'.get_string($fieldname, 'report_trainingsessions').'</th>';
-            } elseif(in_array($fieldname, $gradecolumns)) {
+                $cssclass = (in_array($fieldname, $namedcols) && !in_array($fieldname, $durationcols)) ? 'left' : 'right';
+                echo '<td class="'.$cssclass.'">'.$field.'</td>';
+            } else if (in_array($fieldname, $colskeys)) {
                 // Those may come from grade columns.
-                echo '<th>'.$fieldname.'</th>';
+                echo '<td>'.$field.'</td>';
             }
         }
         echo '</tr>';
-
-        // Add a row for each user.
-        $line = 1;
-        foreach ($summarizedusers as $user) {
-            echo '<tr><td>'.$line.'</td>';
-            foreach ($user as $fieldname => $field) {
-                if (in_array($fieldname, $namedcols)) {
-                    $cssclass = (in_array($fieldname, $namedcols) && !in_array($fieldname, $durationcols)) ? 'left' : 'right';
-                    echo '<td class="'.$cssclass.'">'.$field.'</td>';
-                } elseif(in_array($fieldname, $gradecolumns)) {
-                    // Those may come from grade columns.
-                    echo '<td>'.$field.'</td>';
-                }
-            }
-            echo '</tr>';
-            ++$line;
-        }
-
-        echo '</table>';
-        echo '<br/>';
-
-        // Add a 'generate XLS' button after the table.
-        $options['id']      = $course->id;
-        $options['groupid'] = $data->groupid;
-        $options['from']    = $data->from;            // Alternate way.
-        $options['to']      = $data->to;              // Alternate way.
-        $options['output']  = 'xls';            // Ask for XLS.
-        $options['asxls']   = 'xls';            // Force XLS for index.php.
-        $options['view']    = 'coursesummary';  // Force course summary view.
-        echo '<center>';
-        $label = get_string('generateXLS', 'report_trainingsessions');
-        echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/index.php', $options), $label);
-        echo '</center>';
-        echo '<br/>';
-    } else {
-        echo $OUTPUT->notification('nousersfound');
+        ++$line;
     }
 
+    echo '</table>';
+    echo '<br/>';
+
+    echo '<center>';
+
+    $params = array('id' => $course->id,
+                    'groupid' => $data->groupid,
+                    'from' => $data->from,
+                    'to' => $data->to);
+    $label = get_string('generateCSV', 'report_trainingsessions');
+    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/task/groupcsvreportsummary_batch_task.php', $params), $label);
+
+    // Add a 'generate XLS' button after the table.
+    $params = array('id' => $course->id,
+                    'groupid' => $data->groupid,
+                    'from' => $data->from,
+                    'to' => $data->to);
+    $label = get_string('generateXLS', 'report_trainingsessions');
+    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/task/groupxlsreportsummary_batch_task.php', $params), $label);
+
+    echo '</center>';
+    echo '<br/>';
 } else {
-    // generate XLS.
-
-    // Include xls libraries.
-    require_once($CFG->libdir.'/excellib.class.php');
-    require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
-
-    // Work out a name for the output file.
-    if ($data->groupid) {
-        $filename = 'training_group_'.$data->groupid.'_'.$id.'_summary_'.date('d-M-Y', time()).'.xls';
-    } else {
-        $filename = 'training_course_'.$id.'_summary_'.date('d-M-Y', time()).'.xls';
-    }
-
-    // Initialise the workbook object.
-    $workbook = new MoodleExcelWorkbook("-");
-    if (!$workbook) {
-        die("Null workbook");
-    }
-    $workbook->send($filename);
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
-    $worksheet = $workbook->add_worksheet($coursename);
-    $worksheet->set_column(0, count($summarizedusers[0]) - 1, 30);
-
-    // Add a table header row.
-    $col = 0;
-    foreach ($summarizedusers[0] as $fieldname => $field) {
-        if (in_array($fieldname, $namedcols)) {
-            $worksheet->write_string(0, $col, get_string($fieldname, 'report_trainingsessions'), $xls_formats['tt']);
-        } else {
-            // Eventually coming from variable grade column.
-            $worksheet->write_string(0, $col, $fieldname, $xls_formats['tt']);
-        }
-        ++$col;
-    }
-
-    // Add a row for each user.
-    $row = 1;
-    foreach ($summarizedusers as $user) {
-        $col = 0;
-        foreach ($user as $fieldname => $field) {
-            if (in_array($fieldname, $namedcols)) {
-                // This is a named column so content is either text or duration.
-                if (in_array($fieldname, $durationcols)) {
-                    if ($field) {
-                        $worksheet->write_number($row, $col, $field, $xls_formats['zt']);
-                    }
-                } else {
-                    $worksheet->write_string($row, $col, $field, $xls_formats['z']);
-                }
-            }else{
-                // This is a grade column so content is numeric.
-                $worksheet->write_number($row, $col, $field, $xls_formats['z']);
-            }
-            ++$col;
-        }
-        ++$row;
-    }
-
-    $workbook->close();
+    echo $OUTPUT->notification('nousersfound');
 }
 

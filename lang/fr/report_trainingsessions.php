@@ -29,9 +29,11 @@ $string['trainingsessions:iscompiled'] = 'Apparaît dans les rapports';
 $string['trainingsessions:downloadreports'] = 'Peut télécharger les rapports';
 $string['trainingsessions:batch'] = 'Peut programmer des rapports';
 
-$string['activitytime'] = 'Temps dans les activités ';
+$string['activitytime'] = 'Temps dans les activités&nbsp;';
 $string['addmodulelabel'] = 'Ajouter une activité';
 $string['addmoduletitle'] = 'Ajouter une activité dont la note doit apparaître dans le rapport';
+$string['addtimebonus'] = 'Bonus de note par le temps passé';
+$string['addtimegrade'] = 'Note de temps passé';
 $string['advancement'] = 'Avancement';
 $string['allcourses'] = 'Tous les cours';
 $string['allgroups'] = 'Tous les groupes';
@@ -40,50 +42,56 @@ $string['asxls'] = 'Télécharger au format Excel';
 $string['authoritysign'] = 'Signature de la direction des Etudes';
 $string['batchdate'] = 'Date de la tâche';
 $string['batchreports_task'] = 'Rapports différés';
+$string['bgcolor'] = 'Couleur du fond';
+$string['binary'] = 'Sortie binaire';
+$string['bonusgrademode'] = 'Modalité du bonus de temps';
 $string['checklistadvice'] = 'Effet de bords sur la completion';
 $string['chooseagroup'] = 'Choisir un groupe';
 $string['chooseaninstitution'] = 'Choisir une institution';
-$string['columnname'] = 'Nom de colonne : ';
 $string['colors'] = 'Couleurs';
-$string['textcolor'] = 'couleur du texte';
-$string['bgcolor'] = 'Couleur du fond';
-$string['textapplication'] = 'La couleur par défaut du texte.';
-$string['head1application'] = 'Le jeu de couleurs 1 s\'applique à la rangée de "surtitres" lorsqu\'elle existe.';
-$string['head2application'] = 'Le jeu de couleurs  2 s\'applique à la rangée de titre immédiatement au dessus des colonnes de données. C\'est le cas le plus courant.';
-$string['head3application'] = 'Le jeu de couleurs 3 s\'applique à la rangée finale de totaux, lorsqu\'applicable.';
+$string['columnname'] = 'Nom de colonne&nbsp;:&ensp;';
 $string['connections'] = 'Connexions';
 $string['contiguoussessions'] = 'Sessions contigües';
+$string['continuous'] = 'Sortie continue';
 $string['coupling'] = 'Couplage';
 $string['course'] = 'Formation';
 $string['courseglobals'] = 'Espaces généraux du cours';
 $string['coursegrade'] = 'Score (cours)';
-$string['courselabel'] = 'dans la colonne : ';
+$string['courselabel'] = 'dans la colonne&nbsp;:&ensp;';
 $string['coursename'] = 'Nom du groupe';
 $string['courseraw'] = 'Batchs';
 $string['coursesessions'] = 'Sessions de travail pour ce cours (au réel plateforme)';
 $string['coursestart'] = 'Début du cours';
+$string['coursesummary'] = 'Résumé par participant';
+$string['coursetime'] = 'Temps dans le cours (hors activités)&nbsp;';
+$string['coursetotaltime'] = 'Temps total dans le cours&nbsp;';
 $string['crop'] = 'Tronquer';
 $string['csv'] = 'Texte (CSV)';
-$string['csvseparator'] = 'Séparateur CSV';
 $string['csvoutputtoiso'] = 'CSV au format ISO';
 $string['currentcourse'] = 'Cours courant';
 $string['disabled'] = '|--------- non actif -----------|';
+$string['discrete'] = 'Sortie discrète';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps passé';
 $string['elapsedadvice'] = 'Les durées affichées de vos sessions de travail peuvent différer légèrement des mesures du cours affichées ci-dessus. Ces sessions peuvent en effet calculer des temps que vous avez passé pendant la même session de connexion, mais dans d\'autres volumes de cours où vous êtes inscrit.';
+$string['email'] = 'Mail';
 $string['enablecoursescore'] = 'Ajouter la note globale de cours';
 $string['enablelearningtimecheckcoupling'] = 'Activer le couplage LTC';
 $string['enablelearningtimecheckcoupling_desc'] = 'Si coché, les rapports de session utiliseront les paramètres (périodes ouvrées) du rapport de temps d\'apprentissage pour qualifier les sessions.';
 $string['enddate'] = 'Date de fin';
 $string['enterprisesign'] = 'Signature de l\'entreprise';
-$string['equlearningtime'] = 'Temps équivalent de formation : ';
+$string['equlearningtime'] = 'Temps équivalent de formation&nbsp;:&ensp;';
+$string['errorcontinuousscale'] = 'Vous ne pouvez pas utiliser de barème en mode continu.';
 $string['errorcoursetoolarge'] = 'Le cours a trop de participants. Choix forcé d\'un groupe';
+$string['errordiscretenoranges'] = 'Vous devez définir des plages de note lorsque vous utilisez une modalité "discrète".';
 $string['errornotingroup'] = 'Vous n\'avez pas accès à tous les groupes et n\'êtes membre d\'aucun groupe.';
 $string['evaluating'] = 'Evaluation';
 $string['executing'] = 'Formation';
 $string['extrauserinfo'] = 'Information utilisateur additionnelle';
 $string['extrauserinfo_desc'] = 'Vous pouvez éventuellement ajouter des informations utilisateur dans les rapports';
+$string['fail'] = 'NON ACQUIS';
+$string['filetimesuffixformat'] = 'Ymd_His';
 $string['firstaccess'] = 'Premier accès';
 $string['firstconnection'] = 'Première connexion';
 $string['firstenrolldate'] = 'Première date d\'inscription';
@@ -94,23 +102,30 @@ $string['generatePDF'] = 'Générer en PDF';
 $string['generateXLS'] = 'Générer en XLS';
 $string['generatereports'] = 'Générer les rapports';
 $string['gradesettings'] = 'Notes';
+$string['head1application'] = 'Le jeu de couleurs 1 s\'applique à la rangée de "surtitres" lorsqu\'elle existe.';
+$string['head2application'] = 'Le jeu de couleurs  2 s\'applique à la rangée de titre immédiatement au dessus des colonnes de données. C\'est le cas le plus courant.';
+$string['head3application'] = 'Le jeu de couleurs 3 s\'applique à la rangée finale de totaux, lorsqu\'applicable.';
 $string['headsection'] = 'Section d\'en-tête';
-$string['hits'] = 'Evénéments ';
-$string['hitslastweek'] = 'Hits dernière semaine';
 $string['hideemptymodules'] = 'Cacher les modules vides';
 $string['hideemptymodules_desc'] = 'Si actif, les modules sans temps ne seront pas affichés dans le rapport.';
+$string['hits'] = 'Evénéments ';
+$string['hitslastweek'] = 'Hits dernière semaine';
+$string['id'] = 'ID';
+$string['idnumber'] = 'N° d\'identification';
 $string['in'] = 'Temps intra';
 $string['incourses'] = 'Dans les cours';
 $string['insessiontime'] = 'Temps total valides';
 $string['institution'] = 'Etablissement';
 $string['institutions'] = 'Etablissements';
+$string['instructure'] = 'Activités du cours';
 $string['instructure'] = 'Temps dans les activités';
 $string['interactive'] = 'Interactif';
 $string['interactivetitle'] = 'Compilez ce rapport maintenant !';
-$string['instructure'] = 'Activités du cours';
 $string['item'] = 'Elément';
 $string['items'] = 'Eléments ';
+$string['json'] = 'JSON';
 $string['lastaccess'] = 'Dernier accès';
+$string['lastlogin'] = 'Dernière conn.';
 $string['lastname'] = 'Nom';
 $string['layout'] = 'Mise en page';
 $string['learningtimesessioncrop'] = 'Avec les sessions hors plage valide';
@@ -123,6 +138,7 @@ $string['modulegrades'] = 'Scores des activités';
 $string['never'] = 'Jamais';
 $string['newtask'] = 'Ajouter un batch';
 $string['nodata'] = 'Aucune donnée de cours';
+$string['noextragrade'] = 'Aucune';
 $string['nopermissiontoview'] = 'Vous n\'avez pas les permissions nécessaires dans ce cours pour voir ces données';
 $string['nosessions'] = 'Aucune session disponible';
 $string['nostructure'] = 'Pas de structure mesurable identifiée';
@@ -130,15 +146,20 @@ $string['nothing'] = 'Aucun utilisateur à compiler';
 $string['now'] = 'Maintenant !';
 $string['onefulluserpersheet'] = 'Un participant (complet) par feuille';
 $string['oneuserperrow'] = 'Un participant (résumé) par ligne dans une feuille unique';
-$string['othertime'] = 'Autres temps du cours ';
+$string['othertime'] = 'Autres temps du cours&nbsp;';
 $string['out'] = 'Temps extra ';
 $string['outofgroup'] = 'Hors groupe';
-$string['outofstructure'] = 'Autres temps du cours ';
+$string['outofstructure'] = 'Autres temps du cours&nbsp;';
+$string['output:finalcoursegrade'] = 'Note finale&nbsp;';
+$string['output:rawcoursegrade'] = 'Note brute du cours&nbsp;';
+$string['output:timebonus'] = 'Bonus de temps&nbsp;';
+$string['output:timegrade'] = 'Note de temps&nbsp;';
 $string['outputdir'] = 'Répertoire de sortie';
 $string['outputdirectory'] = 'Répertoire de sortie (dans les fichiers du cours)';
 $string['outsessiontime'] = 'Temps total hors validation';
 $string['over'] = 'sur';
 $string['parts'] = 'Parties';
+$string['pass'] = 'ACQUIS';
 $string['pdf'] = 'PDF';
 $string['pdfabsoluteverticaloffset'] = 'Décalage vertical absolu';
 $string['pdfabsoluteverticaloffset_desc'] = 'Donne l\'offset vertical de debut du document pour la génération PDF (dépend de la taille de l\'en-tête - en mm).';
@@ -186,23 +207,31 @@ $string['sessionreportdoctitle'] = 'Rapport de sessions';
 $string['sessionreports'] = 'Rapports de formation individuel';
 $string['sessionreporttitle'] = 'Titre du rapport de session';
 $string['sessionreporttitle_desc'] = 'Imprimé sur la première page du rapport de session individuel';
-$string['sessions'] = 'Sessions de travail';
+$string['sessions'] = 'Sessions de travail&nbsp;';
 $string['sessionsonly'] = 'Rapports de session seulement';
 $string['sessionstart'] = 'Début de session';
-$string['singleexec'] = 'Exécuter une fois';
-$string['siteglobals'] = 'Site (zones hors cours)';
-$string['startdate'] = 'Date de début';
-$string['structureitem'] = 'Elément de cours';
-$string['studentsign'] = 'Signature de l\'étudiant';
-$string['structuretotal'] = 'Total {$a} :';
 $string['showhits'] = 'Afficher les événements';
 $string['showhits_desc'] = 'Si actif, le nombre d\'événements est affiché dans les sorties CSV';
+$string['singleexec'] = 'Exécuter une fois';
+$string['siteglobals'] = 'Site (zones hors cours)';
+$string['specialgrades'] = 'Notes spéciales';
+$string['startdate'] = 'Date de début';
+$string['structureitem'] = 'Elément de cours';
+$string['structuretotal'] = 'Total {$a} :';
+$string['studentsign'] = 'Signature de l\'étudiant';
+$string['summarycolumns'] = 'Colonnes de sortie dans le rapport résumé.';
 $string['task'] = 'Tâche {$a} ';
 $string['taskname'] = 'Batch';
 $string['taskrecorded'] = 'Batch enregistré ';
 $string['teachersign'] = 'Signature de l\'enseignant';
+$string['textapplication'] = 'La couleur par défaut du texte.';
+$string['textcolor'] = 'couleur du texte';
 $string['timeelapsed'] = 'Temps Passé';
 $string['timeelapsedcurweek'] = 'Temps de la semaine';
+$string['timegrade'] = 'Source de la note';
+$string['timegrademode'] = 'Modalité de sortie';
+$string['timegraderanges'] = 'Plages de notation sur le temps';
+$string['timesource'] = 'Source du temps passé';
 $string['timeperpart'] = 'Temps par partie';
 $string['timespent'] = 'Temps passé';
 $string['timespentlastweek'] = 'Temps dernière semaine';
@@ -227,19 +256,38 @@ $string['updatefromcoursestart'] = 'A partir du début de la formation';
 $string['uploadglobals'] = 'Téléchargements';
 $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
-$string['coursesummary'] = 'Résumé du participant';
-$string['usersummary'] = 'Résumé du participant';
+$string['userdetail'] = 'Détail du participant';
 $string['userlist'] = 'Une ligne par participant';
 $string['usersheets'] = 'Un rapport (feuilles) par participant';
+$string['usersummary'] = 'Résumé du participant';
 $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
-$string['workingsessions'] = 'Sessions de travail ';
+$string['workingsessions'] = 'Sessions de travail&nbsp;';
 $string['xls'] = 'XLS';
-$string['id'] = 'ID';
-$string['idnumber'] = 'N° d\'identification';
-$string['email'] = 'Mail';
+
+$string['proversionrequired'] = '
+<p>Vous essayez d\'accéder à une fonction qui n\'est disponible que sur la version "Pro" de ce plugin. La version "Pro" de
+ce plugin est une version payante (engagement de tierce maintenance applicative) qui nous permet d\'assurer à long terme le
+cycle de vie du plugin, de fournir une assurance qualité, développer des tests, et apporter un support à nos clients.</p>
+
+<p>Vous pouvez obtenir la version "Pro" auprès de nos distributeurs. Vous trouverez la liste des distributeurs à l\'adresse :</p>
+
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs">Liste des distributeurs</a></p>
+';
+
+$string['timegraderanges_help'] = '
+La définition des plages de notation permet de découper la grandeur "temps passé" en intervalles de notation discrète. en mode "binaire", 
+entrez une seule valeur de seuil (en minutes). En mode "Discret", entrez une liste séparée par des virgules de temps exprimés en minutes.
+Avec N seuils, vous définirez N+1 intervalles. Le dernier intervalle vaut pour "au dessus de".
+';
 
 $string['csvoutputtoiso_desc'] = 'Si activé, le rapport brut de cours sortira au format ISO-8859-1 pour les applications anciennes.';
+
+$string['summarycolumns_desc'] = '
+<p>Vous pouvez supprimer ou rétablir des colonnes en ajoutant ou supprimant le # en début de ligne. Vous pouvez réordonner l\'ordre de
+sortie en réordonnant la liste.</p>
+<p>(Clefs de format : a pour texte, t pour date, d pour durée, n pour numerique).</p>
+';
 
 $string['totalsessiontime_help'] = 'Notez que le calcul de temps de session peut tenir compte de temps hors de ce cours.
  Le temps total en session sera normalement supérieur au temps mesurés dans ce cours.';
@@ -253,6 +301,11 @@ $string['activitytime_help'] = 'Ce temps comptabilise les temps passés dans les
     (utilisation du module Learning Time Check -- 
     http://github.com/vfremaux/moodle-mod_learningtimecheck.git), les
     temps forfaitisés associés aux activités plutot que les temps mesurés sur les traces.';
+
+$string['coursetotaltime_help'] = '
+<p>Le temp total du cours compte les temps passés dans les activités, dans les structures générales du cours, ainsi que
+des temps annexes à la session du cours (acheminement vers le cours, passage dans des écrans utilisateur, etc.).</p>
+';
 
 $string['equlearningtime_help'] = '
 <p>Le temps équivalent de formation tient compte de tous les temps passés dans le cours

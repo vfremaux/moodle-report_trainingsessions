@@ -108,3 +108,45 @@ function report_trainingsessions_print_course_structure(&$csvbuffer, &$structure
         }
     }
 }
+
+/**
+ * A raster for printing in raw format with all the relevant data about a user.
+ * @param int $userid user to compile info for
+ * @param int $courseid the course to compile reports in
+ * @param objectref &$data input data to aggregate. Provides time information as 'elapsed" and 'weekelapsed' members.
+ * @param string &$rawstr the output buffer reference. Column names come from outside.
+ * @param int $from compilation start time
+ * @param int $to compilation end time
+ * @return void. $rawstr is appended by reference.
+ */
+function report_trainingsessions_print_global_raw($courseid, &$cols, &$user, &$aggregate, &$weekaggregate, &$rawstr) {
+    global $COURSE, $DB;
+
+    $config = get_config('report_trainingsessions');
+
+    $colsdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $courseid);
+
+    // Add grades.
+    report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
+
+    if (!empty($config->csv_iso)) {
+        $rawstr .= mb_convert_encoding(implode(';', $colsdata)."\n", 'ISO-8859-1', 'UTF-8');
+    } else {
+        $rawstr .= implode(';', $colsdata)."\n";
+    }
+}
+
+function report_trainingsessions_print_global_header(&$csvbuffer) {
+
+    $config = get_config('report_trainingsessions');
+
+    $colskeys = report_trainingsessions_get_summary_cols();
+
+    report_trainingsessions_add_graded_columns($colskeys, $footitles);
+
+    if (!empty($config->csv_iso)) {
+        $csvbuffer = mb_convert_encoding(implode(';', $colskeys)."\n", 'ISO-8859-1', 'UTF-8');
+    } else {
+        $csvbuffer = implode(';', $colskeys)."\n";
+    }
+}

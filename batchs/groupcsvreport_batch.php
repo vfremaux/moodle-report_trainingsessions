@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script handles the report generation in batch task for a single group. 
+ * This script handles the report generation in batch task for a single group.
  * It may produce a group csv report.
- * groupid must be provided. 
+ * groupid must be provided.
  * This script should be sheduled in a redirect bouncing process for maintaining
- * memory level available for huge batches. 
+ * memory level available for huge batches.
  *
  * The global course final grade can be selected along with specified modules to get score from.
  *
@@ -35,18 +35,18 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 $maxbatchduration = 4 * HOURSECS;
 
-$id = required_param('id', PARAM_INT) ; // the course id
-$from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
-$to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
-$groupid = optional_param('groupid', '', PARAM_INT) ; // compiling for given group or all groups
-$outputdir = optional_param('outputdir', 'autoreports', PARAM_TEXT) ; // where to put the file
-$reportlayout = optional_param('reportlayout', 'onefulluserpersheet', PARAM_TEXT) ; // where to put the file
-$reportscope = optional_param('reportscope', 'onefulluserpersheet', PARAM_TEXT) ; // allcourses or currentcourse
+$id = required_param('id', PARAM_INT); // The course id.
+$from = optional_param('from', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
+$to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
+$groupid = optional_param('groupid', '', PARAM_INT); // Compiling for given group or all groups.
+$outputdir = optional_param('outputdir', 'autoreports', PARAM_TEXT); // Where to put the file.
+$reportlayout = optional_param('reportlayout', 'onefulluserpersheet', PARAM_TEXT); // Where to put the file.
+$reportscope = optional_param('reportscope', 'onefulluserpersheet', PARAM_TEXT); // Allcourses or currentcourse.
 $reportformat = 'csv';
 
 if ($reportlayout == 'onefulluserpersheet') {
     print_error('unsupported', 'report_trainingsessions');
-} elseif ($reportlayout == 'oneuserperrow') {
+} else if ($reportlayout == 'oneuserperrow') {
     $reporttype = 'summary';
     $range = 'group';
 } else {
@@ -62,23 +62,27 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security.
+
 trainingsessions_back_office_access($course);
 
-// calculate start time. Defaults ranges to all course range.
+// Calculate start time. Defaults ranges to all course range.
 
-if ($from == -1) { // maybe we get it from parameters
+if ($from == -1) {
+    // Maybe we get it from parameters.
     $from = $course->startdate;
 }
 
-if ($to == -1) { // maybe we get it from parameters
+if ($to == -1) {
+    // Maybe we get it from parameters.
     $to = time();
 }
 
-// compute target groups
+// Compute target groups.
 $groups = report_trainingsessions_compute_groups($id, $groupid, $range);
 
 $timesession = time();
 $sessionday = date('Ymd', $timesession);
+$filenametimesession = date(get_string('filetimesuffixformat', 'report_trainingsessions'), $timesession);
 
 $testmax = 5;
 $i = 0;
@@ -88,8 +92,6 @@ $uri = new moodle_url('/report/trainingsessions/tasks/'.$range.$reportformat.'re
 foreach ($groups as $group) {
 
     $group = array_shift($groups);
-    // for unit test only
-    // if ($i > $testmax) continue;
     $i++;
 
     if ($range == 'user') {
@@ -97,14 +99,15 @@ foreach ($groups as $group) {
 
         $targetusers = $group->target;
 
-        // filters teachers out
+        // Filters teachers out.
         report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
         if (!empty($targetusers)) {
 
             $current = time();
             if ($current > $timesession + $maxbatchduration) {
-                die("Could not finish batch. Too long");
+                mtrace("Could not finish batch. Too long");
+                return;
             }
 
             foreach ($targetusers as $user) {
@@ -114,7 +117,7 @@ foreach ($groups as $group) {
                 $filerec->filearea = 'reports';
                 $filerec->itemid = $course->id;
                 $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".date('Y-M-d', time()).".csv";
+                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".$filenametimesession.".csv";
 
                 report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
             }
@@ -130,7 +133,7 @@ foreach ($groups as $group) {
         $filerec->filearea = 'reports';
         $filerec->itemid = $course->id;
         $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".date('Y-M-d', time()).".csv";
+        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".$filenametimesession.".csv";
 
         report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
     }

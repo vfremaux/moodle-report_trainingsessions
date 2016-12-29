@@ -43,8 +43,10 @@ class batchreports_task extends \core\task\scheduled_task {
      * Run trainingsessions cron.
      */
     public function execute() {
-        global $CFG;
-        require_once($CFG->dirroot.'/report/trainingsessions/cronlib.php');
+
+        // Requires community or pro version if available.
+        report_trainingsessions_plugin_require('/report/trainingsessions/cronlib.php');
+
         report_trainingsessions_cron();
     }
 }

@@ -3,7 +3,7 @@ moodle-report_trainingsessions
 
 A structured report of use time using use_stats bloc time compliations.
 
-Provides : 
+Provides: 
 
 - Student individual details report :
 - Use time detailed in course structure
@@ -22,12 +22,15 @@ Block moodle-auth_ticket for securing batch CURL tasks distribution.
 Versions:
 =========
 Moodle < 2.7 not supprted any more. 
-active branches : 
-MOODLE_27_STABLE
-MOODLE_28_STABLE
-MOODLE_29_STABLE
-MOODLE_30_STABLE
-MOODLE_31_STABLE
+active branches: 
+- MOODLE_27_STABLE
+- MOODLE_28_STABLE
+- MOODLE_29_STABLE
+- MOODLE_30_STABLE
+- MOODLE_31_STABLE
+
+Next comming branches:
+- MOODLE_32_STALE
 
 WORKING branches are unstable and used for continuous integration automated tests.
 
@@ -36,3 +39,10 @@ A "Pro" featured version is available from our Distributors.
 
 ActiveProLearn SAS (sales@activeprolearn.com)
 Edunao SAS (cyril@edunao.com)
+
+Pro version provides:
+- Batch parallel execution using MultiCurl
+- PDF renderers and generators
+- JSON renderers and generators
+- LearningTimeCheck time credits coupling
+- Laborable/non laborable separation

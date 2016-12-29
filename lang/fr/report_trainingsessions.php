@@ -262,7 +262,7 @@ $string['usersheets'] = 'Un rapport (feuilles) par participant';
 $string['usersummary'] = 'Résumé du participant';
 $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
-$string['workingsessions'] = 'Sessions de travail';
+$string['workingsessions'] = 'Sessions de travail&nbsp;';
 $string['xls'] = 'XLS';
 
 $string['proversionrequired'] = '

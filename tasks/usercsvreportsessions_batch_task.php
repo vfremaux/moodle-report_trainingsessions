@@ -56,10 +56,10 @@ trainingsessions_back_office_access($course);
 
 // TODO : secure groupid access depending on proper capabilities
 
-// calculate start time
+// Calculate start time.
 
 if ($from == -1) {
-    // maybe we get it from parameters
+    // Maybe we get it from parameters.
     if ($startday == -1 || $fromstart) {
         $from = $course->startdate;
     } else {
@@ -72,7 +72,7 @@ if ($from == -1) {
 }
 
 if ($to == -1) {
-    // maybe we get it from parameters
+    // Maybe we get it from parameters.
     if ($endday == -1) {
         $to = time();
     } else {
@@ -85,7 +85,7 @@ if ($to == -1) {
 }
 
 $user = $DB->get_record('user', array('id' => $userid));
-// echo "Generating for user $user->id ";
+
 // Print result.
 if (!empty($user)) {
 
@@ -93,8 +93,8 @@ if (!empty($user)) {
     report_trainingsessions_print_session_header($csvbuffer);
     $y = report_trainingsessions_print_usersessions($csvbuffer, $userid, 0, $from, $to, $id);
 
-    // Sending HTTP headers
-    // ob_end_clean();
+    // Sending HTTP headers.
+    ob_end_clean();
     header("Content-Type: text/plain\n\n");
     echo $csvbuffer;
 

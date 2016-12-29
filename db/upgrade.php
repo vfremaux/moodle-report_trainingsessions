@@ -35,7 +35,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 function xmldb_report_trainingsessions_upgrade($oldversion) {
-    global $CFG, $DB, $OUTPUT;
+    global $DB;
 
     $dbman = $DB->get_manager();
 
@@ -67,6 +67,25 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
         }
 
         upgrade_plugin_savepoint(true, 2015092201, 'report', 'trainingsessions');
+    }
+
+    if ($oldversion < 2016122400) {
+        // Define table report_trainingsessions to be created.
+        $table = new xmldb_table('report_trainingsessions');
+
+        $field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, 10, null, null, null, null, 'sortorder');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('ranges', XMLDB_TYPE_CHAR, 255, null, null, null, null, 'grade');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2016122400, 'report', 'trainingsessions');
     }
 
     return true;

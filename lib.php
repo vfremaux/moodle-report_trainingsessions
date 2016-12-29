@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * This file contains functions used by the trainingsessions report
  *
@@ -24,6 +22,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright  2012 Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * This function extends the navigation with the report items
@@ -35,15 +34,16 @@ defined('MOODLE_INTERNAL') || die;
 function report_trainingsessions_extend_navigation_course($navigation, $course, $context) {
     if (has_capability('report/trainingsessions:view', $context)) {
         $url = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id));
-        $navigation->add(get_string('pluginname', 'report_trainingsessions'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+        $label = get_string('pluginname', 'report_trainingsessions');
+        $navigation->add($label, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 }
 
 function report_trainingsessions_page_type_list($pagetype, $parentcontext, $currentcontext) {
     $array = array(
-        '*'                          => get_string('page-x', 'pagetype'),
-        'report-*'                   => get_string('page-report-x', 'pagetype'),
-        'report-trainingsessions-*'     => get_string('page-report-trainingsessions-x',  'report_trainingsessions'),
+        '*' => get_string('page-x', 'pagetype'),
+        'report-*' => get_string('page-report-x', 'pagetype'),
+        'report-trainingsessions-*' => get_string('page-report-trainingsessions-x',  'report_trainingsessions'),
         'report-trainingsessions-index' => get_string('page-report-trainingsessions-index',  'report_trainingsessions'),
     );
     return $array;
@@ -94,12 +94,11 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
     $itemid = array_shift($args);
     $filename = array_pop($args);
     $filepath = $args ? '/'.implode('/', $args).'/' : '/';
-    // echo " $context->id, 'report_trainingsessions', $filerarea, $itemid, $filepath, $filename ";
     if (!$file = $fs->get_file($context->id, 'report_trainingsessions', $filearea, $itemid, $filepath, $filename) or $file->is_directory()) {
         send_file_not_found();
     }
 
-    send_stored_file($file, 60*60, 0, true);
+    send_stored_file($file, 60 * 60, 0, true);
 }
 
 /**
@@ -109,7 +108,7 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
  *
  * @return bool returns true if the store is supported by the report, false otherwise.
  */
-function report_trainingsessions_supports_logstore($instance) {
+function report_trainingsessions_supports_feature_logstore($instance) {
     if ($instance instanceof \core\log\sql_internal_reader || $instance instanceof \logstore_legacy\log\store) {
         return true;
     }

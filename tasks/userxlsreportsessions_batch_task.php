@@ -15,19 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    report_trainingsessions
- * @category   report
- * @version    moodle 2.x
- * @author     Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-/**
  * This script handles the session report generation in batch task for a single user.
  * It will produce a single PDF report that is pushed immediately to output
  * for downloading by a batch agent. No file is stored into the system.
  * userid must be provided.
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
+ *
+ * @package    report_trainingsessions
+ * @category   report
+ * @author     Valery Fremaux (valery.fremaux@gmail.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require('../../../config.php');
@@ -38,95 +35,49 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
-$id = optional_param('id', 0, PARAM_INT) ; // the course id
-$userid = required_param('userid', PARAM_INT) ; // user id
-$startday = optional_param('startday', -1, PARAM_INT) ; // from (-1 is from course start)
-$startmonth = optional_param('startmonth', -1, PARAM_INT) ; // from (-1 is from course start)
-$startyear = optional_param('startyear', -1, PARAM_INT) ; // from (-1 is from course start)
-$endday = optional_param('endday', -1, PARAM_INT) ; // to (-1 is till now)
-$endmonth = optional_param('endmonth', -1, PARAM_INT) ; // to (-1 is till now)
-$endyear = optional_param('endyear', -1, PARAM_INT) ; // to (-1 is till now)
-$fromstart = optional_param('fromstart', 0, PARAM_INT) ; // force reset to course startdate
-$from = optional_param('from', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
-$to = optional_param('to', -1, PARAM_INT) ; // alternate way of saying from when for XML generation
-$timesession = optional_param('timesession', time(), PARAM_INT) ; // time of the generation batch
-$readabletimesession = date('Ymd_H_i_s', $timesession);
-$sessionday = date('Ymd', $timesession);
+$id = required_param('id', PARAM_INT) ; // The course id.
+$userid = required_param('userid', PARAM_INT) ; // The user id.
 
 ini_set('memory_limit', '512M');
 
-if ($id) {
-    if (!$course = $DB->get_record('course', array('id' => $id))) {
-        die ('Invalid course ID');
-    }
-    $context = context_course::instance($course->id);
+if (!$course = $DB->get_record('course', array('id' => $id))) {
+    die ('Invalid course ID');
+}
+$context = context_course::instance($course->id);
 
-    // Security
-    report_trainingsessions_back_office_access($course);
-} else {
-    report_trainingsessions_back_office_access();
+if (!$user = $DB->get_record('user', array('id' => $userid))) {
+    // Do NOT print_error here as we are a document writer.
+    die ('Invalid user ID');
 }
 
-// TODO : secure groupid access depending on proper capabilities
+$input = report_trainingsessions_batch_input($course);
 
-// calculate start time
+// Security.
+report_trainingsessions_back_office_access($course);
 
-if ($from == -1) {
-    // maybe we get it from parameters
-    if ($startday == -1 || $fromstart) {
-        $from = $course->startdate;
-    } else {
-        if ($startmonth != -1 && $startyear != -1) {
-            $from = mktime(0, 0, 8, $startmonth, $startday, $startyear);
-        } else {
-            print_error('Bad start date');
-        }
-    }
+// Generate XLS.
+
+$filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.'.xls';
+
+$workbook = new MoodleExcelWorkbook("-");
+if (!$workbook) {
+    die("Excel Librairies Failure");
 }
 
-if ($to == -1) {
-    // maybe we get it from parameters
-    if ($endday == -1) {
-        $to = time();
-    } else {
-        if ($endmonth != -1 && $endyear != -1) {
-            $to = mktime(0,0,8,$endmonth, $endday, $endyear);
-        } else {
-            print_error('Bad end date');
-        }
-    }
-}
+// Sending HTTP headers.
+ob_end_clean();
+$workbook->send($filename);
 
-$user = $DB->get_record('user', array('id' => $userid));
+$xls_formats = report_trainingsessions_xls_formats($workbook);
+$startrow = 15;
 
-// Print result.
-if (!empty($user)) {
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
 
-    // generate XLS
+report_trainingsessions_print_usersessions($worksheet, $userid, $startrow, $input->from, $input->to, $id, $xls_formats);
 
-    $filename = "trainingsessions_user_{$userid}_report_".date('d-M-Y', time()).".xls";
+// Sending HTTP headers.
+ob_end_clean();
 
-    $workbook = new MoodleExcelWorkbook("-");
-    if (!$workbook) {
-        die("Excel Librairies Failure");
-    }
+$workbook->close();
 
-    // Sending HTTP headers
-    ob_end_clean();
-    $workbook->send($filename);
-
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
-    $startrow = 15;
-
-    $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-
-    report_trainingsessions_print_usersessions($worksheet, $userid, $startrow, $from, $to, $id, $xls_formats);
-
-    // Sending HTTP headers
-    ob_end_clean();
-
-    $workbook->close();
-
-}
 exit(0);
-// echo '200';

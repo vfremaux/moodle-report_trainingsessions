@@ -26,7 +26,6 @@
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require('../../config.php');
 require_once($CFG->dirroot.'/report/trainingsessions/gradesettings_form.php');
 
@@ -43,7 +42,8 @@ $context = context_course::instance($course->id);
 require_course_login($course);
 require_capability('report/trainingsessions:downloadreports', $context);
 
-$url = new moodle_url('/report/trainingsessions/index.php', array('id' => $id));
+$params = array('id' => $id, 'from' => $from, 'to' => $to);
+$url = new moodle_url('/report/trainingsessions/gradessettings.php', $params);
 $PAGE->set_url($url);
 $PAGE->set_heading(get_string('gradesettings', 'report_trainingsessions'));
 $PAGE->set_title(get_string('gradesettings', 'report_trainingsessions'));
@@ -65,6 +65,8 @@ if ($data = $form->get_data()) {
         $rec->moduleid = 0;
         $rec->sortorder = 0;
         $rec->label = $data->courselabel;
+        $rec->grade = 0;
+        $rec->ranges = '';
         $DB->insert_record('report_trainingsessions', $rec);
     }
 
@@ -76,10 +78,41 @@ if ($data = $form->get_data()) {
             $cminfo = $coursemodinfo->get_cm($moduleid);
             $rec->label = (empty($data->scorelabel[$ix])) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modulename.$cminfo->instance) : $data->scorelabel[$ix];
             $rec->sortorder = $ix;
+            $rec->grade = 0;
+            $rec->ranges = '';
             $DB->insert_record('report_trainingsessions', $rec);
         }
     }
-    redirect(new moodle_url('/report/trainingsessions/gradessettings.php', array('id' => $COURSE->id, 'view' => 'gradesettings', 'from' => $from, 'to' => $to)));
+
+    // Purge old special grades for that course.
+    $select = " courseid = ? AND moduleid < 0 ";
+    $params = array($COURSE->id);
+    $DB->delete_records_select('report_trainingsessions', $select, $params);
+
+    // Record special grades.
+    if ($data->specialgrade) {
+        $rec = new StdClass();
+        $rec->courseid = $COURSE->id;
+        $rec->moduleid = $data->specialgrade;
+        $rec->sortorder = 0;
+        $rec->label = '';
+        $ranges = explode(',', $data->timegraderanges);
+        $timeranges['ranges'] = array();
+        if (!empty($ranges)) {
+            foreach ($ranges as $r) {
+                $timeranges['ranges'][] = trim($r);
+            }
+        }
+        $timeranges['timemode'] = $data->timegrademode;
+        $timeranges['bonusmode'] = $data->timegrademode;
+        $timeranges['timesource'] = $data->timegradesource;
+        $rec->ranges = json_encode($timeranges);
+        $rec->grade = $data->timegrade;
+        $DB->insert_record('report_trainingsessions', $rec);
+    }
+
+    $params = array('id' => $COURSE->id, 'view' => 'gradesettings', 'from' => $from, 'to' => $to);
+    redirect(new moodle_url('/report/trainingsessions/gradessettings.php', $params));
 }
 
 echo $OUTPUT->header();
@@ -101,10 +134,22 @@ if ($alldata) {
         if ($datum->moduleid == 0) {
             $formdata->coursegrade = 1;
             $formdata->courselabel = $datum->label;
-        } else {
+        } else if ($datum->moduleid > 0) {
             $formdata->moduleid[$ix] = $datum->moduleid;
             $formdata->scorelabel[$ix] = $datum->label;
             $ix++;
+        } else {
+            // Special grades.
+            $formdata->specialgrade = $datum->moduleid;
+            $ranges = json_decode(@$datum->ranges);
+            $ranges = (array)$ranges;
+            if (!empty($ranges)) {
+                $formdata->timegraderanges = implode(',', (array)$ranges['ranges']);
+                $formdata->timegrademode = @$ranges['timemode'];
+                $formdata->bonusgrademode = @$ranges['bonusmode'];
+                $formdata->timegradesource = @$ranges['timesource'];
+            }
+            $formdata->timegrade = $datum->grade;
         }
     }
     $form->set_data($formdata);
@@ -114,7 +159,7 @@ if ($alldata) {
     $form->set_data($form);
 }
 
-// Display form.
+// display form.
 $form->display();
 
 echo $OUTPUT->footer();

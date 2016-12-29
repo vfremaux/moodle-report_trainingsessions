@@ -16,29 +16,32 @@
 
 /**
  * This script handles the report generation in batch task for a single group.
- * It may produce a group csv report.
+ * It will produce a group Excel worksheet report that is pushed immediately to output
+ * for downloading by a batch agent. No file is stored into the system.
  * groupid must be provided.
- * This script should be sheduled in a redirect bouncing process for maintaining
- * memory level available for huge batches.
+ * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  *
  * @package    report_trainingsessions
  * @category   report
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require('../../../config.php');
+ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
+require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT) ; // The course id.
-$groupid = required_param('groupid', PARAM_INT) ; // The group id.
+$userid = required_param('userid', PARAM_INT) ; // User id.
 
 ini_set('memory_limit', '512M');
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     // Do NOT print_error here as we are a document writer.
-    die('Invalid course ID');
+    die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
 
@@ -51,53 +54,36 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 // TODO : secure groupid access depending on proper capabilities.
 
-// Compute target group.
+// generate XLS
 
-$group = $DB->get_record('groups', array('id' => $groupid));
+$filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.".csv";
 
-if ($groupid) {
-    $targetusers = groups_get_members($groupid);
-} else {
-    $targetusers = get_enrolled_users($context);
+$auser = $DB->get_record('user', array('id' => $userid));
+
+if ($auser) {
+    // Sending HTTP headers.
+
+    $logusers = $auser->id;
+    $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
+    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
+
+    $csvbuffer = '';
+    report_trainingsessions_print_userinfo($csvbuffer, $auser);
+    report_trainingsessions_print_header($csvbuffer);
+    report_trainingsessions_print_course_structure($csvbuffer, $coursestructure, $aggregate);
+
+    // Sending HTTP headers.
+    ob_end_clean();
+
+    // Output CSV-specific headers.
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private",false);
+    header("Content-Type: application/octet-stream");
+    header("Content-Disposition: attachment filename=\"$filename\";" );
+    header("Content-Transfer-Encoding: binary");
+    echo $csvbuffer;
 }
-
-// Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
-
-// Print result.
-
-$csvbuffer = '';
-report_trainingsessions_print_courses_line_header($csvbuffer);
-
-if (!empty($targetusers)) {
-    // generate XLS
-
-    if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".csv";
-    } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".csv";
-    }
-
-    foreach ($targetusers as $auser) {
-
-        $logusers = $auser->id;
-        $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
-
-        report_trainingsessions_print_courses_line($csvbuffer, $aggregate, $auser);
-    }
-
-}
-
-// Sending HTTP headers.
-ob_end_clean();
-header("Pragma: public");
-header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header("Cache-Control: private",false);
-header("Content-Type: application/octet-stream");
-header("Content-Disposition: attachment filename=\"$filename\";");
-header("Content-Transfer-Encoding: binary");
-echo $csvbuffer;
 
 // echo '200';

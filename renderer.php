@@ -26,7 +26,7 @@
 class report_trainingsessions_renderer extends plugin_renderer_base {
 
     /**
-     * 
+     *
      * @param type $course
      * @param type $view
      * @param type $from
@@ -38,14 +38,17 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         $context = context_course::instance($course->id);
         $rows = array();
         // Print tabs with options for user.
-        $userurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'user', 'from' => $from, 'to' => $to));
-        $rows[0][] = new tabobject('user', $userurl, get_string('user', 'report_trainingsessions'));
+        $params = array('id' => $course->id, 'view' => 'user', 'from' => $from, 'to' => $to);
+        $userurl = new moodle_url('/report/trainingsessions/index.php', $params);
+        $rows[0][] = new tabobject('user', $userurl, get_string('userdetail', 'report_trainingsessions'));
 
-        $usersummaryurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'coursesummary', 'from' => $from, 'to' => $to));
-        $rows[0][] = new tabobject('coursesummary', $usersummaryurl, get_string('usersummary', 'report_trainingsessions'));
+        $params = array('id' => $course->id, 'view' => 'coursesummary', 'from' => $from, 'to' => $to);
+        $usersummaryurl = new moodle_url('/report/trainingsessions/index.php', $params);
+        $rows[0][] = new tabobject('coursesummary', $usersummaryurl, get_string('coursesummary', 'report_trainingsessions'));
 
         if (has_capability('report/trainingsessions:viewother', $context)) {
-            $courseurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'course', 'from' => $from, 'to' => $to));
+            $params = array('id' => $course->id, 'view' => 'course', 'from' => $from, 'to' => $to);
+            $courseurl = new moodle_url('/report/trainingsessions/index.php', $params);
             $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));
         }
 
@@ -61,10 +64,12 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             $rows[0][] = new tabobject('courseraw', $courserawurl, get_string('courseraw', 'report_trainingsessions'));
         }
         if (has_capability('report/trainingsessions:viewother', $context)) {
-            $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id, 'view' => 'allcourses', 'from' => $from, 'to' => $to));
+            $params = array('id' => $course->id, 'view' => 'allcourses', 'from' => $from, 'to' => $to);
+            $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', $params);
             $rows[0][] = new tabobject('allcourses', $allcoursesurl, get_string('allcourses', 'report_trainingsessions'));
-    
-            $gradesettingsurl = new moodle_url('/report/trainingsessions/gradessettings.php', array('id' => $course->id, 'from' => $from, 'to' => $to));
+
+            $params = array('id' => $course->id, 'from' => $from, 'to' => $to);
+            $gradesettingsurl = new moodle_url('/report/trainingsessions/gradessettings.php', $params);
             $rows[0][] = new tabobject('gradesettings', $gradesettingsurl, get_string('gradesettings', 'report_trainingsessions'));
         }
 
@@ -74,7 +79,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
     }
 
     /**
-     * 
+     *
      * @global type $DB
      * @global type $OUTPUT
      * @global type $COURSE
@@ -135,8 +140,8 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             $this->next_month($nextmonth, $nextyear);
 
             $params['to'] = mktime(0, 0, 0, $nextmonth, 1, $nextyear);
-            $params['id'] = $COURSE->id; // the course id (context for user targets)
-            $params['userid'] = $userid; // user id
+            $params['id'] = $COURSE->id; // The course id (context for user targets).
+            $params['userid'] = $userid; // User id.
             $params['scope'] = $scope;
             $params['outputname'] = 'report_user_'.$userid.'_sessions_'.$params['scope'].'.pdf';
 
@@ -156,7 +161,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
     }
 
     /**
-     * 
+     *
      * @return string
      */
     function placeholder() {
@@ -164,7 +169,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
     }
 
     /**
-     * 
+     *
      * @param type $url
      * @param type $label
      * @param type $attrs
@@ -187,10 +192,10 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             $attrs['formid'] = $formid;
         }
 
-        // first the input element
+        // First the input element.
         $str = html_writer::empty_tag('input', $attributes);
 
-        // then hidden fields
+        // Then hidden fields.
         $params = $url->params();
         if ($attrs['method'] === 'post') {
             $params['sesskey'] = sesskey();
@@ -199,17 +204,20 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             $str .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $var, 'value' => $val));
         }
 
-        // then div wrapper for xhtml strictness
+        // Then div wrapper for xhtml strictness.
         $str = html_writer::tag('div', $str);
 
-        // now the form itself around it
+        // Now the form itself around it.
         if ($attrs['method'] === 'get') {
-            $url = $url->out_omit_querystring(true); // url without params, the anchor part allowed
+            // Url without params, the anchor part allowed.
+            $url = $url->out_omit_querystring(true);
         } else {
-            $url = $url->out_omit_querystring();     // url without params, the anchor part not allowed
+            // Url without params, the anchor part not allowed.
+            $url = $url->out_omit_querystring();
         }
         if ($url === '') {
-            $url = '#'; // there has to be always some action
+            // There has to be always some action.
+            $url = '#';
         }
         $attributes = array('method' => $attrs['method'],
                             'action' => $url,
@@ -217,12 +225,12 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
                             'target' => @$attrs['target']);
         $str = html_writer::tag('form', $str, $attributes);
 
-        // and finally one more wrapper with class
+        // And finally one more wrapper with class.
         return html_writer::tag('div', $str, array('class' => @$attrs['class']));
     }
 
     /**
-     * 
+     *
      * @param int $m
      * @param type $y
      */

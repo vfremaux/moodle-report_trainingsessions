@@ -1,4 +1,5 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,44 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
- * @package    report_trainingsessions
- * @category   report
- * @version    moodle 2.x
- * @author     Valery Fremaux (valery.fremaux@gmail.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     report_trainingsessions
+ * @category    report
+ * @author      Valery Fremaux (valery.fremaux@gmail.com)
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  * this file provides with WS document requests to externalize report documents
  * from within an external management system
  */
- 
+defined('MOODLE_INTERNAL') || die;
+
 class report_trainingsessions_external {
 
-    function fetch_report($reporttype, $reportscope, $reportformat, $from, $to, $courseid = 0, $groupid = 0, $userid = 0) {
-        // ensure report format is always lowercase : 
+    public function fetch_report($reporttype, $reportscope, $reportformat, $from, $to, $courseid = 0, $groupid = 0, $userid = 0) {
+
+        // Ensure report format is always lowercase.
         $reportformat = strtolower($reportformat);
 
         if (!in_array($reportformat, array('csv', 'xls', 'pdf', 'json'))) {
             $data = new StdClass();
             $data->errorcode = 100;
-            return ;
+            return;
         }
 
         if (!in_array($reportscope, array('allcourses', 'currentcourse'))) {
             $data = new StdClass();
             $data->errorcode = 200;
-            return ;
+            return;
         }
 
-        if (!in_array($reporttype, array('onefulluserpersheet', 'onefulluserperfile', 'oneuserperrow', 'alluserssessionsinglefile', 'sessions'))) {
+        $reporttypes = array('onefulluserpersheet', 'onefulluserperfile', 'oneuserperrow', 'alluserssessionsinglefile', 'sessions');
+        if (!in_array($reporttype, $reporttypes)) {
             $data = new StdClass();
             $data->errorcode = 300;
-            return ;
+            return;
         }
 
-        // Resolve the adequate document generator to call
+        // Resolve the adequate document generator to call.
         switch ($reportformat) {
             case 'xls':
                 switch ($reportlayout) {
@@ -60,12 +61,14 @@ class report_trainingsessions_external {
                         $rangeid = $user->username;
                         $uri = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php');
                         break;
+
                     case 'oneuserperrow':
                         $reporttype = 'summary';
                         $range = 'group';
                         $rangeid = $groupid;
                         $uri = new moodle_url('/report/trainingsessions/tasks/groupxlsreportsummary_batch_task.php');
                         break;
+
                     default:
                         $reporttype = 'sessions';
                         $range = 'user';
@@ -74,6 +77,7 @@ class report_trainingsessions_external {
                         break;
                 }
                 break;
+
             case 'pdf':
                 switch ($reportlayout) {
                     case 'onefulluserpersheet':
@@ -106,10 +110,15 @@ class report_trainingsessions_external {
                         $rangeid = $user->username;
                 }
                 break;
+
             case 'json':
                 break;
-            default: // csv case
+
+            default:
+                // Csv case.
                 switch ($reportlayout) {
+                    default:
+                        assert(1);
                 }
         }
 

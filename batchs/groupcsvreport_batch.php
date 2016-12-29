@@ -62,6 +62,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security.
+
 trainingsessions_back_office_access($course);
 
 // Calculate start time. Defaults ranges to all course range.
@@ -81,6 +82,7 @@ $groups = report_trainingsessions_compute_groups($id, $groupid, $range);
 
 $timesession = time();
 $sessionday = date('Ymd', $timesession);
+$filenametimesession = date(get_string('filetimesuffixformat', 'report_trainingsessions'), $timesession);
 
 $testmax = 5;
 $i = 0;
@@ -104,7 +106,8 @@ foreach ($groups as $group) {
 
             $current = time();
             if ($current > $timesession + $maxbatchduration) {
-                die("Could not finish batch. Too long");
+                mtrace("Could not finish batch. Too long");
+                return;
             }
 
             foreach ($targetusers as $user) {
@@ -114,7 +117,7 @@ foreach ($groups as $group) {
                 $filerec->filearea = 'reports';
                 $filerec->itemid = $course->id;
                 $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".date('Y-M-d', time()).".csv";
+                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".$filenametimesession.".csv";
 
                 report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
             }
@@ -130,7 +133,7 @@ foreach ($groups as $group) {
         $filerec->filearea = 'reports';
         $filerec->itemid = $course->id;
         $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".date('Y-M-d', time()).".csv";
+        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".$filenametimesession.".csv";
 
         report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
     }

@@ -25,9 +25,16 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
+
 if ($ADMIN->fulltree) {
     // no report settings
     $yesnoopts = array(0 => get_string('no'), 1 => get_string('yes'));
+
+    $key = 'report_trainingsessions/csv_iso';
+    $label = get_string('csvoutputtoiso', 'report_trainingsessions');
+    $desc = get_string('csvoutputtoiso_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configselect($key, $label, $desc, 0, $yesnoopts));
 
     $key = 'report_trainingsessions/recipient';
     $label = get_string('recipient', 'report_trainingsessions');
@@ -54,81 +61,86 @@ if ($ADMIN->fulltree) {
     $desc = get_string('printsessiontotal_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+    $key = 'report_trainingsessions/summarycolumns';
+    $label = get_string('summarycolumns', 'report_trainingsessions');
+    $desc = get_string('summarycolumns_desc', 'report_trainingsessions');
+    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#lastlogin,t\nactivitytime,d\n";
+    $default .= "#othertime,d\n#coursetime,d\nelapsed,d\n#items,n\n#hits,n\n#visiteditems,n\n#elapsedlastweek,d\n#hitslastweek,n";
+    $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
+
     $novalue = array('0' => get_string('disabled', 'report_trainingsessions'));
     $fieldoptions = array_merge($novalue, $DB->get_records_menu('user_info_field', array(), 'id', 'id,name'));
     $key = 'report_trainingsessions/extrauserinfo1';
-    $label = get_string('extrauserinfo', 'report_trainingsessions').' 1';
+    $label = get_string('extrauserinfo', 'report_trainingsessions');
     $desc = get_string('extrauserinfo_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configselect($key, $label, $desc, '', $fieldoptions));
+    $settings->add(new admin_setting_configselect($key, $label.' 1', $desc , '', $fieldoptions));
 
     $key = 'report_trainingsessions/extrauserinfo2';
-    $label = get_string('extrauserinfo', 'report_trainingsessions').' 2';
-    $desc = get_string('extrauserinfo_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configselect($key, $label, $desc, '', $fieldoptions));
+    $settings->add(new admin_setting_configselect($key, $label.' 2', $desc, '', $fieldoptions));
 
     $settings->add(new admin_setting_heading('colors', get_string('colors', 'report_trainingsessions'), ''));
 
     // PDF Text colour setting.
-    $key = 'report_trainingsessions/textcolor';
+    $name = 'report_trainingsessions/textcolor';
     $title = get_string('textcolor', 'report_trainingsessions');
     $description = get_string('textapplication', 'report_trainingsessions');
     $default = '#000000';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     // PDF Head1 BackgroundColour setting.
-    $key = 'report_trainingsessions/head1bgcolor';
+    $name = 'report_trainingsessions/head1bgcolor';
     $title = get_string('bgcolor', 'report_trainingsessions').' 1';
     $description = get_string('head1application', 'report_trainingsessions');
     $default = '#91C1CA';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     // PDF Head1 Text setting.
-    $key = 'report_trainingsessions/head1textcolor';
+    $name = 'report_trainingsessions/head1textcolor';
     $title = get_string('textcolor', 'report_trainingsessions').' 1';
     $description = get_string('head1application', 'report_trainingsessions');
     $default = '#ffffff';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     // PDF Head1 BackgroundColour setting.
-    $key = 'report_trainingsessions/head2bgcolor';
+    $name = 'report_trainingsessions/head2bgcolor';
     $title = get_string('bgcolor', 'report_trainingsessions').' 2';
     $description = get_string('head2application', 'report_trainingsessions');
     $default = '#91C1CA';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     // PDF Head1 Text setting.
-    $key = 'report_trainingsessions/head2textcolor';
+    $name = 'report_trainingsessions/head2textcolor';
     $title = get_string('textcolor', 'report_trainingsessions').' 2';
     $description = get_string('head2application', 'report_trainingsessions');
     $default = '#ffffff';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     // PDF Summarizer Colour setting.
-    $key = 'report_trainingsessions/head3bgcolor';
+    $name = 'report_trainingsessions/head3bgcolor';
     $title = get_string('bgcolor', 'report_trainingsessions').' 3';
     $description = get_string('head3application', 'report_trainingsessions');
     $default = '#C06361';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     // PDF Summarizer Text setting.
-    $key = 'report_trainingsessions/head3textcolor';
+    $name = 'report_trainingsessions/head3textcolor';
     $title = get_string('textcolor', 'report_trainingsessions').' 3';
     $description = get_string('head3application', 'report_trainingsessions');
     $default = '#ffffff';
     $previewconfig = null;
-    $setting = new admin_setting_configcolourpicker($key, $title, $description, $default, $previewconfig);
+    $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
     $settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
@@ -163,28 +175,19 @@ if ($ADMIN->fulltree) {
     $desc = get_string('pdfpagecutoff_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configtext($key, $label, $desc, '225'));
 
-    $settings->add(new admin_setting_heading('coupling', get_string('coupling', 'report_trainingsessions'), ''));
+    if (report_trainingsessions_supports_feature('calculation/coupling')) {
+        $settings->add(new admin_setting_heading('coupling', get_string('coupling', 'report_trainingsessions'), ''));
 
-    $key = 'report_trainingsessions/enablelearningtimecheckcoupling';
-    $label = get_string('enablelearningtimecheckcoupling', 'report_trainingsessions');
-    $desc = get_string('enablelearningtimecheckcoupling_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '225'));
+        $key = 'report_trainingsessions/enablelearningtimecheckcoupling';
+        $label = get_string('enablelearningtimecheckcoupling', 'report_trainingsessions');
+        $desc = get_string('enablelearningtimecheckcoupling_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '225'));
 
-    $cropoptions = array('mark' => get_string('mark', 'report_trainingsessions'), 'crop' => get_string('crop', 'report_trainingsessions'));
-    $key = 'report_trainingsessions/learningtimesessioncrop';
-    $label = get_string('learningtimesessioncrop', 'report_trainingsessions');
-    $desc = get_string('learningtimesessioncrop_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
-
-    $settings->add(new admin_setting_heading('csv', get_string('csv', 'report_trainingsessions'), ''));
-
-    $key = 'report_trainingsessions/csv_iso';
-    $label = get_string('csvoutputtoiso', 'report_trainingsessions');
-    $desc = get_string('csvoutputtoiso_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configselect($key, $label, $desc, 0, $yesnoopts));
-
-    $key = 'report_trainingsessions/csvseparator';
-    $label = get_string('csvseparator', 'report_trainingsessions');
-    $separators = array(',' => ', (coma)', ';' => '; (semicolon)', ':' => ': (colon)');
-    $settings->add(new admin_setting_configselect($key, $label, '', ';', $separators));
+        $key = 'report_trainingsessions/learningtimesessioncrop';
+        $label = get_string('learningtimesessioncrop', 'report_trainingsessions');
+        $desc = get_string('learningtimesessioncrop_desc', 'report_trainingsessions');
+        $cropoptions = array('mark' => get_string('mark', 'report_trainingsessions'),
+                             'crop' => get_string('crop', 'report_trainingsessions'));
+        $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
+    }
 }

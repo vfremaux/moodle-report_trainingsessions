@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**
+/*
  * This script is to be used from PHP command line and will create a set
  * of Virtual VMoodle automatically from a CSV nodelist description.
  * Template names can be used to feed initial data of new VMoodles.
@@ -33,16 +33,13 @@
 define('CLI_SCRIPT', true);
 
 require(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-require_once($CFG->libdir.'/clilib.php'); // cli only functions
-// require_once($CFG->dirroot.'/blocks/vmoodle/lib.php');
-// require_once('clilib.php'); // vmoodle cli only functions
-
-require_once($CFG->libdir.'/adminlib.php'); // various admin-only functions
-require_once($CFG->libdir.'/upgradelib.php'); // general upgrade/install related functions
-include_once $CFG->dirroot.'/blocks/use_stats/locallib.php';
-require_once $CFG->dirroot.'/report/trainingsessions/csvrenderers.php';
+require_once($CFG->libdir.'/clilib.php'); // Cli only functions.
+require_once($CFG->libdir.'/adminlib.php'); // Various admin-only functions.
+require_once($CFG->libdir.'/upgradelib.php'); // General upgrade/install related functions.
+require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/csvrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
-include_once $CFG->dirroot.'/report/trainingsessions/locallib.php';
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 // Fakes an admin identity for all the process.
 $USER = get_admin();
@@ -74,8 +71,7 @@ if ($unrecognized) {
 }
 
 if ($options['help']) {
-    $help =
-"Command line Statistics extractor.
+    $help = "Command line Statistics extractor.
 Please note you must execute this script with the same uid as apache!
 
 Options:
@@ -88,7 +84,7 @@ Options:
 
 Example:
 \$sudo -u www-data /usr/bin/php blocks/vmoodle/cli/bulkcreatenodes.php
-"; //TODO: localize - to be translated later when everything is finished
+"; //TODO: localize - to be translated later when everything is finished.
 
     echo $help;
     die;
@@ -117,8 +113,8 @@ mtrace('Starting CLI trainingsession reports in '.$options['outputpath']."\n");
 
 // Get all options from config file.
 
-$userid = $options['userid'] ; // user id
-$courseid = $options['courseid']; // course as context
+$userid = $options['userid']; // User id.
+$courseid = $options['courseid']; // Course as context.
 
 if (empty($options['launch'])) {
     mtrace("Preview mode\n");
@@ -134,7 +130,7 @@ if ($userid) {
     $context = context_course::instance($courseid);
     $processedusers = array();
     if ($users = get_enrolled_users($context)) {
-        foreach($users as $u) {
+        foreach ($users as $u) {
             $processedusers[] = $u->id;
             if (empty($options['launch'])) {
                 mtrace('User to process : '.$u->username."\n");
@@ -153,11 +149,9 @@ if (!empty($options['launch'])) {
 
         $aggregate = use_stats_aggregate_logs($logs, 'module');
 
-        // restitution des extractions
-
         $filename = 'allcourses_sessions_report_'.date('d-M-Y', time()).'.csv';
 
-        // Sending HTTP headers
+        // Sending HTTP headers.
 
         $overall = report_trainingsessions_print_allcourses_csv($csvfilecontent, $aggregate);
 
@@ -169,13 +163,12 @@ if (!empty($options['launch'])) {
         report_trainingsessions_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
 
         echo "Opening output file as $filename\n";
-        if ($FILE = fopen($options['outputpath'].'/'.$filename, 'w+')) {
-            fputs($FILE, $csvfilecontentheader.$csvfilecontent."\n#\n# Sessions\n#\n".$csvsessions);
-            fclose($FILE);
+        if ($file = fopen($options['outputpath'].'/'.$filename, 'w+')) {
+            fputs($file, $csvfilecontentheader.$csvfilecontent."\n#\n# Sessions\n#\n".$csvsessions);
+            fclose($file);
         } else {
             echo "Failed opening output file\n";
         }
     }
     die;
 }
-

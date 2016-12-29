@@ -16,7 +16,6 @@
 
 /**
  * Course trainingsessions report
- * direct log construction implementation
  *
  * @package    report_trainingsessions
  * @category   report
@@ -36,13 +35,13 @@ $page = 20;
 
 ini_set('memory_limit', '2048M');
 
-// TODO : secure groupid access depending on proper capabilities.
+$id = required_param('id', PARAM_INT); // The course id.
 
-$id = required_param('id', PARAM_INT) ; // The course id.
+// For tasks.
 
-// For tasks
 $selform = new StdClass();
 $selform->from = optional_param_array('from', null, PARAM_INT);
+
 if (empty($selform->from) || @$selform->fromstart) {
     // Maybe we get it from parameters.
     $from = $course->startdate;
@@ -52,7 +51,8 @@ if (empty($selform->from) || @$selform->fromstart) {
 } else {
     $from = mktime(0, 0, 0, $selform->from['month'], $selform->from['day'], $selform->from['year']);
 }
-$startday =  $selform->from['day']; // From (-1 is from course start).
+
+$startday = $selform->from['day']; // From (-1 is from course start).
 $startmonth = $selform->from['month']; // From (-1 is from course start).
 $startyear = $selform->from['year']; // From (-1 is from course start).
 
@@ -67,7 +67,7 @@ if (empty($selform->to) || @$selform->tonow) {
     $to = mktime(0, 0, 0, $selform->to['month'], $selform->to['day'], $selform->to['year']);
 }
 
-$endday =  $selform->to['day']; // To (-1 is from course start).
+$endday = $selform->to['day']; // To (-1 is from course start).
 $endmonth = $selform->to['month']; // To (-1 is from course start).
 $endyear = $selform->to['year']; // To (-1 is from course start).
 
@@ -121,13 +121,15 @@ $selformform->set_data($selform);
 $selformform->display();
 echo $OUTPUT->box_end();
 
+// Quick compile an XLS report if not too many users.
 if (!empty($targetusers)) {
 
     if (count($targetusers) < 50) {
+        include_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
         // This is a quick immediate compilation for small groups.
         echo get_string('quickgroupcompile', 'report_trainingsessions', count($targetusers));
 
-        foreach($targetusers as $u) {
+        foreach ($targetusers as $u) {
             $logs = use_stats_extract_logs($from, $to, $u->id, $id);
             $aggregate[$u->id] = use_stats_aggregate_logs($logs, 'module');
 
@@ -136,36 +138,11 @@ if (!empty($targetusers)) {
         }
 
         $timestamp = time();
-        $rawstr = '';
-        $resultset[] = get_string('group'); // Groupname.
-        $resultset[] = get_string('idnumber'); // Userid.
-        $resultset[] = get_string('lastname'); // Last name.
-        $resultset[] = get_string('firstname'); // First name.
-        $resultset[] = get_string('firstenrolldate', 'report_trainingsessions'); // Enrol start date.
-        $resultset[] = get_string('firstaccess'); // First trace.
-        $resultset[] = get_string('lastaccess'); // Last trace.
-        $resultset[] = get_string('startdate', 'report_trainingsessions'); // Compile start date.
-        $resultset[] = get_string('todate', 'report_trainingsessions'); // Compile end date.
-        $resultset[] = get_string('weekstartdate', 'report_trainingsessions'); // last week start date.
-        $resultset[] = get_string('timeelapsed', 'report_trainingsessions');
-        $resultset[] = get_string('timeelapsedcurweek', 'report_trainingsessions');
-
-        report_trainingsessions_add_graded_columns($resultset);
-        if (!empty($config->csv_iso)) {
-            $rawstr = mb_convert_encoding(implode(';', $resultset)."\n", 'ISO-8859-1', 'UTF-8');
-        } else {
-            $rawstr = implode(';', $resultset)."\n";
-        }
+        report_trainingsessions_print_global_header($rawstr);
+        $cols = report_trainingsessions_get_summary_cols();
 
         foreach ($targetusers as $userid => $auser) {
-
-            $logusers = $auser->id;
-            echo 'Compiling for '.fullname($auser).'<br/>';
-            $globalresults = new StdClass;
-            $globalresults->elapsed = 0 + @$aggregate[$userid]['course'][$id]->elapsed + @$aggregate[$userid]['activities'][$id]->elapsed + @$aggregate[$userid]['other'][$id]->elapsed;
-            $globalresults->weekelapsed = 0 + @$weekaggregate[$userid]['course'][$id]->elapsed + @$weekaggregate[$userid]['activities'][$id]->elapsed + @$weekaggregate[$userid]['other'][$id]->elapsed;
-
-            report_trainingsessions_print_globalheader_raw($auser->id, $course->id, $globalresults, $rawstr, $from, $to);
+            report_trainingsessions_print_global_raw($id, $cols, $auser, $aggregate, $weekaggregate, $rawstr);
         }
 
         $fs = get_file_storage();
@@ -329,7 +306,10 @@ if (!empty($CFG->trainingreporttasks)) {
             if ($task->groupid) {
                 $params['groupid'] = $task->groupid;
             }
-            $batchurl = new moodle_url('/report/trainingsessions/group'.$task->reportformat.'report_batch.php', $params);
+            $dist = report_trainingsessions_supports_feature('format/'.$task->reportformat);
+            $distpath = ($dist == 'pro/') ? $dist : '';
+            $batchloc = '/report/trainingsessions/bachs/'.$distpath.'group'.$task->reportformat.'report_batch.php';
+            $batchurl = new moodle_url($batchloc, $params);
             $attrs = array('href' => $batchurl, 'target' => '_blank',
                            'title' => get_string('interactivetitle', 'report_trainingsessions'));
             $commands .= '&nbsp;'.html_writer::tag('a', get_string('interactive', 'report_trainingsessions'), $attrs);

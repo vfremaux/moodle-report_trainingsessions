@@ -19,23 +19,19 @@
  *
  * @package    report_trainingsessions
  * @category   report
- * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/lib/statslib.php');
 
-$id = required_param('id', PARAM_INT); // course id
-$output = optional_param('output', 'html', PARAM_ALPHA);
+$id = required_param('id', PARAM_INT); // Course id.
 $view = optional_param('view', 'user', PARAM_ALPHA);
 $report = optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
 $time = optional_param('time', 0, PARAM_INT);
 
-// form bounce somewhere ? 
+// Form bounce somewhere ?
 $view = (empty($view)) ? 'user' : $view;
-$output = (empty($output)) ? 'html' : $output;
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     print_error('invalidcourse');
@@ -60,10 +56,13 @@ $strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 @ini_set('max_execution_time', '3000');
 raise_memory_limit('250M');
 
+// Defer printing header in report views after potential redirections.
+
 if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")) {
     include_once($CFG->dirroot."/report/trainingsessions/{$view}report.php");
 } else {
     print_error('errorbadviewid', 'report_trainingsessions');
 }
 
-if ($output == 'html') echo $OUTPUT->footer();
+echo $OUTPUT->footer();
+

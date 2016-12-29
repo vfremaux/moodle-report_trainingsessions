@@ -33,6 +33,8 @@ $string['addcoursegrade'] = 'Add course grade to report';
 $string['addcoursegrade'] = 'Course scores';
 $string['addmodulelabel'] = 'Add activity module';
 $string['addmoduletitle'] = 'Add an activity module you want to add grade in report';
+$string['addtimebonus'] = 'time bonus on overal grade';
+$string['addtimegrade'] = 'Time grade';
 $string['advancement'] = 'Advancement';
 $string['allcourses'] = 'All courses';
 $string['allcourses'] = 'All courses';
@@ -42,18 +44,17 @@ $string['asxls'] = 'Download as Excel';
 $string['authoritysign'] = 'Education Authority';
 $string['batchdate'] = 'Task date ';
 $string['batchreports_task'] = 'Batch reports';
+$string['bgcolor'] = 'Background color';
+$string['binary'] = 'Binary output';
+$string['bonusgrademode'] = 'Time bonus grade mode';
 $string['checklistadvice'] = 'Special side completion effects';
 $string['chooseagroup'] = 'Choose a group';
 $string['chooseaninstitution'] = 'Choose an institution';
 $string['colors'] = 'Colors';
-$string['textcolor'] = 'Text color';
-$string['bgcolor'] = 'Background color';
-$string['textapplication'] = 'This is a setting for default text of the document.';
-$string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
-$string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
-$string['head3application'] = 'Head 3 coors are used on end of table sumarizer, xhen suitable.';
 $string['columnname'] = 'Column name: ';
 $string['connections'] = 'Connections';
+$string['contiguoussessions'] = 'Contiguous sessions';
+$string['continuous'] = 'Continuous output';
 $string['coupling'] = 'Coupling';
 $string['course'] = 'Course';
 $string['courseglobals'] = 'Course global areas';
@@ -63,16 +64,20 @@ $string['coursename'] = 'Group name';
 $string['courseraw'] = 'Batchs';
 $string['coursesessions'] = 'Working sessions in course (real guessed times)';
 $string['coursestart'] = 'Course start date';
-$string['contiguoussessions'] = 'Contiguous sessions';
+$string['coursesummary'] = 'Per participant summary';
+$string['coursetime'] = 'Time in course (outside activities)';
+$string['coursetotaltime'] = 'Total course time';
 $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
 $string['csvoutputtoiso'] = 'Iso CSV Output';
 $string['currentcourse'] = 'Current course';
 $string['disabled'] = '|--------- disabled -----------|';
+$string['discrete'] = 'Discrete output';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total time';
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
+$string['email'] = 'Email';
 $string['enablecoursescore'] = 'Enable course score';
 $string['enablelearningtimecheckcoupling'] = 'Enable LTC coupling';
 $string['enablelearningtimecheckcoupling_desc'] = 'If enabled, the trainingsession session reports will use the working days filtering of the Learning Time Check Report';
@@ -81,11 +86,15 @@ $string['enterprisesign'] = 'Enterprise';
 $string['equlearningtime'] = 'Equivalent training time: ';
 $string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
 $string['errorbadviewid'] = 'non existing report view';
+$string['errorcontinuousscale'] = 'You cannot use scales as grade source in continuous mode';
 $string['errorcoursestructurefirstpage'] = 'Course structure error : failed getting first page';
 $string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
+$string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
 $string['extrauserinfo'] = 'Additional user info in reports';
 $string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
+$string['fail'] = 'FAIL';
+$string['filetimesuffixformat'] = 'Ymd_His';
 $string['firstaccess'] = 'First access';
 $string['firstconnection'] = 'First connection';
 $string['firstenrolldate'] = 'First enroll';
@@ -96,23 +105,30 @@ $string['generatePDF'] = 'Generate as PDF';
 $string['generateXLS'] = 'Generate as XLS';
 $string['generatereports'] = 'Generate reports';
 $string['gradesettings'] = 'Grade settings';
+$string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
+$string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
+$string['head3application'] = 'Head 3 coors are used on end of table sumarizer, xhen suitable.';
 $string['headsection'] = 'Heading section';
-$string['hits'] = 'Hits';
-$string['hitslastweek'] = 'Hits last week';
 $string['hideemptymodules'] = 'Hide empty modules';
 $string['hideemptymodules_desc'] = 'Is enabled, empty modules (no time spent) will not be printed into reports.';
+$string['hits'] = 'Hits';
+$string['hitslastweek'] = 'Hits last week';
+$string['id'] = 'ID';
+$string['idnumber'] = 'ID Number';
 $string['in'] = 'In time';
 $string['incourses'] = 'In courses';
 $string['insessiontime'] = 'Inside rules learning time';
 $string['institution'] = 'Institution';
 $string['institutions'] = 'Institutions';
+$string['instructure'] = 'Time in course activities';
 $string['instructure'] = 'Time spent inside structure';
 $string['interactive'] = 'Interactive';
 $string['interactivetitle'] = 'Produce this batch now!';
-$string['instructure'] = 'Time in course activities';
 $string['item'] = 'Item';
 $string['items'] = 'Items';
+$string['json'] = 'JSON';
 $string['lastaccess'] = 'Last access';
+$string['lastlogin'] = 'Last login';
 $string['lastname'] = 'Surname';
 $string['layout'] = 'Document layout';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
@@ -125,6 +141,7 @@ $string['modulegrades'] = 'Activity grades';
 $string['never'] = 'Never';
 $string['newtask'] = 'Add a new batch';
 $string['nodata'] = 'No course data';
+$string['noextragrade'] = 'Disabled';
 $string['nopermissiontoview'] = 'You have not enough permissions in this course to view this information.';
 $string['nosessions'] = 'No measurable session data';
 $string['nostructure'] = 'No measurable course structure detected';
@@ -136,11 +153,16 @@ $string['othertime'] = 'Other (non activity) time';
 $string['out'] = 'Out time';
 $string['outofgroup'] = 'No group';
 $string['outofstructure'] = 'Other course use time';
+$string['output:finalcoursegrade'] = 'Final grade';
+$string['output:rawcoursegrade'] = 'Raw course grade';
+$string['output:timebonus'] = 'Time bonus';
+$string['output:timegrade'] = 'Time grade';
 $string['outputdir'] = 'Output directory ';
 $string['outputdirectory'] = 'Output directory in local course files';
 $string['outsessiontime'] = 'Out rules remaining time';
 $string['over'] = 'over';
 $string['parts'] = 'parts';
+$string['pass'] = 'PASS';
 $string['pdf'] = 'PDF';
 $string['pdfabsoluteverticaloffset'] = 'Doc abs. vert. offset';
 $string['pdfabsoluteverticaloffset_desc'] = 'Tells the starting offset of the content generation relative to top of page in pdf generation (in mm).';
@@ -191,20 +213,28 @@ $string['sessionreporttitle_desc'] = 'Printed on first page of a user session re
 $string['sessions'] = 'Working sessions (real guessed times)';
 $string['sessionsonly'] = 'User sessions only';
 $string['sessionstart'] = 'Session start';
+$string['showhits'] = 'Show events (csv)';
+$string['showhits_desc'] = 'If set, the hit count will be added to the CSV lines';
 $string['singleexec'] = 'Single run';
 $string['siteglobals'] = 'Site (non course sections)';
+$string['specialgrades'] = 'Special grades';
 $string['startdate'] = 'Start date';
 $string['structureitem'] = 'Course trackable item';
 $string['structuretotal'] = 'Total {$a}:';
 $string['studentsign'] = 'Student';
-$string['showhits'] = 'Show events (csv)';
-$string['showhits_desc'] = 'If set, the hit count will be added to the CSV lines';
+$string['summarycolumns'] = 'Output columns for summary report';
 $string['task'] = 'Task {$a} ';
 $string['taskname'] = 'Task';
 $string['taskrecorded'] = 'Task successfully recorded ';
 $string['teachersign'] = 'Teacher';
+$string['textapplication'] = 'This is a setting for default text of the document.';
+$string['textcolor'] = 'Text color';
 $string['timeelapsed'] = 'Time spent';
 $string['timeelapsedcurweek'] = 'Time spent cur. week';
+$string['timegrade'] = 'Time grade source';
+$string['timegrademode'] = 'Time grade mode';
+$string['timegraderanges'] = 'Time grade ranges';
+$string['timesource'] = 'Time source';
 $string['timeperpart'] = 'Time elapsed per part';
 $string['timespent'] = 'Spent';
 $string['timespentlastweek'] = 'Spent last week';
@@ -229,17 +259,30 @@ $string['updatefromcoursestart'] = 'Get from course start';
 $string['uploadglobals'] = 'File uploads';
 $string['uploadresult'] = 'Download raw results';
 $string['user'] = 'Per participant';
-$string['coursesummary'] = 'Participant summary';
-$string['usersummary'] = 'Participant summary';
+$string['userdetail'] = 'Participant detail';
 $string['userlist'] = 'One row per participant';
 $string['usersheets'] = 'One sheetset per participant';
+$string['usersummary'] = 'Participant summary';
 $string['visiteditems'] = 'Visited Items.';
 $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions: ';
 $string['xls'] = 'XLS';
-$string['id'] = 'ID';
-$string['idnumber'] = 'ID Number';
-$string['email'] = 'Email';
+
+$string['proversionrequired'] = '
+<p>You are trying to use a feature that is only available in the "Pro" version of this plugin. The "Pro" version of this plugin
+is a paied for version that help us support the development cycle of this plugin with quality insurance concerns, enhanced featuring
+and full support to our customers.</p>
+
+<p<Pro version can be obtained from our distributors:</p>
+
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p<
+';
+
+$string['timegraderanges_help'] = '
+Time grade ranges let you cut the elapsed time into pieces for achieving a discrete time grade effect. binay modes will need
+to give only one time threshold (in minutes) separating the PASSED and FAILED state. In "discrete" mode, enter a list (coma separated)
+of time threshold separating the ranges. The last range stands for "time over last value".
+';
 
 $string['csvoutputtoiso_desc'] = 'If enabled, the course raw report will be generated in ISO-8859-1 encoding for old CSV compliant applications.';
 
@@ -247,6 +290,11 @@ $string['modulegrades_help'] = '
    You can add here more columns to the report from the course grade book, choosing the activity module that will be source for the score.
    You may also define the column label that will be used for this column in the report sheets. If left blank, the column name will be in order
    of availability, the coursemodule IDnumber, or a module identifier built in by Moodle.
+';
+
+$string['summarycolumns_desc'] = '
+<p>Choose columns by commenting with # any line. You can reorder lines to change the output order.</p>
+<p>(format keys : a as text, t as date, d as duration, n as numeric).</p>
 ';
 
 $string['totalsessiontime_help'] = 'Note that session list counts some durations that can be outside this course. Total session time should usually be higher than in course time calculation';
@@ -262,6 +310,10 @@ $string['activitytime_help'] = '
     standard time are used rather than real extracted times from log.</p>
 ';
 
+$string['coursetotaltime_help'] = '
+<p>This summarizes all time spent in the course or any dependancy of the course.</p>
+';
+
 $string['equlearningtime_help'] = '
 <p>Equivalent learning time summarizes all time spent in course, including standard allocation times if
     the Learning Time Check checklist module is used (http://github.com/vfremaux/moodle-mod_learningtimecheck.git).</p>
@@ -272,6 +324,10 @@ $string['learningtimecheckadvice_help'] = '
 any student interaction in the course, some apparent information discrepancy may appear.</p>
 <p>This is a normal situation that reports consistant information regarding the effective
     use of the platform</p>
+';
+
+$string['coursetime_help'] = '
+<p>this summarizes the time passed in general screens of the course but OUTSIDE activities. 
 ';
 
 $string['othertime_help'] = '

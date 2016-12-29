@@ -14,15 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * @package    report_trainingsessions
  * @category   report
- * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once $CFG->libdir.'/formslib.php';
 
@@ -97,12 +95,11 @@ class Task_Form extends moodleform {
         );
 
         $mform->addElement('select', 'reportscope', get_string('reportscope', 'report_trainingsessions'), $scopeoptions);
-
-        // What file format (file renderer) to use.
-        $formatoptions = report_trainingsessions_get_batch_formats();
         $mform->addHelpButton('reportscope', 'reportscope', 'report_trainingsessions');
 
-        $mform->addElement('select', 'reportformat', get_string('reportformat', 'report_trainingsessions'), $formatoptions);
+        // What file format (file renderer) to use.
+        $options = report_trainingsessions_get_batch_formats();
+        $mform->addElement('select', 'reportformat', get_string('reportformat', 'report_trainingsessions'), $options);
 
         // In which directory to store results
         $mform->addElement('text', 'outputdir', get_string('outputdir', 'report_trainingsessions'), array('size' => 80));
@@ -114,8 +111,8 @@ class Task_Form extends moodleform {
         $mform->addHelpButton('batchdate', 'batchdate', 'report_trainingsessions');
 
         // Do the report needs to be rerun later ?
-        $replayoptions = array(TASK_SINGLE => get_string('singleexec', 'report_trainingsessions'), TASK_REPLAY => get_string('replay', 'report_trainingsessions'), TASK_SHIFT => get_string('periodshift', 'report_trainingsessions'), TASK_SHIFT_TO => get_string('periodshiftto', 'report_trainingsessions'));
-        $mform->addElement('select', 'replay', get_string('replay', 'report_trainingsessions'), $replayoptions);
+        $options = report_trainingsessions_get_batch_replays();
+        $mform->addElement('select', 'replay', get_string('replay', 'report_trainingsessions'), $options);
 
         // If rerun, in what delay ?
         $mform->addElement('text', 'replaydelay', get_string('replaydelay', 'report_trainingsessions'), array('size' => 10));

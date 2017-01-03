@@ -80,32 +80,30 @@ if (!empty($targetusers)) {
     ob_end_clean();
     $workbook->send($filename);
 
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
+    $xlsformats = report_trainingsessions_xls_formats($workbook);
     $startrow = 15;
 
     foreach ($targetusers as $auser) {
 
         $row = $startrow;
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+        $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xlsformats, $workbook);
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
         $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
 
-        $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
+        $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xlsformats);
         $data = new StdClass();
         $data->items = $items;
         $data->done = $done;
         $data->from = $input->from;
         $data->elapsed = $overall->elapsed;
         $data->events = $overall->events;
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
 
-        $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xls_formats);
-        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+        $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
+        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xlsformats);
+        report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
     }
     $workbook->close();
 }
-
-// echo '200';

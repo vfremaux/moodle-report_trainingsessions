@@ -269,6 +269,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     // Ask config for enabled info.
     $cols = report_trainingsessions_get_summary_cols();
+    $gradecols = array();
+    $gradetitles = array();
+    $gradeformats = array();
     report_trainingsessions_add_graded_columns($gradecols, $gradetitles, $gradeformats);
 
     $user = $DB->get_record('user', array('id' => $userid));

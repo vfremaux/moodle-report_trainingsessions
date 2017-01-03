@@ -17,6 +17,7 @@ will be aware of most course formats in Moodle. At least are handled :
 - Topic course format
 - Weekly course format
 - Page course format
+- flexSection format
 
 #####################################
 

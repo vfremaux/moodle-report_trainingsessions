@@ -187,9 +187,9 @@ if (!empty($summarizedusers)) {
         echo '<tr>';
         echo '<td>'.$line.'</td>';
         foreach ($auser as $fieldname => $field) {
-            if (in_array($fieldname, $namedcols)) {
-                $cssclass = (in_array($fieldname, $namedcols) && !in_array($fieldname, $durationcols)) ? 'left' : 'right';
-                echo '<td class="'.$cssclass.'">'.$field.'</td>';
+            if (in_array($fieldname, $durationcols)) {
+                $cssclass = 'right';
+                echo '<td class="'.$cssclass.'">'.report_trainingsessions_format_time($field, 'html').'</td>';
             } else if (in_array($fieldname, $colskeys)) {
                 // Those may come from grade columns.
                 echo '<td>'.$field.'</td>';
@@ -208,7 +208,7 @@ if (!empty($summarizedusers)) {
                     'groupid' => $data->groupid,
                     'from' => $data->from,
                     'to' => $data->to);
-    $label = get_string('generateCSV', 'report_trainingsessions');
+    $label = get_string('generatecsv', 'report_trainingsessions');
     echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/task/groupcsvreportsummary_batch_task.php', $params), $label);
 
     // Add a 'generate XLS' button after the table.
@@ -216,7 +216,7 @@ if (!empty($summarizedusers)) {
                     'groupid' => $data->groupid,
                     'from' => $data->from,
                     'to' => $data->to);
-    $label = get_string('generateXLS', 'report_trainingsessions');
+    $label = get_string('generatexls', 'report_trainingsessions');
     echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/task/groupxlsreportsummary_batch_task.php', $params), $label);
 
     echo '</center>';

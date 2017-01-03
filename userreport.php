@@ -155,7 +155,7 @@ $params = array('id' => $course->id,
                 'to' => $data->to);
 $xlsurl = new moodle_url('/report/trainingsessions/tasks/userxlsreportperuser_batch_task.php', $params);
 echo '<div class="trainingsessions-inline">';
-echo $OUTPUT->single_button($xlsurl, get_string('generateXLS', 'report_trainingsessions'));
+echo $OUTPUT->single_button($xlsurl, get_string('generatexls', 'report_trainingsessions'));
 echo '</div>';
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
@@ -168,7 +168,7 @@ if (report_trainingsessions_supports_feature('format/pdf')) {
                     'outputname' => $filename);
     $pdfurl = new moodle_url('/report/trainingsessions/pro/tasks/userpdfreportperuser_batch_task.php', $params);
     echo '<div class="trainingsessions-inline">';
-    echo $OUTPUT->single_button($pdfurl, get_string('generatePDF', 'report_trainingsessions'));
+    echo $OUTPUT->single_button($pdfurl, get_string('generatepdf', 'report_trainingsessions'));
     echo '</div>';
 
     echo '<h3>'.get_string('quickmonthlyreport', 'report_trainingsessions').'</h3>';

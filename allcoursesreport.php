@@ -144,15 +144,16 @@ if ($data->output == 'html') {
     echo $str2;
 
     $params = array('id' => $course->id,
-                    'view' => 'allcourses',
                     'userid' => $userid,
                     'from' => $data->from,
-                    'to' => $data->to,
-                    'output' => 'xls');
+                    'to' => $data->to);
     echo '<br/><center>';
-    $url = new moodle_url('/report/trainingsessions/index.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+
+    $url = new moodle_url('/report/trainingsessions/tasks/userxlsreportallcourses_batch_task.php', $params);
+    echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
+
     echo $renderer->user_session_reports_buttons($data->userid, 'allcourses');
+
     echo '</center>';
     echo '<br/>';
 
@@ -163,7 +164,7 @@ if ($data->output == 'html') {
     require_once($CFG->libdir.'/excellib.class.php');
 
     $filename = 'allcourses_sessions_report_'.date('d-M-Y', time()).'.xls';
-    $workbook = new MoodleExcelWorkbook("-");
+    $workbook = new MoodleExcelWorkbook('-');
 
     // Sending HTTP headers.
     ob_end_clean();

@@ -30,7 +30,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
 
 class CourseSummarySelectorForm extends moodleform {
 
-    function definition() {
+    public function definition() {
 
         $mform = $this->_form;
 
@@ -66,41 +66,42 @@ class CourseSummarySelectorForm extends moodleform {
         $row[] = & $mform->createElement('date_selector', 'to', '', $dateparms);
 
     }
+}
 ?>
 
 <center>
 <tr valign="top">
     <td align="right">
-        <?php
-            print_string('chooseagroup', 'report_trainingsessions');
-            echo " :&nbsp;";
-        ?>
+<?php
+print_string('chooseagroup', 'report_trainingsessions');
+echo " :&nbsp;";
+?>
     </td>
     <td>
-        <?php
-            if (has_capability('moodle/site:accessallgroups', $context)) {
-                $groups = groups_get_all_groups($course->id);
-            } else {
-                $groups = groups_get_all_groups($course->id, $USER->id);
-            }
-            $groupoptions[0] = get_string('allgroups', 'report_trainingsessions');
-            if ($groupid === false) {
-                $groupid = 0;
-            }
-            foreach ($groups as $group) {
-                $groupoptions[$group->id] = $group->name;
-            }
-            echo html_writer::select($groupoptions, 'groupid', $groupid);
-        ?>
+<?php
+if (has_capability('moodle/site:accessallgroups', $context)) {
+    $groups = groups_get_all_groups($course->id);
+} else {
+    $groups = groups_get_all_groups($course->id, $USER->id);
+}
+$groupoptions[0] = get_string('allgroups', 'report_trainingsessions');
+if ($groupid === false) {
+    $groupid = 0;
+}
+foreach ($groups as $group) {
+    $groupoptions[$group->id] = $group->name;
+}
+echo html_writer::select($groupoptions, 'groupid', $groupid);
+?>
     </td>
 </tr>
 <tr valign="top">
     <td align="right">
-        <?php
-            print_string('to');
-            echo ' :&nbsp;</td><td align="left">';
-            print_date_selector('endday', 'endmonth', 'endyear', $to);
-        ?>
+<?php
+print_string('to');
+echo ' :&nbsp;</td><td align="left">';
+print_date_selector('endday', 'endmonth', 'endyear', $to);
+?>
     </td>
     <td/><td align="right">
         <input type="submit" id="go_btn" name="go_btn" value="<?php print_string('update') ?>"/>

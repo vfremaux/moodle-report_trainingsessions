@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This script handles the report generation in batch task for a single group.
- * It will produce a group Excel worksheet report that is pushed immediately to output
+ * This script handles the session report generation in batch task for a single user.
+ * It will produce a single PDF report that is pushed immediately to output
  * for downloading by a batch agent. No file is stored into the system.
- * groupid must be provided.
+ * userid must be provided.
  * This script should be sheduled in a CURL call stack or a multi_CURL parallel call.
  *
  * @package    report_trainingsessions
@@ -28,19 +28,21 @@
  */
 
 require('../../../config.php');
+
 ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
+require_once($CFG->dirroot.'/blocks/use_stats/xlib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
-require_once($CFG->libdir.'/excellib.class.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$userid = required_param('userid', PARAM_INT) ; // The group id.
-$reportscope = required_param('scope', PARAM_TEXT); // Only currentcourse is consistant.
+$id = required_param('id', PARAM_INT); // The course id (context for user targets).
+$userid = required_param('userid', PARAM_INT); // User id.
+$filename = optional_param('outputname', '', PARAM_FILE);
 
 ini_set('memory_limit', '512M');
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {
+    // Do NOT print_error here as we are a document writer.
     die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
@@ -53,46 +55,51 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
 $input = report_trainingsessions_batch_input($course);
 
 // Security.
+
 report_trainingsessions_back_office_access($course);
 
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+$config = get_config('report_trainingsessions');
 
-// generate XLS.
+// Get all results for this user.
+$logs = use_stats_extract_logs($input->from, $input->to, $user->id, 0);
+$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
 
-$filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.'.xls';
+$fulltotal = 0;
+list($displaycourses, $courseshort, $coursefull, $courseelapsed, $courseevents) = block_use_stats_get_coursetable($aggregate, $fulltotal, $fullevents);
 
+// Generate XLS.
 $workbook = new MoodleExcelWorkbook("-");
 if (!$workbook) {
     die("Excel Librairies Failure");
 }
 
-$auser = $DB->get_record('user', array('id' => $userid));
-
-// Sending HTTP headers
+// Sending HTTP headers.
 ob_end_clean();
 $workbook->send($filename);
 
-$xls_formats = report_trainingsessions_xls_formats($workbook);
-$startrow = 15;
+$xlsformats = report_trainingsessions_xls_formats($workbook);
 
-$row = $startrow;
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+// Define variables.
 
-$logusers = $auser->id;
-$logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
+$y = report_trainingsessions_print_userinfo($workbook, $y, $user, $course, $input->from, $input->to, null, $config->recipient);
 
-$overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
-$data = new StdClass();
-$data->items = $items;
-$data->done = $done;
-$data->from = $from;
-$data->elapsed = $overall->elapsed;
-$data->events = $overall->events;
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+$y = report_trainingsessions_print_courseline_head($workbook, $y, $table);
 
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xls_formats);
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+foreach (array_keys($displaycourses) as $courseid) {
+    $courseline = new StdClass;
+    $courseline->idnumber = ''; // TODO fetch idnumber.
+    $courseline->shortname = $courseshort[$courseid];
+    $courseline->elapsed = $courseelapsed[$courseid];
+    $courseline->events = $courseevents[$courseid];
+    $y = report_trainingsessions_print_courseline($workbook, $y, $courseline);
+}
 
+$summators = array('', '', report_trainingsessions_format_time($fulltotal, 'xlsd'));
+if (!empty($config->showhits)) {
+    $summators[] = $fullevents;
+}
+$y = report_trainingsessions_print_sumline($pdf, $y, $summators, $table);
+
+// Sending HTTP headers.
+ob_end_clean();
 $workbook->close();

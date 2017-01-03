@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Grade settings form
  *
@@ -25,16 +23,17 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 class TrainingsessionsGradeSettingsForm extends moodleform {
 
-    var $linkablemodules;
+    protected $linkablemodules;
 
     public function definition() {
-        global $COURSE;
+        global $COURSE, $OUTPUT;
 
         $this->linkablemodules = report_trainingsessions_get_linkable_modules($COURSE->id);
 
@@ -61,11 +60,48 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $mform->addHelpButton('modulegrades', 'modulegrades', 'report_trainingsessions');
 
-        // The linked modules portion goes here, but is forced in in the 'definition_after_data' function so that we can get any elements added in the form and not overwrite them with what's in the database.
+        /*
+         * The linked modules portion goes here, but is forced in in the 'definition_after_data' function so
+         * that we can get any elements added in the form and not overwrite them with what's in the database.
+         */
 
         $mform->addElement('submit', 'addmodule', get_string('addmodulelabel', 'report_trainingsessions'),
                            array('title' => get_string('addmoduletitle', 'report_trainingsessions')));
         $mform->registerNoSubmitButton('addmodule');
+
+        $mform->addElement('header', 'specialgrades', get_string('specialgrades', 'report_trainingsessions'));
+
+        $mform->addElement('html', $OUTPUT->box_start('trainingsessions-fieldset'));
+
+        $mform->addElement('radio', 'specialgrade', '', get_string('noextragrade', 'report_trainingsessions'), TR_TIMEGRADE_DISABLED);
+
+        $mform->addElement('radio', 'specialgrade', '', get_string('addtimegrade', 'report_trainingsessions'), TR_TIMEGRADE_GRADE);
+
+        $options = array(TR_GRADE_MODE_BINARY => get_string('binary', 'report_trainingsessions'),
+                         TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
+                         TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
+        $mform->addElement('select', 'timegrademode', get_string('timegrademode', 'report_trainingsessions'), $options);
+        $mform->disabledIf('timegrademode', 'specialgrade', 'neq', TR_TIMEGRADE_GRADE);
+
+        $mform->addElement('radio', 'specialgrade', '', get_string('addtimebonus', 'report_trainingsessions'), TR_TIMEGRADE_BONUS);
+
+        $options = array(TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
+                         TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
+        $mform->addElement('select', 'bonusgrademode', get_string('bonusgrademode', 'report_trainingsessions'), $options);
+        $mform->disabledIf('bonusgrademode', 'specialgrade', 'neq', TR_TIMEGRADE_BONUS);
+
+        $mform->addElement('html', $OUTPUT->box_end());
+
+        $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
+                         TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
+        $mform->addElement('select', 'timegradesource', get_string('timesource', 'report_trainingsessions'), $options);
+        $mform->disabledIf('timegradesource', 'specialgrade', 'eq', TR_TIMEGRADE_DISABLED);
+
+        $mform->addElement('modgrade', 'timegrade', get_string('timegrade', 'report_trainingsessions'));
+
+        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), array('size' => 60));
+        $mform->addHelpButton('timegraderanges', 'timegraderanges', 'report_trainingsessions');
+        $mform->setType('timegraderanges', PARAM_TEXT);
 
         $this->add_action_buttons(true);
     }
@@ -78,11 +114,13 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
     function definition_after_data() {
         global $COURSE;
 
-        // Start process core datas (conditions, etc.)..
+        // Start process core datas (conditions, etc.).
         parent::definition_after_data();
 
-        /// This gets called more than once, and there's no way to tell which time this is, so set a
-        /// variable to make it as called so we only do this processing once.
+        /*
+         * This gets called more than once, and there's no way to tell which time this is, so set a
+         * variable to make it as called so we only do this processing once.
+         */
         if (!empty($this->def_after_data_done)) {
             return;
         }
@@ -91,8 +129,10 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform    =& $this->_form;
         $fdata = $mform->getSubmitValues();
 
-    /// Get the existing linked activities from the database, unless this form has resubmitted itself, in
-    /// which case they will be in the form already.
+        /*
+         * Get the existing linked activities from the database, unless this form has resubmitted itself, in
+         * which case they will be in the form already.
+         */
         $moduleids = array();
 
         if (empty($fdata)) {
@@ -113,7 +153,9 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $this->linkablemodules);
             $formgroup[] = & $mform->createElement('text', 'scorelabel['.$ix.']');
             $mform->setType('scorelabel['.$ix.']', PARAM_INT);
-            $group =& $mform->createElement('group', 'modgrade'.$ix, get_string('modgrade', 'report_trainingsessions', ($ix + 1)), $formgroup, array(' '.get_string('columnname', 'report_trainingsessions')), false);
+            $label = get_string('modgrade', 'report_trainingsessions', ($ix + 1));
+            $padding = array(' '.get_string('columnname', 'report_trainingsessions'));
+            $group =& $mform->createElement('group', 'modgrade'.$ix, $label, $formgroup, $padding, false);
             $mform->insertElementBefore($group, 'addmodule');
             $ix++;
         }
@@ -125,7 +167,46 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->setDefault('moduleid['.$modcount.']', 0);
         $formgroup[] = & $mform->createElement('text', 'scorelabel['.$modcount.']');
         $mform->setType('scorelabel['.$modcount.']', PARAM_INT);
-        $group =& $mform->createElement('group', 'modgrade'.$modcount, get_string('modgrade', 'report_trainingsessions', ($modcount + 1)), $formgroup, array(' '.get_string('columnname', 'report_trainingsessions')), false);
+        $label = get_string('modgrade', 'report_trainingsessions', ($modcount + 1));
+        $padding = array(' '.get_string('columnname', 'report_trainingsessions'));
+        $group =& $mform->createElement('group', 'modgrade'.$modcount, $label, $formgroup, $padding, false);
         $mform->insertElementBefore($group, 'addmodule');
+    }
+
+    public function validation($data, $files) {
+
+        $errors = parent::validation($data, $files);
+
+        if (($data['specialgrade'] == TR_TIMEGRADE_GRADE) &&
+                ($data['timegrademode'] == TR_GRADE_MODE_CONTINUOUS) &&
+                        ($data['timegrade'] < 0)) {
+            // Scales cannot be used in continuous mode.
+            $errors['timegrademode'] = get_string('errorcontinuousscale', 'report_trainingsessions');
+            $errors['timegrade'] = get_string('errorcontinuousscale', 'report_trainingsessions');
+        }
+
+        if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
+                ($data['bonusgrademode'] == TR_GRADE_MODE_CONTINUOUS) &&
+                        ($data['timegrade'] < 0)) {
+            // Scales cannot be used in continuous mode.
+            $errors['bonusgrademode'] = get_string('errorcontinuousscale', 'report_trainingsessions');
+            $errors['timegrade'] = get_string('errorcontinuousscale', 'report_trainingsessions');
+        }
+
+        if (($data['specialgrade'] == TR_TIMEGRADE_GRADE) &&
+                        ($data['timegrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
+                                (empty($data['timegraderanges']))) {
+            $errors['timegrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
+            $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');
+        }
+
+        if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
+                        ($data['timegrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
+                                (empty($data['bonusgraderanges']))) {
+            $errors['bonusgrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
+            $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');
+        }
+
+        return $errors;
     }
 }

@@ -19,7 +19,6 @@
  *
  * @package    report_trainingsessions
  * @category   report
- * @version    moodle 2.x
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -53,9 +52,7 @@ function report_trainingsessions_cron() {
         mtrace("\tStarting registering $task->taskname...");
         if (time() < $task->batchdate && !optional_param('force', false, PARAM_BOOL)) {
             mtrace("\t\tnot yet.");
-            if (function_exists('debug_trace')) {
-                debug_trace(time().": task $task->id not in time ($task->batchdate) to run");
-            }
+            debug_trace(time().": task $task->id not in time ($task->batchdate) to run");
             continue;
         }
 
@@ -63,57 +60,57 @@ function report_trainingsessions_cron() {
             case 'pdf':
                 switch ($task->reportlayout) {
                     case 'onefulluserpersheet':
-                    $reporttype = 'peruser';
-                    $range = 'group';
-                    break;
+                        $reporttype = 'peruser';
+                        $range = 'group';
+                        break;
 
-                case 'onefulluserperfile':
-                    $reporttype = 'peruser';
-                    $range = 'user';
-                    break;
+                    case 'onefulluserperfile':
+                        $reporttype = 'peruser';
+                        $range = 'user';
+                        break;
 
-                case 'oneuserperrow':
-                    $reporttype = 'summary';
-                    $range = 'group';
-                    break;
+                    case 'oneuserperrow':
+                        $reporttype = 'summary';
+                        $range = 'group';
+                        break;
 
-                case 'allusersessionssinglefile':
-                    $reporttype = 'sessions';
-                    $range = 'group';
-                    break;
+                    case 'allusersessionssinglefile':
+                        $reporttype = 'sessions';
+                        $range = 'group';
+                        break;
 
-                default:
-                    $reporttype = 'sessions';
-                    $range = 'user';
+                    default:
+                        $reporttype = 'sessions';
+                        $range = 'user';
                 }
 
             case 'xls':
                 switch($task->reportlayout) {
                     case 'onefulluserpersheet':
-                    $reporttype = 'peruser';
-                    $range = 'user';
-                    break;
+                        $reporttype = 'peruser';
+                        $range = 'user';
+                        break;
 
-                case 'oneuserperrow':
-                    $reporttype = 'summary';
-                    $range = 'group';
-                    break;
+                    case 'oneuserperrow':
+                        $reporttype = 'summary';
+                        $range = 'group';
+                        break;
 
-                case 'allusersessionssinglefile':
-                    $reporttype = 'sessions';
-                    $range = 'group';
-                    break;
+                    case 'allusersessionssinglefile':
+                        $reporttype = 'sessions';
+                        $range = 'group';
+                        break;
 
-                default:
-                    $reporttype = 'sessions';
-                    $range = 'user';
+                    default:
+                        $reporttype = 'sessions';
+                        $range = 'user';
             }
 
             case 'csv':
                 switch ($task->reportlayout) {
                     case 'allusersessionssinglefile':
                     case 'onefulluserpersheet':
-                        // Silently unseupported
+                        // Silently unseupported.
                         break;
                     case 'oneuserperrow':
                         $reporttype = 'summary';
@@ -127,10 +124,13 @@ function report_trainingsessions_cron() {
             default:
         }
 
+        $version = report_trainingsessions_supports_feature('format/'.$task->reportformat);
+        $versionpath =  ($version == 'pro') ? 'pro/' : '';
+
         if ($range == 'group') {
-            $uri = new moodle_url('/report/trainingsessions/tasks/group'.$task->reportformat.'report'.$reporttype.'_batch_task.php');
+            $uri = new moodle_url('/report/trainingsessions/'.$versionpath.'tasks/group'.$task->reportformat.'report'.$reporttype.'_batch_task.php');
         } else {
-            $uri = new moodle_url('/report/trainingsessions/batchs/group'.$task->reportformat.'report'.'_batch.php');
+            $uri = new moodle_url('/report/trainingsessions/'.$versionpath.'batchs/group'.$task->reportformat.'report'.'_batch.php');
         }
 
         $taskarr = (array)$task;
@@ -154,95 +154,31 @@ function report_trainingsessions_cron() {
         }
         $rq = implode('&', $rqarr);
 
-        $ch[$taskid] = curl_init($uri.'?'.$rq);
-        mtrace("CURL Registered : {$uri}?{$rq}\n");
-        debug_trace("Registering curl : {$uri}?{$rq}\n");
+        $ch = curl_init($uri.'?'.$rq);
 
-        curl_setopt($ch[$taskid], CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch[$taskid], CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch[$taskid], CURLOPT_POST, false);
-        curl_setopt($ch[$taskid], CURLOPT_USERAGENT, 'Moodle Report Batch');
-        curl_setopt($ch[$taskid], CURLOPT_POSTFIELDS, $rq);
-        curl_setopt($ch[$taskid], CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
-        curl_setopt($ch[$taskid], CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch[$taskid], CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+        $result = curl_exec($ch);
+
+        if ($task->replay > TASK_SINGLE) {
+            // Replaydelay in seconds.
+            $task->batchdate = $task->batchdate + $task->replaydelay * MINSECS;
+            mtrace('Bouncing task '.$taskid.' to '.userdate($task->batchdate));
+        } else {
+            unset($tasks[$task->id]);
+            mtrace('Removing task '.$taskid);
+        }
     }
 
-    if (!empty($ch)) {
+    // Update in config.
+    set_config('trainingreporttasks', serialize($tasks));
 
-        $mh = curl_multi_init();
-
-        foreach($ch as $task) {
-            //add the handles
-            curl_multi_add_handle($mh, $task);
-        }
-
-        $active = null;
-
-        // Execute the handles.
-        mtrace('Starting processing... ');
-        do {
-            mtrace('Exec... ');
-            $mrc = curl_multi_exec($mh, $active);
-        } while ($mrc == CURLM_CALL_MULTI_PERFORM);
-
-        while ($active && $mrc == CURLM_OK) {
-            mtrace('Check active... ');
-            if (curl_multi_select($mh) == -1) {
-                usleep(1);
-            }
-
-            do {
-                mtrace('Continue queue... ');
-                $mrc = curl_multi_exec($mh, $active);
-            } while ($mrc == CURLM_CALL_MULTI_PERFORM);
-        }
-        mtrace('Processing done...');
-
-        // Process hanlde results once done.
-        while ($result = curl_multi_info_read($mh)) {
-            $httpurl = curl_getinfo($result['handle'], CURLINFO_EFFECTIVE_URL);
-            $httpresult = curl_getinfo($result['handle'], CURLINFO_HTTP_CODE);
-            if ($result['result'] != CURLE_OK) {
-                mtrace('Error on '.$httpurl);
-                mtrace('   Curl Error: '.curl_error($result['handle']));
-            } else if ($httpresult != 200) {
-                mtrace('Remote Error on '.$httpurl);
-                mtrace('   HTTP Error: '.$httpresult);
-            }
-        }
-
-        // Close the handles.
-        foreach ($ch as $taskid => $task) {
-
-            if ($tasks[$taskid]->replay > TASK_SINGLE) {
-                // replaydelay in seconds.
-                $tasks[$taskid]->batchdate = $tasks[$taskid]->batchdate + $tasks[$taskid]->replaydelay * 60;
-                mtrace('Bouncing task '.$taskid.' to '.userdate($tasks[$taskid]->batchdate));
-                if ($tasks[$taskid]->replay >= TASK_SHIFT) {
-                    $tasks[$taskid]->to = $tasks[$taskid]->to + $tasks[$taskid]->to * 60;
-                }
-                if ($tasks[$taskid]->replay == TASK_SHIFT) {
-                    $tasks[$taskid]->from = $tasks[$taskid]->from + $tasks[$taskid]->from * 60;
-                }
-            } else {
-                unset($tasks[$taskid]);
-                mtrace('Removing task '.$taskid);
-            }
-
-            if (function_exists('debug_trace')) {
-                debug_trace('closing task handle '.$taskid);
-            }
-            curl_multi_remove_handle($mh, $task);
-        }
-
-        curl_multi_close($mh);
-
-        // Update in config.
-        set_config('trainingreporttasks', serialize($tasks));
-
-        mtrace("\tdone.");
-    } else {
-        mtrace("\tno tasks to process.");
-    }
+    mtrace("\tdone.");
 }

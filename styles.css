@@ -104,3 +104,23 @@ table * td {
 .trainingsessions-inline * {
     display: inline
 }
+
+.trainingsessions-fieldset {
+    -moz-border-radius:8px;
+    padding:5px;
+    border:1px solid #CDCDCD;
+    border-radius:8px;
+    margin-bottom:15px;
+}
+
+.table-row {
+    display:table-row;
+}
+
+.table-cell {
+    display:table-cell;
+}
+
+#report-trainingsessions-totalisers {
+    line-height: 2.0em;
+}

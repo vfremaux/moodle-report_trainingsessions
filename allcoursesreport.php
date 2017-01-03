@@ -25,7 +25,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-/**
+/*
  * direct log construction implementation
  *
  */
@@ -35,7 +35,7 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
+$id = required_param('id', PARAM_INT); // The course id.
 
 // Calculate start time.
 $selform = new SelectorForm($id, 'allcourses');
@@ -123,7 +123,10 @@ if ($data->output == 'html') {
     $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
     $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
-    $dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], 0) : 0;
+    $dataobject->sessions = 0;
+    if (!empty($aggregate['sessions'])) {
+        $dataobject->sessions =  report_trainingsessions_count_sessions_in_course($aggregate['sessions'], 0);
+    }
 
     if (array_key_exists('upload', $aggregate)) {
         $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
@@ -141,15 +144,16 @@ if ($data->output == 'html') {
     echo $str2;
 
     $params = array('id' => $course->id,
-                    'view' => 'allcourses',
                     'userid' => $userid,
                     'from' => $data->from,
-                    'to' => $data->to,
-                    'output' => 'xls');
+                    'to' => $data->to);
     echo '<br/><center>';
-    $url = new moodle_url('/report/trainingsessions/index.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+
+    $url = new moodle_url('/report/trainingsessions/tasks/userxlsreportallcourses_batch_task.php', $params);
+    echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
+
     echo $renderer->user_session_reports_buttons($data->userid, 'allcourses');
+
     echo '</center>';
     echo '<br/>';
 
@@ -160,7 +164,7 @@ if ($data->output == 'html') {
     require_once($CFG->libdir.'/excellib.class.php');
 
     $filename = 'allcourses_sessions_report_'.date('d-M-Y', time()).'.xls';
-    $workbook = new MoodleExcelWorkbook("-");
+    $workbook = new MoodleExcelWorkbook('-');
 
     // Sending HTTP headers.
     ob_end_clean();
@@ -168,17 +172,17 @@ if ($data->output == 'html') {
     $workbook->send($filename);
 
     // Preparing some formats.
-    $xls_formats = report_trainingsessions_xls_formats($workbook);
+    $xlsformats = report_trainingsessions_xls_formats($workbook);
     $startrow = 15;
-    $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xls_formats, $workbook, 'allcourses');
-    $overall = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xls_formats);
+    $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xlsformats, $workbook, 'allcourses');
+    $overall = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
     $data->elapsed = $overall->elapsed;
     $data->events = $overall->events;
-    report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
+    report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
 
-    $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xls_formats, $workbook, 'sessions');
-    report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xls_formats);
-    report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xls_formats);
+    $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xlsformats, $workbook, 'sessions');
+    report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xlsformats);
+    report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
 
     $workbook->close();
 }

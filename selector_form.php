@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Course trainingsessions report
  *
@@ -25,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/lib/formslib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
@@ -85,20 +84,28 @@ class SelectorForm extends moodleform {
                 $useroptions = array();
 
                 foreach ($users as $user) {
-                    if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) continue;
+                    if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) {
+                        continue;
+                    }
 
                     if (!$allgroupaccess) {
                         $keep = false;
-                        foreach ($mygroups as $g){ // is the user in my groups ?
-                            if (groups_is_member($g->id, $user->id)) $keep = true;
+                        foreach ($mygroups as $g){ // Is the user in my groups ?
+                            if (groups_is_member($g->id, $user->id)) {
+                                $keep = true;
+                            }
                         }
-                        if (!$keep) continue;
+                        if (!$keep) {
+                            continue;
+                        }
                     }
 
                     $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
                     if (!array_key_exists($USER->id, $useroptions)) {
-                        // In some case, you may also want to see your data even if NOT
-                        // primarily concerned with reports.
+                        /*
+                         * In some case, you may also want to see your data even if NOT
+                         * primarily concerned with reports.
+                         */
                         $useroptions[$USER->id] = fullname($USER);
                     }
                 }
@@ -121,15 +128,17 @@ class SelectorForm extends moodleform {
             $row[] = & $mform->createElement('select', 'groupid', '', $groupoptions);
 
         }
-        $updatefromstr = ($this->mode == 'user') ? get_string('updatefromcoursestart', 'report_trainingsessions') : get_string('updatefromaccountstart', 'report_trainingsessions') ;
+        $updatestr = get_string('updatefromcoursestart', 'report_trainingsessions');
+        $updatestr2 = get_string('updatefromaccountstart', 'report_trainingsessions');
+        $updatefromstr = ($this->mode == 'user') ? $updatestr : $updatestr2;
         $updatetostr = get_string('tonow', 'report_trainingsessions');
 
         $row[] = $mform->createElement('submit', 'go_btn', get_string('update'));
 
         $row2[] = & $mform->createElement('checkbox', 'fromstart', '', $updatefromstr);
         $row2[] = & $mform->createElement('checkbox', 'tonow', '', $updatetostr);
-        $row2[] = $mform->createElement('html', ''); // this stands for an empty cell, but needs being a Quickform object.
-        $row2[] = $mform->createElement('html', ''); // this stands for an empty cell, but needs being a Quickform object.
+        $row2[] = $mform->createElement('html', ''); // This stands for an empty cell, but needs being a Quickform object.
+        $row2[] = $mform->createElement('html', ''); // This stands for an empty cell, but needs being a Quickform object.
 
         $grid->setColumnNames($titles);
         $grid->setColumnWidths(array('30%', '30%', '25%', '15%'));

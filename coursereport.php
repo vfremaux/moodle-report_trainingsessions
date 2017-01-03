@@ -213,7 +213,7 @@ echo '<div class="table-row">';
 echo '<div class="tr-summary table-cell">';
 $params = array('id' => $course->id, 'from' => $data->from, 'to' => $data->to, 'timesession' => time(), 'groupid' => $data->groupid);
 $csvurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportonerow_batch_task.php', $params);
-echo $OUTPUT->single_button($csvurl, get_string('generateCSV', 'report_trainingsessions'), 'get');
+echo $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
 echo '</div>';
 
 echo '<div class="tr-detailed table-cell">';
@@ -224,7 +224,7 @@ $params = array('id' => $course->id,
                 'to' => $data->to,
                 'output' => 'xls');
 $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php', $params);
-echo $OUTPUT->single_button($url, get_string('generateXLS', 'report_trainingsessions'), 'get');
+echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
     $params = array('id' => $course->id,
@@ -233,7 +233,7 @@ if (report_trainingsessions_supports_feature('format/pdf')) {
                     'from' => $data->from,
                     'to' => $data->to);
     $url = new moodle_url('/report/trainingsessions/pro/tasks/grouppdfreportperuser_batch_task.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generatePDF', 'report_trainingsessions'), 'get');
+    echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'get');
 }
 echo '</div>';
 echo '</div>';

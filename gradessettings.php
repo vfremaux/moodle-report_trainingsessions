@@ -103,8 +103,8 @@ if ($data = $form->get_data()) {
                 $timeranges['ranges'][] = trim($r);
             }
         }
-        $timeranges['timemode'] = $data->timegrademode;
-        $timeranges['bonusmode'] = $data->timegrademode;
+        $timeranges['timemode'] = @$data->timegrademode;
+        $timeranges['bonusmode'] = @$data->bonusgrademode;
         $timeranges['timesource'] = $data->timegradesource;
         $rec->ranges = json_encode($timeranges);
         $rec->grade = $data->timegrade;

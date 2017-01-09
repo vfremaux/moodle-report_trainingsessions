@@ -119,6 +119,7 @@ $string['insessiontime'] = 'Inside rules learning time';
 $string['institution'] = 'Institution';
 $string['institutions'] = 'Institutions';
 $string['instructure'] = 'Time in course activities';
+$string['instructure'] = 'Time spent inside structure';
 $string['interactive'] = 'Interactive';
 $string['interactivetitle'] = 'Produce this batch now!';
 $string['item'] = 'Item';

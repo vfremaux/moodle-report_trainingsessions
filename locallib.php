@@ -590,18 +590,6 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
 
     $coursemodinfo = get_fast_modinfo($COURSE->id);
 
-    if (is_null($columns)) {
-        $columns = array();
-    }
-
-    if (is_null($titles)) {
-        $titles = array();
-    }
-
-    if (is_null($formats)) {
-        $formats = array();
-    }
-
     $select = " courseid = ? AND moduleid > 0 ";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
@@ -609,13 +597,14 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         foreach ($graderecs as $rec) {
             // Push in array.
             $cminfo = $coursemodinfo->get_cm($rec->moduleid);
-            $modlabel = (empty($rec->label)) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modname.' '.$cminfo->instance) : $rec->label;
-            array_push($columns, $cminfo->modname.$cminfo->instance);
-            array_push($titles, $modlabel);
+            $modlabel = (empty($rec->label)) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modulename.$cminfo->instance) : $rec->label;
+            array_push($columns, $modlabel);
             $formatadds[] = 'a2';
         }
 
-        $formats = array_merge($formats, $formatadds);
+        if (!is_null($formats)) {
+            $formats = array_merge($formats, $formatadds);
+        }
     }
 
     // Add special grades.
@@ -630,11 +619,11 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 $formatadds[] = 'a';
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 $columns[] = 'rawcoursegrade';
-                $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
+                $titles[] = get_string('ouput:rawcoursegrade', 'report_trainingsessions');
                 $formatadds[] = 'a';
 
                 $columns[] = 'timebonus';
-                $titles[] = get_string('output:timebonus', 'report_trainingsessions');
+                $titles[] = get_string('ouput:timebonus', 'report_trainingsessions');
                 $formatadds[] = 'a';
             }
         }
@@ -725,7 +714,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
         return 0;
     }
 
-    if (TR_GRADE_SOURCE_COURSE == @$ranges['timesource']) {
+    if (TR_GRADE_SOURCE_COURSE == $ranges['timesource']) {
         $coursetime = 0 + @$aggregate['coursetotal'][$graderec->courseid]->elapsed;
     } else {
         $coursetime = 0 + @$aggregate['activities'][$graderec->courseid]->elapsed;
@@ -759,24 +748,19 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
             $timethreshold = array_shift($ranges['ranges']);
             if ($graderec->grade > 0) {
                 if ($coursetime > $timethreshold * MINSECS) {
-                    $fraction = 1;
+                    $fraction = 100;
                 } else {
                     $fraction = 0;
                 }
             } else if ($graderec->grade < 0) {
-                if ($coursetime > $timethreshold * MINSECS) {
-                    return $scale->get_nearest_item(1);
-                } else {
-                    return $scale->get_nearest_item(0);
-                }
+                return $scale->get_nearest_item(0);
             }
             break;
 
         case TR_GRADE_MODE_DISCRETE:
             // Search matching range (last lower).
             $i = 0;
-
-            while (isset($ranges['ranges'][$i]) && ($coursetime > ($ranges['ranges'][$i] * MINSECS))) {
+            while ($coursetime > ($ranges['ranges'][$i] * MINSECS)) {
                 $i++;
             }
 
@@ -1386,20 +1370,15 @@ function report_trainingsessions_get_summary_cols($what = false) {
 
     $result = array();
     foreach ($cols as $c) {
-        $c = trim($c);
-
-        if (empty($c)) {
+        list($key, $format) = explode(',', $c);
+        if (empty(trim($c))) {
             // Ignore blank lines.
             continue;
         }
-
-        list($key, $format) = explode(',', $c);
-
         if (preg_match('/^#/', $c)) {
             // Ignore commented lines.
             continue;
         }
-
         if ($what == 'title') {
             if (in_array($c, $corekeys)) {
                 $result[] = get_string($key);
@@ -1435,13 +1414,13 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'institution' => $user->institution,
         'department' => $user->department,
         'lastlogin' => $user->lastlogin,
-        'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
-        'elapsed' => 0 + @$aggregate['coursetotal'][$courseid]->elapsed,
-        'items' => 0 + @$aggregate['coursetotal'][$courseid]->items,
-        'hits' => 0 + @$aggregate['coursetotal'][$courseid]->events,
-        'visiteditems' => 0 + @$aggregate['coursetotal'][$courseid]->visiteditems,
-        'elapsedlastweek' => 0 + @$weekaggregate['coursetotal'][$courseid]->elapsed,
-        'hitslastweek' => 0 + @$weekaggregate['coursetotal'][$courseid]->events
+        'activitytime' => 0 + @$aggregate[$user->id]['activities'][$courseid]->elapsed,
+        'elapsed' => 0 + @$aggregate[$user->id]['coursetotal'][$courseid]->elapsed,
+        'items' => 0 + @$aggregate[$user->id]['coursetotal'][$courseid]->items,
+        'hits' => 0 + @$aggregate[$user->id]['coursetotal'][$courseid]->events,
+        'visiteditems' => 0 + @$aggregate[$user->id]['coursetotal'][$courseid]->visiteditems,
+        'elapsedlastweek' => 0 + @$weekaggregate[$user->id]['coursetotal'][$courseid]->elapsed,
+        'hitslastweek' => 0 + @$weekaggregate[$user->id]['coursetotal'][$courseid]->events
     );
 
     $data = array();

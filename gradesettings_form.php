@@ -201,7 +201,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         }
 
         if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
-                        ($data['bonusgrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
+                        ($data['timegrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
                                 (empty($data['bonusgraderanges']))) {
             $errors['bonusgrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
             $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');

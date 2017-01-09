@@ -26,8 +26,6 @@
  */
 namespace report_trainingsessions\task;
 
-require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-
 defined('MOODLE_INTERNAL') || die;
 
 class batchreports_task extends \core\task\scheduled_task {
@@ -47,8 +45,8 @@ class batchreports_task extends \core\task\scheduled_task {
     public function execute() {
 
         // Requires community or pro version if available.
-        \report_trainingsessions_plugin_require('/report/trainingsessions/cronlib.php');
+        report_trainingsessions_plugin_require('/report/trainingsessions/cronlib.php');
 
-         \report_trainingsessions_cron();
+        report_trainingsessions_cron();
     }
 }

@@ -398,7 +398,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             foreach ($gradecols as $gc) {
                 $str .= '<br/><b>';
                 $str .= $gradetitles[$i];
-                $str .= ':</b> '.$data->gradecols[$i];
+                $str .= ':</b> '.sprintf('%0.2f', $data->gradecols[$i]);
                 $i++;
             }
         }

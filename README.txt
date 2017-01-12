@@ -43,22 +43,21 @@ presence time.
 * Per group (or training session bundled in groups) : Reports a summarized presence time 
 for an entire group.
 
+* Per group summary report
+
 * Excel exports of individual timesheet
 
 * Excel export of a group timesheet as an Excel multiple individual sheet.
 
-* Raw report as one single Excel table for the course.
+* Batch generation and Raw report as one single Excel table for the course
 
 * "All course" summary capitalisers.
 
 Automated generation of group reports
 ======================================
 
-The trainingsession reports is provided with a batch generation URL that generates
-automatically all group reports for a specific course. All you need to know is the course ID,
-and add a cron task that wgets this url : 
-
-wget -O /dev/null -q <moodlewwwroot>/course/report/trainingsessions/grouprawreport_batch.php?id=<courseid>
+the training session provides a batch management that allows storing tasks for generating single or multiple
+document sets.
 
 Setting capabilities for student access to his own report
 =========================================================

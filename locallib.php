@@ -25,6 +25,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot.'/lib/grade/grade_scale.php');
+
 define('TASK_SINGLE', 0);
 define('TASK_REPLAY', 1);
 define('TASK_SHIFT', 2);

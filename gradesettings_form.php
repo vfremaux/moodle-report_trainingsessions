@@ -152,7 +152,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             $formgroup = array();
             $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $this->linkablemodules);
             $formgroup[] = & $mform->createElement('text', 'scorelabel['.$ix.']');
-            $mform->setType('scorelabel['.$ix.']', PARAM_INT);
+            $mform->setType('scorelabel['.$ix.']', PARAM_TEXT);
             $label = get_string('modgrade', 'report_trainingsessions', ($ix + 1));
             $padding = array(' '.get_string('columnname', 'report_trainingsessions'));
             $group =& $mform->createElement('group', 'modgrade'.$ix, $label, $formgroup, $padding, false);
@@ -166,7 +166,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $formgroup[] = & $mform->createElement('select', 'moduleid['.$modcount.']', '', $this->linkablemodules);
         $mform->setDefault('moduleid['.$modcount.']', 0);
         $formgroup[] = & $mform->createElement('text', 'scorelabel['.$modcount.']');
-        $mform->setType('scorelabel['.$modcount.']', PARAM_INT);
+        $mform->setType('scorelabel['.$modcount.']', PARAM_TEXT);
         $label = get_string('modgrade', 'report_trainingsessions', ($modcount + 1));
         $padding = array(' '.get_string('columnname', 'report_trainingsessions'));
         $group =& $mform->createElement('group', 'modgrade'.$modcount, $label, $formgroup, $padding, false);
@@ -201,7 +201,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         }
 
         if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
-                        ($data['timegrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
+                        ($data['bonusgrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
                                 (empty($data['bonusgraderanges']))) {
             $errors['bonusgrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
             $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');

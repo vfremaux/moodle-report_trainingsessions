@@ -25,6 +25,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot.'/lib/grade/grade_scale.php');
+
 define('TASK_SINGLE', 0);
 define('TASK_REPLAY', 1);
 define('TASK_SHIFT', 2);
@@ -630,11 +632,11 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 $formatadds[] = 'a';
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 $columns[] = 'rawcoursegrade';
-                $titles[] = get_string('ouput:rawcoursegrade', 'report_trainingsessions');
+                $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
                 $formatadds[] = 'a';
 
                 $columns[] = 'timebonus';
-                $titles[] = get_string('ouput:timebonus', 'report_trainingsessions');
+                $titles[] = get_string('output:timebonus', 'report_trainingsessions');
                 $formatadds[] = 'a';
             }
         }

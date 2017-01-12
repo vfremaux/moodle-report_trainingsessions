@@ -209,7 +209,7 @@ if (!empty($summarizedusers)) {
                     'from' => $data->from,
                     'to' => $data->to);
     $label = get_string('generatecsv', 'report_trainingsessions');
-    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/task/groupcsvreportsummary_batch_task.php', $params), $label);
+    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/tasks/groupcsvreportsummary_batch_task.php', $params), $label);
 
     // Add a 'generate XLS' button after the table.
     $params = array('id' => $course->id,
@@ -217,7 +217,7 @@ if (!empty($summarizedusers)) {
                     'from' => $data->from,
                     'to' => $data->to);
     $label = get_string('generatexls', 'report_trainingsessions');
-    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/task/groupxlsreportsummary_batch_task.php', $params), $label);
+    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/tasks/groupxlsreportsummary_batch_task.php', $params), $label);
 
     echo '</center>';
     echo '<br/>';

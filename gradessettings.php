@@ -76,7 +76,7 @@ if ($data = $form->get_data()) {
             $rec->courseid = $COURSE->id;
             $rec->moduleid = $moduleid;
             $cminfo = $coursemodinfo->get_cm($moduleid);
-            $rec->label = (empty($data->scorelabel[$ix])) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modulename.$cminfo->instance) : $data->scorelabel[$ix];
+            $rec->label = (empty($data->scorelabel[$ix])) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->get_formatted_name()) : $data->scorelabel[$ix];
             $rec->sortorder = $ix;
             $rec->grade = 0;
             $rec->ranges = '';
@@ -103,8 +103,8 @@ if ($data = $form->get_data()) {
                 $timeranges['ranges'][] = trim($r);
             }
         }
-        $timeranges['timemode'] = $data->timegrademode;
-        $timeranges['bonusmode'] = $data->timegrademode;
+        $timeranges['timemode'] = @$data->timegrademode;
+        $timeranges['bonusmode'] = @$data->bonusgrademode;
         $timeranges['timesource'] = $data->timegradesource;
         $rec->ranges = json_encode($timeranges);
         $rec->grade = $data->timegrade;

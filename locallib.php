@@ -52,6 +52,8 @@ function report_trainingsessions_supports_feature($feature) {
     global $CFG;
     static $supports;
 
+    $config = get_config('report_trainingsessions');
+
     if (!isset($supports)) {
         $supports = array(
             'pro' => array(
@@ -66,8 +68,16 @@ function report_trainingsessions_supports_feature($feature) {
         );
     }
 
-    if (is_dir($CFG->dirroot.'/report/trainingsessions/pro')) {
-        $versionkey = 'pro';
+    // Check existance of the 'pro' dir in plugin.
+    if (is_dir(__DIR__.'/pro')) {
+        if ($feature == 'emulate/community') {
+            return 'pro';
+        }
+        if (empty($config->emulatecommunity)) {
+            $versionkey = 'pro';
+        } else {
+            $versionkey = 'community';
+        }
     } else {
         $versionkey = 'community';
     }
@@ -135,7 +145,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
             $structure[] = $pageelement;
         }
     } else if ($course->format == 'flexsections') {
-            trainingsessions_fill_structure_from_flexiblesections($structure, null, $itemcount);
+        trainingsessions_fill_structure_from_flexiblesections($structure, null, $itemcount);
     } else {
         // Browse through course_sections and collect course items.
         $structure = array();

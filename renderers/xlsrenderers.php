@@ -208,13 +208,15 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-function report_trainingsessions_print_header_xls(&$worksheet, $userid, $courseid, $data, $xlsformats) {
+function report_trainingsessions_print_header_xls(&$worksheet, $userid, $courseid, &$data, $xlsformats) {
     global $CFG, $DB;
 
     $config = get_config('report_trainingsessions');
 
     $user = $DB->get_record('user', array('id' => $userid));
-    $course = $DB->get_record('course', array('id' => $courseid));
+    if ($courseid) {
+        $course = $DB->get_record('course', array('id' => $courseid));
+    }
 
     $row = 0;
 
@@ -237,9 +239,11 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 0, get_string('institution').' :', $xlsformats['b']);
     $worksheet->write_string($row, 1, $user->institution);
     $row++;
-    $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
-    $worksheet->write_string($row, 1, format_string($course->fullname));
-    $row++;
+    if ($courseid) {
+        $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
+        $worksheet->write_string($row, 1, format_string($course->fullname));
+        $row++;
+    }
     $worksheet->write_string($row, 0, get_string('from').' :', $xlsformats['b']);
     $worksheet->write_string($row, 1, userdate($data->from));
     $row++;
@@ -247,35 +251,37 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 1, userdate(time()));
     $row++;
 
-    $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
-
-    // Print group status.
-    $worksheet->write_string($row, 0, get_string('groups').' :', $xlsformats['b']);
-    $str = '';
-    if (!empty($usergroups)) {
-        foreach ($usergroups as $group) {
-            $str = $group->name;
-            if ($group->id == groups_get_course_group($course)) {
-                $str = "[$str]";
+    if ($courseid) {
+        $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
+    
+        // Print group status.
+        $worksheet->write_string($row, 0, get_string('groups').' :', $xlsformats['b']);
+        $str = '';
+        if (!empty($usergroups)) {
+            foreach ($usergroups as $group) {
+                $str = $group->name;
+                if ($group->id == groups_get_course_group($course)) {
+                    $str = "[$str]";
+                }
+                $groupnames[] = format_string($str);
             }
-            $groupnames[] = format_string($str);
+            $str = implode(', ', $groupnames);
         }
-        $str = implode(', ', $groupnames);
+
+        $worksheet->write_string($row, 1, $str);
+        $row++;
+
+        $context = context_course::instance($courseid);
+        $worksheet->write_string($row, 0, get_string('roles').' :', $xlsformats['b']);
+        $roles = get_user_roles($context, $userid);
+        $rolenames = array();
+        foreach ($roles as $role) {
+            $rolenames[] = $role->shortname;
+        }
+        $worksheet->write_string($row, 1, strip_tags(implode(",", $rolenames)));
+    
+        $row++;
     }
-
-    $worksheet->write_string($row, 1, $str);
-    $row++;
-
-    $context = context_course::instance($courseid);
-    $worksheet->write_string($row, 0, get_string('roles').' :', $xlsformats['b']);
-    $roles = get_user_roles($context, $userid);
-    $rolenames = array();
-    foreach ($roles as $role) {
-        $rolenames[] = $role->shortname;
-    }
-    $worksheet->write_string($row, 1, strip_tags(implode(",", $rolenames)));
-
-    $row++;
 
     // Print completion bar.
     if (empty($data->items)) {

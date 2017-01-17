@@ -63,7 +63,7 @@ $context = context_course::instance($course->id);
 
 // Security.
 
-trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course);
 
 // Calculate start time. Defaults ranges to all course range.
 

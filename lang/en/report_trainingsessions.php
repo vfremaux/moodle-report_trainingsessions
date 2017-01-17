@@ -175,6 +175,9 @@ $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header p
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
 $string['pluginname'] = 'Training Sessions';
+$string['plugindist'] = 'Plugin distribution';
+$string['emulatecommunity'] = 'Emulate community version';
+$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. This might loose features !';
 $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
 $string['printsessiontotal'] = 'Display the overal session elapsed time';
@@ -349,3 +352,10 @@ $string['replaydelay_help'] = '
 $string['reportscope_help'] = '
 <p>Some reports allow scanning all courses of the user. Note that some reports do not use the scope.</p>
 ';
+
+$string['plugindist_desc'] = '<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
+core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
+and improvement effort.</p>
+<p>Please contact one of our distributors to get "Pro" version support.</p>
+<ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
+<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>';

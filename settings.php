@@ -181,7 +181,7 @@ if ($ADMIN->fulltree) {
         $key = 'report_trainingsessions/enablelearningtimecheckcoupling';
         $label = get_string('enablelearningtimecheckcoupling', 'report_trainingsessions');
         $desc = get_string('enablelearningtimecheckcoupling_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '225'));
+        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '1'));
 
         $key = 'report_trainingsessions/learningtimesessioncrop';
         $label = get_string('learningtimesessioncrop', 'report_trainingsessions');
@@ -189,5 +189,19 @@ if ($ADMIN->fulltree) {
         $cropoptions = array('mark' => get_string('mark', 'report_trainingsessions'),
                              'crop' => get_string('crop', 'report_trainingsessions'));
         $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
+    }
+
+    if (report_trainingsessions_supports_feature('emulate/community')) {
+        // This will accept any.
+        $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_trainingsessions'), ''));
+
+        $key = 'report_trainingsessions/emulatecommunity';
+        $label = get_string('emulatecommunity', 'report_trainingsessions');
+        $desc = get_string('emulatecommunity_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+    } else {
+        $label = get_string('plugindist', 'report_trainingsessions');
+        $desc = get_string('plugindist_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
     }
 }

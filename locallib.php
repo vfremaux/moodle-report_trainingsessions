@@ -44,13 +44,15 @@ define('TR_TIMEGRADE_GRADE', -1);
 define('TR_TIMEGRADE_BONUS', -2);
 
 /**
- * Tells wether a feature is supported or not. Gives back the 
+ * Tells wether a feature is supported or not. Gives back the
  * implementation path where to fetch resources.
  * @param string $feature a feature key to be tested.
  */
 function report_trainingsessions_supports_feature($feature) {
     global $CFG;
     static $supports;
+
+    $config = get_config('report_trainingsessions');
 
     if (!isset($supports)) {
         $supports = array(
@@ -64,10 +66,19 @@ function report_trainingsessions_supports_feature($feature) {
                 'replay' => array('single', 'replay'),
             ),
         );
+        $prefer = array();
     }
 
-    if (is_dir($CFG->dirroot.'/report/trainingsessions/pro')) {
-        $versionkey = 'pro';
+    // Check existance of the 'pro' dir in plugin.
+    if (is_dir(__DIR__.'/pro')) {
+        if ($feature == 'emulate/community') {
+            return 'pro';
+        }
+        if (empty($config->emulatecommunity)) {
+            $versionkey = 'pro';
+        } else {
+            $versionkey = 'community';
+        }
     } else {
         $versionkey = 'community';
     }
@@ -85,6 +96,16 @@ function report_trainingsessions_supports_feature($feature) {
     // Special condition for pdf dependencies.
     if (($feature == 'format/pdf') && !is_dir($CFG->dirroot.'/local/vflibs')) {
         return false;
+    }
+
+    if (in_array($subfeat, $supports['community'][$feat])) {
+        // If community exists, default path points community code.
+        if (isset($prefer[$feat][$subfeat])) {
+            // Configuration tells which location to prefer if explicit.
+            $versionkey = $prefer[$feat][$subfeat];
+        } else {
+            $versionkey = 'community';
+        }
     }
 
     return $versionkey;
@@ -135,7 +156,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
             $structure[] = $pageelement;
         }
     } else if ($course->format == 'flexsections') {
-            trainingsessions_fill_structure_from_flexiblesections($structure, null, $itemcount);
+        trainingsessions_fill_structure_from_flexiblesections($structure, null, $itemcount);
     } else {
         // Browse through course_sections and collect course items.
         $structure = array();
@@ -914,7 +935,7 @@ function report_trainingsessions_back_office_access($course = null) {
     if (!empty($securitytoken)) {
         if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
             include_once($CFG->dirroot.'/auth/ticket/lib.php');
-            if (!ticket_decodeTicket($securitytoken)) {
+            if (!ticket_decode($securitytoken)) {
                 die('Access is denied by Ticket Auth');
             }
         } else {
@@ -1273,7 +1294,7 @@ function report_trainingsessions_get_batch_replays() {
     return $options;
 }
 
-function report_trainingsession_batch_input($course) {
+function report_trainingsessions_batch_input($course) {
     $input = new StdClass;
 
     $startday = optional_param('startday', -1, PARAM_INT); // From (-1 is from course start).
@@ -1285,7 +1306,7 @@ function report_trainingsession_batch_input($course) {
     $fromstart = optional_param('fromstart', 0, PARAM_INT); // Force reset to course startdate.
     $input->from = optional_param('from', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
     $input->to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
-    $input->timesession = required_param('timesession', PARAM_INT); // Time of the generation batch.
+    $input->timesession = optional_param('timesession', time(), PARAM_INT); // Time of the generation batch.
     $input->readabletimesession = date('Y/m/d H:i:s', $input->timesession);
     $input->filenametimesession = date('Ymd_His', $input->timesession);
     $input->sessionday = date('Ymd', $input->timesession);

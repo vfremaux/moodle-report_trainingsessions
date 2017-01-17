@@ -1283,7 +1283,7 @@ function report_trainingsessions_get_batch_replays() {
     return $options;
 }
 
-function report_trainingsession_batch_input($course) {
+function report_trainingsessions_batch_input($course) {
     $input = new StdClass;
 
     $startday = optional_param('startday', -1, PARAM_INT); // From (-1 is from course start).
@@ -1295,7 +1295,7 @@ function report_trainingsession_batch_input($course) {
     $fromstart = optional_param('fromstart', 0, PARAM_INT); // Force reset to course startdate.
     $input->from = optional_param('from', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
     $input->to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
-    $input->timesession = required_param('timesession', PARAM_INT); // Time of the generation batch.
+    $input->timesession = optional_param('timesession', time(), PARAM_INT); // Time of the generation batch.
     $input->readabletimesession = date('Y/m/d H:i:s', $input->timesession);
     $input->filenametimesession = date('Ymd_His', $input->timesession);
     $input->sessionday = date('Ymd', $input->timesession);

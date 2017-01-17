@@ -13,8 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * json data format
  *
@@ -23,6 +21,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   Valery Fremaux (valery.fremaux@gmail.com)
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 function report_trainingsessions_print_userinfo(&$csvbuffer, $user) {
 
@@ -111,8 +110,9 @@ function report_trainingsessions_print_course_structure(&$csvbuffer, &$structure
 
 /**
  * A raster for printing in raw format with all the relevant data about a user.
- * @param int $userid user to compile info for
  * @param int $courseid the course to compile reports in
+ * @param arrayref &$cols the course to compile reports in
+ * @param objectref &$user user to compile info for
  * @param objectref &$data input data to aggregate. Provides time information as 'elapsed" and 'weekelapsed' members.
  * @param string &$rawstr the output buffer reference. Column names come from outside.
  * @param int $from compilation start time

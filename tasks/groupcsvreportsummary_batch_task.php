@@ -31,8 +31,8 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$groupid = required_param('groupid', PARAM_INT) ; // The group id.
+$id = required_param('id', PARAM_INT); // The course id.
+$groupid = required_param('groupid', PARAM_INT); // Group id.
 
 ini_set('memory_limit', '512M');
 
@@ -47,18 +47,16 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 report_trainingsessions_back_office_access($course);
 
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
-
-// TODO : secure groupid access depending on proper capabilities.
-
 // Compute target group.
 
 $group = $DB->get_record('groups', array('id' => $groupid));
 
 if ($groupid) {
     $targetusers = groups_get_members($groupid);
+    $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".csv";
 } else {
     $targetusers = get_enrolled_users($context);
+    $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".csv";
 }
 
 // Filter out non compiling users.
@@ -67,24 +65,31 @@ report_trainingsessions_filter_unwanted_users($targetusers, $course);
 // Print result.
 
 $csvbuffer = '';
-report_trainingsessions_print_courses_line_header($csvbuffer);
+report_trainingsessions_print_global_header($csvbuffer);
 
 if (!empty($targetusers)) {
-    // generate XLS
-
-    if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".csv";
-    } else {
-        $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".csv";
-    }
+    // generate CSV.
 
     foreach ($targetusers as $auser) {
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
         $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
+        $weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->from - WEEKSECS);
 
-        report_trainingsessions_print_courses_line($csvbuffer, $aggregate, $auser);
+        /*
+        $globalresults = new StdClass;
+        $globalresults->elapsed = 0 + @$aggregate[$userid]['course'][$id]->elapsed;
+        $globalresults->elapsed += @$aggregate[$userid]['activities'][$id]->elapsed;
+        $globalresults->elapsed += @$aggregate[$userid]['other'][$id]->elapsed;
+
+        $globalresults->weekelapsed = 0 + @$weekaggregate[$userid]['course'][$id]->elapsed;
+        $globalresults->weekelapsed += @$weekaggregate[$userid]['activities'][$id]->elapsed;
+        $globalresults->weekelapsed += @$weekaggregate[$userid]['other'][$id]->elapsed;
+        */
+
+        $cols = report_trainingsessions_get_summary_cols();
+        report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer);
     }
 
 }

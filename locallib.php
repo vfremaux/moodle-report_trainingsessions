@@ -44,7 +44,7 @@ define('TR_TIMEGRADE_GRADE', -1);
 define('TR_TIMEGRADE_BONUS', -2);
 
 /**
- * Tells wether a feature is supported or not. Gives back the 
+ * Tells wether a feature is supported or not. Gives back the
  * implementation path where to fetch resources.
  * @param string $feature a feature key to be tested.
  */
@@ -66,6 +66,7 @@ function report_trainingsessions_supports_feature($feature) {
                 'replay' => array('single', 'replay'),
             ),
         );
+        $prefer = array();
     }
 
     // Check existance of the 'pro' dir in plugin.
@@ -95,6 +96,16 @@ function report_trainingsessions_supports_feature($feature) {
     // Special condition for pdf dependencies.
     if (($feature == 'format/pdf') && !is_dir($CFG->dirroot.'/local/vflibs')) {
         return false;
+    }
+
+    if (in_array($subfeat, $supports['community'][$feat])) {
+        // If community exists, default path points community code.
+        if (isset($prefer[$feat][$subfeat])) {
+            // Configuration tells which location to prefer if explicit.
+            $versionkey = $prefer[$feat][$subfeat];
+        } else {
+            $versionkey = 'community';
+        }
     }
 
     return $versionkey;
@@ -924,7 +935,7 @@ function report_trainingsessions_back_office_access($course = null) {
     if (!empty($securitytoken)) {
         if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
             include_once($CFG->dirroot.'/auth/ticket/lib.php');
-            if (!ticket_decodeTicket($securitytoken)) {
+            if (!ticket_decode($securitytoken)) {
                 die('Access is denied by Ticket Auth');
             }
         } else {

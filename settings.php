@@ -192,7 +192,7 @@ if ($ADMIN->fulltree) {
     }
 
     if (report_trainingsessions_supports_feature('emulate/community')) {
-        // This will accept any
+        // This will accept any.
         $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_trainingsessions'), ''));
 
         $key = 'report_trainingsessions/emulatecommunity';

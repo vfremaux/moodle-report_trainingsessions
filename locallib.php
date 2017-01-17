@@ -1283,7 +1283,7 @@ function report_trainingsessions_get_batch_replays() {
     return $options;
 }
 
-function report_trainingsessions_batch_input($course) {
+function report_trainingsession_batch_input($course) {
     $input = new StdClass;
 
     $startday = optional_param('startday', -1, PARAM_INT); // From (-1 is from course start).

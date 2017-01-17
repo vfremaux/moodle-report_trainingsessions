@@ -198,10 +198,6 @@ if ($ADMIN->fulltree) {
         $key = 'report_trainingsessions/emulatecommunity';
         $label = get_string('emulatecommunity', 'report_trainingsessions');
         $desc = get_string('emulatecommunity_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
-    } else {
-        $label = get_string('plugindist', 'report_trainingsessions');
-        $desc = get_string('plugindist_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
+        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '1'));
     }
 }

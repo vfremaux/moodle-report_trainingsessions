@@ -44,6 +44,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
+$PAGE->set_context($context);
 
 if (!$user = $DB->get_record('user', array('id' => $userid))) {
     // Do NOT print_error here as we are a document writer.

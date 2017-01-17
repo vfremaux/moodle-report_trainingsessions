@@ -26,7 +26,7 @@ require_once $CFG->libdir.'/formslib.php';
 
 class Task_Form extends moodleform {
 
-    function definition() {
+    public function definition() {
 
         $mform = $this->_form;
 
@@ -77,7 +77,9 @@ class Task_Form extends moodleform {
         $mform->addElement('hidden', 'taskname', get_string('task', 'report_trainingsessions', $optionsstr));
         $mform->setType('taskname', PARAM_TEXT);
 
-        $mform->addElement('static', 'tasknamestatic', get_string('taskname', 'report_trainingsessions'), get_string('task', 'report_trainingsessions', $optionsstr));
+        $label = get_string('taskname', 'report_trainingsessions');
+        $desc = get_string('task', 'report_trainingsessions', $optionsstr);
+        $mform->addElement('static', 'tasknamestatic', $label, $desc);
 
         // Which data to export and how to build the report.
         $layoutoptions = array(
@@ -101,20 +103,20 @@ class Task_Form extends moodleform {
         $options = report_trainingsessions_get_batch_formats();
         $mform->addElement('select', 'reportformat', get_string('reportformat', 'report_trainingsessions'), $options);
 
-        // In which directory to store results
+        // In which directory to store results.
         $mform->addElement('text', 'outputdir', get_string('outputdir', 'report_trainingsessions'), array('size' => 80));
         $mform->setType('outputdir', PARAM_PATH);
         $mform->addHelpButton('outputdir', 'outputdir', 'report_trainingsessions');
 
-        // When to perform the report
+        // When to perform the report.
         $mform->addElement('date_time_selector', 'batchdate', get_string('batchdate', 'report_trainingsessions'));
         $mform->addHelpButton('batchdate', 'batchdate', 'report_trainingsessions');
 
-        // Do the report needs to be rerun later ?
+        // Do the report needs to be rerun later?
         $options = report_trainingsessions_get_batch_replays();
         $mform->addElement('select', 'replay', get_string('replay', 'report_trainingsessions'), $options);
 
-        // If rerun, in what delay ?
+        // If rerun, in what delay?
         $mform->addElement('text', 'replaydelay', get_string('replaydelay', 'report_trainingsessions'), array('size' => 10));
         $mform->setType('replaydelay', PARAM_INT);
         $mform->setDefault('replaydelay', 1440);
@@ -124,7 +126,7 @@ class Task_Form extends moodleform {
         $this->add_action_buttons();
     }
 
-    function validation($data, $files = null) {
+    public function validation($data, $files = null) {
         global $CFG;
 
         if (preg_match('#^'.$CFG->dataroot.'#', $data['outputdir'])) {

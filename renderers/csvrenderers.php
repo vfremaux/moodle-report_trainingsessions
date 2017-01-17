@@ -150,3 +150,110 @@ function report_trainingsessions_print_global_header(&$csvbuffer) {
         $csvbuffer = implode(';', $colskeys)."\n";
     }
 }
+
+function report_trainingsessions_print_session_header(&$csvbuffer) {
+
+    $colheads = array(
+        'sessionstart',
+        'sessionend',
+        'elapsedsecs',
+        'elapsedsecs'
+    );
+
+    $csvbuffer = implode(';', $colheads)."\n";
+}
+
+/**
+ * print session table in an initialied worksheet
+ * @param object $worksheet
+ * @param int $row
+ * @param array $sessions
+ * @param object $course
+ * @param object $xlsformats
+ */
+function report_trainingsessions_print_usersessions(&$csvbuffer, $userid, $courseorid, $from, $to, $id) {
+    global $CFG, $DB;
+
+    if (is_object($courseorid)) {
+        $course = $courseorid;
+    } else {
+        $course = $DB->get_record('course', array('id' => $courseorid));
+    }
+
+    // Get data.
+    $logs = use_stats_extract_logs($from, $to, $userid, $course);
+    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
+
+    if (report_trainingsessions_supports_feature('calculation/coupling')) {
+        $config = get_config('report_traningsessions');
+        if (!empty($config->enablelearningtimecheckcoupling)) {
+            require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
+            $ltcconfig = get_config('report_learningtimecheck');
+        }
+    }
+
+    $totalelapsed = 0;
+
+    if (!empty($sessions)) {
+        foreach ($sessions as $session) {
+
+            if ($courseid && !array_key_exists($courseid, $session->courses)) {
+                // Omit all sessions not visiting this course.
+                continue;
+            }
+
+            // Fix eventual missing session end.
+            if (!isset($session->sessionend) && empty($session->elapsed)) {
+                // This is a "not true" session reliquate. Ignore it.
+                continue;
+            }
+
+            // Fix all incoming sessions. possibly cropped by threshold effect.
+            $session->sessionend = $session->sessionstart + $session->elapsed;
+
+            $daysessions = report_trainingsessions_splice_session($session);
+
+            foreach ($daysessions as $s) {
+
+                if (!empty($config->enablelearningtimecheckcoupling)) {
+
+                    if (!empty($ltcconfig->checkworkingdays) || !empty($ltcconfig->checkworkinghours)) {
+                        if (!empty($ltcconfig->checkworkingdays)) {
+                            if (!report_learningtimecheck_is_valid($fakecheck)) {
+                                continue;
+                            }
+                        }
+
+                        if (!empty($ltcconfig->checkworkinghours)) {
+                            if (!report_learningtimecheck_check_day($fakecheck, $ltcconfig)) {
+                                continue;
+                            }
+        
+                            report_learningtimecheck_crop_session($s, $ltcconfig);
+                            if ($s->sessionstart && $s->sessionend) {
+                                // Segment was not invalidated, possibly shorter than original.
+                                $s->elapsed = $s->sessionend - $s->sessionstart;
+                            } else {
+                                // Croping results concluded into an invalid segment.
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                $dataline[] = report_trainingsessions_format_time(@$s->sessionstart, 'html');
+                if (!empty($s->sessionend)) {
+                    $dataline[] = report_trainingsessions_format_time(@$s->sessionend, 'html');
+                } else {
+                    $dataline[] = '';
+                }
+                $dataline[] = $s->elapsed;
+                $dataline[] = report_trainingsessions_format_time(0 + @$s->elapsed, 'html');
+                $totalelapsed += 0 + @$s->elapsed;
+
+                $csvbuffer .= implode(';', $dataline)."\n";
+            }
+        }
+    }
+    return $totalelapsed;
+}

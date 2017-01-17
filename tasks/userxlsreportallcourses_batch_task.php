@@ -34,6 +34,7 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/blocks/use_stats/xlib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
+require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT); // The course id (context for user targets).
 $userid = required_param('userid', PARAM_INT); // User id.
@@ -80,9 +81,14 @@ $workbook->send($filename);
 $xlsformats = report_trainingsessions_xls_formats($workbook);
 
 // Define variables.
+$startrow = 15; // Start data output at this line, under user info.
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook);
 
-$y = report_trainingsessions_print_userinfo($workbook, $y, $user, $course, $input->from, $input->to, null, $config->recipient);
+report_trainingsessions_print_header_xls($worksheet, $userid, 0, $data, $xlsformats);
 
+$y = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
+
+/*
 $y = report_trainingsessions_print_courseline_head($workbook, $y, $table);
 
 foreach (array_keys($displaycourses) as $courseid) {
@@ -99,6 +105,7 @@ if (!empty($config->showhits)) {
     $summators[] = $fullevents;
 }
 $y = report_trainingsessions_print_sumline($pdf, $y, $summators, $table);
+*/
 
 // Sending HTTP headers.
 ob_end_clean();

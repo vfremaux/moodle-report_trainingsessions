@@ -32,7 +32,7 @@ require('../../../config.php');
 ob_start();
 require_once $CFG->dirroot.'/blocks/use_stats/locallib.php';
 require_once $CFG->dirroot.'/report/trainingsessions/locallib.php';
-require_once $CFG->dirroot.'/report/trainingsessions/xlsrenderers.php';
+require_once $CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php';
 require_once($CFG->libdir.'/excellib.class.php');
 require_once $CFG->libdir.'/gradelib.php';
 
@@ -65,7 +65,7 @@ if ($groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers);
+report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // print result.
 
@@ -95,7 +95,8 @@ if (!empty($targetusers)) {
 
     report_trainingsessions_add_graded_columns($headtitles, $headerformats, $dataformats);
 
-    $headerformat = array_pad(array(), count($headtitles), 'p');
+    $headerformats = array_pad(array(), count($headtitles), 'a');
+
     $row = report_trainingsessions_print_rawline_xls($worksheet, $headtitles, $headerformats, $row, $xlsformats);
 
     foreach ($targetusers as $auser) {
@@ -106,24 +107,11 @@ if (!empty($targetusers)) {
         $weeklogs = use_stats_extract_logs($input->to - DAYSECS * 7, $input->to, array($auser->id), $course->id);
         $weekaggregate = use_stats_aggregate_logs($weeklogs, 'module');
 
-        $data = array();
-        $data[] = $auser->idnumber;
-        $data[] = $auser->lastname;
-        $data[] = $auser->firstname;
-        $data[] = $auser->institution;
-        $data[] = $auser->firstaccess;
-        $data[] = $auser->lastlogin;
-        $data[] = count(@$aggregate['sessions']);
-        $data[] = 0 + @$items;
-        $data[] = (is_array(@$aggregate['activities']->instances)) ? count(@$aggregate['activities']->instances) : 0;
-        $data[] = 0 + @$aggregate['coursetotal'][$course->id]->elapsed;
-        $data[] = 0 + @$aggregate['coursetotal'][$course->id]->events;
-        $data[] = 0 + @$weekaggregate['coursetotal'][$course->id]->elapsed;
-        $data[] = 0 + @$weekaggregate['coursetotal'][$course->id]->events;
+        $cols = report_trainingsessions_get_summary_cols();
+        $data = report_trainingsessions_map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
 
         report_trainingsessions_add_graded_data($data, $auser->id, $aggregate);
-
-        $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xls_formats);
+        $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xlsformats);
 
     }
     $workbook->close();

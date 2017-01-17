@@ -63,26 +63,25 @@ if ($groupid) {
     $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".xls";
 }
 
-report_trainingsessions_filter_unwanted_users($targetusers);
+report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Print result.
 
+// generate XLS.
+
+$workbook = new MoodleExcelWorkbook("-");
+if (!$workbook) {
+    die("Excel Librairies Failure");
+}
+
+// Sending HTTP headers.
+ob_end_clean();
+$workbook->send($filename);
+
+$xlsformats = report_trainingsessions_xls_formats($workbook);
+$startrow = 15;
+
 if (!empty($targetusers)) {
-
-    // generate XLS.
-
-    $workbook = new MoodleExcelWorkbook("-");
-    if (!$workbook) {
-        die("Excel Librairies Failure");
-    }
-
-    // Sending HTTP headers.
-    ob_end_clean();
-    $workbook->send($filename);
-
-    $xlsformats = report_trainingsessions_xls_formats($workbook);
-    $startrow = 15;
-
     foreach ($targetusers as $auser) {
 
         $row = $startrow;
@@ -102,8 +101,11 @@ if (!empty($targetusers)) {
         report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
 
         $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
-        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $xlsformats);
+        report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xlsformats);
         report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
     }
-    $workbook->close();
+} else {
+    $workbook->add_worksheet('No users');
 }
+
+$workbook->close();

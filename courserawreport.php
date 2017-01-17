@@ -307,8 +307,8 @@ if (!empty($CFG->trainingreporttasks)) {
                 $params['groupid'] = $task->groupid;
             }
             $dist = report_trainingsessions_supports_feature('format/'.$task->reportformat);
-            $distpath = ($dist == 'pro/') ? $dist : '';
-            $batchloc = '/report/trainingsessions/bachs/'.$distpath.'group'.$task->reportformat.'report_batch.php';
+            $distpath = ($dist == 'pro') ? 'pro/' : '';
+            $batchloc = '/report/trainingsessions/'.$distpath.'batchs/group'.$task->reportformat.'report_batch.php';
             $batchurl = new moodle_url($batchloc, $params);
             $attrs = array('href' => $batchurl, 'target' => '_blank',
                            'title' => get_string('interactivetitle', 'report_trainingsessions'));

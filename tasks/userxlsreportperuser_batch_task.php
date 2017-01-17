@@ -36,7 +36,7 @@ require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT) ; // The course id.
 $userid = required_param('userid', PARAM_INT) ; // The group id.
-$reportscope = required_param('scope', PARAM_TEXT); // Only currentcourse is consistant.
+$reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // Only currentcourse is consistant.
 
 ini_set('memory_limit', '512M');
 
@@ -44,6 +44,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
+$PAGE->set_context($context);
 
 if (!$user = $DB->get_record('user', array('id' => $userid))) {
     // Do NOT print_error here as we are a document writer.
@@ -86,7 +87,7 @@ $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggr
 $data = new StdClass();
 $data->items = $items;
 $data->done = $done;
-$data->from = $from;
+$data->from = $input->from;
 $data->elapsed = $overall->elapsed;
 $data->events = $overall->events;
 report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);

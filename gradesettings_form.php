@@ -138,13 +138,17 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         if (empty($fdata)) {
             if ($linkedmodules = report_trainingsessions_get_graded_modules($COURSE->id)) {
                 foreach ($linkedmodules as $cidx => $cmid) {
-                    $moduleids[$cidx] = $cmid;
+					if ($cmid > 0) {
+						$moduleids[$cidx] = $cmid;
+					}
                 }
             }
         } else {
             if (isset($fdata['moduleid'])) {
                 foreach ($fdata['moduleid'] as $cidx => $cmid) {
-                    $moduleids[$cidx] = $cmid;
+					if ($cmid > 0) {
+						$moduleids[$cidx] = $cmid;
+					}
                 }
             }
         }

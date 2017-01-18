@@ -69,18 +69,19 @@ if ($data = $form->get_data()) {
         $rec->ranges = '';
         $DB->insert_record('report_trainingsessions', $rec);
     }
-
-    foreach ($data->moduleid as $ix => $moduleid) {
-        if ($moduleid) {
-            $rec = new StdClass();
-            $rec->courseid = $COURSE->id;
-            $rec->moduleid = $moduleid;
-            $cminfo = $coursemodinfo->get_cm($moduleid);
-            $rec->label = (empty($data->scorelabel[$ix])) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->get_formatted_name()) : $data->scorelabel[$ix];
-            $rec->sortorder = $ix;
-            $rec->grade = 0;
-            $rec->ranges = '';
-            $DB->insert_record('report_trainingsessions', $rec);
+    if (property_exists($data, 'moduleid')) {
+        foreach ($data->moduleid as $ix => $moduleid) {
+            if ($moduleid) {
+                $rec = new StdClass();
+                $rec->courseid = $COURSE->id;
+                $rec->moduleid = $moduleid;
+                $cminfo = $coursemodinfo->get_cm($moduleid);
+                $rec->label = (empty($data->scorelabel[$ix])) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->get_formatted_name()) : $data->scorelabel[$ix];
+                $rec->sortorder = $ix;
+                $rec->grade = 0;
+                $rec->ranges = '';
+                $DB->insert_record('report_trainingsessions', $rec);
+            }
         }
     }
 

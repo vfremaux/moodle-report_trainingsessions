@@ -55,6 +55,7 @@ $renderer = $PAGE->get_renderer('report_trainingsessions');
 $coursemodinfo = get_fast_modinfo($course->id);
 
 if ($data = $form->get_data()) {
+
     // Delete all previous recordings.
     $DB->delete_records('report_trainingsessions', array('courseid' => $COURSE->id));
 

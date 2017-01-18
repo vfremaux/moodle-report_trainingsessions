@@ -98,13 +98,15 @@ function report_trainingsessions_supports_feature($feature) {
         return false;
     }
 
-    if (in_array($subfeat, $supports['community'][$feat])) {
-        // If community exists, default path points community code.
-        if (isset($prefer[$feat][$subfeat])) {
-            // Configuration tells which location to prefer if explicit.
-            $versionkey = $prefer[$feat][$subfeat];
-        } else {
-            $versionkey = 'community';
+    if (in_array($feat, $supports['community'])) {
+        if (in_array($subfeat, $supports['community'][$feat])) {
+            // If community exists, default path points community code.
+            if (isset($prefer[$feat][$subfeat])) {
+                // Configuration tells which location to prefer if explicit.
+                $versionkey = $prefer[$feat][$subfeat];
+            } else {
+                $versionkey = 'community';
+            }
         }
     }
 
@@ -1306,7 +1308,7 @@ function report_trainingsessions_batch_input($course) {
     $fromstart = optional_param('fromstart', 0, PARAM_INT); // Force reset to course startdate.
     $input->from = optional_param('from', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
     $input->to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
-    $input->timesession = required_param('timesession', PARAM_INT); // Time of the generation batch.
+    $input->timesession = optional_param('timesession', time(), PARAM_INT); // Time of the generation batch.
     $input->readabletimesession = date('Y/m/d H:i:s', $input->timesession);
     $input->filenametimesession = date('Ymd_His', $input->timesession);
     $input->sessionday = date('Ymd', $input->timesession);

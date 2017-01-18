@@ -652,15 +652,15 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 // We are requesting time grade.
                 $columns[] = 'timegrade';
                 $titles[] = get_string('output:timegrade', 'report_trainingsessions');
-                $formatadds[] = 'a';
+                $formats[] = 'a';
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 $columns[] = 'rawcoursegrade';
                 $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
-                $formatadds[] = 'a';
+                $formats[] = 'a';
 
                 $columns[] = 'timebonus';
                 $titles[] = get_string('output:timebonus', 'report_trainingsessions');
-                $formatadds[] = 'a';
+                $formats[] = 'a';
             }
         }
     }
@@ -671,7 +671,7 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         $courselabel = (empty($rec->label)) ? get_string('output:finalcoursegrade', 'report_trainingsessions') : $rec->label;
         $titles[] = $courselabel;
         $columns[] = 'finalcoursegrade';
-        $formatadds[] = 'a';
+        $formats[] = 'a';
     }
 }
 
@@ -719,8 +719,6 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
             }
         }
     }
-
-    // Add time grades.
 
     // Add course grade if required.
     $params = array('courseid' => $COURSE->id, 'moduleid' => 0);

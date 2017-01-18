@@ -30,7 +30,7 @@ $string['trainingsessions:downloadreports'] = 'Peut télécharger les rapports';
 $string['trainingsessions:batch'] = 'Peut programmer des rapports';
 
 $string['activitytime'] = 'Temps dans les activités&nbsp;';
-$string['addcoursegrade'] = 'Ajoute le note du cours au rapport';
+$string['addcoursegrade'] = 'Ajoute la note du cours au rapport';
 $string['addmodulelabel'] = 'Ajouter une activité';
 $string['addmoduletitle'] = 'Ajouter une activité dont la note doit apparaître dans le rapport';
 $string['addtimebonus'] = 'Bonus de note par le temps passé';

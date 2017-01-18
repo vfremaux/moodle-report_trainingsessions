@@ -52,7 +52,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $formgroup = array();
         $formgroup[] = &$mform->createElement('checkbox', 'coursegrade', get_string('addcoursegrade', 'report_trainingsessions'));
-        $formgroup[] = &$mform->createElement('text', 'courselabel', '');
+        $formgroup[] = &$mform->createElement('text', 'courselabel', '', array('size' => 60, 'maxlength' => 60));
         $mform->setType('courselabel', PARAM_TEXT);
         $mform->addGroup($formgroup, 'coursegroup', get_string('enablecoursescore', 'report_trainingsessions'), array(get_string('courselabel', 'report_trainingsessions').' '), false);
 
@@ -99,7 +99,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $mform->addElement('modgrade', 'timegrade', get_string('timegrade', 'report_trainingsessions'));
 
-        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), array('size' => 60));
+        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), array('size' => 80, 'maxlength' => 254));
         $mform->addHelpButton('timegraderanges', 'timegraderanges', 'report_trainingsessions');
         $mform->setType('timegraderanges', PARAM_TEXT);
 
@@ -164,7 +164,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             );
             $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $choices);
             $mform->setDefault('moduleid['.$ix.']', $modid);
-            $formgroup[] = & $mform->createElement('text', 'scorelabel['.$ix.']');
+            $formgroup[] = & $mform->createElement('text', 'scorelabel['.$ix.']', '', array('maxlength' => 60));
             $mform->setType('scorelabel['.$ix.']', PARAM_TEXT);
             $label = get_string('modgrade', 'report_trainingsessions', ($ix + 1));
             $padding = array(' '.get_string('columnname', 'report_trainingsessions'));

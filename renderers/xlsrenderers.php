@@ -594,9 +594,6 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
  */
 function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataformats, $row, &$xlsformats) {
 
-    print_object($data);
-    print_object($dataformats);
-
     for ($i = 0; $i < count($data); $i++) {
 
         if (!array_key_exists($dataformats[$i], $xlsformats)) {

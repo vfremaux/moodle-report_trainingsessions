@@ -30,7 +30,6 @@ $string['trainingsessions:batch'] = 'Can batch reports';
 
 $string['activitytime'] = 'Time in activities: ';
 $string['addcoursegrade'] = 'Add course grade to report';
-$string['addcoursegrade'] = 'Course scores';
 $string['addmodulelabel'] = 'Add activity module';
 $string['addmoduletitle'] = 'Add an activity module you want to add grade in report';
 $string['addtimebonus'] = 'time bonus on overal grade';
@@ -40,6 +39,7 @@ $string['allcourses'] = 'All courses';
 $string['allcourses'] = 'All courses';
 $string['allgroups'] = 'All groups';
 $string['authoritysign'] = 'Education Authority';
+$string['availableactivities'] = 'Available activities';
 $string['batchdate'] = 'Task date ';
 $string['batchreports_task'] = 'Batch reports';
 $string['bgcolor'] = 'Background color';

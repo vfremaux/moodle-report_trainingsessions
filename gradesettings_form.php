@@ -142,15 +142,28 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
                 }
             }
         } else {
-            foreach ($fdata['moduleid'] as $cidx => $cmid) {
-                $moduleids[$cidx] = $cmid;
+            if (isset($fdata['moduleid'])) {
+                foreach ($fdata['moduleid'] as $cidx => $cmid) {
+                    $moduleids[$cidx] = $cmid;
+                }
             }
         }
-
+        
+        if (isset($fdata['linkablemodules']) && is_array($fdata['linkablemodules'])) {
+            foreach($fdata['linkablemodules'] as $linkablemodule) {
+                $moduleids[] = $linkablemodule;
+            }
+        }
+        $moduleids = array_unique($moduleids);
         $ix = 0;
         foreach ($moduleids as $cidx => $modid) {
             $formgroup = array();
-            $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $this->linkablemodules);
+            $choices = array(
+                0 => get_string('disabled', 'report_trainingsessions'),
+                $modid => $this->linkablemodules[$modid]
+            );
+            $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $choices);
+            $mform->setDefault('moduleid['.$ix.']', $modid);
             $formgroup[] = & $mform->createElement('text', 'scorelabel['.$ix.']');
             $mform->setType('scorelabel['.$ix.']', PARAM_TEXT);
             $label = get_string('modgrade', 'report_trainingsessions', ($ix + 1));
@@ -160,17 +173,14 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             $ix++;
         }
 
-        // add a blank pod marked as -n
-        $modcount = count($moduleids);
-        $formgroup = array();
-        $formgroup[] = & $mform->createElement('select', 'moduleid['.$modcount.']', '', $this->linkablemodules);
-        $mform->setDefault('moduleid['.$modcount.']', 0);
-        $formgroup[] = & $mform->createElement('text', 'scorelabel['.$modcount.']');
-        $mform->setType('scorelabel['.$modcount.']', PARAM_TEXT);
-        $label = get_string('modgrade', 'report_trainingsessions', ($modcount + 1));
-        $padding = array(' '.get_string('columnname', 'report_trainingsessions'));
-        $group =& $mform->createElement('group', 'modgrade'.$modcount, $label, $formgroup, $padding, false);
-        $mform->insertElementBefore($group, 'addmodule');
+        //$modcount = count($moduleids);
+        $availablemodules = $this->linkablemodules;
+        unset($availablemodules[0]);
+        $linkablemodules = $mform->createElement('select', 'linkablemodules',get_string('availableactivities', 'report_trainingsessions'), $availablemodules, array('size' => 10));
+        $linkablemodules->setMultiple(true);
+        
+        $formgroup[] = $linkablemodules;
+        $mform->insertElementBefore($linkablemodules, 'addmodule');
     }
 
     public function validation($data, $files) {

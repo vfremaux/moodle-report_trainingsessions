@@ -90,10 +90,11 @@ if (!empty($targetusers)) {
     $sheetdate = date('d-M-Y', time());
     $worksheet = $workbook->add_worksheet($sheetdate);
 
+    $cols = report_trainingsessions_get_summary_cols();
     $headtitles = report_trainingsessions_get_summary_cols('title');
     $dataformats = report_trainingsessions_get_summary_cols('format');
 
-    report_trainingsessions_add_graded_columns($headtitles, $headerformats, $dataformats);
+    report_trainingsessions_add_graded_columns($cols, $headtitles, $dataformats);
 
     $headerformats = array_pad(array(), count($headtitles), 'a');
 

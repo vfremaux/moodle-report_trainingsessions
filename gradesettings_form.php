@@ -138,19 +138,23 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         if (empty($fdata)) {
             if ($linkedmodules = report_trainingsessions_get_graded_modules($COURSE->id)) {
                 foreach ($linkedmodules as $cidx => $cmid) {
-                    $moduleids[$cidx] = $cmid;
+                    if ($cmid > 0) {
+                        $moduleids[$cidx] = $cmid;
+                    }
                 }
             }
         } else {
             if (isset($fdata['moduleid'])) {
                 foreach ($fdata['moduleid'] as $cidx => $cmid) {
-                    $moduleids[$cidx] = $cmid;
+                    if ($cmid > 0) {
+                        $moduleids[$cidx] = $cmid;
+                    }
                 }
             }
         }
-        
+
         if (isset($fdata['linkablemodules']) && is_array($fdata['linkablemodules'])) {
-            foreach($fdata['linkablemodules'] as $linkablemodule) {
+            foreach ($fdata['linkablemodules'] as $linkablemodule) {
                 $moduleids[] = $linkablemodule;
             }
         }
@@ -159,7 +163,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         foreach ($moduleids as $cidx => $modid) {
             $formgroup = array();
             $choices = array(
-                0 => get_string('disabled', 'report_trainingsessions'),
+                '' => get_string('disabled', 'report_trainingsessions'),
                 $modid => $this->linkablemodules[$modid]
             );
             $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $choices);
@@ -173,12 +177,11 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             $ix++;
         }
 
-        //$modcount = count($moduleids);
         $availablemodules = $this->linkablemodules;
         unset($availablemodules[0]);
         $linkablemodules = $mform->createElement('select', 'linkablemodules',get_string('availableactivities', 'report_trainingsessions'), $availablemodules, array('size' => 10));
         $linkablemodules->setMultiple(true);
-        
+
         $formgroup[] = $linkablemodules;
         $mform->insertElementBefore($linkablemodules, 'addmodule');
     }

@@ -139,11 +139,13 @@ if (array_key_exists('upload', $aggregate)) {
 
 // Get additional grade columns and add to passed dataobject for header.
 report_trainingsessions_add_graded_data($gradecols, $data->userid, $aggregate);
-$dataobject->gradecols = $gradecols;
 
 $user = $DB->get_record('user', array('id' => $data->userid));
-report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id);
-echo report_trainingsessions_print_header_html($data->userid, $course->id, $dataobject);
+$cols = report_trainingsessions_get_summary_cols();
+$headdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
+$headdata['sessions'] = $dataobject->sessions;
+$headdata['gradecols'] = $gradecols;
+echo report_trainingsessions_print_header_html($data->userid, $course->id, (object)$headdata);
 
 report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
 

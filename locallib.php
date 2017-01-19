@@ -1446,12 +1446,15 @@ function report_trainingsessions_get_summary_cols($what = false) {
 /**
  * Extract cols data in order.
  */
-function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0) {
+function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0, $associative = false) {
     global $COURSE;
 
     if ($courseid == 0) {
         $courseid = $COURSE->id;
     }
+
+    $t = $aggregate['coursetotal'];
+    $w = $weekaggregate['coursetotal'];
 
     $colsources = array(
         'id' => $user->id,
@@ -1463,12 +1466,16 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'department' => $user->department,
         'lastlogin' => $user->lastlogin,
         'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
-        'elapsed' => 0 + @$aggregate['coursetotal'][$courseid]->elapsed,
-        'items' => 0 + @$aggregate['coursetotal'][$courseid]->items,
-        'hits' => 0 + @$aggregate['coursetotal'][$courseid]->events,
-        'visiteditems' => 0 + @$aggregate['coursetotal'][$courseid]->visiteditems,
-        'elapsedlastweek' => 0 + @$weekaggregate['coursetotal'][$courseid]->elapsed,
-        'hitslastweek' => 0 + @$weekaggregate['coursetotal'][$courseid]->events
+        'elapsed' => 0 + @$t[$courseid]->elapsed,
+        'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
+        'items' => 0 + @$t[$courseid]->items,
+        'hits' => 0 + @$t[$courseid]->events,
+        'exthits' => 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events,
+        'visiteditems' => 0 + @$t[$courseid]->visiteditems,
+        'elapsedlastweek' => 0 + @$w[$courseid]->elapsed,
+        'extelapsedlastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
+        'hitslastweek' => 0 + @$w[$courseid]->events,
+        'exthitslastweek' => 0 + @$w[$courseid]->events + @$w[0]->events +  + @$w[1]->events
     );
 
     $data = array();
@@ -1476,7 +1483,11 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
     foreach ($cols as $colkey) {
         // Inexisting col sources may be processed later by additional functions.
         if (in_array($colkey, $colkeys)) {
-            $data[] = $colsources[$colkey];
+            if ($associative) {
+                $data[] = $colsources[$colkey];
+            } else {
+                $data[$colkey] = $colsources[$colkey];
+            }
         }
     }
 

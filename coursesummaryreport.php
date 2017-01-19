@@ -188,7 +188,7 @@ if (!empty($summarizedusers)) {
         echo '<td>'.$line.'</td>';
         foreach ($auser as $fieldname => $field) {
             if (in_array($fieldname, $durationcols)) {
-                $cssclass = 'right';
+                $cssclass = 'report-col-right';
                 echo '<td class="'.$cssclass.'">'.report_trainingsessions_format_time($field, 'html').'</td>';
             } else if (in_array($fieldname, $colskeys)) {
                 // Those may come from grade columns.

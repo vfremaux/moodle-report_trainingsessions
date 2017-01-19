@@ -527,7 +527,19 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             }
             return "{$secs}s";
         } else if ($mode == 'xlsd') {
-            return ($timevalue)? ($timevalue / DAYSECS): 0;
+            $secs = $timevalue % 60;
+            $mins = floor($timevalue / 60);
+            $hours = floor($mins / 60);
+            $mins = $mins % 60;
+
+            if ($hours > 0) {
+                return "{$hours}:{$mins}:{$secs}s";
+            }
+            if ($mins > 0) {
+                return "00:{$mins}:{$secs}";
+            }
+            return "00:00:{$secs}";
+            // return ($timevalue)? ($timevalue / DAYSECS): 0;
         } else {
             // For excel time format we need have a fractional day value.
             return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
@@ -695,7 +707,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
         foreach ($graderecs as $rec) {
             $modulegrade = report_trainingsessions_get_module_grade($rec->moduleid, $userid);
             // Push in array.
-            array_push($columns, $modulegrade);
+            array_push($columns, sprintf('%.2f', $modulegrade));
         }
     }
 
@@ -711,7 +723,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
             } else {
                 // First add raw course grade.
                 $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
-                array_push($columns, $coursegrade->grade);
+                array_push($columns, sprintf('%.2f', $coursegrade->grade));
 
                 // Add bonus columns.
                 $bonus = report_trainingsessions_compute_timegrade($rec, $aggregate);
@@ -725,7 +737,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
     if ($graderecs = $DB->get_records('report_trainingsessions', $params, 'sortorder')) {
         // Retain the coursegrade for adding at the full end of array.
         $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
-        array_push($columns, min($coursegrade->maxgrade, $coursegrade->grade + $bonus));
+        array_push($columns, sprintf('%.2f', min($coursegrade->maxgrade, $coursegrade->grade + $bonus)));
     }
 }
 
@@ -736,16 +748,8 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
 
     $ranges = (array) json_decode($graderec->ranges);
 
-    /*
-    print_object($aggregate['activities'][$graderec->courseid]);
-    print_object($aggregate['other'][$graderec->courseid]);
-    print_object($aggregate['course'][$graderec->courseid]);
-    print_object($aggregate['coursetotal'][$graderec->courseid]);
-    print_object($graderec);
-    */
-
     if (empty($ranges['ranges'])) {
-        return 0;
+        return '0.00';
     }
 
     if (TR_GRADE_SOURCE_COURSE == @$ranges['timesource']) {
@@ -763,7 +767,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
         // @TODO : better deal with scale if multiple items scale. Grade submitted should be scaled to the max item number.
         $scale = grade_scale::fetch(array('id' => -$graderec->grade));
     } else {
-        return 0;
+        return '0.00';
     }
 
     switch ($graderec->moduleid) {
@@ -826,7 +830,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
             break;
     }
 
-    return round($fraction * $basegrade, 2);
+    return sprintf('%.2f', $fraction * $basegrade);
 }
 
 /**

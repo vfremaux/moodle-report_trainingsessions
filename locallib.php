@@ -662,12 +662,19 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
     $select = " courseid = ? AND moduleid < 0 ";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+        $ranges = (array) json_decode($graderec->ranges);
+
         foreach ($graderecs as $rec) {
             if ($rec->moduleid == TR_TIMEGRADE_GRADE) {
                 // We are requesting time grade.
                 $columns[] = 'timegrade';
                 $titles[] = get_string('output:timegrade', 'report_trainingsessions');
-                $formats[] = 'n';
+                if ($ranges['timemode'] < TR_GRADE_CONTINUOUS_MODE) {
+                    // Discrete and binary output mode use scale labels as output texts.
+                    $formats[] = 'a';
+                } else {
+                    $formats[] = 'n';
+                }
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 $columns[] = 'rawcoursegrade';
                 $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
@@ -686,7 +693,7 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         $courselabel = (empty($rec->label)) ? get_string('output:finalcoursegrade', 'report_trainingsessions') : $rec->label;
         $titles[] = $courselabel;
         $columns[] = 'finalcoursegrade';
-        $formats[] = 'a';
+        $formats[] = 'n';
     }
 }
 

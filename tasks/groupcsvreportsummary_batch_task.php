@@ -77,17 +77,6 @@ if (!empty($targetusers)) {
         $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
         $weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->from - WEEKSECS);
 
-        /*
-        $globalresults = new StdClass;
-        $globalresults->elapsed = 0 + @$aggregate[$userid]['course'][$id]->elapsed;
-        $globalresults->elapsed += @$aggregate[$userid]['activities'][$id]->elapsed;
-        $globalresults->elapsed += @$aggregate[$userid]['other'][$id]->elapsed;
-
-        $globalresults->weekelapsed = 0 + @$weekaggregate[$userid]['course'][$id]->elapsed;
-        $globalresults->weekelapsed += @$weekaggregate[$userid]['activities'][$id]->elapsed;
-        $globalresults->weekelapsed += @$weekaggregate[$userid]['other'][$id]->elapsed;
-        */
-
         $cols = report_trainingsessions_get_summary_cols();
         report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer);
     }

@@ -387,9 +387,39 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('coursetotaltime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, 'html');
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->events).')';
+                $str .= ' ('.(0 + @$data->hits).')';
             }
             $str .= $OUTPUT->help_icon('coursetotaltime', 'report_trainingsessions');
+        }
+
+        if (in_array('elapsedlastweek', $cols)) {
+            $str .= '<br/><b>';
+            $str .= get_string('elapsedlastweek', 'report_trainingsessions');
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsedlastweek, 'html');
+            if (is_siteadmin()) {
+                $str .= ' ('.(0 + @$data->hitslastweek).')';
+            }
+            $str .= $OUTPUT->help_icon('elapsedlastweek', 'report_trainingsessions');
+        }
+
+        if (in_array('extelapsed', $cols)) {
+            $str .= '<br/><b>';
+            $str .= get_string('extelapsed', 'report_trainingsessions');
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extelapsed, 'html');
+            if (is_siteadmin()) {
+                $str .= ' ('.(0 + @$data->exthits).')';
+            }
+            $str .= $OUTPUT->help_icon('extelapsed', 'report_trainingsessions');
+        }
+
+        if (in_array('extelapsedlastweek', $cols)) {
+            $str .= '<br/><b>';
+            $str .= get_string('extelapsedlastweek', 'report_trainingsessions');
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extelapsedlastweek, 'html');
+            if (is_siteadmin()) {
+                $str .= ' ('.(0 + @$data->exthitslastweek).')';
+            }
+            $str .= $OUTPUT->help_icon('extelapsedlastweek', 'report_trainingsessions');
         }
 
         // Print additional grades.

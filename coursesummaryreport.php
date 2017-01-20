@@ -114,7 +114,7 @@ report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Setup column list.
 $namedcols = report_trainingsessions_get_summary_cols();
-$durationcols = array('activitytime', 'equlearningtime', 'elapsed');
+$durationcols = array('activitytime', 'equlearningtime', 'elapsed', 'extelapsed', 'elapsedlastweek', 'extelapsedlastweek');
 
 // Get base data from moodle and bake it into a local format.
 $courseid = $course->id;
@@ -188,7 +188,7 @@ if (!empty($summarizedusers)) {
         echo '<td>'.$line.'</td>';
         foreach ($auser as $fieldname => $field) {
             if (in_array($fieldname, $durationcols)) {
-                $cssclass = 'right';
+                $cssclass = 'report-col-right';
                 echo '<td class="'.$cssclass.'">'.report_trainingsessions_format_time($field, 'html').'</td>';
             } else if (in_array($fieldname, $colskeys)) {
                 // Those may come from grade columns.

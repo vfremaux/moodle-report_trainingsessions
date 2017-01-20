@@ -477,7 +477,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
                     $worksheet->write_string($row, 1, report_trainingsessions_format_time(@$s->sessionend, 'xls'), $xlsformats['a']);
                 }
                 $worksheet->write_string($row, 2, format_time(0 + @$s->elapsed), $xlsformats['TT']);
-                $worksheet->write_string($row, 3, report_trainingsessions_format_time(0 + @$s->elapsed, 'xlsd'), $xlsformats['a']);
+                $worksheet->write_number($row, 3, report_trainingsessions_format_time(0 + @$s->elapsed, 'xlsd'), $xlsformats['d']);
                 $totalelapsed += 0 + @$s->elapsed;
     
                 $row++;
@@ -544,7 +544,7 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
             $worksheet->write_string($row, 0, get_string('site'), $xlsformats['TT']);
             $row++;
             $worksheet->write_string($row, 0, $elapsedstr, $xlsformats['a']);
-            $worksheet->write_string($row, 1, report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd'), $xlsformats['a']);
+            $worksheet->write_string($row, 1, report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd'), $xlsformats['d']);
             $row++;
             if (!empty($config->showhits)) {
                 $worksheet->write_string($row, 0, $hitsstr, $xlsformats['a']);
@@ -601,11 +601,27 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         }
 
         $celldata = $data[$i];
+        if ($dataformats[$i] == 'n') {
+            if ($celldata)  {
+                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
+                continue;
+            }
+        }
         if ($dataformats[$i] == 'd') {
-            $celldata =  report_trainingsessions_format_time($data[$i], 'xlsd');
+            if ($data[$i])  {
+                $celldata =  report_trainingsessions_format_time($data[$i], 'xlsd');
+                $worksheet->write_number($row, $i, $celldata, $xlsformats['d']);
+                continue;
+            } else {
+                continue;
+            }
         }
         if ($dataformats[$i] == 't') {
-            $celldata =  report_trainingsessions_format_time($data[$i], 'xls');
+            if ($data[$i])  {
+                $celldata =  report_trainingsessions_format_time($data[$i], 'xls');
+            } else {
+                continue;
+            }
         }
         $worksheet->write_string($row, $i, $celldata, $xlsformats[$dataformats[$i]]);
     }

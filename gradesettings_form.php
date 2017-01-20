@@ -93,6 +93,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->addElement('html', $OUTPUT->box_end());
 
         $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
+                         TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
                          TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
         $mform->addElement('select', 'timegradesource', get_string('timesource', 'report_trainingsessions'), $options);
         $mform->disabledIf('timegradesource', 'specialgrade', 'eq', TR_TIMEGRADE_DISABLED);
@@ -215,7 +216,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
                         ($data['bonusgrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
-                                (empty($data['bonusgraderanges']))) {
+                                (empty($data['timegraderanges']))) {
             $errors['bonusgrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
             $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');
         }

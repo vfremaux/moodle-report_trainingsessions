@@ -76,6 +76,9 @@ $string['discrete'] = 'Sortie discrète';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps passé';
+$string['extelapsed'] = 'Temps passé (Etendu)';
+$string['elapsedlastweek'] = 'Temps passé dern. semaine';
+$string['extelapsedlastweek'] = 'Temps passé dern. semaine (Etendu)';
 $string['elapsedadvice'] = 'Les durées affichées de vos sessions de travail peuvent différer légèrement des mesures du cours affichées ci-dessus. Ces sessions peuvent en effet calculer des temps que vous avez passé pendant la même session de connexion, mais dans d\'autres volumes de cours où vous êtes inscrit.';
 $string['email'] = 'Mail';
 $string['emulatecommunity'] = 'Emuler la version communautaire';
@@ -113,6 +116,9 @@ $string['headsection'] = 'Section d\'en-tête';
 $string['hideemptymodules'] = 'Cacher les modules vides';
 $string['hideemptymodules_desc'] = 'Si actif, les modules sans temps ne seront pas affichés dans le rapport.';
 $string['hits'] = 'Evénéments ';
+$string['exthits'] = 'Evénéments (Etendu)';
+$string['hitslastweek'] = 'Evénéments dern. semaine';
+$string['exthitslastweek'] = 'Evénéments dern. semaine (Etendu)';
 $string['hitslastweek'] = 'Hits dernière semaine';
 $string['id'] = 'ID';
 $string['idnumber'] = 'N° d\'identification';
@@ -222,10 +228,10 @@ $string['siteglobals'] = 'Site (zones hors cours)';
 $string['specialgrades'] = 'Notes spéciales';
 $string['startdate'] = 'Date de début';
 $string['structureitem'] = 'Elément de cours';
-$string['structuretotal'] = 'Total {$a} :';
+$string['structuretotal'] = 'Total {$a}&nbsp;:';
 $string['studentsign'] = 'Signature de l\'étudiant';
 $string['summarycolumns'] = 'Colonnes de sortie dans le rapport résumé.';
-$string['task'] = 'Tâche {$a} ';
+$string['task'] = 'Tâche {$a}&ensp;';
 $string['taskname'] = 'Batch';
 $string['taskrecorded'] = 'Batch enregistré ';
 $string['teachersign'] = 'Signature de l\'enseignant';
@@ -281,7 +287,7 @@ cycle de vie du plugin, de fournir une assurance qualité, développer des tests
 ';
 
 $string['timegraderanges_help'] = '
-La définition des plages de notation permet de découper la grandeur "temps passé" en intervalles de notation discrète. en mode "binaire", 
+La définition des plages de notation permet de découper la grandeur "temps passé" en intervalles de notation discrète. en mode "binaire",
 entrez une seule valeur de seuil (en minutes). En mode "Discret", entrez une liste séparée par des virgules de temps exprimés en minutes.
 Avec N seuils, vous définirez N+1 intervalles. Le dernier intervalle vaut pour "au dessus de".
 ';
@@ -303,7 +309,7 @@ $string['outsessiontime_help'] = 'Ceci est le temps hors règles de validation.'
 
 $string['activitytime_help'] = 'Ce temps comptabilise les temps passés dans les "activités" du cours, à l\'exception des temps
     d\'usage passés dans les espaces communs du cours. Il peut prendre en compte dans certains cas
-    (utilisation du module Learning Time Check -- 
+    (utilisation du module Learning Time Check --
     http://github.com/vfremaux/moodle-mod_learningtimecheck.git), les
     temps forfaitisés associés aux activités plutot que les temps mesurés sur les traces.';
 

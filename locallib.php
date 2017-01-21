@@ -751,7 +751,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
     if ($graderec = $DB->get_record('report_trainingsessions', $params)) {
         // Retain the coursegrade for adding at the full end of array.
         $grade = 0;
-        if ($coursegrade = report_trainingsessions_get_course_grade($graderec->courseid, $userid))
+        if ($coursegrade = report_trainingsessions_get_course_grade($graderec->courseid, $userid)) {
             $grade = min($coursegrade->maxgrade, $coursegrade->grade + $bonus);
         }
         if ($grade) {

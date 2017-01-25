@@ -669,7 +669,7 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 // We are requesting time grade.
                 $columns[] = 'timegrade';
                 $titles[] = get_string('output:timegrade', 'report_trainingsessions');
-                if ($ranges['timemode'] < TR_GRADE_CONTINUOUS_MODE) {
+                if ($ranges['timemode'] < TR_GRADE_MODE_CONTINUOUS) {
                     // Discrete and binary output mode use scale labels as output texts.
                     $formats[] = 'a';
                 } else {
@@ -1492,8 +1492,8 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         $courseid = $COURSE->id;
     }
 
-    $t = $aggregate['coursetotal'];
-    $w = $weekaggregate['coursetotal'];
+    $t = @$aggregate['coursetotal'];
+    $w = @$weekaggregate['coursetotal'];
 
     $colsources = array(
         'id' => $user->id,

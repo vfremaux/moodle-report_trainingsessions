@@ -76,10 +76,8 @@ $string['discrete'] = 'Sortie discrète';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps passé';
-$string['extelapsed'] = 'Temps passé (Etendu)';
-$string['elapsedlastweek'] = 'Temps passé dern. semaine';
-$string['extelapsedlastweek'] = 'Temps passé dern. semaine (Etendu)';
 $string['elapsedadvice'] = 'Les durées affichées de vos sessions de travail peuvent différer légèrement des mesures du cours affichées ci-dessus. Ces sessions peuvent en effet calculer des temps que vous avez passé pendant la même session de connexion, mais dans d\'autres volumes de cours où vous êtes inscrit.';
+$string['elapsedlastweek'] = 'Temps passé dern. semaine';
 $string['email'] = 'Mail';
 $string['emulatecommunity'] = 'Emuler la version communautaire';
 $string['emulatecommunity_desc'] = 'Si elle est activée, cette option force le composant à fonctionner en version communautaire. Certaines fonctionnalités ne seront plus disponibles.';
@@ -95,6 +93,10 @@ $string['errordiscretenoranges'] = 'Vous devez définir des plages de note lorsq
 $string['errornotingroup'] = 'Vous n\'avez pas accès à tous les groupes et n\'êtes membre d\'aucun groupe.';
 $string['evaluating'] = 'Evaluation';
 $string['executing'] = 'Formation';
+$string['extelapsed'] = 'Temps passé (Etendu)';
+$string['extelapsedlastweek'] = 'Temps passé dern. semaine (Etendu)';
+$string['exthits'] = 'Evénéments (Etendu)';
+$string['exthitslastweek'] = 'Evénéments dern. semaine (Etendu)';
 $string['extrauserinfo'] = 'Information utilisateur additionnelle';
 $string['extrauserinfo_desc'] = 'Vous pouvez éventuellement ajouter des informations utilisateur dans les rapports';
 $string['fail'] = 'NON ACQUIS';
@@ -116,9 +118,7 @@ $string['headsection'] = 'Section d\'en-tête';
 $string['hideemptymodules'] = 'Cacher les modules vides';
 $string['hideemptymodules_desc'] = 'Si actif, les modules sans temps ne seront pas affichés dans le rapport.';
 $string['hits'] = 'Evénéments ';
-$string['exthits'] = 'Evénéments (Etendu)';
 $string['hitslastweek'] = 'Evénéments dern. semaine';
-$string['exthitslastweek'] = 'Evénéments dern. semaine (Etendu)';
 $string['hitslastweek'] = 'Hits dernière semaine';
 $string['id'] = 'ID';
 $string['idnumber'] = 'N° d\'identification';
@@ -356,9 +356,16 @@ $string['reportscope_help'] = '
 <p>Certains rapports peuvent être étendus à tous les cours de l\'étudiant. (Cela veut aussi dire que certains rapports ne peuvent utiliser ce réglage).</p>
 ';
 
-$string['plugindist_desc'] = '<p>Ce plugin est distribué dans la communauté Moodle pour l\'évaluation de ses fonctions centrales
+$string['plugindist_desc'] = '
+<p>Ce plugin est distribué dans la communauté Moodle pour l\'évaluation de ses fonctions centrales
 correspondant à une utilisation courante du plugin. Une version "professionnelle" de ce plugn existe et est distribuée
 sous certaines conditions, afin de soutenir l\'effort de développement, amélioration; documentation et suivi des versions.</p>
 <p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
 <ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
-<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>';
+<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>
+';
+
+$string['extelapsed_help'] = '
+Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajout les temps passés à rejoidre le cours
+ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail.
+';

@@ -345,7 +345,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     if ($withcompletion) {
         // Print completion bar.
-        $str .= report_trainingsessions_print_completionbar($data->items, $data->done, 500);
+        $str .= report_trainingsessions_print_completionbar(0 + @$data->items, 0 + @$data->done, 500);
     }
 
     // Start printing the overall times.
@@ -456,9 +456,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('courseglobals', 'report_trainingsessions');
             $str .= '</td>';
             $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
-            $str .= report_trainingsessions_format_time($data->course->elapsed + $data->otherelapsed);
+            $str .= report_trainingsessions_format_time(0 + @$data->course->elapsed + @$data->otherelapsed);
             if (is_siteadmin()) {
-                $str .= ' ('.($data->course->events + $data->otherevents).')';
+                $str .= ' ('.(0 + @$data->course->events + @$data->otherevents).')';
             }
             $str .= '</td>';
             $str .= '</tr>';
@@ -469,9 +469,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('uploadglobals', 'report_trainingsessions');
             $str .= '</td>';
             $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
-            $str .= report_trainingsessions_format_time($data->upload->elapsed);
+            $str .= report_trainingsessions_format_time(0 + @$data->upload->elapsed);
             if (is_siteadmin()) {
-                $str .= ' ('.$data->upload->events.')';
+                $str .= ' ('.(0 + @$data->upload->events).')';
             }
             $str .= '</td>';
             $str .= '</tr>';
@@ -525,7 +525,8 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
     $str .= '<tr valign="top">';
     $str .= '<td width="33%"><b>'.get_string('sessionstart', 'report_trainingsessions').'</b></td>';
     $str .= '<td width="33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
-    $str .= '<td width="33%" class="report-trainingsessions session-duration"><b>'.get_string('duration', 'report_trainingsessions').'</b></td>';
+    $label = get_string('duration', 'report_trainingsessions');
+    $str .= '<td width="33%" class="report-trainingsessions session-duration"><b>'.$label.'</b></td>';
     $str .= '</tr>';
 
     $totalelapsed = 0;
@@ -578,8 +579,12 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
                         $endstyle = 'style="color:#A0A0A0"';
                         $checkstyle = 'style="color:#A0A0A0"';
                         $outtime = true;
-                        if ($outtime) $outduration += $s->elapsed;
-                        if (!$outtime) $induration += $s->elapsed;
+                        if ($outtime) {
+                            $outduration += $s->elapsed;
+                        }
+                        if (!$outtime) {
+                            $induration += $s->elapsed;
+                        }
                     } else {
                         if (!empty($ltcconfig->checkworkinghours)) {
                             if (!$startcheck = report_learningtimecheck_check_time($fakecheck, $ltcconfig)) {
@@ -600,8 +605,12 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
                                 $checkstyle = 'style="color:#ff0000"';
                                 $outtime = true;
                             }
-                            if ($outtime) $outduration += $s->elapsed;
-                            if (!$outtime) $induration += $s->elapsed;
+                            if ($outtime) {
+                                $outduration += $s->elapsed;
+                            }
+                            if (!$outtime) {
+                                $induration += $s->elapsed;
+                            }
                         }
                     }
                 }
@@ -611,7 +620,8 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
             $str .= '<tr valign="top">';
             $str .= '<td '.$startstyle.'>'.userdate($s->sessionstart).'</td>';
             $str .= '<td '.$endstyle.'>'.$sessionenddate.'</td>';
-            $str .= '<td class="report-trainingsessions session-duration" '.$checkstyle.'>'.report_trainingsessions_format_time(@$s->elapsed).'</td>';
+            $elps = report_trainingsessions_format_time(@$s->elapsed);
+            $str .= '<td class="report-trainingsessions session-duration" '.$checkstyle.'>'.$elps.'</td>';
             $str .= '</tr>';
             $totalelapsed += @$s->elapsed;
         }
@@ -619,7 +629,8 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
 
     if (!empty($config->printsessiontotal)) {
         $str .= '<tr valign="top">';
-        $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions').'</b></td>';
+        $helpicon = $OUTPUT->help_icon('totalsessiontime', 'report_trainingsessions');
+        $str .= '<td><br/><b>'.get_string('totalsessions', 'report_trainingsessions').' '.$helpicon.'</b></td>';
         $str .= '<td><br/>'.$truesessions.' '.get_string('contiguoussessions', 'report_trainingsessions').'</td>';
         $str .= '<td><br/>'.report_trainingsessions_format_time($totalelapsed).'</td>';
         $str .= '</tr>';
@@ -628,13 +639,15 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
                 (!empty($ltcconfig->checkworkingdays) ||
                         !empty($ltcconfig->checkworkinghours))) {
             $str .= '<tr valign="top">';
-            $str .= '<td><br/><b>'.get_string('in', 'report_trainingsessions').' '.$OUTPUT->help_icon('insessiontime', 'report_trainingsessions').'</b></td>';
+            $helpicon = $OUTPUT->help_icon('insessiontime', 'report_trainingsessions');
+            $str .= '<td><br/><b>'.get_string('in', 'report_trainingsessions').' '.$helpicon.'</b></td>';
             $str .= '<td></td>';
             $str .= '<td><br/>'.report_trainingsessions_format_time($induration).'</td>';
             $str .= '</tr>';
         
             $str .= '<tr valign="top">';
-            $str .= '<td><br/><b>'.get_string('out', 'report_trainingsessions').' '.$OUTPUT->help_icon('outsessiontime', 'report_trainingsessions').'</b></td>';
+            $helpicon = $OUTPUT->help_icon('outsessiontime', 'report_trainingsessions');
+            $str .= '<td><br/><b>'.get_string('out', 'report_trainingsessions').' '.$helpicon.'</b></td>';
             $str .= '<td></td>';
             $str .= '<td style="color:#ff0000"><br/>'.report_trainingsessions_format_time($outduration).'</td>';
             $str .= '</tr>';
@@ -714,8 +727,10 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
     $str .= '<div class="completionbar">';
     $str .= '<b>'.get_string('done', 'report_trainingsessions').'</b>';
 
-    $str .= '<img src="'.$OUTPUT->pix_url('green', 'report_trainingsessions').'" style="width:'.$completedwidth.'px" class="donebar" align="top" title="'.$completedpc.'" />';
-    $str .= '<img src="'.$OUTPUT->pix_url('blue', 'report_trainingsessions').'" style="width:'.$remainingwidth.'px" class="remainingbar" align="top"  title="'.$remainingpc.'" />';
+    $pixurl = $OUTPUT->pix_url('green', 'report_trainingsessions');
+    $str .= '<img src="'.$pixurl.'" style="width:'.$completedwidth.'px" class="donebar" align="top" title="'.$completedpc.'" />';
+    $pixurl = $OUTPUT->pix_url('blue', 'report_trainingsessions');
+    $str .= '<img src="'.$pixurl.'" style="width:'.$remainingwidth.'px" class="remainingbar" align="top"  title="'.$remainingpc.'" />';
     $str .= '</div>';
 
     return $str;

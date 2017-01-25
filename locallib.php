@@ -740,7 +740,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
                 array_push($columns, sprintf('%.2f', $coursegrade->grade));
 
                 // Add bonus columns.
-                $bonus = report_trainingsessions_compute_timegrade($rec, $aggregate);
+                $bonus = 0 + report_trainingsessions_compute_timegrade($rec, $aggregate);
                 array_push($columns, $bonus);
             }
         }

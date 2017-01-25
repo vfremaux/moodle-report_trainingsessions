@@ -7,4 +7,18 @@
     <version>v3</version>
     <licenseversion></licenseversion>
   </library>
+  <library>
+    <location>__patch</location>
+    <name>Patched core files</name>
+    <license>GPL</license>
+    <version>v3</version>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>__reference</location>
+    <name>Patch reference core files</name>
+    <license>GPL</license>
+    <version>v3</version>
+    <licenseversion></licenseversion>
+  </library>
 </libraries>

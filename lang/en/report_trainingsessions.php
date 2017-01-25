@@ -74,11 +74,11 @@ $string['discrete'] = 'Discrete output';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total time';
-$string['extelapsed'] = 'Total time (extended)';
-$string['elapsedlastweek'] = 'Last week time';
-$string['extelapsedlastweek'] = 'Last week time (extended)';
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
+$string['elapsedlastweek'] = 'Last week time';
 $string['email'] = 'Email';
+$string['emulatecommunity'] = 'Emulate community version';
+$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. This might loose features !';
 $string['enablecoursescore'] = 'Enable course score';
 $string['enablelearningtimecheckcoupling'] = 'Enable LTC coupling';
 $string['enablelearningtimecheckcoupling_desc'] = 'If enabled, the session reports will use the working days filtering of the Learning Time Check Report';
@@ -92,6 +92,10 @@ $string['errorcoursestructurefirstpage'] = 'Course structure error : failed gett
 $string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
 $string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
+$string['extelapsed'] = 'Total time (extended)';
+$string['extelapsedlastweek'] = 'Last week time (extended)';
+$string['exthits'] = 'Hits (extended)';
+$string['exthitslastweek'] = 'Hits last week (extended)';
 $string['extrauserinfo'] = 'Additional user info in reports';
 $string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
 $string['fail'] = 'FAIL';
@@ -103,8 +107,8 @@ $string['firstname'] = 'First Name';
 $string['from'] = 'From';
 $string['generatecsv'] = 'Generate as CSV';
 $string['generatepdf'] = 'Generate as PDF';
-$string['generatexls'] = 'Generate as XLS';
 $string['generatereports'] = 'Generate reports';
+$string['generatexls'] = 'Generate as XLS';
 $string['gradesettings'] = 'Grade settings';
 $string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
 $string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
@@ -113,9 +117,7 @@ $string['headsection'] = 'Heading section';
 $string['hideemptymodules'] = 'Hide empty modules';
 $string['hideemptymodules_desc'] = 'Is enabled, empty modules (no time spent) will not be printed into reports.';
 $string['hits'] = 'Hits';
-$string['exthits'] = 'Hits (extended)';
 $string['hitslastweek'] = 'Hits last week';
-$string['exthitslastweek'] = 'Hits last week (extended)';
 $string['id'] = 'ID';
 $string['idnumber'] = 'ID Number';
 $string['in'] = 'In time';
@@ -179,10 +181,8 @@ $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If none given, the first page header will be used again.';
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
-$string['pluginname'] = 'Training Sessions';
 $string['plugindist'] = 'Plugin distribution';
-$string['emulatecommunity'] = 'Emulate community version';
-$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. This might loose features !';
+$string['pluginname'] = 'Training Sessions';
 $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
 $string['printsessiontotal'] = 'Display the overal session elapsed time';
@@ -358,9 +358,16 @@ $string['reportscope_help'] = '
 <p>Some reports allow scanning all courses of the user. Note that some reports do not use the scope.</p>
 ';
 
-$string['plugindist_desc'] = '<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
+$string['plugindist_desc'] = '
+<p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
 <ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
-<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>';
+<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>
+';
+
+$string['extelapsed_help'] = '
+The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
+material and some time spent in général site screens the user has access to.
+';

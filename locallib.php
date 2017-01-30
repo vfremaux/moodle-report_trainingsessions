@@ -43,6 +43,8 @@ define('TR_GRADE_SOURCE_COURSE_EXT', 2);
 define('TR_TIMEGRADE_DISABLED', 0);
 define('TR_TIMEGRADE_GRADE', -1);
 define('TR_TIMEGRADE_BONUS', -2);
+define('TR_XLSGRADE_FORMULA1', -3);
+define('TR_XLSGRADE_FORMULA2', -2);
 
 /**
  * Tells wether a feature is supported or not. Gives back the

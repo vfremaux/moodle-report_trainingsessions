@@ -104,6 +104,25 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->addHelpButton('timegraderanges', 'timegraderanges', 'report_trainingsessions');
         $mform->setType('timegraderanges', PARAM_TEXT);
 
+        if (report_trainingsessions_supports_feature('xls', 'calculated')) {
+            // Preliminary implementation. Not finished yet.
+            $mform->addElement('header', 'calculatedgradehead', get_string('calculatedcolumns', 'report_trainingsessions'));
+
+            $formgroup = array();
+            $formgroup[] = $mform->createElement('text', 'calculated1', get_string('formula', 'report_trainingsessions'), array('size' => 60, 'maxlength' => 254));
+            $mform->addHelpButton('calculated1', 'calculated', 'report_trainingsessions');
+            $mform->setType('calculated1', PARAM_TEXT);
+            $formgroup[] = $mform->createElement('text', 'calculated1label', get_string('formulalabel', 'report_trainingsessions'), array('size' => 40, 'maxlength' => 254));
+            $mform->addGroup($formgroup, 'formula1group', get_string('xlsformula', 'report_trainingsessions').' 1', array(get_string('formulalabel', 'report_trainingsessions').' '), false);
+
+            $formgroup = array();
+            $formgroup[] = $mform->createElement('text', 'calculated2', get_string('formula', 'report_trainingsessions'), array('size' => 60, 'maxlength' => 254));
+            $mform->addHelpButton('calculated2', 'calculated', 'report_trainingsessions');
+            $mform->setType('calculated2', PARAM_TEXT);
+            $formgroup[] = $mform->createElement('text', 'calculated2label', get_string('formulalabel', 'report_trainingsessions'), array('size' => 40, 'maxlength' => 254));
+            $mform->addGroup($formgroup, 'formula2group', get_string('xlsformula', 'report_trainingsessions').' 1', array(get_string('formulalabel', 'report_trainingsessions').' '), false);
+        }
+
         $this->add_action_buttons(true);
     }
 

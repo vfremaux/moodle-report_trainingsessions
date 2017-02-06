@@ -100,9 +100,32 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $mform->addElement('modgrade', 'timegrade', get_string('timegrade', 'report_trainingsessions'));
 
-        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), array('size' => 80, 'maxlength' => 254));
+        $attrs = array('size' => 80, 'maxlength' => 254);
+        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), $attrs);
         $mform->addHelpButton('timegraderanges', 'timegraderanges', 'report_trainingsessions');
         $mform->setType('timegraderanges', PARAM_TEXT);
+
+        if (report_trainingsessions_supports_feature('xls/calculated')) {
+            // Preliminary implementation. Not finished yet.
+            $mform->addElement('header', 'calculatedcolumnshead', get_string('calculatedcolumns', 'report_trainingsessions'), '');
+
+            $formulastr = get_string('xlsformula', 'report_trainingsessions');
+            $formulalabelstr = get_string('formulalabel', 'report_trainingsessions');
+            for ($i = 1; $i <= 3; $i++) {
+                $attrs = array('cols' => 60, 'rows' => 4, 'maxlength' => 254);
+                $mform->addElement('textarea', 'calculated'.$i, $formulastr.' '.$i, $attrs);
+                $mform->setType('calculated'.$i, PARAM_TEXT);
+                $mform->addHelpButton('calculated'.$i, 'calculated', 'report_trainingsessions');
+                $attrs = array('size' => 20, 'maxlength' => 254);
+                $mform->addElement('text', 'calculated'.$i.'label', $formulalabelstr.' '.$i, $attrs);
+                $mform->setType('calculated'.$i.'label', PARAM_TEXT);
+            }
+
+            $attrs = array('size' => 80, 'maxlength' => 254);
+            $mform->addElement('text', 'lineaggregators', get_string('lineaggregators', 'report_trainingsessions'), $attrs);
+            $mform->addHelpButton('lineaggregators', 'lineaggregators', 'report_trainingsessions');
+            $mform->setType('lineaggregators', PARAM_TEXT);
+        }
 
         $this->add_action_buttons(true);
     }

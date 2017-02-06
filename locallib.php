@@ -43,8 +43,10 @@ define('TR_GRADE_SOURCE_COURSE_EXT', 2);
 define('TR_TIMEGRADE_DISABLED', 0);
 define('TR_TIMEGRADE_GRADE', -1);
 define('TR_TIMEGRADE_BONUS', -2);
-define('TR_XLSGRADE_FORMULA1', -3);
-define('TR_XLSGRADE_FORMULA2', -2);
+define('TR_LINEAGGREGATORS', -3);
+define('TR_XLSGRADE_FORMULA1', -10);
+define('TR_XLSGRADE_FORMULA2', -11);
+define('TR_XLSGRADE_FORMULA3', -12);
 
 /**
  * Tells wether a feature is supported or not. Gives back the
@@ -62,7 +64,8 @@ function report_trainingsessions_supports_feature($feature) {
             'pro' => array(
                 'format' => array('xls', 'csv', 'pdf', 'json'),
                 'replay' => array('single', 'replay', 'shift', 'shiftto'),
-                'calculation' => array('coupling')
+                'calculation' => array('coupling'),
+                'xls' => array('calculated')
             ),
             'community' => array(
                 'format' => array('xls', 'csv'),
@@ -700,6 +703,77 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
 }
 
 /**
+ * Add extra column headers from grade settings and feeds given arrays.
+ * @param arrayref &$columns a reference to the array of column headings.
+ * @param arrayref &$titles a reference to the array of column titles (printable column names).
+ * @param arrayref &$formats a reference to the array of data formats.
+ * @return void
+ */
+function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$formats = null) {
+    global $DB, $COURSE;
+
+    $coursemodinfo = get_fast_modinfo($COURSE->id);
+
+    if (is_null($columns)) {
+        $columns = array();
+    }
+
+    if (is_null($titles)) {
+        $titles = array();
+    }
+
+    if (is_null($formats)) {
+        $formats = array();
+    }
+
+    $select = " courseid = ? AND moduleid <= -10 ";
+    $params = array($COURSE->id);
+    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+        $formatadds = array();
+        foreach ($graderecs as $rec) {
+            // Push in array.
+            array_push($columns, $rec->label);
+            array_push($titles, $rec->label);
+            $formatadds[] = 'n';
+        }
+
+        $formats = array_merge($formats, $formatadds);
+    }
+}
+
+/**
+ * Add extra column headers from grade settings and feeds given arrays.
+ * @param arrayref &$columns a reference to the array of column headings.
+ * @param arrayref &$titles a reference to the array of column titles (printable column names).
+ * @param arrayref &$formats a reference to the array of data formats.
+ * @return void
+ */
+function report_trainingsessions_add_calculated_data(&$columns, &$formats) {
+    global $DB, $COURSE;
+
+    if (is_null($columns)) {
+        $columns = array();
+    }
+
+    if (is_null($formats)) {
+        $formats = array();
+    }
+
+    $select = " courseid = ? AND moduleid <= -10 ";
+    $params = array($COURSE->id);
+    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+        $formatadds = array();
+        foreach ($graderecs as $rec) {
+            // Push in array the firmula text.
+            array_push($columns, $rec->ranges);
+            $format[] = 'f';
+        }
+
+        $formats = array_merge($formats, $formatadds);
+    }
+}
+
+/**
  * Fetch scores and aggregate them to results.
  * @param arrayref &$columns a reference to the array of report values. Grades will be appended here.
  * @param int $userid the user
@@ -736,7 +810,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
             if ($rec->moduleid == TR_TIMEGRADE_GRADE) {
                 $timegrade = report_trainingsessions_compute_timegrade($rec, $aggregate);
                 array_push($columns, $timegrade);
-            } else {
+            } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 // First add raw course grade.
                 $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
                 array_push($columns, sprintf('%.2f', $coursegrade->grade));

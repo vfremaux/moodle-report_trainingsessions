@@ -276,6 +276,29 @@ $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail&nbsp;';
 $string['xls'] = 'XLS';
 
+$string['calculatedcolumns'] = 'Colonnes calculées (Sortie Excel)';
+$string['xlsformula'] = 'Formule (Excel)';
+$string['formulalabel'] = 'Intitulé de colonne';
+$string['calculated'] = 'Calculé';
+$string['calculated_help'] = 'Entrez une formule Excel avec des références à la feuille locale telle que produite par le générateur. Utilisez le marqueur {row} pour insérer l\'idenifiant de ligne courante. Ex : $C${row}';
+$string['lineaggregators'] = 'Aggrégateurs de ligne';
+$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
+$string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
+$string['xlsmeanformula'] = 'Formule XLS de Moyenne';
+$string['xlsmeanformula_desc'] = 'Formule XLS de Moyenne. Utilisez les emplacements {minrow} et {maxrow} pour cadrer la plage de calcul et {col} pour la référence de colonne courante. Exemple de cellules : ${col}$3 ou $Y${minrow}';
+$string['xlssumformula'] = 'Formule somme XLS';
+$string['xlssumformula_desc'] = 'Formule somme XLS. Utilisez les emplacements {minrow} et {maxrow} pour cadrer la plage de calcul et {col} pour la référence de colonne courante. Exemple de cellules : ${col}$3 ou $Y${minrow}';
+
+$string['lineaggregators_help'] = '
+<p>Définissez les aggregateurs de ligne sur une éventuelle ligne additionnelle comme une liste
+de commutateurs à partir de la colonne la plus à gauche. Separez les commutateurs par des virgules ou des points-virgule.
+Laissez la ligne vide pour ne pas générer de ligne d\'aggrégation.
+</p>
+<ul>
+<li><b>m :</b> moyenne</li>
+<li><b>s :</b> somme</li>
+</ul>';
+
 $string['proversionrequired'] = '
 <p>Vous essayez d\'accéder à une fonction qui n\'est disponible que sur la version "Pro" de ce plugin. La version "Pro" de
 ce plugin est une version payante (engagement de tierce maintenance applicative) qui nous permet d\'assurer à long terme le

@@ -105,6 +105,9 @@ function report_trainingsessions_xls_formats(&$workbook) {
     // Number formats.
     $xlsformats['n']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
 
+    // Formula formatting (same as numbers).
+    $xlsformats['f']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+
     // Time/duration formats.
     $xlsformats['d1'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorhd1, $fgcolorhd1, $timefmt);
     $xlsformats['d2'] = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorhd2, $fgcolorhd2, $timefmt);
@@ -299,12 +302,13 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 1, $celldata);
     $row++;
     $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xlsformats['b']);
-    $worksheet->write_string($row, 1, report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd'), $xlsformats['a']);
+    $elapsed = report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd');
+    $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
 
     if (!empty($config->showhits)) {
         $row++;
         $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xlsformats['b']);
-        $worksheet->write_number($row, 1, (0 + @$data->events));
+        $worksheet->write_number($row, 1, (0 + @$data->events), $xlsformats['n']);
     }
 
     return $row;
@@ -368,11 +372,12 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                     $dataobject->events += $res->events;
                 }
 
-                $str = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
-                $worksheet->write_string($thisrow, 0, report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls'), $xlsformats['a']);
-                $worksheet->write_string($thisrow, 2, $str, $xlsformats['a']);
+                $firstaccess = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
+                $worksheet->write_number($thisrow, 0, $firstaccess, $xlsformats['t']);
+                $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
+                $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['n']);
                 if (!empty($config->showhits)) {
-                    $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['a']);
+                    $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['n']);
                 }
             } else {
                 // It is only a structural module that should not impact on level.
@@ -472,12 +477,15 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
                     }
                 }
 
-                $worksheet->write_string($row, 0, report_trainingsessions_format_time(@$s->sessionstart, 'xls'), $xlsformats['a']);
+                $sessionstart = report_trainingsessions_format_time(@$s->sessionstart, 'xls');
+                $worksheet->write_number($row, 0, $sessionstart, $xlsformats['t']);
                 if (!empty($s->sessionend)) {
-                    $worksheet->write_string($row, 1, report_trainingsessions_format_time(@$s->sessionend, 'xls'), $xlsformats['a']);
+                    $sessionend = report_trainingsessions_format_time(@$s->sessionend, 'xls');
+                    $worksheet->write_number($row, 1, $sessionend, $xlsformats['t']);
                 }
                 $worksheet->write_string($row, 2, format_time(0 + @$s->elapsed), $xlsformats['TT']);
-                $worksheet->write_number($row, 3, report_trainingsessions_format_time(0 + @$s->elapsed, 'xlsd'), $xlsformats['d']);
+                $elapsed = report_trainingsessions_format_time(0 + @$s->elapsed, 'xlsd');
+                $worksheet->write_number($row, 3, $elapsed, $xlsformats['d']);
                 $totalelapsed += 0 + @$s->elapsed;
     
                 $row++;
@@ -534,17 +542,18 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
         $coursecats = $DB->get_records_list('course_categories', 'id', array_keys($catids));
     }
 
-    if (!empty($output)) { 
+    if (!empty($output)) {
 
         $elapsedstr = get_string('elapsed', 'report_trainingsessions');
         $hitsstr = get_string('hits', 'report_trainingsessions');
         $coursestr = get_string('course');
-        
+
         if (isset($output[0])) {
             $worksheet->write_string($row, 0, get_string('site'), $xlsformats['TT']);
             $row++;
             $worksheet->write_string($row, 0, $elapsedstr, $xlsformats['a']);
-            $worksheet->write_string($row, 1, report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd'), $xlsformats['d']);
+            $elapsed = report_trainingsessions_format_time($output[0][SITEID]->elapsed, 'xlsd');
+            $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
             $row++;
             if (!empty($config->showhits)) {
                 $worksheet->write_string($row, 0, $hitsstr, $xlsformats['a']);
@@ -568,7 +577,8 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
                 $ccontext = context_course::instance($cid);
                 if (has_capability('report/trainingsessions:view', $ccontext)) {
                     $worksheet->write_string($row, 0, $courses[$cid]->fullname, $xlsformats['a']);
-                    $worksheet->write_string($row, 1, report_trainingsessions_format_time($cdata->elapsed, 'xlsd'), $xlsformats['a']);
+                    $elapsed = report_trainingsessions_format_time($cdata->elapsed, 'xlsd');
+                    $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
                     if (!empty($config->showhits)) {
                         $worksheet->write_number($row, 2, $cdata->events, $xlsformats['n']);
                     }
@@ -601,6 +611,15 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         }
 
         $celldata = $data[$i];
+
+        if ($dataformats[$i] == 'f') {
+            if ($celldata)  {
+                $celldata = str_replace('{row}', $row, $celldata);
+                $worksheet->write_formula($row, $i, $celldata, $xlsformats['f']);
+                continue;
+            }
+        }
+
         if ($dataformats[$i] == 'n') {
             if ($celldata)  {
                 $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
@@ -619,6 +638,8 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         if ($dataformats[$i] == 't') {
             if ($data[$i])  {
                 $celldata =  report_trainingsessions_format_time($data[$i], 'xls');
+                $worksheet->write_number($row, $i, $celldata, $xlsformats['t']);
+                continue;
             } else {
                 continue;
             }
@@ -626,4 +647,53 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         $worksheet->write_string($row, $i, $celldata, $xlsformats[$dataformats[$i]]);
     }
     return ++$row;
+}
+
+/**
+ * prints a raw data row in the worksheet
+ * @param object $worksheet
+ * @param array $data
+ * @param array $dataformats
+ * @param int $row
+ * @param array $xlsformats predefined set of formats
+ */
+function report_trainingsessions_print_sumline_xls(&$worksheet, $sumline, $minrow, $maxrow, &$xlsformats) {
+
+    $config = get_config('report_trainingsessions');
+
+    if (empty($sumline)) {
+        return;
+    }
+
+    $sumline = str_replace(';', ',', $sumline); // Accept semi-colons too.
+    $sumline = explode(',', $sumline);
+
+    $i = 0;
+    foreach ($sumline as $sum) {
+
+        $col = chr(ord('A') + $i);
+
+        switch($sum) {
+            case 'm': {
+                $formula = $config->xlsmeanformula;
+                $formula = str_replace('{col}', $col, $formula);
+                $formula = str_replace('{minrow}', $minrow, $formula);
+                $formula = str_replace('{maxrow}', $maxrow, $formula);
+                $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['f']);
+                break;
+            }
+            case 's': {
+                $formula = $config->xlssumformula;
+                $formula = str_replace('{col}', $col, $formula);
+                $formula = str_replace('{minrow}', $minrow, $formula);
+                $formula = str_replace('{maxrow}', $maxrow, $formula);
+                $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['f']);
+            }
+            default: {
+            }
+        }
+
+        $i++;
+    }
+    return $maxrow + 1;
 }

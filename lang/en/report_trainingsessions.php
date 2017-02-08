@@ -279,7 +279,7 @@ $string['formulalabel'] = 'Column label';
 $string['lineaggregators'] = 'Line aggregators';
 $string['calculated'] = 'Calculated';
 $string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to insert the current line number in cell references.';
-$string['defaultmeanformula'] = '=MEAN({col}{minrow}:{col}{maxrow})';
+$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
 $string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column identifier. A cell reference can be : ${col}$4, $Y${minrow}';

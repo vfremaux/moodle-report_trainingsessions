@@ -192,6 +192,18 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
     }
 
+    if (report_trainingsessions_supports_feature('xls/calculated')) {
+        $key = 'report_trainingsessions/xlsmeanformula';
+        $label = get_string('xlsmeanformula', 'report_trainingsessions');
+        $desc = get_string('xlsmeanformula_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_configtext($key, $label, $desc, get_string('defaultmeanformula', 'report_trainingsessions')));
+
+        $key = 'report_trainingsessions/xlssumformula';
+        $label = get_string('xlssumformula', 'report_trainingsessions');
+        $desc = get_string('xlssumformula_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_configtext($key, $label, $desc, get_string('defaultsumformula', 'report_trainingsessions')));
+    }
+
     if (report_trainingsessions_supports_feature('emulate/community')) {
         // This will accept any.
         $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_trainingsessions'), ''));

@@ -43,6 +43,10 @@ define('TR_GRADE_SOURCE_COURSE_EXT', 2);
 define('TR_TIMEGRADE_DISABLED', 0);
 define('TR_TIMEGRADE_GRADE', -1);
 define('TR_TIMEGRADE_BONUS', -2);
+define('TR_LINEAGGREGATORS', -3);
+define('TR_XLSGRADE_FORMULA1', -10);
+define('TR_XLSGRADE_FORMULA2', -11);
+define('TR_XLSGRADE_FORMULA3', -12);
 
 /**
  * Tells wether a feature is supported or not. Gives back the
@@ -60,7 +64,8 @@ function report_trainingsessions_supports_feature($feature) {
             'pro' => array(
                 'format' => array('xls', 'csv', 'pdf', 'json'),
                 'replay' => array('single', 'replay', 'shift', 'shiftto'),
-                'calculation' => array('coupling')
+                'calculation' => array('coupling'),
+                'xls' => array('calculated')
             ),
             'community' => array(
                 'format' => array('xls', 'csv'),
@@ -176,11 +181,12 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
 }
 
 /**
- * @global type $DB
- * @global type $COURSE
- * @param type $structure
- * @param type $parentid
- * @param type $itemcount
+ * Decodes the structure of a flexsection page format and provides an understandable
+ * course structure.
+ *
+ * @param arrayref &$structure a structure array to fill.
+ * @param int $parentid the parent section id, for recursive calls.
+ * @param int $itemcount the recursive item count collector
  * @return boolean
  */
 function trainingsessions_fill_structure_from_flexiblesections(&$structure, $parentid = null, &$itemcount) {
@@ -282,11 +288,12 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
 }
 
 /**
+ * This addresses standard section based courses and computes an understandable structure
+ * for further aggregation.
  *
- * @global type $DB
- * @param type $structure
- * @param type $sections
- * @param type $itemcount
+ * @param arrayref &$structure a structure array to fill.
+ * @param int $sections
+ * @param int &$itemcount the iterator item coutner.
  */
 function trainingsessions_fill_structure_from_sections(&$structure, $sections, &$itemcount) {
     global $DB, $COURSE;
@@ -347,11 +354,11 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
 }
 
 /**
- * get the complete inner structure for one page of a page menu.
+ * Get the complete inner structure for one page of a page menu.
  * Recursive function.
  *
  * @param record $page
- * @param reference $itemcount a recursive propagating counter in case of flexipage
+ * @param int &$itemcount a recursive propagating counter in case of flexipage
  * or recursive content.
  */
 function page_get_structure_from_page($page, &$itemcount) {
@@ -507,7 +514,10 @@ function page_get_structure_in_content($source, &$itemcount) {
 
 /**
  * Special time formating
- * xlsd stands for xls duration
+ *
+ * - html for html text output
+ * - xlsd stands for xls duration
+ * - xls for excel date
  * @param type $timevalue
  * @param type $mode
  * @return string
@@ -558,6 +568,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
 /**
  * Local query to get course users.
  *  TODO check if yet usefull before delete
+ *
  * @param int $courseid
  */
 function report_trainingsessions_get_course_users($courseid) {
@@ -588,6 +599,7 @@ function report_trainingsessions_get_course_users($courseid) {
 
 /**
  * Get instances of modules selected for grade output in reports.
+ *
  * @param int $courseid
  * @return array of id/cmid pairs
  */
@@ -601,6 +613,7 @@ function report_trainingsessions_get_graded_modules($courseid) {
 /**
  * Get all graded modules into the course excluing those already linked to report and
  * module types that are not gradable.
+ *
  * @param int $courseid
  * @return array of linkable cmid/cmname pairs for a select
  */
@@ -620,6 +633,7 @@ function report_trainingsessions_get_linkable_modules($courseid) {
 
 /**
  * Add extra column headers from grade settings and feeds given arrays.
+ *
  * @param arrayref &$columns a reference to the array of column headings.
  * @param arrayref &$titles a reference to the array of column titles (printable column names).
  * @param arrayref &$formats a reference to the array of data formats.
@@ -649,7 +663,8 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         foreach ($graderecs as $rec) {
             // Push in array.
             $cminfo = $coursemodinfo->get_cm($rec->moduleid);
-            $modlabel = (empty($rec->label)) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modname.' '.$cminfo->instance) : $rec->label;
+            $fulllabel = ($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->modname.' '.$cminfo->instance;
+            $modlabel = (empty($rec->label)) ? $fulllabel : $rec->label;
             array_push($columns, $cminfo->modname.$cminfo->instance);
             array_push($titles, $modlabel);
             $formatadds[] = 'n';
@@ -690,7 +705,8 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
     // Add course grade if required.
     $params = array('courseid' => $COURSE->id, 'moduleid' => 0);
     if ($graderec = $DB->get_record('report_trainingsessions', $params)) {
-        $courselabel = (empty($graderec->label)) ? get_string('output:finalcoursegrade', 'report_trainingsessions') : $graderec->label;
+        $label = get_string('output:finalcoursegrade', 'report_trainingsessions');
+        $courselabel = (empty($graderec->label)) ? $label : $graderec->label;
         $titles[] = $courselabel;
         $columns[] = 'finalcoursegrade';
         $formats[] = 'n';
@@ -699,6 +715,7 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
 
 /**
  * Fetch scores and aggregate them to results.
+ *
  * @param arrayref &$columns a reference to the array of report values. Grades will be appended here.
  * @param int $userid the user
  * @param arrayref &$aggregate a reference to the array of time aggregate.
@@ -734,7 +751,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
             if ($rec->moduleid == TR_TIMEGRADE_GRADE) {
                 $timegrade = report_trainingsessions_compute_timegrade($rec, $aggregate);
                 array_push($columns, $timegrade);
-            } else {
+            } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 // First add raw course grade.
                 $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
                 array_push($columns, sprintf('%.2f', $coursegrade->grade));
@@ -763,7 +780,84 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
 }
 
 /**
+ * Add extra column headers from grade settings and feeds given arrays.
+ *
+ * @param arrayref &$columns a reference to the array of column headings.
+ * @param arrayref &$titles a reference to the array of column titles (printable column names).
+ * @param arrayref &$formats a reference to the array of data formats.
+ * @return void
+ */
+function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$formats = null) {
+    global $DB, $COURSE;
+
+    $coursemodinfo = get_fast_modinfo($COURSE->id);
+
+    if (is_null($columns)) {
+        $columns = array();
+    }
+
+    if (is_null($titles)) {
+        $titles = array();
+    }
+
+    if (is_null($formats)) {
+        $formats = array();
+    }
+
+    $select = " courseid = ? AND moduleid <= -10 ";
+    $params = array($COURSE->id);
+    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+        $formatadds = array();
+        foreach ($graderecs as $rec) {
+            // Push in array.
+            array_push($columns, $rec->label);
+            array_push($titles, $rec->label);
+            $formatadds[] = 'n';
+        }
+
+        $formats = array_merge($formats, $formatadds);
+    }
+}
+
+/**
+ * Add extra column headers from grade settings and feeds given arrays.
+ *
+ * @param arrayref &$columns a reference to the array of column headings.
+ * @param arrayref &$titles a reference to the array of column titles (printable column names).
+ * @param arrayref &$formats a reference to the array of data formats.
+ * @return void
+ */
+function report_trainingsessions_add_calculated_data(&$columns, &$formats) {
+    global $DB, $COURSE;
+
+    if (is_null($columns)) {
+        $columns = array();
+    }
+
+    if (is_null($formats)) {
+        $formats = array();
+    }
+
+    $select = " courseid = ? AND moduleid <= -10 ";
+    $params = array($COURSE->id);
+    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+        $formatadds = array();
+        foreach ($graderecs as $rec) {
+            // Push in array the formula text.
+            array_push($columns, $rec->ranges);
+            $format[] = 'f';
+        }
+
+        $formats = array_merge($formats, $formatadds);
+    }
+}
+
+/**
  * Computes additional grades depending on time spent
+ * 
+ * @param objectref &$graderec a grading item description
+ * @param arrayref &$aggregate a full filled time aggregation result.
+ * @return a grade value text formatted
  */
 function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
 
@@ -777,9 +871,11 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
         case TR_GRADE_SOURCE_COURSE:
             $coursetime = 0 + @$aggregate['coursetotal'][$graderec->courseid]->elapsed;
             break;
+
         case TR_GRADE_SOURCE_ACTIVITIES:
             $coursetime = 0 + @$aggregate['activities'][$graderec->courseid]->elapsed;
             break;
+
         case TR_GRADE_SOURCE_COURSE_EXT:
             $c = @$aggregate['coursetotal'][$graderec->courseid]->elapsed;
             $o = @$aggregate['coursetotal'][0]->elapsed;
@@ -865,6 +961,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
 
 /**
  * Gets the final course grade in gradebook.
+ *
  * @param int $courseid
  * @param int $userid
  * @return int the grade, or empty value
@@ -896,6 +993,7 @@ function report_trainingsessions_get_course_grade($courseid, $userid) {
 
 /**
  * Gets a final grade for a specific course module if exists
+ *
  * @param int $moduleid the course module ID
  * @param int $userid
  * @return the grade or empty value.
@@ -931,9 +1029,11 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
  * Given a prefed tzarget list of users from a previous selection, discard users
  * that should not appear in reports
  * @param arrayref &$targetusers an array of selected users to filter out.
+ * @param object $course the course where results are compiled for.
  * @return void
  */
 function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
+
     $context = context_course::instance($course->id);
 
     foreach ($targetusers as $uid => $unused) {
@@ -944,6 +1044,8 @@ function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
 }
 
 /**
+ * A wrapper function to the auth_ticket component. Gets a valid ticket to authentify an
+ * internal CURL call to a batch or a task.
  *
  * @global type $CFG
  * @global type $USER
@@ -961,6 +1063,8 @@ function report_trainingsessions_back_office_get_ticket() {
 /**
  * Controls access to script with valid interactive session OR
  * non interactive token when batch is in progress.
+ *
+ * @param object $course
  */
 function report_trainingsessions_back_office_access($course = null) {
     global $CFG;
@@ -989,9 +1093,10 @@ function report_trainingsessions_back_office_access($course = null) {
 }
 
 /**
+ * Counts the number of sessions in a specific course from the global &$sessions array.
  *
- * @param type $sessions
- * @param type $courseid
+ * @param arrayref &$sessions array of sessions from the aggregate.
+ * @param int $courseid
  * @return int
  */
 function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid) {
@@ -1112,15 +1217,15 @@ function report_trainingsessions_process_user_file($user, $id, $from, $to, $time
  * is directly stored as a file in moodle filestore if a suitable filerec has been provided, or returns the
  * document content as plain row string.
  *
- * @param type $group
- * @param type $id
- * @param type $from
- * @param type $to
- * @param type $timesession
- * @param type $uri
- * @param type $filerec
- * @param type $reportscope
- * @return type
+ * @param object $group the group being compiled
+ * @param int $id the current course id
+ * @param int $from from timestamp
+ * @param to $to to timestamp
+ * @param type $timesession 
+ * @param string $uri the task uri to call.
+ * @param object $filerec the file descriptor to store the result of the proceesing
+ * @param string $reportscope
+ * @return mixed void/raw if no file descriptor is given, will return the raw response of the call.
  */
 function report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec = null,
                                                     $reportscope = 'currentcourse') {
@@ -1376,6 +1481,7 @@ function report_trainingsessions_batch_input($course) {
 
 /**
  * Loads prioritarily the pro version if exists.
+ * $param string $file library file to load.
  */
 function report_trainingsessions_plugin_require($file) {
     global $CFG;
@@ -1404,7 +1510,7 @@ function report_trainingsessions_plugin_require($file) {
 
 /**
  * Loads an available version of the library, pro prefered if exists.
- * If not exists, silently fails without blocking. this may be used to 
+ * If not exists, silently fails without blocking. this may be used to
  * call for prolibs indistinctly from common code.
  */
 function report_trainingsessions_plugin_include($file) {
@@ -1433,6 +1539,11 @@ function report_trainingsessions_plugin_include($file) {
 
 /**
  * Extract summary columns keys from configuration.
+ *
+ * @param string $what type of info to return.
+ * - false return column names
+ * - 'title' returns translated names
+ * - 'format' returns expected format for column
  */
 function report_trainingsessions_get_summary_cols($what = false) {
 

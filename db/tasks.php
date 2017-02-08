@@ -14,16 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Definition of trainingsessions report scheduled tasks.
  *
  * @package   report_trainingsessions
  * @category  task
- * @copyright 2014 Dan Poltawski <dan@moodle.com>
+ * @copyright 2014 Valery Fremaux (valery.fremaux@gmail.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 $tasks = array(
     array(

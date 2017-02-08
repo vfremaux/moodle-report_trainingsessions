@@ -310,9 +310,9 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
             $element->name = $matches[1];
         } else {
             if ($section->section) {
-                $element->name = get_string('section').' '.$section->section ;
+                $element->name = get_string('section').' '.$section->section;
             } else {
-                $element->name = get_string('headsection', 'report_trainingsessions') ;
+                $element->name = get_string('headsection', 'report_trainingsessions');
             }
         }
 
@@ -537,22 +537,8 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             }
             return "{$secs}s";
         } else if ($mode == 'xlsd') {
-            /*
-            $secs = sprintf('%02d', $timevalue % 60);
-            $mins = floor($timevalue / 60);
-            $hours = sprintf('%02d', floor($mins / 60));
-            $mins = sprintf('%02d', $mins % 60);
-
-            if ($hours > 0) {
-                return "{$hours}:{$mins}:{$secs}";
-            }
-            if ($mins > 0) {
-                return "00:{$mins}:{$secs}";
-            }
-            return "00:00:{$secs}";
-            */
             return $timevalue / DAYSECS;
-       } else {
+        } else {
             // For excel time format we need have a fractional day value.
             return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
         }
@@ -853,7 +839,7 @@ function report_trainingsessions_add_calculated_data(&$columns, &$formats) {
 
 /**
  * Computes additional grades depending on time spent
- * 
+ *
  * @param objectref &$graderec a grading item description
  * @param arrayref &$aggregate a full filled time aggregation result.
  * @return a grade value text formatted
@@ -934,7 +920,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
 
             // Compute grade using points or scales.
             if ($graderec->grade > 0) {
-    
+
                 $fraction = $i / count($ranges['ranges']);
                 $basegrade = $graderec->grade;
             } else if ($graderec->grade < 0) {
@@ -1184,7 +1170,7 @@ function report_trainingsessions_process_user_file($user, $id, $from, $to, $time
     }
 
     // Check HTTP error code.
-    $info =  curl_getinfo($ch);
+    $info = curl_getinfo($ch);
     if (!empty($info['http_code']) &&
             ($info['http_code'] != 200) &&
                     ($info['http_code'] != 303)) {
@@ -1220,7 +1206,7 @@ function report_trainingsessions_process_user_file($user, $id, $from, $to, $time
  * @param int $id the current course id
  * @param int $from from timestamp
  * @param to $to to timestamp
- * @param type $timesession 
+ * @param type $timesession
  * @param string $uri the task uri to call.
  * @param object $filerec the file descriptor to store the result of the proceesing
  * @param string $reportscope
@@ -1272,7 +1258,7 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
     }
 
     // Check HTTP error code.
-    $info =  curl_getinfo($ch);
+    $info = curl_getinfo($ch);
     if (!empty($info['http_code']) && ($info['http_code'] != 200) && ($info['http_code'] != 303)) {
         debugging("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with HTTP code ".$info['http_code']);
     } else {
@@ -1342,7 +1328,9 @@ function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
  * @param object $session a session object with sessionstart, sessionend and elapsed members.
  */
 function report_trainingsessions_splice_session($session) {
-    $daytimestart = date('G', $session->sessionstart) * HOURSECS + date('i', $session->sessionstart) * MINSECS + date('s', $session->sessionstart);
+    $daytimestart = date('G', $session->sessionstart) * HOURSECS;
+    $daytimestart += date('i', $session->sessionstart) * MINSECS;
+    $daytimestart += date('s', $session->sessionstart);
     $endofday = 24 * HOURSECS;
     $daygap = $endofday - $daytimestart;
     $startstamp = $session->sessionstart;
@@ -1549,7 +1537,7 @@ function report_trainingsessions_get_summary_cols($what = false) {
     $config = get_config('report_trainingsessions', 'summarycolumns');
     $cols = explode("\n", $config);
 
-    $corekeys = array('idnumber', 'lastname','firstname', 'institution', 'department', 'firstaccess');
+    $corekeys = array('idnumber', 'lastname', 'firstname', 'institution', 'department', 'firstaccess');
 
     $result = array();
     foreach ($cols as $c) {
@@ -1595,7 +1583,8 @@ function report_trainingsessions_get_summary_cols($what = false) {
  * @param boolean $associative if true, returns an associative array mapped on column names
  * @return array or hash table
  */
-function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0, $associative = false) {
+function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$weekaggregate,
+                                                  $courseid = 0, $associative = false) {
     global $COURSE;
 
     if ($courseid == 0) {
@@ -1624,7 +1613,7 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'elapsedlastweek' => 0 + @$w[$courseid]->elapsed,
         'extelapsedlastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'hitslastweek' => 0 + @$w[$courseid]->events,
-        'exthitslastweek' => 0 + @$w[$courseid]->events + @$w[0]->events +  + @$w[1]->events
+        'exthitslastweek' => 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events
     );
 
     $data = array();

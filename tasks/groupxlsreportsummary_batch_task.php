@@ -30,11 +30,11 @@
 require('../../../config.php');
 
 ob_start();
-require_once $CFG->dirroot.'/blocks/use_stats/locallib.php';
-require_once $CFG->dirroot.'/report/trainingsessions/locallib.php';
-require_once $CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php';
+require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
-require_once $CFG->libdir.'/gradelib.php';
+require_once($CFG->libdir.'/gradelib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // The group id.
@@ -67,11 +67,11 @@ if ($groupid) {
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
-// print result.
+// Print result.
 
 if (!empty($targetusers)) {
 
-    // generate XLS.
+    // Generate XLS.
 
     if ($groupid) {
         $filename = "trainingsessions_group_{$groupid}_summary_".$input->filenametimesession.".xls";

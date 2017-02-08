@@ -34,8 +34,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$userid = required_param('userid', PARAM_INT) ; // User id.
+$id = required_param('id', PARAM_INT); // The course id.
+$userid = required_param('userid', PARAM_INT); // User id.
 
 ini_set('memory_limit', '512M');
 
@@ -54,7 +54,7 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 // TODO : secure groupid access depending on proper capabilities.
 
-// generate XLS
+// Generate XLS.
 
 $filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.".csv";
 
@@ -79,11 +79,9 @@ if ($auser) {
     header("Pragma: public");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Cache-Control: private",false);
+    header("Cache-Control: private", false);
     header("Content-Type: application/octet-stream");
     header("Content-Disposition: attachment filename=\"$filename\";" );
     header("Content-Transfer-Encoding: binary");
     echo $csvbuffer;
 }
-
-// echo '200';

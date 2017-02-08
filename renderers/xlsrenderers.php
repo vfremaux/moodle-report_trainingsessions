@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * build an Excel Writer format object from format attributes.
  *
@@ -27,6 +25,8 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $numfmt the index of the number format
  * @return an Excel format instance.
  */
+defined('MOODLE_INTERNAL') || die();
+
 function report_trainingsessions_build_xls_format(&$workbook, $size, $bold, $color, $fgcolor, $numfmt = null) {
 
     $format = $workbook->add_format();
@@ -169,31 +169,31 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
 
     $worksheet = $workbook->add_worksheet($sheettitle);
     if ($purpose == 'usertimes') {
-        $worksheet->set_column(0,0,24);
-        $worksheet->set_column(1,1,64);
-        $worksheet->set_column(2,2,12);
-        $worksheet->set_column(3,3,4);
+        $worksheet->set_column(0, 0, 24);
+        $worksheet->set_column(1, 1, 64);
+        $worksheet->set_column(2, 2, 12);
+        $worksheet->set_column(3, 3, 4);
     } else if ($purpose == 'allcourses') {
-        $worksheet->set_column(0,0,50);
-        $worksheet->set_column(1,1,50);
-        $worksheet->set_column(2,2,12);
-        $worksheet->set_column(3,3,4);
+        $worksheet->set_column(0, 0, 50);
+        $worksheet->set_column(1, 1, 50);
+        $worksheet->set_column(2, 2, 12);
+        $worksheet->set_column(3, 3, 4);
     } else {
-        $worksheet->set_column(0,0,30);
-        $worksheet->set_column(1,1,30);
-        $worksheet->set_column(2,2,20);
-        $worksheet->set_column(3,3,10);
+        $worksheet->set_column(0, 0, 30);
+        $worksheet->set_column(1, 1, 30);
+        $worksheet->set_column(2, 2, 20);
+        $worksheet->set_column(3, 3, 10);
     }
-    $worksheet->set_column(4,4,12);
-    $worksheet->set_column(5,5,4);
-    $worksheet->set_column(6,6,12);
-    $worksheet->set_column(7,7,4);
-    $worksheet->set_column(8,8,12);
-    $worksheet->set_column(9,9,4);
-    $worksheet->set_column(10,10,12);
-    $worksheet->set_column(11,11,4);
-    $worksheet->set_column(12,12,12);
-    $worksheet->set_column(13,13,4);
+    $worksheet->set_column(4, 4, 12);
+    $worksheet->set_column(5, 5, 4);
+    $worksheet->set_column(6, 6, 12);
+    $worksheet->set_column(7, 7, 4);
+    $worksheet->set_column(8, 8, 12);
+    $worksheet->set_column(9, 9, 4);
+    $worksheet->set_column(10, 10, 12);
+    $worksheet->set_column(11, 11, 4);
+    $worksheet->set_column(12, 12, 12);
+    $worksheet->set_column(13, 13, 4);
 
     if ($purpose == 'usertimes' || $purpose == 'allcourses') {
         $worksheet->set_row($startrow - 1, 12, $xlsformats['TT']);
@@ -357,7 +357,7 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
             $res = report_trainingsessions_print_xls($worksheet, $element, $aggregate, $done, $row, $xlsformats, $level);
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += $res->events;
-        } 
+        }
     } else {
         // Prints a single row.
         $format = (isset($xlsformats['a'.$level])) ? $xlsformats['a'.$level] : $xlsformats['a'];
@@ -482,7 +482,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
                             if (!report_learningtimecheck_check_day($fakecheck, $ltcconfig)) {
                                 continue;
                             }
-        
+
                             report_learningtimecheck_crop_session($s, $ltcconfig);
                             if ($s->sessionstart && $s->sessionend) {
                                 // Segment was not invalidated, possibly shorter than original.
@@ -505,7 +505,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
                 $elapsed = report_trainingsessions_format_time(0 + @$s->elapsed, 'xlsd');
                 $worksheet->write_number($row, 3, $elapsed, $xlsformats['d']);
                 $totalelapsed += 0 + @$s->elapsed;
-    
+
                 $row++;
             }
         }
@@ -633,7 +633,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         $celldata = $data[$i];
 
         if ($dataformats[$i] == 'f') {
-            if ($celldata)  {
+            if ($celldata) {
                 $celldata = str_replace('{row}', $row, $celldata);
                 $worksheet->write_formula($row, $i, $celldata, $xlsformats['f']);
                 continue;
@@ -641,14 +641,14 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         }
 
         if ($dataformats[$i] == 'n') {
-            if ($celldata)  {
+            if ($celldata) {
                 $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
                 continue;
             }
         }
         if ($dataformats[$i] == 'd') {
-            if ($data[$i])  {
-                $celldata =  report_trainingsessions_format_time($data[$i], 'xlsd');
+            if ($data[$i]) {
+                $celldata = report_trainingsessions_format_time($data[$i], 'xlsd');
                 $worksheet->write_number($row, $i, $celldata, $xlsformats['d']);
                 continue;
             } else {
@@ -656,8 +656,8 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
             }
         }
         if ($dataformats[$i] == 't') {
-            if ($data[$i])  {
-                $celldata =  report_trainingsessions_format_time($data[$i], 'xls');
+            if ($data[$i]) {
+                $celldata = report_trainingsessions_format_time($data[$i], 'xls');
                 $worksheet->write_number($row, $i, $celldata, $xlsformats['t']);
                 continue;
             } else {
@@ -694,7 +694,7 @@ function report_trainingsessions_print_sumline_xls(&$worksheet, $sumline, $minro
 
         $col = chr(ord('A') + $i);
 
-        switch($sum) {
+        switch ($sum) {
             case 'm': {
                 $formula = $config->xlsmeanformula;
                 $formula = str_replace('{col}', $col, $formula);
@@ -709,9 +709,9 @@ function report_trainingsessions_print_sumline_xls(&$worksheet, $sumline, $minro
                 $formula = str_replace('{minrow}', $minrow, $formula);
                 $formula = str_replace('{maxrow}', $maxrow, $formula);
                 $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['f']);
+                break;
             }
-            default: {
-            }
+            default:
         }
 
         $i++;

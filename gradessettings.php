@@ -15,8 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * the gradesettings service allows configuring the grades to be added to the trainingsession 
- * report for this course. 
+ * the gradesettings service allows configuring the grades to be added to the trainingsession
+ * report for this course.
  * Grades will be appended to the time report
  *
  * The global course final grade can be selected along with specified modules to get score from.
@@ -79,7 +79,8 @@ if ($data = $form->get_data()) {
                 $rec->courseid = $COURSE->id;
                 $rec->moduleid = $moduleid;
                 $cminfo = $coursemodinfo->get_cm($moduleid);
-                $rec->label = (empty($data->scorelabel[$ix])) ? (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->get_formatted_name()) : $data->scorelabel[$ix];
+                $altlabel = (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->get_formatted_name());
+                $rec->label = (empty($data->scorelabel[$ix])) ? $altlabel : $data->scorelabel[$ix];
                 $rec->sortorder = $ix;
                 $rec->grade = 0;
                 $rec->ranges = '';
@@ -223,7 +224,7 @@ if ($alldata) {
     $form->set_data($form);
 }
 
-// display form.
+// Display form.
 $form->display();
 
 echo $OUTPUT->footer();

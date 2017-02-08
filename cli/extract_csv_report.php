@@ -84,7 +84,7 @@ Options:
 
 Example:
 \$sudo -u www-data /usr/bin/php blocks/vmoodle/cli/bulkcreatenodes.php
-"; //TODO: localize - to be translated later when everything is finished.
+"; // TODO: localize - to be translated later when everything is finished.
 
     echo $help;
     die;
@@ -159,7 +159,7 @@ if (!empty($options['launch'])) {
         $data->events = $overall->events;
 
         $csvfilecontentheader = report_trainingsessions_print_header_csv($userid, $courseid, $data);
-        
+
         report_trainingsessions_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
 
         echo "Opening output file as $filename\n";

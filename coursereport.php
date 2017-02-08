@@ -31,7 +31,7 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
+$id = required_param('id', PARAM_INT); // The course id.
 
 // Calculate start time.
 
@@ -51,12 +51,12 @@ $context = context_course::instance($id);
 
 // Calculate start time.
 
-if ($data->from == -1 || @$data->fromstart) {
+if (($data->from == -1) || @$data->fromstart) {
     // Maybe we get it from parameters.
     $data->from = $course->startdate;
 }
 
-if ($data->to == -1 || @$data->tonow){
+if (($data->to == -1) || @$data->tonow) {
     // Maybe we get it from parameters.
     $data->to = time();
 } else {
@@ -132,7 +132,7 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 // Print result.
 
-include_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
 
@@ -171,7 +171,8 @@ if (!empty($targetusers)) {
             $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
             $data->events = $data->activityevents + $data->otherevents + $data->course->events;
 
-            $data->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
+            $sesscount = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id);
+            $data->sessions = (!empty($aggregate['sessions'])) ? $sesscount : 0;
 
             foreach (array_keys($aggregate) as $module) {
                 /*
@@ -211,7 +212,11 @@ echo '<br/><center>';
 echo '<div class="report-buttons">';
 echo '<div class="table-row">';
 echo '<div class="tr-summary table-cell">';
-$params = array('id' => $course->id, 'from' => $data->from, 'to' => $data->to, 'timesession' => time(), 'groupid' => $data->groupid);
+$params = array('id' => $course->id,
+                'from' => $data->from,
+                'to' => $data->to,
+                'timesession' => time(),
+                'groupid' => $data->groupid);
 $csvurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportonerow_batch_task.php', $params);
 echo $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
 echo '</div>';

@@ -70,6 +70,8 @@ if ($data = $form->get_data()) {
         $rec->ranges = '';
         $DB->insert_record('report_trainingsessions', $rec);
     }
+
+    // Record all module grades.
     if (property_exists($data, 'moduleid')) {
         foreach ($data->moduleid as $ix => $moduleid) {
             if ($moduleid) {
@@ -113,6 +115,58 @@ if ($data = $form->get_data()) {
         $DB->insert_record('report_trainingsessions', $rec);
     }
 
+    // Record sumline.
+    $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
+    $moduleid = TR_LINEAGGREGATORS;
+    if (!empty($data->lineaggregators)) {
+        $update = true;
+        if (!$rec = $DB->get_record('report_trainingsessions', $params)) {
+            $rec = new StdClass;
+            $update = false;
+        }
+        $rec->courseid = $COURSE->id;
+        $rec->moduleid = $moduleid;
+        $rec->sortorder = 0;
+        $rec->label = $data->lineaggregators;
+        $rec->ranges = '';
+        $rec->grade = 0;
+        if ($update) {
+            $DB->update_record('report_trainingsessions', $rec);
+        } else {
+            $DB->insert_record('report_trainingsessions', $rec);
+        }
+    } else {
+        $DB->delete_records('report_trainingsessions', $params);
+    }
+
+    // Record extra formulas.
+    for ($i = 1; $i <= 3; $i++) {
+        $key = 'calculated'.$i;
+        $labelkey = 'calculated'.$i.'label';
+        $moduleid = TR_XLSGRADE_FORMULA1 + ($i - 1);
+        $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
+        if (!empty($data->$key)) {
+            $update = true;
+            if (!$rec = $DB->get_record('report_trainingsessions', $params)) {
+                $rec = new StdClass;
+                $update = false;
+            }
+            $rec->courseid = $COURSE->id;
+            $rec->moduleid = $moduleid;
+            $rec->sortorder = 0;
+            $rec->label = $data->$labelkey;
+            $rec->ranges = json_encode($timeranges);
+            $rec->grade = 0;
+            if ($update) {
+                $DB->update_record('report_trainingsessions', $rec);
+            } else {
+                $DB->insert_record('report_trainingsessions', $rec);
+            }
+        } else {
+            $DB->delete_records('report_trainingsessions', $params);
+        }
+    }
+
     $params = array('id' => $COURSE->id, 'view' => 'gradesettings', 'from' => $from, 'to' => $to);
     redirect(new moodle_url('/report/trainingsessions/gradessettings.php', $params));
 }
@@ -140,6 +194,14 @@ if ($alldata) {
             $formdata->moduleid[$ix] = $datum->moduleid;
             $formdata->scorelabel[$ix] = $datum->label;
             $ix++;
+        } else if ($datum->moduleid == TR_LINEAGGREGATORS) {
+            $formdata->lineaggregators = $datum->label;
+        } else if ($datum->moduleid >= TR_XLSGRADE_FORMULA1) {
+            $ix = $datum->moduleid - TR_XLSGRADE_FORMULA1 + 1;
+            $formulakey = 'calculated'.$ix;
+            $labelkey = 'calculated'.$ix.'label';
+            $formdata->$labelkey = $datum->label;
+            $formdata->$formulakey = $datum->ranges;
         } else {
             // Special grades.
             $formdata->specialgrade = $datum->moduleid;

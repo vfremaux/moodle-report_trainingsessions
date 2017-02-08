@@ -96,5 +96,13 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017011800, 'report', 'trainingsessions');
     }
 
+    if ($oldversion < 2017020200) {
+        $table = new xmldb_table('report_trainingsessions');
+        $field = new xmldb_field('ranges', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'grade');
+
+        $dbman->change_field_precision($table, $field);
+        upgrade_plugin_savepoint(true, 2017020200, 'report', 'trainingsessions');
+    }
+
     return true;
 }

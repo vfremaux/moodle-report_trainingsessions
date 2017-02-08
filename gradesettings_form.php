@@ -100,27 +100,31 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $mform->addElement('modgrade', 'timegrade', get_string('timegrade', 'report_trainingsessions'));
 
-        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), array('size' => 80, 'maxlength' => 254));
+        $attrs = array('size' => 80, 'maxlength' => 254);
+        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), $attrs);
         $mform->addHelpButton('timegraderanges', 'timegraderanges', 'report_trainingsessions');
         $mform->setType('timegraderanges', PARAM_TEXT);
 
-        if (report_trainingsessions_supports_feature('xls', 'calculated')) {
+        if (report_trainingsessions_supports_feature('xls/calculated')) {
             // Preliminary implementation. Not finished yet.
-            $mform->addElement('header', 'calculatedgradehead', get_string('calculatedcolumns', 'report_trainingsessions'));
+            $mform->addElement('header', 'calculatedcolumnshead', get_string('calculatedcolumns', 'report_trainingsessions'), '');
 
-            $formgroup = array();
-            $formgroup[] = $mform->createElement('text', 'calculated1', get_string('formula', 'report_trainingsessions'), array('size' => 60, 'maxlength' => 254));
-            $mform->addHelpButton('calculated1', 'calculated', 'report_trainingsessions');
-            $mform->setType('calculated1', PARAM_TEXT);
-            $formgroup[] = $mform->createElement('text', 'calculated1label', get_string('formulalabel', 'report_trainingsessions'), array('size' => 40, 'maxlength' => 254));
-            $mform->addGroup($formgroup, 'formula1group', get_string('xlsformula', 'report_trainingsessions').' 1', array(get_string('formulalabel', 'report_trainingsessions').' '), false);
+            $formulastr = get_string('xlsformula', 'report_trainingsessions');
+            $formulalabelstr = get_string('formulalabel', 'report_trainingsessions');
+            for ($i = 1; $i <= 3; $i++) {
+                $attrs = array('cols' => 60, 'rows' => 4, 'maxlength' => 254);
+                $mform->addElement('textarea', 'calculated'.$i, $formulastr.' '.$i, $attrs);
+                $mform->setType('calculated'.$i, PARAM_TEXT);
+                $mform->addHelpButton('calculated'.$i, 'calculated', 'report_trainingsessions');
+                $attrs = array('size' => 20, 'maxlength' => 254);
+                $mform->addElement('text', 'calculated'.$i.'label', $formulalabelstr.' '.$i, $attrs);
+                $mform->setType('calculated'.$i.'label', PARAM_TEXT);
+            }
 
-            $formgroup = array();
-            $formgroup[] = $mform->createElement('text', 'calculated2', get_string('formula', 'report_trainingsessions'), array('size' => 60, 'maxlength' => 254));
-            $mform->addHelpButton('calculated2', 'calculated', 'report_trainingsessions');
-            $mform->setType('calculated2', PARAM_TEXT);
-            $formgroup[] = $mform->createElement('text', 'calculated2label', get_string('formulalabel', 'report_trainingsessions'), array('size' => 40, 'maxlength' => 254));
-            $mform->addGroup($formgroup, 'formula2group', get_string('xlsformula', 'report_trainingsessions').' 1', array(get_string('formulalabel', 'report_trainingsessions').' '), false);
+            $attrs = array('size' => 80, 'maxlength' => 254);
+            $mform->addElement('text', 'lineaggregators', get_string('lineaggregators', 'report_trainingsessions'), $attrs);
+            $mform->addHelpButton('lineaggregators', 'lineaggregators', 'report_trainingsessions');
+            $mform->setType('lineaggregators', PARAM_TEXT);
         }
 
         $this->add_action_buttons(true);

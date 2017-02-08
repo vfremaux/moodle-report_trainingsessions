@@ -54,7 +54,9 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $formgroup[] = &$mform->createElement('checkbox', 'coursegrade', get_string('addcoursegrade', 'report_trainingsessions'));
         $formgroup[] = &$mform->createElement('text', 'courselabel', '', array('size' => 60, 'maxlength' => 60));
         $mform->setType('courselabel', PARAM_TEXT);
-        $mform->addGroup($formgroup, 'coursegroup', get_string('enablecoursescore', 'report_trainingsessions'), array(get_string('courselabel', 'report_trainingsessions').' '), false);
+        $label = get_string('enablecoursescore', 'report_trainingsessions');
+        $seps = array(get_string('courselabel', 'report_trainingsessions').' ');
+        $mform->addGroup($formgroup, 'coursegroup', $label, $seps, false);
 
         $mform->addElement('header', 'modulegrades', get_string('modulegrades', 'report_trainingsessions'));
 
@@ -73,9 +75,11 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $mform->addElement('html', $OUTPUT->box_start('trainingsessions-fieldset'));
 
-        $mform->addElement('radio', 'specialgrade', '', get_string('noextragrade', 'report_trainingsessions'), TR_TIMEGRADE_DISABLED);
+        $label = get_string('noextragrade', 'report_trainingsessions');
+        $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_DISABLED);
 
-        $mform->addElement('radio', 'specialgrade', '', get_string('addtimegrade', 'report_trainingsessions'), TR_TIMEGRADE_GRADE);
+        $label = get_string('addtimegrade', 'report_trainingsessions');
+        $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_GRADE);
 
         $options = array(TR_GRADE_MODE_BINARY => get_string('binary', 'report_trainingsessions'),
                          TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
@@ -83,7 +87,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->addElement('select', 'timegrademode', get_string('timegrademode', 'report_trainingsessions'), $options);
         $mform->disabledIf('timegrademode', 'specialgrade', 'neq', TR_TIMEGRADE_GRADE);
 
-        $mform->addElement('radio', 'specialgrade', '', get_string('addtimebonus', 'report_trainingsessions'), TR_TIMEGRADE_BONUS);
+        $label = get_string('addtimebonus', 'report_trainingsessions');
+        $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_BONUS);
 
         $options = array(TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
                          TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
@@ -107,7 +112,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         if (report_trainingsessions_supports_feature('xls/calculated')) {
             // Preliminary implementation. Not finished yet.
-            $mform->addElement('header', 'calculatedcolumnshead', get_string('calculatedcolumns', 'report_trainingsessions'), '');
+            $label = get_string('calculatedcolumns', 'report_trainingsessions');
+            $mform->addElement('header', 'calculatedcolumnshead', $label, '');
 
             $formulastr = get_string('xlsformula', 'report_trainingsessions');
             $formulalabelstr = get_string('formulalabel', 'report_trainingsessions');
@@ -122,7 +128,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             }
 
             $attrs = array('size' => 80, 'maxlength' => 254);
-            $mform->addElement('text', 'lineaggregators', get_string('lineaggregators', 'report_trainingsessions'), $attrs);
+            $label = get_string('lineaggregators', 'report_trainingsessions');
+            $mform->addElement('text', 'lineaggregators', $label, $attrs);
             $mform->addHelpButton('lineaggregators', 'lineaggregators', 'report_trainingsessions');
             $mform->setType('lineaggregators', PARAM_TEXT);
         }
@@ -135,7 +142,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
      * we can act on previous added values that haven't been committed to the database.
      * Check for an 'addmodule' button. If the linked activities fields are all full, add an empty one.
      */
-    function definition_after_data() {
+    public function definition_after_data() {
         global $COURSE;
 
         // Start process core datas (conditions, etc.).
@@ -203,7 +210,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $availablemodules = $this->linkablemodules;
         unset($availablemodules[0]);
-        $linkablemodules = $mform->createElement('select', 'linkablemodules',get_string('availableactivities', 'report_trainingsessions'), $availablemodules, array('size' => 10));
+        $label = get_string('availableactivities', 'report_trainingsessions');
+        $linkablemodules = $mform->createElement('select', 'linkablemodules', $label, $availablemodules, array('size' => 10));
         $linkablemodules->setMultiple(true);
 
         $formgroup[] = $linkablemodules;

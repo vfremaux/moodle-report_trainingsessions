@@ -332,9 +332,9 @@ $string['insessiontime_help'] = 'This is the "in" learning time that matched val
 $string['outsessiontime_help'] = 'This is the remaining learning time that do NOT match validation rules';
 
 $string['activitytime_help'] = '
-<p>This time calculation considers all use time spent in course activities, letting course 
+<p>This time calculation considers all use time spent in course activities, letting course
     layout times out of calculation. In certain cases (when using the Learning Time Check (non standard) with
-    standard time allocation (http://github.com/vfremaux/moodle-mod_learningtimecheck.git), additional 
+    standard time allocation (http://github.com/vfremaux/moodle-mod_learningtimecheck.git), additional
     standard time are used rather than real extracted times from log.</p>
 ';
 
@@ -355,7 +355,7 @@ any student interaction in the course, some apparent information discrepancy may
 ';
 
 $string['coursetime_help'] = '
-<p>this summarizes the time passed in general screens of the course but OUTSIDE activities. 
+<p>this summarizes the time passed in general screens of the course but OUTSIDE activities.
 ';
 
 $string['othertime_help'] = '

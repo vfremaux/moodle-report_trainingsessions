@@ -24,13 +24,12 @@
 
 require('../../../config.php');
 
-// ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$userid = required_param('userid', PARAM_INT) ; // User id.
+$id = required_param('id', PARAM_INT); // The course id.
+$userid = required_param('userid', PARAM_INT); // User id.
 
 ini_set('memory_limit', '512M');
 
@@ -67,5 +66,3 @@ header("Content-Type: application/octet-stream");
 header("Content-Disposition: attachment filename=\"$filename\";");
 header("Content-Transfer-Encoding: binary");
 echo $csvbuffer;
-
-// echo '200';

@@ -26,9 +26,9 @@
  */
 namespace report_trainingsessions\task;
 
-require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-
 defined('MOODLE_INTERNAL') || die;
+
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 class batchreports_task extends \core\task\scheduled_task {
 

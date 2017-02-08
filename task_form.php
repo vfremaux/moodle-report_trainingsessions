@@ -22,7 +22,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once $CFG->libdir.'/formslib.php';
+require_once($CFG->libdir.'/formslib.php');
 
 class Task_Form extends moodleform {
 
@@ -64,9 +64,11 @@ class Task_Form extends moodleform {
 
         $optionsstr = get_string('group').': '.$this->_customdata['groupname'].' ';
         if ($this->_customdata['startyear'] == -1) {
-            $optionsstr .= '<br/>'.get_string('range', 'report_trainingsessions').': '.get_string('coursestart', 'report_trainingsessions');
+            $str = get_string('coursestart', 'report_trainingsessions');
+            $optionsstr .= '<br/>'.get_string('range', 'report_trainingsessions').': '.$str;
         } else {
-            $optionsstr .= '<br/>'.get_string('range', 'report_trainingsessions').': '.$this->_customdata['startyear'].'-'.$this->_customdata['startmonth'].'-'.$this->_customdata['startday'];
+            $rangestr = $this->_customdata['startyear'].'-'.$this->_customdata['startmonth'].'-'.$this->_customdata['startday'];
+            $optionsstr .= '<br/>'.get_string('range', 'report_trainingsessions').': '.$rangestr;
         }
         if ($this->_customdata['endyear'] == -1) {
             $optionsstr .= ' => '.get_string('now', 'report_trainingsessions');

@@ -83,6 +83,7 @@ function report_trainingsessions_cron() {
                         $reporttype = 'sessions';
                         $range = 'user';
                 }
+                break;
 
             case 'xls':
                 switch($task->reportlayout) {
@@ -104,7 +105,8 @@ function report_trainingsessions_cron() {
                     default:
                         $reporttype = 'sessions';
                         $range = 'user';
-            }
+                }
+                break;
 
             case 'csv':
                 switch ($task->reportlayout) {
@@ -119,18 +121,22 @@ function report_trainingsessions_cron() {
                     default:
                         $reporttype = 'sessions';
                         $range = 'user';
-            }
+                }
+                break;
 
             default:
         }
 
-        $version = report_trainingsessions_supports_feature('format/'.$task->reportformat);
-        $versionpath =  ($version == 'pro') ? 'pro/' : '';
+        $tf = $task->reportformat;
+        $version = report_trainingsessions_supports_feature('format/'.$tf);
+        $versionpath = ($version == 'pro') ? 'pro/' : '';
 
         if ($range == 'group') {
-            $uri = new moodle_url('/report/trainingsessions/'.$versionpath.'tasks/group'.$task->reportformat.'report'.$reporttype.'_batch_task.php');
+            $url = '/report/trainingsessions/'.$versionpath.'tasks/group'.$tf.'report'.$reporttype.'_batch_task.php';
+            $uri = new moodle_url($url);
         } else {
-            $uri = new moodle_url('/report/trainingsessions/'.$versionpath.'batchs/group'.$task->reportformat.'report'.'_batch.php');
+            $url = '/report/trainingsessions/'.$versionpath.'batchs/group'.$tf.'report'.'_batch.php';
+            $uri = new moodle_url($url);
         }
 
         $taskarr = (array)$task;

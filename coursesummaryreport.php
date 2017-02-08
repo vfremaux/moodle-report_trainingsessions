@@ -49,7 +49,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 
 // Require appropriate rights.
 $context = context_course::instance($course->id);
-if (!has_capability('report/trainingsessions:viewother', $context, $USER->id)){
+if (!has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
     throw new Exception("User doesn't have rights to see this view");
 }
 
@@ -209,7 +209,8 @@ if (!empty($summarizedusers)) {
                     'from' => $data->from,
                     'to' => $data->to);
     $label = get_string('generatecsv', 'report_trainingsessions');
-    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/tasks/groupcsvreportsummary_batch_task.php', $params), $label);
+    $buttonurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportsummary_batch_task.php', $params);
+    echo $OUTPUT->single_button($buttonurl, $label);
 
     // Add a 'generate XLS' button after the table.
     $params = array('id' => $course->id,
@@ -217,7 +218,8 @@ if (!empty($summarizedusers)) {
                     'from' => $data->from,
                     'to' => $data->to);
     $label = get_string('generatexls', 'report_trainingsessions');
-    echo $OUTPUT->single_button(new moodle_url('/report/trainingsessions/tasks/groupxlsreportsummary_batch_task.php', $params), $label);
+    $buttonurl = new moodle_url('/report/trainingsessions/tasks/groupxlsreportsummary_batch_task.php', $params);
+    echo $OUTPUT->single_button($buttonurl, $label);
 
     echo '</center>';
     echo '<br/>';

@@ -30,11 +30,11 @@
 require('../../../config.php');
 
 ob_start();
-require_once $CFG->dirroot.'/blocks/use_stats/locallib.php';
-require_once $CFG->dirroot.'/report/trainingsessions/locallib.php';
-require_once $CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php';
+require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
-require_once $CFG->libdir.'/gradelib.php';
+require_once($CFG->libdir.'/gradelib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // The group id.
@@ -67,11 +67,11 @@ if ($groupid) {
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
-// print result.
+// Print result.
 
 if (!empty($targetusers)) {
 
-    // generate XLS.
+    // Generate XLS.
 
     if ($groupid) {
         $filename = "trainingsessions_group_{$groupid}_summary_".$input->filenametimesession.".xls";
@@ -100,6 +100,8 @@ if (!empty($targetusers)) {
 
     $row = report_trainingsessions_print_rawline_xls($worksheet, $headtitles, $headerformats, $row, $xlsformats);
 
+    $minrow = 2;
+    $maxrow = 2;
     foreach ($targetusers as $auser) {
 
         $logs = use_stats_extract_logs($input->from, $input->to, array($auser->id), $course->id);
@@ -108,12 +110,18 @@ if (!empty($targetusers)) {
         $weeklogs = use_stats_extract_logs($input->to - DAYSECS * 7, $input->to, array($auser->id), $course->id);
         $weekaggregate = use_stats_aggregate_logs($weeklogs, 'module');
 
-        $cols = report_trainingsessions_get_summary_cols();
         $data = report_trainingsessions_map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
 
         report_trainingsessions_add_graded_data($data, $auser->id, $aggregate);
         $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xlsformats);
-
+        $maxrow++;
     }
+
+    $select = " courseid = ? AND moduleid = ".TR_LINEAGGREGATORS;
+    $params = array($COURSE->id);
+    if ($summaryrec = $DB->get_record_select('report_trainingsessions', $select, $params)) {
+        report_trainingsessions_print_sumline_xls($worksheet, $summaryrec->label, $minrow, $maxrow - 1, $xlsformats);
+    }
+
     $workbook->close();
 }

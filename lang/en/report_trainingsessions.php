@@ -273,6 +273,29 @@ $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions';
 $string['xls'] = 'XLS';
 
+$string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
+$string['xlsformula'] = 'Formula (Excel expression)';
+$string['formulalabel'] = 'Column label';
+$string['lineaggregators'] = 'Line aggregators';
+$string['calculated'] = 'Calculated';
+$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to insert the current line number in cell references.';
+$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
+$string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
+$string['xlsmeanformula'] = 'XLS Mean Formula';
+$string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column identifier. A cell reference can be : ${col}$4, $Y${minrow}';
+$string['xlssumformula'] = 'XLS Sum Formula';
+$string['xlssumformula_desc'] = 'XLS Sum Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column identifier. A cell reference can be : ${col}$4, $Y${minrow}';
+
+$string['lineaggregators_help'] = '
+<p>Define aggregators as a list of aggregators switches starting from left most columns in the
+resulting excel sheet. Separe switches with comas or semicolumns. Leaving blank disables the
+aggregator line.
+</p>
+<ul>
+<li><b>m :</b> mean</li>
+<li><b>s :</b> sum</li>
+</ul>';
+
 $string['proversionrequired'] = '
 <p>You are trying to use a feature that is only available in the "Pro" version of this plugin. The "Pro" version of this plugin
 is a paied for version that help us support the development cycle of this plugin with quality insurance concerns, enhanced featuring
@@ -309,9 +332,9 @@ $string['insessiontime_help'] = 'This is the "in" learning time that matched val
 $string['outsessiontime_help'] = 'This is the remaining learning time that do NOT match validation rules';
 
 $string['activitytime_help'] = '
-<p>This time calculation considers all use time spent in course activities, letting course 
+<p>This time calculation considers all use time spent in course activities, letting course
     layout times out of calculation. In certain cases (when using the Learning Time Check (non standard) with
-    standard time allocation (http://github.com/vfremaux/moodle-mod_learningtimecheck.git), additional 
+    standard time allocation (http://github.com/vfremaux/moodle-mod_learningtimecheck.git), additional
     standard time are used rather than real extracted times from log.</p>
 ';
 
@@ -332,7 +355,7 @@ any student interaction in the course, some apparent information discrepancy may
 ';
 
 $string['coursetime_help'] = '
-<p>this summarizes the time passed in general screens of the course but OUTSIDE activities. 
+<p>this summarizes the time passed in general screens of the course but OUTSIDE activities.
 ';
 
 $string['othertime_help'] = '

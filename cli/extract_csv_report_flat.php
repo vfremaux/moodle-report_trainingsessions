@@ -36,7 +36,7 @@ require_once($CFG->libdir.'/clilib.php'); // Cli only functions.
 require_once($CFG->libdir.'/adminlib.php'); // Various admin-only functions.
 require_once($CFG->libdir.'/upgradelib.php'); // General upgrade/install related functions.
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
-require_once $CFG->dirroot.'/report/trainingsessions/csvrenderers.php';
+require_once($CFG->dirroot.'/report/trainingsessions/csvrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
@@ -83,7 +83,7 @@ Options:
 
 Example:
 \$sudo -u www-data /usr/bin/php blocks/vmoodle/cli/bulkcreatenodes.php
-"; //TODO: localize - to be translated later when everything is finished.
+"; // TODO: localize - to be translated later when everything is finished.
 
     echo $help;
     die;

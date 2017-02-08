@@ -125,7 +125,7 @@ if ($data->output == 'html') {
 
     $dataobject->sessions = 0;
     if (!empty($aggregate['sessions'])) {
-        $dataobject->sessions =  report_trainingsessions_count_sessions_in_course($aggregate['sessions'], 0);
+        $dataobject->sessions = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], 0);
     }
 
     if (array_key_exists('upload', $aggregate)) {

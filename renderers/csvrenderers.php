@@ -1,4 +1,5 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -89,12 +90,16 @@ function report_trainingsessions_print_course_structure(&$csvbuffer, &$structure
                     $dataline[0] = $currentstructure;
                     $dataline[1] = shorten_text(get_string('pluginname', $structure->type), 40);
                     if (!empty($config->showhits)) {
-                        $dataline[2] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
-                        $dataline[3] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->elapsed, 'html');
+                        $firstaccess = @$aggregate[$structure->type][$structure->id]->firstaccess;
+                        $dataline[2] = report_trainingsessions_format_time($firstaccess, 'xls');
+                        $elapsed = @$aggregate[$structure->type][$structure->id]->elapsed;
+                        $dataline[3] = report_trainingsessions_format_time($elapsed, 'html');
                         $dataline[4] = $structure->events;
                     } else {
-                        $dataline[2] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
-                        $dataline[3] = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->elapsed, 'html');
+                        $firstaccess = @$aggregate[$structure->type][$structure->id]->firstaccess;
+                        $dataline[2] = report_trainingsessions_format_time($firstaccess, 'xls');
+                        $elapsed = @$aggregate[$structure->type][$structure->id]->elapsed;
+                        $dataline[3] = report_trainingsessions_format_time($elapsed, 'html');
                     }
 
                     $csvbuffer .= implode($config->csvseparator, $dataline)."\n";
@@ -228,7 +233,7 @@ function report_trainingsessions_print_usersessions(&$csvbuffer, $userid, $cours
                             if (!report_learningtimecheck_check_day($fakecheck, $ltcconfig)) {
                                 continue;
                             }
-        
+
                             report_learningtimecheck_crop_session($s, $ltcconfig);
                             if ($s->sessionstart && $s->sessionend) {
                                 // Segment was not invalidated, possibly shorter than original.

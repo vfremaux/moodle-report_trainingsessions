@@ -34,8 +34,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php
 
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 $selform = new SelectorForm($id, 'user');
-if ($data = $selform->get_data()) {
-} else {
+if (!$data = $selform->get_data()) {
     $data = new StdClass;
     $data->from = optional_param('from', -1, PARAM_NUMBER);
     $data->to = optional_param('to', -1, PARAM_NUMBER);
@@ -128,7 +127,11 @@ if (!empty($aggregate['course'])) {
 $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
 $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
-$dataobject->sessions = (!empty($aggregate['sessions'])) ? report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id) : 0;
+if (!empty($aggregate['sessions'])) {
+    $dataobject->sessions = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id);
+} else {
+    $dataobject->sessions = 0;
+}
 
 if (array_key_exists('upload', $aggregate)) {
     $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;

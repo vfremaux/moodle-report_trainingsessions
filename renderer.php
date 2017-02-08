@@ -22,6 +22,7 @@
  * @author     Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
 class report_trainingsessions_renderer extends plugin_renderer_base {
 
@@ -33,7 +34,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
      * @param type $to
      * @return type
      */
-    function tabs($course, $view, $from, $to) {
+    public function tabs($course, $view, $from, $to) {
 
         $context = context_course::instance($course->id);
         $rows = array();
@@ -88,7 +89,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
      * @param type $scope
      * @return string
      */
-    function user_session_reports_buttons($userid, $scope = 'course') {
+    public function user_session_reports_buttons($userid, $scope = 'course') {
         global $DB, $OUTPUT, $COURSE, $CFG;
 
         if (!is_dir($CFG->dirroot.'/local/vflibs')) {
@@ -97,7 +98,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             }
         }
 
-        $MON = array('JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUI', 'JUIL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC');
+        $mon = array('JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUI', 'JUIL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC');
 
         $str = '';
 
@@ -150,7 +151,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             }
             $url = new moodle_url('/report/trainingsessions/pro/tasks/userpdfreportsessions_batch_task.php', $params);
             $attribs = array('target' => '_blank', 'class' => 'trainingsessions-inline-buttons');
-            $str .= $this->single_button($url, $MON[(int)($startmonth - 1)].' '.$startyear, $attribs);
+            $str .= $this->single_button($url, $mon[(int)($startmonth - 1)].' '.$startyear, $attribs);
             $startmonth = $nextmonth;
             $startyear = $nextyear;
             $startlistmonth = $startmonth;
@@ -164,7 +165,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
      *
      * @return string
      */
-    function placeholder() {
+    public function placeholder() {
         return '<div class="month-placeholder"></div>';
     }
 
@@ -175,7 +176,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
      * @param type $attrs
      * @return type
      */
-    function single_button($url, $label, $attrs) {
+    public function single_button($url, $label, $attrs) {
 
         // Gives a default method.
         if (empty($attrs) || !array_key_exists('method', $attrs)) {
@@ -234,7 +235,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
      * @param int $m
      * @param type $y
      */
-    function next_month(&$m, &$y) {
+    public function next_month(&$m, &$y) {
         $m++;
         if ($m > 12) {
             $y++;

@@ -98,11 +98,11 @@ class HTML_QuickForm_ElementGrid extends HTML_QuickForm_element {
      * @param string name for the element
      * @param string label for the element
      */
-    function HTML_QuickForm_ElementGrid($name = null, $label = null/*, $columnNames = null,
+    function __construct($name = null, $label = null/*, $columnNames = null,
                                          $rowNames = null, $rows = null, $attributes = null*/,
                                          $options = null)
     {
-        parent::HTML_QuickForm_element($name, $label);
+        parent::__construct($name, $label);
         $this->updateAttributes(array('class' => 'elementGrid'));
         //$this->setRows($rows);
         //$this->setColumnNames($columnNames);

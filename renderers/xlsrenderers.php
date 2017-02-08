@@ -16,7 +16,18 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-function report_trainingsessions_build_xls_format($workbook, $size, $bold, $color, $fgcolor, $numfmt = null) {
+/**
+ * build an Excel Writer format object from format attributes.
+ *
+ * @param objectref &$workbook the current excel workbook
+ * @param int $size font size
+ * @param boolean $bold font weight
+ * @param int $color a color index
+ * @param int $fgcolor a color index
+ * @param int $numfmt the index of the number format
+ * @return an Excel format instance.
+ */
+function report_trainingsessions_build_xls_format(&$workbook, $size, $bold, $color, $fgcolor, $numfmt = null) {
 
     $format = $workbook->add_format();
 
@@ -52,6 +63,7 @@ function report_trainingsessions_build_xls_format($workbook, $size, $bold, $colo
  * b : bolded paragraph
  * a : body text
  * n : numeric (normal)
+ * f : formula
  * t : date/time format
  * d : time/duration format
  * plus some other size specific variants.
@@ -91,37 +103,37 @@ function report_trainingsessions_xls_formats(&$workbook) {
     $bold = 1;
 
     // Title formats.
-    $xlsformats['T']   = report_trainingsessions_build_xls_format($workbook, $sizettl, $bold, $colorbdy, $fgcolorbdy);
-    $xlsformats['TT']  = report_trainingsessions_build_xls_format($workbook, $sizebdy, $bold, $colorttl, $fgcolorttl);
+    $xlsformats['T'] = report_trainingsessions_build_xls_format($workbook, $sizettl, $bold, $colorbdy, $fgcolorbdy);
+    $xlsformats['TT'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $bold, $colorttl, $fgcolorttl);
 
     // Text formats.
-    $xlsformats['a0']  = report_trainingsessions_build_xls_format($workbook, $sizehd1, $bold, $colorttl, $fgcolorttl);
-    $xlsformats['a1']  = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorhd1, $fgcolorhd1);
-    $xlsformats['a2']  = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorhd2, $fgcolorhd2);
-    $xlsformats['a3']  = report_trainingsessions_build_xls_format($workbook, $sizehd3, $notbold, $colorhd3, $fgcolorhd3);
-    $xlsformats['b']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $bold, $colorbdy, $fgcolorbdy);
-    $xlsformats['a']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['a0'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $bold, $colorttl, $fgcolorttl);
+    $xlsformats['a1'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorhd1, $fgcolorhd1);
+    $xlsformats['a2'] = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorhd2, $fgcolorhd2);
+    $xlsformats['a3'] = report_trainingsessions_build_xls_format($workbook, $sizehd3, $notbold, $colorhd3, $fgcolorhd3);
+    $xlsformats['b'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $bold, $colorbdy, $fgcolorbdy);
+    $xlsformats['a'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
 
     // Number formats.
-    $xlsformats['n']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['n'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
 
     // Formula formatting (same as numbers).
-    $xlsformats['f']   = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['f'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
 
     // Time/duration formats.
     $xlsformats['d1'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorhd1, $fgcolorhd1, $timefmt);
     $xlsformats['d2'] = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorhd2, $fgcolorhd2, $timefmt);
     $xlsformats['d3'] = report_trainingsessions_build_xls_format($workbook, $sizehd3, $notbold, $colorhd3, $fgcolorhd3, $timefmt);
-    $xlsformats['d']  = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, $timefmt);
+    $xlsformats['d'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, $timefmt);
 
     // Date/time formats.
-    $xlsformats['t']  = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, $datefmt);
+    $xlsformats['t'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, $datefmt);
 
     // Line-height formats (applying heights for different line types without any of the rest of the formatting).
     $xlsformats['_TT'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorbdy, $fgcolorbdy);
-    $xlsformats['_1']  = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorbdy, $fgcolorbdy);
-    $xlsformats['_2']  = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorbdy, $fgcolorbdy);
-    $xlsformats['_3']  = report_trainingsessions_build_xls_format($workbook, $sizehd3, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['_1'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['_2'] = report_trainingsessions_build_xls_format($workbook, $sizehd2, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['_3'] = report_trainingsessions_build_xls_format($workbook, $sizehd3, $notbold, $colorbdy, $fgcolorbdy);
 
     return $xlsformats;
 }
@@ -161,7 +173,7 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
         $worksheet->set_column(1,1,64);
         $worksheet->set_column(2,2,12);
         $worksheet->set_column(3,3,4);
-    } elseif ($purpose == 'allcourses') {
+    } else if ($purpose == 'allcourses') {
         $worksheet->set_column(0,0,50);
         $worksheet->set_column(1,1,50);
         $worksheet->set_column(2,2,12);
@@ -256,7 +268,7 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
 
     if ($courseid) {
         $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
-    
+
         // Print group status.
         $worksheet->write_string($row, 0, get_string('groups').' :', $xlsformats['b']);
         $str = '';
@@ -282,7 +294,7 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
             $rolenames[] = $role->shortname;
         }
         $worksheet->write_string($row, 1, strip_tags(implode(",", $rolenames)));
-    
+
         $row++;
     }
 
@@ -367,12 +379,14 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 $thisrow = $row;
                 $row++;
                 if (!empty($structure->subs)) {
-                    $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done, $row, $xlsformats, $level + 1);
+                    $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done,
+                                                             $row, $xlsformats, $level + 1);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
 
-                $firstaccess = report_trainingsessions_format_time(@$aggregate[$structure->type][$structure->id]->firstaccess, 'xls');
+                $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
+                $firstaccess = report_trainingsessions_format_time($fa, 'xls');
                 $worksheet->write_number($thisrow, 0, $firstaccess, $xlsformats['t']);
                 $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
                 $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['n']);
@@ -385,7 +399,8 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                     $dataobject = $aggregate[$structure->type][$structure->id];
                 }
                 if (!empty($structure->subs)) {
-                    $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done, $row, $xlsformats, $level);
+                    $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done,
+                                                             $row, $xlsformats, $level);
                     $dataobject->elapsed += $res->elapsed;
                     $dataobject->events += $res->events;
                 }
@@ -395,8 +410,10 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
     return $dataobject;
 }
 
-// Public wrapper for unified API.
-function report_trainingsessions_print_usersessions($worksheet, $userid, $row, $from, $to, &$course, &$xlsformats) {
+/**
+ * Public wrapper for unified API.
+ */
+function report_trainingsessions_print_usersessions(&$worksheet, $userid, $row, $from, $to, &$course, &$xlsformats) {
 
     // Get data.
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
@@ -406,7 +423,8 @@ function report_trainingsessions_print_usersessions($worksheet, $userid, $row, $
 }
 
 /**
- * print session table in an initialied worksheet
+ * Print session table in an initialied worksheet
+ *
  * @param object $worksheet
  * @param int $row
  * @param array $sessions
@@ -585,7 +603,8 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
                     $row++;
                 } else {
                     $worksheet->write_string($row, 0, $courses[$cid]->fullname, $xlsformats['a']);
-                    $worksheet->write_string($row, 2, get_string('nopermissiontoview', 'report_trainingsessions'), $xlsformats['a']);
+                    $label = get_string('nopermissiontoview', 'report_trainingsessions');
+                    $worksheet->write_string($row, 2, $label, $xlsformats['a']);
                 }
             }
         }
@@ -596,6 +615,7 @@ function report_trainingsessions_print_allcourses_xls(&$worksheet, &$aggregate, 
 
 /**
  * prints a raw data row in the worksheet
+ *
  * @param object $worksheet
  * @param array $data
  * @param array $dataformats
@@ -650,7 +670,8 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
 }
 
 /**
- * prints a raw data row in the worksheet
+ * prints a data row with column aggregators in the worksheet
+ *
  * @param object $worksheet
  * @param array $data
  * @param array $dataformats

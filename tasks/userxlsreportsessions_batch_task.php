@@ -35,8 +35,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$userid = required_param('userid', PARAM_INT) ; // The user id.
+$id = required_param('id', PARAM_INT); // The course id.
+$userid = required_param('userid', PARAM_INT); // The user id.
 
 ini_set('memory_limit', '512M');
 
@@ -68,12 +68,12 @@ if (!$workbook) {
 ob_end_clean();
 $workbook->send($filename);
 
-$xls_formats = report_trainingsessions_xls_formats($workbook);
+$xlsformats = report_trainingsessions_xls_formats($workbook);
 $startrow = 15;
 
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
 
-report_trainingsessions_print_usersessions($worksheet, $userid, $startrow, $input->from, $input->to, $id, $xls_formats);
+report_trainingsessions_print_usersessions($worksheet, $userid, $startrow, $input->from, $input->to, $id, $xlsformats);
 
 // Sending HTTP headers.
 ob_end_clean();

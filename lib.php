@@ -75,9 +75,9 @@ function report_trainingsessions_can_access_user_report($user, $course) {
 }
 
 /**
-* Called by the storage subsystem to give back a raw report
-*
-*/
+ * Called by the storage subsystem to give back a raw report
+ *
+ */
 function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
     global $USER;
 
@@ -94,7 +94,8 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
     $itemid = array_shift($args);
     $filename = array_pop($args);
     $filepath = $args ? '/'.implode('/', $args).'/' : '/';
-    if (!$file = $fs->get_file($context->id, 'report_trainingsessions', $filearea, $itemid, $filepath, $filename) or $file->is_directory()) {
+    if ((!$file = $fs->get_file($context->id, 'report_trainingsessions', $filearea, $itemid, $filepath, $filename)) ||
+            $file->is_directory()) {
         send_file_not_found();
     }
 

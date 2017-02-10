@@ -30,8 +30,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/__other/elementgrid.php');
 
 class SelectorForm extends moodleform {
 
-    var $courseid;
-    var $mode;
+    protected $courseid;
+    protected $mode;
 
     public function __construct($courseid, $mode = 'user') {
         $this->courseid = $courseid;
@@ -90,7 +90,7 @@ class SelectorForm extends moodleform {
 
                     if (!$allgroupaccess) {
                         $keep = false;
-                        foreach ($mygroups as $g){ // Is the user in my groups ?
+                        foreach ($mygroups as $g) { // Is the user in my groups ?
                             if (groups_is_member($g->id, $user->id)) {
                                 $keep = true;
                             }

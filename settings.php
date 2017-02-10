@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Report settings
+ * Report settings.
  *
  * @package    report
  * @subpackage courseoverview
@@ -190,6 +190,20 @@ if ($ADMIN->fulltree) {
         $cropoptions = array('mark' => get_string('mark', 'report_trainingsessions'),
                              'crop' => get_string('crop', 'report_trainingsessions'));
         $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
+    }
+
+    if (report_trainingsessions_supports_feature('xls/calculated')) {
+        $key = 'report_trainingsessions/xlsmeanformula';
+        $label = get_string('xlsmeanformula', 'report_trainingsessions');
+        $desc = get_string('xlsmeanformula_desc', 'report_trainingsessions');
+        $default = get_string('defaultmeanformula', 'report_trainingsessions');
+        $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
+
+        $key = 'report_trainingsessions/xlssumformula';
+        $label = get_string('xlssumformula', 'report_trainingsessions');
+        $desc = get_string('xlssumformula_desc', 'report_trainingsessions');
+        $default = get_string('defaultsumformula', 'report_trainingsessions');
+        $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
     }
 
     if (report_trainingsessions_supports_feature('emulate/community')) {

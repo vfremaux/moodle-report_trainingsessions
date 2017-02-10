@@ -389,7 +389,7 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 $firstaccess = report_trainingsessions_format_time($fa, 'xls');
                 $worksheet->write_number($thisrow, 0, $firstaccess, $xlsformats['t']);
                 $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
-                $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['n']);
+                $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['d']);
                 if (!empty($config->showhits)) {
                     $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['n']);
                 }

@@ -57,7 +57,10 @@ $coursemodinfo = get_fast_modinfo($course->id);
 if ($data = $form->get_data()) {
 
     // Delete all previous recordings.
-    $DB->delete_records('report_trainingsessions', array('courseid' => $COURSE->id));
+    // Purge old special grades for that course.
+    $select = " courseid = ? AND moduleid = 0 ";
+    $params = array($COURSE->id);
+    $DB->delete_records_select('report_trainingsessions', $select, $params);
 
     // Activate course grade.
     if (!empty($data->coursegrade)) {
@@ -70,6 +73,11 @@ if ($data = $form->get_data()) {
         $rec->ranges = '';
         $DB->insert_record('report_trainingsessions', $rec);
     }
+
+    // Purge old special grades for that course.
+    $select = " courseid = ? AND moduleid > 0 ";
+    $params = array($COURSE->id);
+    $DB->delete_records_select('report_trainingsessions', $select, $params);
 
     // Record all module grades.
     if (property_exists($data, 'moduleid')) {
@@ -117,8 +125,8 @@ if ($data = $form->get_data()) {
     }
 
     // Record sumline.
-    $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
     $moduleid = TR_LINEAGGREGATORS;
+    $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
     if (!empty($data->lineaggregators)) {
         $update = true;
         if (!$rec = $DB->get_record('report_trainingsessions', $params)) {

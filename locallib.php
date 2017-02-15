@@ -1013,7 +1013,8 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
 
 /**
  * Given a prefed tzarget list of users from a previous selection, discard users
- * that should not appear in reports
+ * that should not appear in reports.
+ *
  * @param arrayref &$targetusers an array of selected users to filter out.
  * @param object $course the course where results are compiled for.
  * @return void

@@ -65,7 +65,8 @@ function report_trainingsessions_supports_feature($feature) {
                 'format' => array('xls', 'csv', 'pdf', 'json'),
                 'replay' => array('single', 'replay', 'shift', 'shiftto'),
                 'calculation' => array('coupling'),
-                'xls' => array('calculated')
+                'xls' => array('calculated'),
+                'export' => array('ws')
             ),
             'community' => array(
                 'format' => array('xls', 'csv'),

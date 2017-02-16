@@ -145,10 +145,12 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
         // Effective printing of available sessions.
         $str .= '<table width="100%" id="structure-table">';
         $str .= '<tr valign="top">';
-        $str .= '<td class="rangedate userreport-col0"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></td>';
-        $str .= '<td class="rangedate userreport-col1"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></td>';
-        $str .= '<td class="rangedate userreport-col2"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></td>';
-        $str .= '<td class="rangedate userreport-col3"><b>'.get_string('duration', 'report_trainingsessions').'</b></td>';
+        $str .= '<td class="userreport-col0"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></td>';
+        $str .= '<td class="userreport-col1"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></td>';
+        $str .= '<td class="userreport-col2"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></td>';
+        $label = get_string('duration', 'report_trainingsessions');
+        $label .= ' ('.get_string('hits', 'report_trainingsessions').')';
+        $str .= '<td class="userreport-col3"><b>'.$label.'</b></td>';
         $str .= '</tr>';
         $str .= '</table>';
     }
@@ -183,7 +185,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             // Name is not empty. It is a significant module (non structural).
             if (!empty($structure->name)) {
                 $nodestr .= '<table class="sessionreport level'.$level.'">';
-                $nodestr .= '<tr class="sessionlevel'.$level.'" valign="top">';
+                $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0" valign="top">';
                 $nodestr .= '<td class="sessionitem item" width="55%">';
                 $nodestr .= $indent;
                 if (debugging()) {
@@ -191,17 +193,17 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 }
                 $nodestr .= shorten_text(strip_tags(format_string($structure->name)), 85);
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="sessionitem rangedate" width="15%">';
+                $nodestr .= '<td class="sessionitem rangedate userreport-col1">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $nodestr .= date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess));
                 }
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="sessionitem rangedate" width="15%">';
+                $nodestr .= '<td class="sessionitem rangedate  userreport-col2">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $nodestr .= date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess));
                 }
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="reportvalue rangedate" align="right" width="15%">';
+                $nodestr .= '<td class="reportvalue rangedate userreport-col3" align="right">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $done++;
                     $dataobject = $aggregate[$structure->type][$structure->id];

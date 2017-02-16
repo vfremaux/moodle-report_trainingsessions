@@ -14,23 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die;
-
-/**
+/*
  * Web service for exporting trainingsession reports
  * @package    report_trainingsessions
- * @since      Moodle 2.7
  * @copyright  2013 Valery Fremaux
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 $functions = array(
 
-    'report_trainingsessions_fetch_report' => array(
+    'report_trainingsessions_get_report_url' => array(
             'classname'   => 'report_trainingsessions_external',
-            'methodname'  => 'fetch_report',
+            'methodname'  => 'get_report_url',
             'classpath'   => 'report/trainingsessions/externallib.php',
-            'description' => 'Returns a single document payload',
+            'description' => 'Returns an url to a just in time compiled report',
             'type'        => 'read'
     ),
 );

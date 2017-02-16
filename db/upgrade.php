@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * This file keeps track of upgrades to the wiki module
@@ -38,7 +38,6 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
-
 
     // Moodle v2.2.0 release upgrade line.
     // Put any upgrade step following this.
@@ -94,6 +93,14 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
 
         $dbman->change_field_precision($table, $field);
         upgrade_plugin_savepoint(true, 2017011800, 'report', 'trainingsessions');
+    }
+
+    if ($oldversion < 2017020200) {
+        $table = new xmldb_table('report_trainingsessions');
+        $field = new xmldb_field('ranges', XMLDB_TYPE_TEXT, 'small', null, null, null, null, 'grade');
+
+        $dbman->change_field_precision($table, $field);
+        upgrade_plugin_savepoint(true, 2017020200, 'report', 'trainingsessions');
     }
 
     return true;

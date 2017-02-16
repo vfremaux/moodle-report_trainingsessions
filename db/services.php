@@ -24,11 +24,11 @@ defined('MOODLE_INTERNAL') || die;
 
 $functions = array(
 
-    'report_trainingsessions_fetch_report' => array(
+    'report_trainingsessions_get_report_url' => array(
             'classname'   => 'report_trainingsessions_external',
-            'methodname'  => 'fetch_report',
+            'methodname'  => 'get_report_url',
             'classpath'   => 'report/trainingsessions/externallib.php',
-            'description' => 'Returns a single document payload',
+            'description' => 'Returns an url to a just in time compiled report',
             'type'        => 'read'
     ),
 );

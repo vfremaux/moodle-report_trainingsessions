@@ -34,8 +34,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$groupid = optional_param('groupid', 0, PARAM_INT) ; // The group id.
+$id = required_param('id', PARAM_INT); // The course id.
+$groupid = optional_param('groupid', 0, PARAM_INT); // The group id.
 
 ini_set('memory_limit', '512M');
 
@@ -67,7 +67,7 @@ report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Print result.
 
-// generate XLS.
+// Generate XLS.
 
 $workbook = new MoodleExcelWorkbook("-");
 if (!$workbook) {

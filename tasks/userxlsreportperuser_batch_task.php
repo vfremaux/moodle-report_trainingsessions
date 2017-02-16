@@ -34,8 +34,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
 require_once($CFG->libdir.'/excellib.class.php');
 
-$id = required_param('id', PARAM_INT) ; // The course id.
-$userid = required_param('userid', PARAM_INT) ; // The group id.
+$id = required_param('id', PARAM_INT); // The course id.
+$userid = required_param('userid', PARAM_INT); // The group id.
 $reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // Only currentcourse is consistant.
 
 ini_set('memory_limit', '512M');
@@ -58,7 +58,7 @@ report_trainingsessions_back_office_access($course);
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
-// generate XLS.
+// Generate XLS.
 
 $filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.'.xls';
 
@@ -69,31 +69,31 @@ if (!$workbook) {
 
 $auser = $DB->get_record('user', array('id' => $userid));
 
-// Sending HTTP headers
+// Sending HTTP headers.
 ob_end_clean();
 $workbook->send($filename);
 
-$xls_formats = report_trainingsessions_xls_formats($workbook);
+$xlsformats = report_trainingsessions_xls_formats($workbook);
 $startrow = 15;
 
 $row = $startrow;
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xls_formats, $workbook);
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xlsformats, $workbook);
 
 $logusers = $auser->id;
 $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
 $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
 
-$overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls_formats);
+$overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xlsformats);
 $data = new StdClass();
 $data->items = $items;
 $data->done = $done;
 $data->from = $input->from;
 $data->elapsed = $overall->elapsed;
 $data->events = $overall->events;
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
 
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook, 'sessions');
-report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xls_formats);
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xls_formats);
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
+report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xlsformats);
+report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
 
 $workbook->close();

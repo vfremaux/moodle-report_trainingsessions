@@ -66,7 +66,11 @@ $logs = use_stats_extract_logs($input->from, $input->to, $user->id, 0);
 $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
 
 $fulltotal = 0;
-list($displaycourses, $courseshort, $coursefull, $courseelapsed, $courseevents) = block_use_stats_get_coursetable($aggregate, $fulltotal, $fullevents);
+list($displaycourses,
+     $courseshort,
+     $coursefull,
+     $courseelapsed,
+     $courseevents) = block_use_stats_get_coursetable($aggregate, $fulltotal, $fullevents);
 
 // Generate XLS.
 $workbook = new MoodleExcelWorkbook("-");
@@ -82,30 +86,11 @@ $xlsformats = report_trainingsessions_xls_formats($workbook);
 
 // Define variables.
 $startrow = 15; // Start data output at this line, under user info.
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xls_formats, $workbook);
+$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook);
 
 report_trainingsessions_print_header_xls($worksheet, $userid, 0, $data, $xlsformats);
 
 $y = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
-
-/*
-$y = report_trainingsessions_print_courseline_head($workbook, $y, $table);
-
-foreach (array_keys($displaycourses) as $courseid) {
-    $courseline = new StdClass;
-    $courseline->idnumber = ''; // TODO fetch idnumber.
-    $courseline->shortname = $courseshort[$courseid];
-    $courseline->elapsed = $courseelapsed[$courseid];
-    $courseline->events = $courseevents[$courseid];
-    $y = report_trainingsessions_print_courseline($workbook, $y, $courseline);
-}
-
-$summators = array('', '', report_trainingsessions_format_time($fulltotal, 'xlsd'));
-if (!empty($config->showhits)) {
-    $summators[] = $fullevents;
-}
-$y = report_trainingsessions_print_sumline($pdf, $y, $summators, $table);
-*/
 
 // Sending HTTP headers.
 ob_end_clean();

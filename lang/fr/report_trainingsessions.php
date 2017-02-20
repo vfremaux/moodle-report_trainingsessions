@@ -71,6 +71,7 @@ $string['crop'] = 'Tronquer';
 $string['csv'] = 'Texte (CSV)';
 $string['csvoutputtoiso'] = 'CSV au format ISO';
 $string['currentcourse'] = 'Cours courant';
+$string['debugmode'] = 'Mode debuggage (admin)';
 $string['disabled'] = '|--------- non actif -----------|';
 $string['discrete'] = 'Sortie discrète';
 $string['done'] = 'Visités ';

@@ -73,7 +73,10 @@ function report_trainingsessions_supports_feature($feature) {
                 'replay' => array('single', 'replay'),
             ),
         );
-        $prefer = array();
+        $prefer = array('format' => array(
+            'xls' => 'community',
+            'csv' => 'community'
+        ));
     }
 
     // Check existance of the 'pro' dir in plugin.
@@ -105,7 +108,7 @@ function report_trainingsessions_supports_feature($feature) {
         return false;
     }
 
-    if (in_array($feat, $supports['community'])) {
+    if (array_key_exists($feat, $supports['community'])) {
         if (in_array($subfeat, $supports['community'][$feat])) {
             // If community exists, default path points community code.
             if (isset($prefer[$feat][$subfeat])) {

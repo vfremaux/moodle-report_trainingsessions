@@ -17,11 +17,12 @@
 /**
  * Report capabilities
  *
- * @package    report
- * @subpackage trainingsessions
+ * @package    report_trainingsessions
+ * @category   report
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 $capabilities = array(
 
@@ -37,7 +38,7 @@ $capabilities = array(
 
         'clonepermissionsfrom' => 'moodle/site:viewreports',
     ),
-    
+
     'report/trainingsessions:viewother' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
@@ -51,12 +52,34 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/site:viewreports',
     ),
 
+    'report/trainingsessions:batch' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:viewreports',
+    ),
+
     'report/trainingsessions:iscompiled' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
             'student' => CAP_ALLOW,
+        ),
+    ),
+
+    'report/trainingsessions:downloadreports' => array(
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
         ),
     )
 );

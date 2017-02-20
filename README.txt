@@ -16,19 +16,22 @@ will be aware of most course formats in Moodle. At least are handled :
 
 - Topic course format
 - Weekly course format
-
-as standard
-
-# unchecked features
-
-The flexipage (Moodlerooms) format handling works in Moodle 1.9. It needs to be checked against the new Moodle rooms
-proposal for Moodle 2 flexipage.
+- Page course format
+- flexSection format
 
 #####################################
 
 Install : Unzip the report in the /report directory of your Moodle installation.
 
 You will need having installed the blocks/use_stats custom block
+
+For PDF generation, you will need using the VFLibs additional libraries you can get at 
+http://github.com/vfremaux/moodle-local_vflibs
+
+This will add adapted version of some core libraries. 
+
+In our case, we need a better control of the page length in TCPDF for handling automatic
+page breaks for long reports. This is not handled by the standard TCPDF library
 
 ####################################
 
@@ -40,22 +43,21 @@ presence time.
 * Per group (or training session bundled in groups) : Reports a summarized presence time 
 for an entire group.
 
+* Per group summary report
+
 * Excel exports of individual timesheet
 
 * Excel export of a group timesheet as an Excel multiple individual sheet.
 
-* Raw report as one single Excel table for the course.
+* Batch generation and Raw report as one single Excel table for the course
 
 * "All course" summary capitalisers.
 
 Automated generation of group reports
 ======================================
 
-The trainingsession reports is provided with a batch generation URL that generates
-automatically all group reports for a specific course. All you need to know is the course ID,
-and add a cron task that wgets this url : 
-
-wget -O /dev/null -q <moodlewwwroot>/course/report/trainingsessions/grouprawreport_batch.php?id=<courseid>
+the training session provides a batch management that allows storing tasks for generating single or multiple
+document sets.
 
 Setting capabilities for student access to his own report
 =========================================================

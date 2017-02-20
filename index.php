@@ -17,62 +17,52 @@
 /**
  * Course trainingsessions report
  *
- * @package    report
- * @version    moodle 2.x
- * @subpackage trainingsessions
+ * @package    report_trainingsessions
+ * @category   report
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+require('../../config.php');
+require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->dirroot.'/lib/statslib.php');
 
-	require_once('../../config.php');
-	require_once($CFG->libdir.'/adminlib.php');
-	require_once($CFG->dirroot.'/lib/statslib.php');
+$id = required_param('id', PARAM_INT); // Course id.
+$view = optional_param('view', 'user', PARAM_ALPHA);
+$report = optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
+$time = optional_param('time', 0, PARAM_INT);
 
-	$id			= required_param('id', PARAM_INT); // course id
-	$output		= optional_param('output', 'html', PARAM_ALPHA);
-	$view		= optional_param('view', 'user', PARAM_ALPHA);
-	$report		= optional_param('report', STATS_REPORT_ACTIVE_COURSES, PARAM_INT);
-	$time		= optional_param('time', 0, PARAM_INT);
-    
-	if (!$course = $DB->get_record('course', array('id' => $id))) {
-		print_error('invalidcourse');
-	}
+// Form bounce somewhere ?
+$view = (empty($view)) ? 'user' : $view;
 
-	$PAGE->set_url('/report/outline/index.php', array('id'=>$id));
-	$PAGE->set_pagelayout('report');
+if (!$course = $DB->get_record('course', array('id' => $id))) {
+    print_error('invalidcourse');
+}
 
-	require_login($course);
-	$context = context_course::instance($course->id);
-	require_capability('report/trainingsessions:view', $context);
+// Security.
 
-	add_to_log($course->id, "course", "trainingreports view", "/report/trainingsessions/index.php?id=$course->id", $course->id);
+require_course_login($course);
+$context = context_course::instance($course->id);
+require_capability('report/trainingsessions:view', $context);
 
-	$strreports = get_string('reports');
-	$strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
+$PAGE->set_url('/report/trainingsessions/index.php', array('id' => $id));
+$PAGE->set_heading(get_string($view, 'report_trainingsessions'));
+$PAGE->set_title(get_string($view, 'report_trainingsessions'));
+$PAGE->navbar->add(get_string($view, 'report_trainingsessions'));
 
-	if ($output == 'html'){
-		echo $OUTPUT->header();	    
-	    $OUTPUT->container_start();
+$renderer = $PAGE->get_renderer('report_trainingsessions');
 
-		/// Print tabs with options for user
-		$rows[0][] = new tabobject('user', "index.php?id={$course->id}&amp;view=user", get_string('user', 'report_trainingsessions'));
-        if (has_capability('report/trainingsessions:viewother', $context)){
-	        $rows[0][] = new tabobject('course', "index.php?id={$course->id}&amp;view=course", get_string('course', 'report_trainingsessions'));
-	        $rows[0][] = new tabobject('courseraw', "index.php?id={$course->id}&amp;view=courseraw", get_string('courseraw', 'report_trainingsessions'));
-	    }
-        $rows[0][] = new tabobject('allcourses', "index.php?id={$course->id}&amp;view=allcourses", get_string('allcourses', 'report_trainingsessions'));
-		
-	    print_tabs($rows, $view);
-	
-	    $OUTPUT->container_end();
-	}
+$strreports = get_string('reports');
+$strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 
-	@ini_set('max_execution_time','3000');
-	raise_memory_limit('250M');
+@ini_set('max_execution_time', '3000');
+raise_memory_limit('250M');
 
-	if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")){
-	    include_once $CFG->dirroot."/report/trainingsessions/{$view}report.php";
-	} else {
-	    print_error('errorbadviewid', 'report_trainingsessions');
-	}
+// Defer printing header in report views after potential redirections.
 
-	if ($output == 'html') echo $OUTPUT->footer();
+if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")) {
+    include_once($CFG->dirroot."/report/trainingsessions/{$view}report.php");
+} else {
+    print_error('errorbadviewid', 'report_trainingsessions');
+}
+
+echo $OUTPUT->footer();
+

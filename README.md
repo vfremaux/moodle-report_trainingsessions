@@ -19,6 +19,17 @@ Dependencies:
 Block moodle-block_use_stats
 Block moodle-auth_ticket for securing batch CURL tasks distribution.
 
+Optional :
+
+For PDF generation, you will need using the VFLibs additional libraries you can get at 
+http://github.com/vfremaux/moodle-local_vflibs
+
+This will add adapted version of some core libraries. 
+
+In our case, we need a better control of the page length in TCPDF for handling automatic
+page breaks for long reports. This is not handled by the standard TCPDF library
+
+
 Versions:
 =========
 Moodle < 2.7 not supprted any more. 
@@ -29,6 +40,7 @@ active branches:
 - MOODLE_30_STABLE
 - MOODLE_31_STABLE
 
+<<<<<<< HEAD
 Next comming branches:
 - MOODLE_32_STALE
 
@@ -46,3 +58,7 @@ Pro version provides:
 - JSON renderers and generators
 - LearningTimeCheck time credits coupling
 - Laborable/non laborable separation
+=======
+2016042900 : Adds a specific capability for batchs
+
+>>>>>>> MOODLE_32_STABLE

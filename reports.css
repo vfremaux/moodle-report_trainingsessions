@@ -40,3 +40,25 @@ table * td {
 .reportdetails{
     font-size:0.85em;
 }
+
+.trainingreport.subs,
+.sessionreport{
+    width:100%;
+}
+
+.sessionitem.rangedate{
+	background-color:#d0d0d0;
+	font-size:0.9em;
+	border:1px solid #a0a0a0;
+}
+
+.report-trainingsession.userinfobox{
+	width:80%;
+	text-align:left;
+	padding:10px;
+	background-color:white;
+	border:1px #d0d0d0 solid;
+	border-radius:10px;
+	margin:10px;
+	font-size:1.2em;
+}

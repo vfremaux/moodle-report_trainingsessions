@@ -17,12 +17,11 @@
 /**
  * This file contains functions used by the trainingsessions report
  *
- * @package    report
- * @subpackage trainingsessions
+ * @package    report_trainingsessions
+ * @category   report
  * @copyright  2012 Valery Fremaux (valery.fremaux@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die;
 
 /**
@@ -33,18 +32,18 @@ defined('MOODLE_INTERNAL') || die;
  * @param stdClass $context The context of the course
  */
 function report_trainingsessions_extend_navigation_course($navigation, $course, $context) {
-    global $CFG, $OUTPUT;
     if (has_capability('report/trainingsessions:view', $context)) {
         $url = new moodle_url('/report/trainingsessions/index.php', array('id' => $course->id));
-        $navigation->add(get_string('pluginname', 'report_trainingsessions'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+        $label = get_string('pluginname', 'report_trainingsessions');
+        $navigation->add($label, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 }
 
 function report_trainingsessions_page_type_list($pagetype, $parentcontext, $currentcontext) {
     $array = array(
-        '*'                          => get_string('page-x', 'pagetype'),
-        'report-*'                   => get_string('page-report-x', 'pagetype'),
-        'report-trainingsessions-*'     => get_string('page-report-trainingsessions-x',  'report_trainingsessions'),
+        '*' => get_string('page-x', 'pagetype'),
+        'report-*' => get_string('page-report-x', 'pagetype'),
+        'report-trainingsessions-*' => get_string('page-report-trainingsessions-x',  'report_trainingsessions'),
         'report-trainingsessions-index' => get_string('page-report-trainingsessions-index',  'report_trainingsessions'),
     );
     return $array;
@@ -63,7 +62,6 @@ function report_trainingsessions_can_access_user_report($user, $course) {
     global $USER;
 
     $coursecontext = context_course::instance($course->id);
-    $personalcontext = context_user::instance($user->id);
 
     if (has_capability('report/trainingsessions:view', $coursecontext)) {
         return true;
@@ -77,27 +75,43 @@ function report_trainingsessions_can_access_user_report($user, $course) {
 }
 
 /**
-* Called by the storage subsystem to give back a raw report
-*
-*/
-function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload){
-    require_course_login($course);
+ * Called by the storage subsystem to give back a raw report
+ *
+ */
+function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload) {
+    global $USER;
 
-    if ($filearea !== 'rawreports') {
+    if ($USER->id) {
+        require_capability('report/trainingsessions:downloadreports', $context);
+    }
+
+    if (!in_array($filearea, array('rawreports', 'reports'))) {
         send_file_not_found();
     }
 
     $fs = get_file_storage();
 
+    $itemid = array_shift($args);
     $filename = array_pop($args);
     $filepath = $args ? '/'.implode('/', $args).'/' : '/';
-
-    if (!$file = $fs->get_file($context->id, 'report_trainingsessions', 'rawreports', $course->id, $filepath, $filename) or $file->is_directory()) {
+    if ((!$file = $fs->get_file($context->id, 'report_trainingsessions', $filearea, $itemid, $filepath, $filename)) ||
+            $file->is_directory()) {
         send_file_not_found();
     }
 
-    $forcedownload = true;
+    send_stored_file($file, 60 * 60, 0, true);
+}
 
-    session_get_instance()->write_close();
-    send_stored_file($file, 60*60, 0, $forcedownload);
+/**
+ * Callback to verify if the given instance of store is supported by this report or not.
+ *
+ * @param string $instance store instance.
+ *
+ * @return bool returns true if the store is supported by the report, false otherwise.
+ */
+function report_trainingsessions_supports_feature_logstore($instance) {
+    if ($instance instanceof \core\log\sql_internal_reader || $instance instanceof \logstore_legacy\log\store) {
+        return true;
+    }
+    return false;
 }

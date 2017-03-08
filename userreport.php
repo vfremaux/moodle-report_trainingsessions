@@ -43,21 +43,7 @@ if (!$data = $selform->get_data()) {
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
 }
 
-if (($data->from == -1) || @$data->fromstart) {
-    // Maybe we get it from parameters.
-    $data->from = $course->startdate;
-}
-
-if (($data->to == -1) || @$data->tonow) {
-    // Maybe we get it from parameters.
-    $data->to = time();
-} else {
-    /*
-     * The displayed time in form is giving a 0h00 time. We should push till
-     * 23h59 of the given day
-     */
-    $data->to = min(time(), $data->to + DAYSECS - 1);
-}
+report_trainingsessions_process_bounds($data, $course);
 
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
@@ -68,6 +54,9 @@ echo $OUTPUT->box_start('block');
 $selform->set_data($data);
 $selform->display();
 echo $OUTPUT->box_end();
+
+echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
+echo ' '.get_string('to', 'report_trainingsessions')." : ".userdate($data->to);
 
 // Get data.
 

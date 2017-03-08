@@ -509,8 +509,10 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
 
     $config = get_config('report_trainingsessions');
     if (!empty($config->enablelearningtimecheckcoupling)) {
-        require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
-        $ltcconfig = get_config('report_learningtimecheck');
+        if (file_exists($CFG->dirroot.'/report/learningtimecheck/lib.php')) {
+            require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
+            $ltcconfig = get_config('report_learningtimecheck');
+        }
     }
 
     $sessionsstr = ($courseid) ? get_string('coursesessions', 'report_trainingsessions') : get_string('sessions', 'report_trainingsessions');

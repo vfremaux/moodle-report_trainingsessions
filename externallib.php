@@ -109,20 +109,20 @@ class report_trainingsessions_external {
             }
 
             case 'idnumber': {
-                    if (!$user = $DB->get_record('user', array('idnumber' => $inputs['userid']))) {
-                        throw new invalid_parameter_exception('User not found by idnumber: '.$inputs['userid']);
-                    }
-                    $status['userid'] = $user->id;
-                    break;
+                if (!$user = $DB->get_record('user', array('idnumber' => $inputs['userid']))) {
+                    throw new invalid_parameter_exception('User not found by idnumber: '.$inputs['userid']);
                 }
+                $status['userid'] = $user->id;
+                break;
+            }
 
             case 'email': {
-                    if (!$user = $DB->get_record('user', array('email' => $inputs['userid']))) {
-                        throw new invalid_parameter_exception('User not found by email: '.$inputs['userid']);
-                    }
-                    $status['userid'] = $user->id;
-                    break;
+                if (!$user = $DB->get_record('user', array('email' => $inputs['userid']))) {
+                    throw new invalid_parameter_exception('User not found by email: '.$inputs['userid']);
                 }
+                $status['userid'] = $user->id;
+                break;
+            }
         }
 
         return $status;

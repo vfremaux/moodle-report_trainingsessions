@@ -384,11 +384,11 @@ $string['plugindist_desc'] = '
 correspondant à une utilisation courante du plugin. Une version "professionnelle" de ce plugn existe et est distribuée
 sous certaines conditions, afin de soutenir l\'effort de développement, amélioration; documentation et suivi des versions.</p>
 <p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
-<ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
+<ul><li><a href="http://www.activeprolearn.com/plugin.php?plugin=report_trainingsessions&lang=fr">ActiveProLearn SAS</a></li>
 <li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>
 ';
 
 $string['extelapsed_help'] = '
-Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajout les temps passés à rejoidre le cours
+Le temps de cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajout les temps passés à rejoidre le cours
 ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail.
 ';

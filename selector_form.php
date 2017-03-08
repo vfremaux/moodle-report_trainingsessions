@@ -139,7 +139,7 @@ class SelectorForm extends moodleform {
         $row2[] = & $mform->createElement('checkbox', 'fromstart', '', $updatefromstr);
         $row2[] = & $mform->createElement('checkbox', 'tonow', '', $updatetostr);
         if (has_capability('moodle/site:config', $context)) {
-                    $row2[] = & $mform->createElement('checkbox', 'debug', '', $debugmodestr);
+            $row2[] = & $mform->createElement('checkbox', 'debug', '', $debugmodestr);
         }
         $row2[] = $mform->createElement('html', ''); // This stands for an empty cell, but needs being a Quickform object.
         $row2[] = $mform->createElement('html', ''); // This stands for an empty cell, but needs being a Quickform object.
@@ -151,6 +151,5 @@ class SelectorForm extends moodleform {
 
         $mform->disabledIf('from[\'day\']', 'fromstart', 'checked');
         $mform->disabledIf('to[\'day\']', 'tonow', 'checked');
-
     }
 }

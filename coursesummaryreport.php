@@ -53,29 +53,7 @@ if (!has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
     throw new Exception("User doesn't have rights to see this view");
 }
 
-// Calculate start time.
-if ($data->from == -1) {
-    // Maybe we get it from parameters.
-    if ($startday == -1 || $data->fromstart) {
-        $data->from = $course->startdate;
-    } else if ($data->startmonth != -1 && $data->startyear != -1) {
-        $data->from = mktime(0, 0, 0, $data->startmonth, $data->startday, $data->startyear);
-    } else {
-        print_error('Bad start date');
-    }
-}
-
-// Calculate end time.
-if ($data->to == -1) {
-    // Maybe we get it from parameters.
-    if ($data->endday == -1 || $data->toend) {
-        $data->to = time();
-    } else if ($data->endmonth != -1 && $data->endyear != -1) {
-        $data->to = mktime(23, 59, 59, $data->endmonth, $data->endday, $data->endyear);
-    } else {
-        print_error('Bad end date');
-    }
-}
+report_trainingsessions_process_bounds($data, $course);
 
 // Compute target group.
 
@@ -166,6 +144,9 @@ $data->view = $view;
 $selform->set_data($data);
 $selform->display();
 echo $OUTPUT->box_end();
+
+echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
+echo ' '.get_string('to', 'report_trainingsessions')."  : ".userdate($data->to);
 
 // Time and group period form.
 echo '<br/>';

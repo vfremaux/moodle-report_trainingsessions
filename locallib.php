@@ -73,7 +73,10 @@ function report_trainingsessions_supports_feature($feature) {
                 'replay' => array('single', 'replay'),
             ),
         );
-        $prefer = array();
+        $prefer = array('format' => array(
+            'xls' => 'community',
+            'csv' => 'community'
+        ));
     }
 
     // Check existance of the 'pro' dir in plugin.
@@ -105,7 +108,7 @@ function report_trainingsessions_supports_feature($feature) {
         return false;
     }
 
-    if (in_array($feat, $supports['community'])) {
+    if (array_key_exists($feat, $supports['community'])) {
         if (in_array($subfeat, $supports['community'][$feat])) {
             // If community exists, default path points community code.
             if (isset($prefer[$feat][$subfeat])) {
@@ -1055,7 +1058,7 @@ function report_trainingsessions_back_office_get_ticket() {
  * @param object $course
  */
 function report_trainingsessions_back_office_access($course = null) {
-    global $CFG;
+    global $CFG, $USER;
 
     $securitytoken = optional_param('ticket', '', PARAM_RAW);
     if (!empty($securitytoken)) {
@@ -1633,4 +1636,56 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
     }
 
     return $data;
+}
+
+/**
+ * Processes the range boundaries returning from form.
+ * @param array $data
+ */
+function report_trainingsessions_process_bounds(&$data, &$course) {
+    // Calculate start time.
+
+    // Calculate start time.
+    if (!empty($data->fromstart)) {
+        $data->from = $course->startdate;
+    } else {
+        if ($data->from == -1) {
+            $data->from = $course->startdate;
+        } else {
+            if ($data->from > 0) {
+                // Maybe we get it from parameters.
+                $dateelms = getdate($data->from);
+                $data->startmonth = $dateelms['mon'];
+                $data->startyear = $dateelms['year'];
+                $data->startday = $dateelms['mday'];
+    
+                $data->from = mktime(0, 0, 0, $data->startmonth, $data->startday, $data->startyear);
+            } else {
+                print_error('Bad start date');
+            }
+        }
+    }
+
+    if (($data->to == -1) || @$data->tonow) {
+        // Maybe we get it from parameters.
+        $data->to = time();
+    } else {
+
+        $dateelms = getdate($data->to);
+        $data->endmonth = $dateelms['mon'];
+        $data->endyear = $dateelms['year'];
+        $data->endday = $dateelms['mday'];
+
+        /*
+         * The displayed time in form is giving a 0h00 time. We should push till
+         * 23h59 of the given day
+         */
+        if ($data->endday == -1 || !empty($data->tonow)) {
+            $data->to = time();
+        } else if ($data->endmonth != -1 && $data->endyear != -1) {
+            $data->to = mktime(23, 59, 59, $data->endmonth, $data->endday, $data->endyear);
+        } else {
+            print_error('Bad end date');
+        }
+    }
 }

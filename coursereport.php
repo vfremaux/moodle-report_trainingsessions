@@ -51,21 +51,7 @@ $context = context_course::instance($id);
 
 // Calculate start time.
 
-if (($data->from == -1) || @$data->fromstart) {
-    // Maybe we get it from parameters.
-    $data->from = $course->startdate;
-}
-
-if (($data->to == -1) || @$data->tonow) {
-    // Maybe we get it from parameters.
-    $data->to = time();
-} else {
-    /*
-     * The displayed time in form is giving a 0h00 time. We should push till
-     * 23h59 of the given day
-     */
-    $data->to = min(time(), $data->to + DAYSECS - 1);
-}
+report_trainingsessions_process_bounds($data, $course);
 
 if ($data->output == 'html') {
     echo $OUTPUT->header();
@@ -77,6 +63,9 @@ if ($data->output == 'html') {
     $selform->set_data($data);
     $selform->display();
     echo $OUTPUT->box_end();
+
+    echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
+    echo ' '.get_string('to', 'report_trainingsessions')."  : ".userdate($data->to);
 }
 
 // Compute target group.
@@ -193,7 +182,6 @@ if (!empty($targetusers)) {
 
         $data->linktousersheet = 1;
         echo report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
-
     }
 } else {
     echo $OUTPUT->notification(get_string('nousersfound'));

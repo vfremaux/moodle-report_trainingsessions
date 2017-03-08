@@ -60,17 +60,7 @@ if (!$canseeothers) {
     $userid = $data->userid;
 }
 
-// Calculate start time.
-
-if ($data->from == -1 || @$data->fromstart) {
-    // Maybe we get it from parameters.
-    $data->from = $DB->get_field('user', 'firstaccess', array('id' => $userid));
-}
-
-if ($data->to == -1 || @$data->tonow) {
-    // Maybe we get it from parameters.
-    $data->to = time();
-}
+report_trainingsessions_process_bounds($data, $course);
 
 if ($data->output == 'html') {
     echo $OUTPUT->header();
@@ -82,6 +72,9 @@ if ($data->output == 'html') {
     $selform->set_data($data);
     $selform->display();
     echo $OUTPUT->box_end();
+
+    echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
+    echo ' '.get_string('to', 'report_trainingsessions')."  : ".userdate($data->to);
 }
 
 // Get log data.

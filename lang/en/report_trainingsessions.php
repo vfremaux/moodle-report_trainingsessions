@@ -69,6 +69,7 @@ $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
 $string['csvoutputtoiso'] = 'Iso CSV Output';
 $string['currentcourse'] = 'Current course';
+$string['debugmode'] = 'Debug mode on';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['discrete'] = 'Discrete output';
 $string['done'] = 'Performed: ';

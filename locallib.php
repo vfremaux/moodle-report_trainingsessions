@@ -1658,7 +1658,7 @@ function report_trainingsessions_process_bounds(&$data, &$course) {
                 $data->startmonth = $dateelms['mon'];
                 $data->startyear = $dateelms['year'];
                 $data->startday = $dateelms['mday'];
-    
+
                 $data->from = mktime(0, 0, 0, $data->startmonth, $data->startday, $data->startyear);
             } else {
                 print_error('Bad start date');

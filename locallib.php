@@ -528,7 +528,20 @@ function page_get_structure_in_content($source, &$itemcount) {
  */
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
     if ($timevalue) {
-        if ($mode == 'html') {
+        if ($mode == 'htmld') {
+            $secs = $timevalue % 60;
+            $mins = floor($timevalue / 60);
+            $hours = floor($mins / 60);
+            $mins = $mins % 60;
+
+            if ($hours > 0) {
+                return "{$hours}h {$mins}m";
+            }
+            if ($mins > 0) {
+                return "{$mins}m";
+            }
+            return "{$secs}s";
+        } else if ($mode == 'htmlds') {
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
@@ -541,10 +554,12 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
                 return "{$mins}m {$secs}s";
             }
             return "{$secs}s";
+        } else if ($mode == 'html') {
+            return strftime('%Y-%m-%d %H:%I (%a)', $timevalue);
         } else if ($mode == 'xlsd') {
+            // For excel time format we need have a fractional day value.
             return $timevalue / DAYSECS;
         } else {
-            // For excel time format we need have a fractional day value.
             return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
         }
     } else {
@@ -1531,7 +1546,12 @@ function report_trainingsessions_plugin_include($file) {
 }
 
 /**
- * Extract summary columns keys from configuration.
+ * Extract summary columns keys from configuration. the configuration keys are
+ * couple of colname,<colformat> specially for Excel output. format codes are:
+ * - n : numeric (scalar)
+ * - d : duration
+ * - t : time/date
+ * - a : textual
  *
  * @param string $what type of info to return.
  * - false return column names
@@ -1610,6 +1630,7 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'department' => $user->department,
         'lastlogin' => $user->lastlogin,
         'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
+        'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
         'elapsed' => 0 + @$t[$courseid]->elapsed,
         'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'items' => 0 + @$t[$courseid]->items,

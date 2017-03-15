@@ -69,6 +69,7 @@ $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
 $string['csvoutputtoiso'] = 'Iso CSV Output';
 $string['currentcourse'] = 'Current course';
+$string['debugmode'] = 'Debug mode on';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['discrete'] = 'Discrete output';
 $string['done'] = 'Performed: ';
@@ -220,6 +221,8 @@ $string['sessionsonly'] = 'User sessions only';
 $string['sessionstart'] = 'Session start';
 $string['showhits'] = 'Show events (csv)';
 $string['showhits_desc'] = 'If set, the hit count will be added to the CSV lines';
+$string['showsseconds'] = 'Show seconds';
+$string['showsseconds_desc'] = 'Show seconds in duration expression if enabled';
 $string['singleexec'] = 'Single run';
 $string['siteglobals'] = 'Site (non course sections)';
 $string['specialgrades'] = 'Special grades';
@@ -386,7 +389,7 @@ $string['plugindist_desc'] = '
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
-<ul><li><a href="http://www.activeprolearn.com/plugin.php?plugin=report_trainingsessions&lang=en">ActiveProLearn SAS</a></li>
+<ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
 <li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>
 ';
 

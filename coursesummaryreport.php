@@ -92,7 +92,7 @@ report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Setup column list.
 $namedcols = report_trainingsessions_get_summary_cols();
-$durationcols = array('activitytime', 'equlearningtime', 'elapsed', 'extelapsed', 'elapsedlastweek', 'extelapsedlastweek');
+$durationcols = array('activitytime', 'equlearningtime', 'elapsed', 'extelapsed', 'coursetime', 'elapsedlastweek', 'extelapsedlastweek');
 
 // Get base data from moodle and bake it into a local format.
 $courseid = $course->id;
@@ -148,6 +148,13 @@ echo $OUTPUT->box_end();
 echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
 echo ' '.get_string('to', 'report_trainingsessions')."  : ".userdate($data->to);
 
+$config = get_config('report_trainingsessions');
+if (!empty($config->showseconds)) {
+    $durationformat = 'htmlds';
+} else {
+    $durationformat = 'htmld';
+}
+
 // Time and group period form.
 echo '<br/>';
 
@@ -170,7 +177,7 @@ if (!empty($summarizedusers)) {
         foreach ($auser as $fieldname => $field) {
             if (in_array($fieldname, $durationcols)) {
                 $cssclass = 'report-col-right';
-                echo '<td class="'.$cssclass.'">'.report_trainingsessions_format_time($field, 'html').'</td>';
+                echo '<td class="'.$cssclass.'">'.report_trainingsessions_format_time($field, $durationformat).'</td>';
             } else if (in_array($fieldname, $colskeys)) {
                 // Those may come from grade columns.
                 echo '<td>'.$field.'</td>';

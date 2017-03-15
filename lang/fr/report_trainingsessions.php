@@ -199,7 +199,6 @@ $string['range'] = 'Plage ';
 $string['recipient'] = 'Destinataire';
 $string['recipient_desc'] = 'Destinataire par défaut des documents PDF. Peut être surchargé localement par l\'utilisateur.';
 $string['replay'] = 'Rejouer le même rapport';
-$string['replay'] = 'Répétition ';
 $string['replaydelay'] = 'Intervalle de répétition (minutes) ';
 $string['reportdate'] = 'Date du rapport';
 $string['reportfilemanager'] = 'Accéder au répertoire des rapports';
@@ -389,7 +388,7 @@ $string['plugindist_desc'] = '
 correspondant à une utilisation courante du plugin. Une version "professionnelle" de ce plugn existe et est distribuée
 sous certaines conditions, afin de soutenir l\'effort de développement, amélioration; documentation et suivi des versions.</p>
 <p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=fr_utf8">Distributeurs MyLF</a></p<
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=fr_utf8">Distributeurs MyLF</a></p>
 ';
 
 $string['extelapsed_help'] = '

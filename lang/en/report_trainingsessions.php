@@ -95,10 +95,10 @@ $string['errordiscretenoranges'] = 'You must define ranges when using discrete m
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
 $string['extelapsed'] = 'Total time (extended)';
 $string['extelapsedlastweek'] = 'Last week time (extended)';
-$string['extother'] = 'Extra out of course time';
-$string['extotherlastweek'] = 'Extra time (last week)';
 $string['exthits'] = 'Hits (extended)';
 $string['exthitslastweek'] = 'Hits last week (extended)';
+$string['extother'] = 'Extra out of course time';
+$string['extotherlastweek'] = 'Extra time (last week)';
 $string['extrauserinfo'] = 'Additional user info in reports';
 $string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
 $string['fail'] = 'FAIL';
@@ -196,7 +196,6 @@ $string['range'] = 'Range ';
 $string['recipient'] = 'Recipient';
 $string['recipient_desc'] = 'Default recipient of the PDF documents. May be locally overloaded by each operator.';
 $string['replay'] = 'Replay same settings';
-$string['replay'] = 'Replay';
 $string['replaydelay'] = 'Replay delay (min)';
 $string['reportdate'] = 'Report date';
 $string['reportfilemanager'] = 'Report files manager';
@@ -391,12 +390,12 @@ $string['plugindist_desc'] = '
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p<
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>
 ';
 
 $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
-material and some time spent in général site screens the user has access to.
+material and some time spent in gÃ©nÃ©ral site screens the user has access to.
 ';
 
 $string['extother_help'] = '

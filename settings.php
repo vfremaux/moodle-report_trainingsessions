@@ -51,7 +51,7 @@ if ($ADMIN->fulltree) {
     $desc = get_string('printidnumber_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, ''));
 
-    $key = 'report_trainingsessions/showsseconds';
+    $key = 'report_trainingsessions/showseconds';
     $label = get_string('showsseconds', 'report_trainingsessions');
     $desc = get_string('showsseconds_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, ''));

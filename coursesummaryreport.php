@@ -92,7 +92,16 @@ report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Setup column list.
 $namedcols = report_trainingsessions_get_summary_cols();
-$durationcols = array('activitytime', 'equlearningtime', 'elapsed', 'extelapsed', 'coursetime', 'elapsedlastweek', 'extelapsedlastweek');
+$durationcols = array('activitytime',
+                      'equlearningtime',
+                      'elapsed',
+                      'extelapsed',
+                      'extelapsedlastweek',
+                      'extother',
+                      'extotherlastweek',
+                      'coursetime',
+                      'elapsedlastweek',
+                      'extelapsedlastweek');
 
 // Get base data from moodle and bake it into a local format.
 $courseid = $course->id;

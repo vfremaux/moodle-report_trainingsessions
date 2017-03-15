@@ -72,3 +72,33 @@ report needs to be displayed for students, change following configurations in Mo
 If you do not want students have access to this report everywhere in all courses they are enrolled in, 
 but you want to control course by course the access to their report, use role override on student role
 at course level and add an averride on the moodle/site:viewreports on that course. 
+
+2017021600 - New distribution policy
+====================================
+
+Due to the huge amount of demands for increasing reliability and accuracy of the time tracking tools in Moodle, and
+the huge amount of work hours that it needs, we have decided to split our publication policy keeping the main essential functions
+in the community version of the plugin, and deferring the most demanding, test and validation consuming, or advanced features into
+a "pro" version. We hope usual users of such "dual release" plugins will understand our need to stay being able to maintain and pursue
+provide support, innovation and code quality for Moodle, but being also supported ourself to do so. Plugin documentation provides
+information about feature sets and how to get "pro" versions. In our scope is also to provide simpler plugins for the usual non advanced use,
+and keep very fine options to people that really needs them.
+
+Policy change will not affect the moodle version path of the plugin, data model remains unchanged, such as core bound definitions.
+
+Pro version objectives:
+
+* providing essential "pro" webservices to get full external control
+* file formats exhaustivity, import, exports and document format output
+* enhanced flexibility, rare or specific options
+* payed customer integrations
+* mass performance
+* enhanced productivity
+
+Community standard concerns:
+
+* core features and service
+* moodle standard compliance
+* moodle core plugin API contract
+* security implementation
+* base documentation

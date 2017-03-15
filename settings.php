@@ -70,8 +70,8 @@ if ($ADMIN->fulltree) {
     $label = get_string('summarycolumns', 'report_trainingsessions');
     $desc = get_string('summarycolumns_desc', 'report_trainingsessions');
     $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#lastlogin,t\nactivitytime,d\n";
-    $default .= "#othertime,d\n#coursetime,d\nelapsed,d\n#extelapsed,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
-    $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#hitslastweek,n\n#exthitslastweek,n";
+    $default .= "#othertime,d\n#coursetime,d\nelapsed,d\n#extelapsed,d\nextother,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
+    $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherlastweek,d\n#hitslastweek,n\n#exthitslastweek,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
     $novalue = array('0' => get_string('disabled', 'report_trainingsessions'));

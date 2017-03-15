@@ -51,7 +51,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
         foreach ($aggregate['coursetotal'] as $cid => $cdata) {
             if ($cid != 0) {
                 if (!in_array($cid, $courseids)) {
-                    $fields = 'id,idnumber,shortname,fullname,category';
+                    $fields = 'id, idnumber, shortname, fullname, category';
                     $courses[$cid] = $DB->get_record('course', array('id' => $cid), $fields);
                     $courseids[$cid] = '';
                 }
@@ -436,6 +436,12 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             }
             $str .= $OUTPUT->help_icon('extelapsed', 'report_trainingsessions');
         }
+        if (in_array('extother', $cols)) {
+            $str .= '<br/><b>';
+            $str .= get_string('extother', 'report_trainingsessions');
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extother, $durationformat);
+            $str .= $OUTPUT->help_icon('extother', 'report_trainingsessions');
+        }
 
         if (in_array('extelapsedlastweek', $cols)) {
             $str .= '<br/><b>';
@@ -445,6 +451,12 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
                 $str .= ' ('.(0 + @$data->exthitslastweek).')';
             }
             $str .= $OUTPUT->help_icon('extelapsedlastweek', 'report_trainingsessions');
+        }
+
+        if (in_array('extotherlastweek', $cols)) {
+            $str .= '<br/><b>';
+            $str .= get_string('extotherlastweek', 'report_trainingsessions');
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extotherlastweek, $durationformat);
         }
 
         // Print additional grades.

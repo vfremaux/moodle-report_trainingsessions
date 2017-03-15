@@ -89,12 +89,14 @@ $string['equlearningtime'] = 'Equivalent training time: ';
 $string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
 $string['errorbadviewid'] = 'non existing report view';
 $string['errorcontinuousscale'] = 'You cannot use scales as grade source in continuous mode';
-$string['errorcoursestructurefirstpage'] = 'Course structure error : failed getting first page';
+$string['errorcoursestructurefirstpage'] = 'Course structure error: failed getting first page';
 $string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
 $string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
 $string['extelapsed'] = 'Total time (extended)';
 $string['extelapsedlastweek'] = 'Last week time (extended)';
+$string['extother'] = 'Extra out of course time';
+$string['extotherlastweek'] = 'Extra time (last week)';
 $string['exthits'] = 'Hits (extended)';
 $string['exthitslastweek'] = 'Hits last week (extended)';
 $string['extrauserinfo'] = 'Additional user info in reports';
@@ -389,11 +391,14 @@ $string['plugindist_desc'] = '
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
-<ul><li><a href="http://service.activeprolearn.com/local/shop/front/view.php?id=1">ActiveProLearn SAS</a></li>
-<li><a href="http://www.edunao.com">Edunao SAS</a></li></ul>
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p<
 ';
 
 $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
 material and some time spent in général site screens the user has access to.
+';
+
+$string['extother_help'] = '
+<p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>
 ';

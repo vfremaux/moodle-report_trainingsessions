@@ -646,6 +646,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
                 continue;
             }
         }
+
         if ($dataformats[$i] == 'd') {
             if ($data[$i]) {
                 $celldata = report_trainingsessions_format_time($data[$i], 'xlsd');
@@ -655,6 +656,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
                 continue;
             }
         }
+
         if ($dataformats[$i] == 't') {
             if ($data[$i]) {
                 $celldata = report_trainingsessions_format_time($data[$i], 'xls');
@@ -664,6 +666,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
                 continue;
             }
         }
+
         $worksheet->write_string($row, $i, $celldata, $xlsformats[$dataformats[$i]]);
     }
     return ++$row;

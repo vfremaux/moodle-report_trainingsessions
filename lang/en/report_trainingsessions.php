@@ -394,7 +394,7 @@ and improvement effort.</p>
 
 $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
-material and some time spent in général site screens the user has access to.';
+material and some time spent in general site screens the user has access to.';
 
 $string['extother_help'] = '
 <p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';

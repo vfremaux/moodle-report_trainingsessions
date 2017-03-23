@@ -138,6 +138,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
     global $CFG, $DB;
 
     $structure = array();
+    $hierarchicalsectionformats = array('flexsections', 'summary');
 
     if (!$course = $DB->get_record('course', array('id' => $courseid))) {
         print_error('errorbadcoursestructure', 'report_trainingsessions', $courseid);
@@ -167,7 +168,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
             $pageelement->subs = page_get_structure_from_page($page, $itemcount);
             $structure[] = $pageelement;
         }
-    } else if ($course->format == 'flexsections') {
+    } else if (in_array($course->format, $hierarchicalsectionformats)) {
         trainingsessions_fill_structure_from_flexiblesections($structure, null, $itemcount);
     } else {
         // Browse through course_sections and collect course items.
@@ -197,7 +198,7 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
     global $DB, $COURSE;
     static $parents;
 
-    $params = array($COURSE->id);
+    $params = array($COURSE->format, $COURSE->id);
 
     if (is_null($parentid)) {
         $sql = "
@@ -210,9 +211,10 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
             ON
                 cs.course = cfo.courseid AND
                 cs.id = cfo.sectionid AND
-                cfo.name = 'parent'
+                cfo.name = 'parent' AND
+                cfo.format = ?
             WHERE
-                cfo.id IS NULL AND
+                (cfo.id IS NULL OR cfo.value = 0) AND
                 cs.course = ?
         ";
     } else {
@@ -227,12 +229,15 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
                 cs.course = cfo.courseid AND
                 cfo.name = 'parent' AND
                 cs.id = cfo.sectionid AND
+                cfo.format = ? AND
                 cs.course = ? AND
                 cfo.value = ?
         ";
         $params[] = $parentid;
     }
+
     $sections = $DB->get_records_sql($sql, $params);
+
     if ($sections) {
         foreach ($sections as $s) {
             $element = new StdClass;
@@ -276,13 +281,18 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
                     $itemcount++;
                 }
             }
-            $subsections = array();
-            trainingsessions_fill_structure_from_flexiblesections($subsections, $s->section, $itemcount);
-            if (!empty($subsections)) {
-                foreach ($subsections as $s) {
-                    $element->subs[] = $s;
+
+            if ($s->section > 0) {
+                // Note that section 0 CANNOT have subsections. It would create a reference loop. 
+                $subsections = array();
+                trainingsessions_fill_structure_from_flexiblesections($subsections, $s->section, $itemcount);
+                if (!empty($subsections)) {
+                    foreach ($subsections as $s) {
+                        $element->subs[] = $s;
+                    }
                 }
             }
+
             $structure[] = $element;
         }
         return true;

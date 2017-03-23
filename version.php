@@ -34,5 +34,5 @@ $plugin->release = '3.1.0 (build 2017021600)';
 $plugin->dependencies = array('block_use_stats' => '2016051700', 'auth_ticket' => '2012060400');
 
 // Non moodle attributes.
-$plugin->codeincrement = '3.1.0004';
+$plugin->codeincrement = '3.1.0005';
 $plugin->privacy = 'dualrelease';

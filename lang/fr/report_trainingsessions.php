@@ -388,14 +388,11 @@ $string['plugindist_desc'] = '
 correspondant à une utilisation courante du plugin. Une version "professionnelle" de ce plugn existe et est distribuée
 sous certaines conditions, afin de soutenir l\'effort de développement, amélioration; documentation et suivi des versions.</p>
 <p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=fr_utf8">Distributeurs MyLF</a></p>
-';
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=fr_utf8">Distributeurs MyLF</a></p>';
 
 $string['extelapsed_help'] = '
 Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajout les temps passés à rejoidre le cours
-ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail.
-';
+ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail.';
 
 $string['extother_help'] = '
-<p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du contexte de l\'utilisateur ou à des espaces généraux du site..</p>
-';
+<p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du contexte de l\'utilisateur ou à des espaces généraux du site..</p>';

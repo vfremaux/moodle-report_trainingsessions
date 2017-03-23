@@ -138,6 +138,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
     global $CFG, $DB;
 
     $structure = array();
+    $hierarchicalsectionsformats = array('flexsections', 'summary');
 
     if (!$course = $DB->get_record('course', array('id' => $courseid))) {
         print_error('errorbadcoursestructure', 'report_trainingsessions', $courseid);
@@ -167,7 +168,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
             $pageelement->subs = page_get_structure_from_page($page, $itemcount);
             $structure[] = $pageelement;
         }
-    } else if ($course->format == 'flexsections') {
+    } else if (in_array($course->format, $hierarchicalsectionformats)) {
         trainingsessions_fill_structure_from_flexiblesections($structure, null, $itemcount);
     } else {
         // Browse through course_sections and collect course items.

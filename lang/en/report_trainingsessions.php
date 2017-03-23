@@ -232,7 +232,7 @@ $string['structureitem'] = 'Course trackable item';
 $string['structuretotal'] = 'Total {$a}:';
 $string['studentsign'] = 'Student';
 $string['summarycolumns'] = 'Output columns for summary report';
-$string['task'] = 'Task {$a} ';
+$string['task'] = 'Task {$a}';
 $string['taskname'] = 'Task';
 $string['taskrecorded'] = 'Task successfully recorded';
 $string['teachersign'] = 'Teacher';
@@ -390,14 +390,11 @@ $string['plugindist_desc'] = '
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
-<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>
-';
+<p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';
 
 $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
-material and some time spent in général site screens the user has access to.
-';
+material and some time spent in general site screens the user has access to.';
 
 $string['extother_help'] = '
-<p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>
-';
+<p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';

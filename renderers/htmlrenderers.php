@@ -452,6 +452,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             }
             $str .= $OUTPUT->help_icon('extelapsedlastweek', 'report_trainingsessions');
         }
+
         if (in_array('extotherlastweek', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('extotherlastweek', 'report_trainingsessions');

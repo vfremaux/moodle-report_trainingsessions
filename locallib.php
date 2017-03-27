@@ -247,7 +247,7 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
             $element->instance->visible = $s->visible;
             $element->id = $s->id;
             // Shall we try to capture any title in there ?
-            if (empty($section->name)) {
+            if (empty($s->name)) {
                 if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $s->summary, $matches)) {
                     $element->name = $matches[1];
                 } else {
@@ -258,7 +258,7 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
                     }
                 }
             } else {
-                $element->name = format_string($section->name);
+                $element->name = format_string($s->name);
             }
 
             if (!empty($s->sequence)) {

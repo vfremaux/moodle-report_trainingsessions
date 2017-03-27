@@ -321,14 +321,18 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
         $element->instance->visible = $section->visible;
         $element->id = $section->id;
         // Shall we try to capture any title in there ?
-        if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $section->summary, $matches)) {
-            $element->name = $matches[1];
-        } else {
-            if ($section->section) {
-                $element->name = get_string('section').' '.$section->section;
+        if (empty($section->name)) {
+            if (preg_match('/<h[1-7][^>]*?>(.*?)<\\/h[1-7][^>]*?>/i', $section->summary, $matches)) {
+                $element->name = $matches[1];
             } else {
-                $element->name = get_string('headsection', 'report_trainingsessions');
+                if ($section->section) {
+                    $element->name = get_string('section').' '.$section->section;
+                } else {
+                    $element->name = get_string('headsection', 'report_trainingsessions');
+                }
             }
+        } else {
+            $element->name = format_string($section->name);
         }
 
         if (!empty($section->sequence)) {

@@ -187,7 +187,7 @@ if ($ADMIN->fulltree) {
         $key = 'report_trainingsessions/enablelearningtimecheckcoupling';
         $label = get_string('enablelearningtimecheckcoupling', 'report_trainingsessions');
         $desc = get_string('enablelearningtimecheckcoupling_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '1'));
+        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, '0'));
 
         $key = 'report_trainingsessions/learningtimesessioncrop';
         $label = get_string('learningtimesessioncrop', 'report_trainingsessions');

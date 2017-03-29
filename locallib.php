@@ -287,7 +287,7 @@ function trainingsessions_fill_structure_from_flexiblesections(&$structure, $par
             }
 
             if ($s->section > 0) {
-                // Note that section 0 CANNOT have subsections. It would create a reference loop. 
+                // Note that section 0 CANNOT have subsections. It would create a reference loop.
                 $subsections = array();
                 trainingsessions_fill_structure_from_flexiblesections($subsections, $s->section, $itemcount);
                 if (!empty($subsections)) {

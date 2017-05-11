@@ -38,7 +38,7 @@ if (!function_exists('debug_trace')) {
  *
  * for repetitive tasks, we will not delete the task record and push the batchdate ahead to the next date.
  */
-function report_trainingsessions_cron() {
+function report_trainingsessions_crontask() {
     global $CFG;
 
     mtrace("Starting trainingsession cron.");

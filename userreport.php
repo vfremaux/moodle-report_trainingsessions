@@ -116,12 +116,6 @@ if (!empty($aggregate['course'])) {
 $dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
 $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
-if (!empty($aggregate['sessions'])) {
-    $dataobject->sessions = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id);
-} else {
-    $dataobject->sessions = 0;
-}
-
 if (array_key_exists('upload', $aggregate)) {
     $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
     $dataobject->upload = new StdClass;
@@ -135,7 +129,6 @@ report_trainingsessions_add_graded_data($gradecols, $data->userid, $aggregate);
 $user = $DB->get_record('user', array('id' => $data->userid));
 $cols = report_trainingsessions_get_summary_cols();
 $headdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
-$headdata['sessions'] = $dataobject->sessions;
 $headdata['gradecols'] = $gradecols;
 echo report_trainingsessions_print_header_html($data->userid, $course->id, (object)$headdata);
 

@@ -1139,7 +1139,7 @@ function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid)
             }
 
             if ($courseid) {
-                if (in_array($courseid, $s->courses)) {
+                if (in_array($courseid, array_keys($s->courses))) {
                     $count++;
                 }
             } else {
@@ -1638,6 +1638,12 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
     $t = @$aggregate['coursetotal'];
     $w = @$weekaggregate['coursetotal'];
 
+    if (!empty($aggregate['sessions'])) {
+        $sessions = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $courseid);
+    } else {
+        $sessions = 0;
+    }
+
     $colsources = array(
         'id' => $user->id,
         'idnumber' => $user->idnumber,
@@ -1649,18 +1655,16 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'lastlogin' => $user->lastlogin,
         'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
         'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
+        'othertime' => 0 + @$t[0]->elapsed,
         'elapsed' => 0 + @$t[$courseid]->elapsed,
         'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'extother' => 0 + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'items' => 0 + @$t[$courseid]->items,
-        'hits' => 0 + @$t[$courseid]->events,
-        'exthits' => 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events,
         'visiteditems' => 0 + @$t[$courseid]->visiteditems,
         'elapsedlastweek' => 0 + @$w[$courseid]->elapsed,
         'extelapsedlastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'extotherlastweek' => 0 + @$w[0]->elapsed + @$w[SITEID]->elapsed,
-        'hitslastweek' => 0 + @$w[$courseid]->events,
-        'exthitslastweek' => 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events
+        'sessions' => $sessions
     );
 
     $data = array();
@@ -1670,6 +1674,17 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         if (in_array($colkey, $colkeys)) {
             if ($associative) {
                 $data[$colkey] = $colsources[$colkey];
+
+            if (is_siteadmin()) {
+                $data['hitslastweek'] = 0 + @$w[$courseid]->events;
+                $data['activityhits'] = 0 + @$aggregate['activities'][$courseid]->events;
+                $data['coursehits'] = 0 + @$aggregate['course'][$courseid]->events;
+                $data['otherhits'] = 0 + @$t[0]->events;
+                $data['hits'] = 0 + @$t[$courseid]->events;
+                $data['exthits'] = 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events;
+                $data['exthitslastweek'] = 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events;
+            }
+
             } else {
                 $data[] = $colsources[$colkey];
             }

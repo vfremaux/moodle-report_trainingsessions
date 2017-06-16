@@ -380,9 +380,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         if (in_array('activitytime', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('activitytime', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, $durationformat);
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->activitytime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->activityevents).')';
+                $str .= ' ('.(0 + @$data->activityhits).')';
             }
             $str .= $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
         }
@@ -390,9 +390,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         if (in_array('othertime', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('othertime', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed, $durationformat);
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->othetime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->otherevents).')';
+                $str .= ' ('.(0 + @$data->otherhits).')';
             }
             $str .= $OUTPUT->help_icon('othertime', 'report_trainingsessions');
         }
@@ -402,7 +402,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('coursetime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->course->elapsed, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->course->events).')';
+                $str .= ' ('.(0 + @$data->coursehits).')';
             }
             $str .= $OUTPUT->help_icon('coursetime', 'report_trainingsessions');
         }
@@ -472,13 +472,15 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
         // Plug here specific details.
     }
-    $str .= '<br/><b>';
+    $str .= '<br/>';
 
-    $str .= get_string('workingsessions', 'report_trainingsessions');
-    $str .= ':</b> '.(0 + @$data->sessions);
+    if (in_array('workingsessions', $cols)) {
+        $str .= '<b>'.get_string('workingsessions', 'report_trainingsessions');
+        $str .= ':</b> '.(0 + @$data->sessions);
 
-    if (@$data->sessions == 0 && (@$completedwidth > 0)) {
-        $str .= $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+        if (@$data->sessions == 0 && (@$completedwidth > 0)) {
+            $str .= $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+        }
     }
 
     $str .= '</p></div></center>';

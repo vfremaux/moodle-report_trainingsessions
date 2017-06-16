@@ -380,7 +380,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         if (in_array('activitytime', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('activitytime', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->activityelapsed, $durationformat);
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->activitytime, $durationformat);
             if (is_siteadmin()) {
                 $str .= ' ('.(0 + @$data->activityevents).')';
             }
@@ -390,7 +390,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         if (in_array('othertime', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('othertime', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->otherelapsed, $durationformat);
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->othertime, $durationformat);
             if (is_siteadmin()) {
                 $str .= ' ('.(0 + @$data->otherevents).')';
             }
@@ -400,9 +400,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         if (in_array('coursetime', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('coursetime', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->course->elapsed, $durationformat);
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->coursetime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->course->events).')';
+                $str .= ' ('.(0 + @$data->courseevents).')';
             }
             $str .= $OUTPUT->help_icon('coursetime', 'report_trainingsessions');
         }
@@ -436,6 +436,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             }
             $str .= $OUTPUT->help_icon('extelapsed', 'report_trainingsessions');
         }
+
         if (in_array('extother', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('extother', 'report_trainingsessions');
@@ -472,13 +473,15 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
         // Plug here specific details.
     }
-    $str .= '<br/><b>';
+    $str .= '<br/>';
 
-    $str .= get_string('workingsessions', 'report_trainingsessions');
-    $str .= ':</b> '.(0 + @$data->sessions);
+    if (in_array('workingsessions', $cols)) {
+        $str .= '<b>'.get_string('workingsessions', 'report_trainingsessions');
+        $str .= ':</b> '.(0 + @$data->sessions);
 
-    if (@$data->sessions == 0 && (@$completedwidth > 0)) {
-        $str .= $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+        if (@$data->sessions == 0 && (@$completedwidth > 0)) {
+            $str .= $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+        }
     }
 
     $str .= '</p></div></center>';
@@ -493,9 +496,9 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('courseglobals', 'report_trainingsessions');
             $str .= '</td>';
             $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
-            $str .= report_trainingsessions_format_time(0 + @$data->course->elapsed + @$data->otherelapsed, $durationformat);
+            $str .= report_trainingsessions_format_time(0 + @$data->coursetime + @$data->othertime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->course->events + @$data->otherevents).')';
+                $str .= ' ('.(0 + @$data->courseevents + @$data->otherevents).')';
             }
             $str .= '</td>';
             $str .= '</tr>';

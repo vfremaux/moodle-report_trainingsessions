@@ -36,7 +36,6 @@ $string['addtimebonus'] = 'time bonus on overal grade';
 $string['addtimegrade'] = 'Time grade';
 $string['advancement'] = 'Advancement';
 $string['allcourses'] = 'All courses';
-$string['allcourses'] = 'All courses';
 $string['allgroups'] = 'All groups';
 $string['authoritysign'] = 'Education Authority';
 $string['availableactivities'] = 'Available activities';
@@ -63,7 +62,7 @@ $string['courseraw'] = 'Batchs';
 $string['coursesessions'] = 'Working sessions in course (real guessed times)';
 $string['coursestart'] = 'Course start date';
 $string['coursesummary'] = 'Per participant summary';
-$string['coursetime'] = 'Time in course (outside activities)';
+$string['coursetime'] = 'Time in course (activities excluded)';
 $string['coursetotaltime'] = 'Total course time';
 $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
@@ -156,7 +155,7 @@ $string['nothing'] = 'No users to compile';
 $string['now'] = 'Now !';
 $string['onefulluserpersheet'] = 'One full user information per sheet';
 $string['oneuserperrow'] = 'One user summary information per row in a single sheet';
-$string['othertime'] = 'Other (non activity) time';
+$string['othertime'] = 'Other time';
 $string['out'] = 'Out time';
 $string['outofgroup'] = 'No group';
 $string['outofstructure'] = 'Other course use time';
@@ -181,7 +180,8 @@ $string['pdfreportfooter_desc'] = 'Provide a JPG image for the bottom footer (88
 $string['pdfreportheader'] = 'PDF report header image';
 $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (880px large x up to 220px height)';
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
-$string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If none given, the first page header will be used again.';
+$string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If
+none given, the first page header will be used again.';
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
 $string['plugindist'] = 'Plugin distribution';
@@ -190,7 +190,8 @@ $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
 $string['printsessiontotal'] = 'Display the overal session elapsed time';
 $string['printsessiontotal_desc'] = 'Do NOT display the total session time in on screen session reports.';
-$string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than 50 users, directly in the root directory of your course files.</p>';
+$string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
+50 users, directly in the root directory of your course files.</p>';
 $string['quickmonthlyreport'] = 'Quick monthly reports (PDF)';
 $string['range'] = 'Range ';
 $string['recipient'] = 'Recipient';
@@ -207,7 +208,8 @@ $string['reportscope'] = 'Scope';
 $string['role'] = 'Role';
 $string['scheduledbatches'] = 'Scheduled batches';
 $string['scoresettings'] = 'Score Reporting Settings';
-$string['scoresettingsadvice'] = 'In course summary reports (one user per line), you may add additional output columns with scores from the gradebook. You can add the global course grade, or choose to add one (or more) single activity grade(s) in the report.';
+$string['scoresettingsadvice'] = 'In course summary reports (one user per line), you may add additional output columns with scores from the
+gradebook. You can add the global course grade, or choose to add one (or more) single activity grade(s) in the report.';
 $string['sectionname'] = 'Section name';
 $string['seedetails'] = 'See details';
 $string['selectforreport'] = 'Select for reports';
@@ -250,7 +252,11 @@ $string['timespentlastweek'] = 'Spent last week';
 $string['to'] = 'To';
 $string['todate'] = 'Date end';
 $string['tonow'] = 'To now';
-$string['toobig'] = '<p>Compilation group is too big to be performed in quick compilation. We incline you programming a delayed batch at a time that will not affect your currently working users.<br/>To setup a batch, preset the compilation parameters in the above form, and register a new batch with the desired configuration, and setting batch time and output dir from the course file storage location origin (relative path, absolute path rejected).</p><p>You can also program a regular compilation batch that will compile every \"replaydelay\" minutes to the desired output.</p>';
+$string['toobig'] = '<p>Compilation group is too big to be performed in quick compilation. We incline you programming a delayed batch at a
+time that will not affect your currently working users.<br/>To setup a batch, preset the compilation parameters in the above form, and
+register a new batch with the desired configuration, and setting batch time and output dir from the course file storage location origin
+(relative path, absolute path rejected).</p><p>You can also program a regular compilation batch that will compile every \"replaydelay\"
+minutes to the desired output.</p>';
 $string['totalduration'] = 'Total duration';
 $string['totalsessions'] = 'Total session time';
 $string['totalsessiontime'] = 'Total working sessions time';
@@ -282,13 +288,16 @@ $string['xlsformula'] = 'Formula (Excel expression)';
 $string['formulalabel'] = 'Column label';
 $string['lineaggregators'] = 'Line aggregators';
 $string['calculated'] = 'Calculated';
-$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to insert the current line number in cell references.';
+$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to
+insert the current line number in cell references.';
 $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
-$string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column identifier. A cell reference can be : ${col}$4, $Y${minrow}';
+$string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
+identifier. A cell reference can be : ${col}$4, $Y${minrow}';
 $string['xlssumformula'] = 'XLS Sum Formula';
-$string['xlssumformula_desc'] = 'XLS Sum Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column identifier. A cell reference can be : ${col}$4, $Y${minrow}';
+$string['xlssumformula_desc'] = 'XLS Sum Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
+identifier. A cell reference can be : ${col}$4, $Y${minrow}';
 
 $string['lineaggregators_help'] = '
 <p>Define aggregators as a list of aggregators switches starting from left most columns in the
@@ -329,7 +338,8 @@ $string['summarycolumns_desc'] = '
 <p>(format keys : a as text, t as date, d as duration, n as numeric).</p>
 ';
 
-$string['totalsessiontime_help'] = 'Note that session list counts some durations that can be outside this course. Total session time should usually be higher than in course time calculation';
+$string['totalsessiontime_help'] = 'Note that session list counts some durations that can be outside this course. Total session time should usually be
+higher than in course time calculation';
 
 $string['insessiontime_help'] = 'This is the "in" learning time that matched validated rules';
 

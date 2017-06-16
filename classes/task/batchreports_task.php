@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A scheduled task for forum cron.
+ * A scheduled task for trainingsessions cron.
  *
  * @todo MDL-44734 This job will be split up properly.
  *

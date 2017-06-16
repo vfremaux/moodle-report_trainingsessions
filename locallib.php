@@ -584,6 +584,12 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
         if ($mode == 'html') {
             return get_string('unvisited', 'report_trainingsessions');
         }
+        if ($mode == 'htmld') {
+            return '0m';
+        }
+        if ($mode == 'htmlds') {
+            return '0s';
+        }
         return '';
     }
 }
@@ -1139,7 +1145,7 @@ function report_trainingsessions_count_sessions_in_course(&$sessions, $courseid)
             }
 
             if ($courseid) {
-                if (in_array($courseid, $s->courses)) {
+                if (in_array($courseid, array_keys($s->courses))) {
                     $count++;
                 }
             } else {
@@ -1638,6 +1644,12 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
     $t = @$aggregate['coursetotal'];
     $w = @$weekaggregate['coursetotal'];
 
+    if (!empty($aggregate['sessions'])) {
+        $sessions = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $courseid);
+    } else {
+        $sessions = 0;
+    }
+
     $colsources = array(
         'id' => $user->id,
         'idnumber' => $user->idnumber,
@@ -1648,19 +1660,24 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'department' => $user->department,
         'lastlogin' => $user->lastlogin,
         'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
+        'activityelapsed' => 0 + @$aggregate['activities'][$courseid]->elapsed,
         'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
-        'elapsed' => 0 + @$t[$courseid]->elapsed,
+        'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
+        'othertime' => 0 + @$t[0]->elapsed,
+        'otherelapsed' => 0 + @$t[0]->elapsed,
+        'courseelapsed' => 0 + @$t[$courseid]->elapsed,
+        'elapsed' => 0 + @$t[$courseid]->elapsed + @$aggregate['course'][$courseid]->elapsed,
+        'exttime' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'extother' => 0 + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'items' => 0 + @$t[$courseid]->items,
-        'hits' => 0 + @$t[$courseid]->events,
-        'exthits' => 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events,
         'visiteditems' => 0 + @$t[$courseid]->visiteditems,
         'elapsedlastweek' => 0 + @$w[$courseid]->elapsed,
+        'timelastweek' => 0 + @$w[$courseid]->elapsed,
         'extelapsedlastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
+        'exttimelastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'extotherlastweek' => 0 + @$w[0]->elapsed + @$w[SITEID]->elapsed,
-        'hitslastweek' => 0 + @$w[$courseid]->events,
-        'exthitslastweek' => 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events
+        'sessions' => $sessions
     );
 
     $data = array();
@@ -1670,6 +1687,17 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         if (in_array($colkey, $colkeys)) {
             if ($associative) {
                 $data[$colkey] = $colsources[$colkey];
+
+            if (is_siteadmin()) {
+                $data['eventslastweek'] = $data['hitslastweek'] = 0 + @$w[$courseid]->events;
+                $data['activityevents'] = $data['activityhits'] = 0 + @$aggregate['activities'][$courseid]->events;
+                $data['courseevents'] = $data['coursehits'] = 0 + @$aggregate['course'][$courseid]->events;
+                $data['otherevents'] = $data['otherhits'] = 0 + @$t[0]->events;
+                $data['events'] = $data['hits'] = $data['otherevents'] + $data['courseevents'];
+                $data['extevents'] = $data['exthits'] = 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events;
+                $data['exteventslastweek'] = $data['exthitslastweek'] = 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events;
+            }
+
             } else {
                 $data[] = $colsources[$colkey];
             }

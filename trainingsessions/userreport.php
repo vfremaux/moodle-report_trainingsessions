@@ -24,8 +24,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-ob_start();
-
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
@@ -92,6 +90,8 @@ if ($dataobject->done > $items) {
     $dataobject->done = $items;
 }
 
+ob_start();
+
 // In-activity.
 
 $dataobject->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
@@ -136,6 +136,9 @@ report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course
 
 echo $str;
 
+$result = ob_get_clean();
+echo $result;
+
 echo '<br/><center>';
 
 $params = array('id' => $course->id,
@@ -155,17 +158,17 @@ if (report_trainingsessions_supports_feature('format/pdf')) {
                     'userid' => $data->userid,
                     'from' => $data->from,
                     'to' => $data->to,
-                    'outputname' => $filename);
-    $pdfurl = new moodle_url('/report/trainingsessions/pro/tasks/userpdfreportperuser_batch_task.php', $params);
+                    'outputname' => $filename,
+                    'result' => $result);
+    $pdfurl = new moodle_url('/report/trainingsessions/generate_pdf.php', $params);
     echo '<div class="trainingsessions-inline">';
-    echo $OUTPUT->single_button($pdfurl, get_string('generatepdf', 'report_trainingsessions'));
+    echo $OUTPUT->single_button($pdfurl, get_string('generatepdf', 'report_trainingsessions'), 'post');
     echo '</div>';
 
-    echo '<h3>'.get_string('quickmonthlyreport', 'report_trainingsessions').'</h3>';
+    /*echo '<h3>'.get_string('quickmonthlyreport', 'report_trainingsessions').'</h3>';
     echo $renderer->user_session_reports_buttons($data->userid, 'course');
-    echo "<!-- {$data->from} / {$data->to} -->";
+    echo "<!-- {$data->from} / {$data->to} -->";*/
     echo '</center>';
 }
 
 echo '<br/>';
-

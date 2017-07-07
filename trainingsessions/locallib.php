@@ -69,7 +69,7 @@ function report_trainingsessions_supports_feature($feature) {
                 'export' => array('ws')
             ),
             'community' => array(
-                'format' => array('xls', 'csv'),
+                'format' => array('xls', 'csv', 'pdf'),
                 'replay' => array('single', 'replay'),
             ),
         );
@@ -104,7 +104,7 @@ function report_trainingsessions_supports_feature($feature) {
     }
 
     // Special condition for pdf dependencies.
-    if (($feature == 'format/pdf') && !is_dir($CFG->dirroot.'/local/vflibs')) {
+    if (($feature == 'format/pdf') && !is_dir(__DIR__.'\html2pdf\vendor')) {
         return false;
     }
 

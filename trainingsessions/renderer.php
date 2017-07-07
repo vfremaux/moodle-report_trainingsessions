@@ -92,7 +92,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
     public function user_session_reports_buttons($userid, $scope = 'course') {
         global $DB, $OUTPUT, $COURSE, $CFG;
 
-        if (!is_dir($CFG->dirroot.'/local/vflibs')) {
+        if (!is_dir(__DIR__.'/html2pdf/vendor')) {
             if (debugging()) {
                 return $OUTPUT->notification(get_string('libsmissing', 'report_trainingsessions'));
             }

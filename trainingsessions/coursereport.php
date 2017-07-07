@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Course trainingsessions report
  *
@@ -25,16 +24,11 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-ob_start();
-
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
-
 $id = required_param('id', PARAM_INT); // The course id.
-
 // Calculate start time.
-
 $selform = new SelectorForm($id, 'course');
 if (!$data = $selform->get_data()) {
     $data = new StdClass;
@@ -46,35 +40,25 @@ if (!$data = $selform->get_data()) {
     $data->output = optional_param('output', 'html', PARAM_ALPHA);
     $data->groupid = optional_param('group', '0', PARAM_ALPHA);
 }
-
 $context = context_course::instance($id);
-
 // Calculate start time.
-
 report_trainingsessions_process_bounds($data, $course);
-
 if ($data->output == 'html') {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
     echo $renderer->tabs($course, $view, $data->from, $data->to);
     echo $OUTPUT->container_end();
-
     echo $OUTPUT->box_start('block');
     $selform->set_data($data);
     $selform->display();
     echo $OUTPUT->box_end();
-
     echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
     echo ' '.get_string('to', 'report_trainingsessions')."  : ".userdate($data->to);
 }
-
 // Compute target group.
-
 $allgroupsaccess = has_capability('moodle/site:accessallgroups', $context);
-
 if (!$allgroupsaccess) {
     $mygroups = groups_get_my_groups();
-
     $allowedgroupids = array();
     if ($mygroups) {
         foreach ($mygroups as $g) {
@@ -93,7 +77,6 @@ if (!$allgroupsaccess) {
         $allowedgroupids = array_keys($allowedgroups);
     }
 }
-
 if ($data->groupid) {
     $targetusers = get_enrolled_users($context, '', $data->groupid);
 } else {
@@ -112,57 +95,40 @@ if ($data->groupid) {
         }
     }
 }
-
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
-
 // Get course structure.
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
-
 // Print result.
-
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
-
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
-
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
-
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
         $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
-
         if (empty($aggregate['sessions'])) {
             $aggregate['sessions'] = array();
         }
-
         $data->items = $items;
-
         $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
         $data->activityevents = @$aggregate['activities'][$course->id]->events;
         $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
         $data->otherevents = @$aggregate['other'][$course->id]->events;
         $data->done = 0;
-
         if (!empty($aggregate)) {
-
             $data->course = new StdClass();
             $data->course->elapsed = 0;
             $data->course->events = 0;
-
             if (!empty($aggregate['course'])) {
                 $data->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
                 $data->course->events = 0 + @$aggregate['course'][$course->id]->events;
             }
-
             // Calculate everything.
-
             $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
             $data->events = $data->activityevents + $data->otherevents + $data->course->events;
-
             $sesscount = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id);
             $data->sessions = (!empty($aggregate['sessions'])) ? $sesscount : 0;
-
             foreach (array_keys($aggregate) as $module) {
                 /*
                  * Exclude from calculation some pseudo-modules that are not part of
@@ -179,14 +145,12 @@ if (!empty($targetusers)) {
         if ($data->done > $items) {
             $data->done = $items;
         }
-
         $data->linktousersheet = 1;
         echo report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
     }
 } else {
     echo $OUTPUT->notification(get_string('nousersfound'));
 }
-
 $options['id'] = $course->id;
 $options['groupid'] = $data->groupid;
 $options['from'] = $data->from; // Alternate way.
@@ -194,9 +158,7 @@ $options['to'] = $data->to; // Alternate way.
 $options['output'] = 'xls'; // Ask for XLS.
 $options['asxls'] = 'xls'; // Force XLS for index.php.
 $options['view'] = 'course'; // Force course view.
-
 echo '<br/><center>';
-
 echo '<div class="report-buttons">';
 echo '<div class="table-row">';
 echo '<div class="tr-summary table-cell">';
@@ -208,7 +170,6 @@ $params = array('id' => $course->id,
 $csvurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportonerow_batch_task.php', $params);
 echo $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
 echo '</div>';
-
 echo '<div class="tr-detailed table-cell">';
 $params = array('id' => $course->id,
                 'view' => 'course',
@@ -219,18 +180,19 @@ $params = array('id' => $course->id,
 $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php', $params);
 echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
+$result = '<h1>Essai</h1>Bleh';
 if (report_trainingsessions_supports_feature('format/pdf')) {
     $params = array('id' => $course->id,
                     'view' => 'course',
                     'groupid' => $data->groupid,
                     'from' => $data->from,
-                    'to' => $data->to);
-    $url = new moodle_url('/report/trainingsessions/pro/tasks/grouppdfreportperuser_batch_task.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'get');
+                    'to' => $data->to,
+                    'result' => $result);
+    $url = new moodle_url('/report/trainingsessions/generate_pdf.php', $params);
+    echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'post');
 }
 echo '</div>';
 echo '</div>';
 echo '</div>';
-
 echo '</center>';
 echo '<br/>';

@@ -14,6 +14,8 @@ use Spipu\Html2Pdf\Html2Pdf;
 use Spipu\Html2Pdf\Exception\Html2PdfException;
 use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 
+//echo $_POST['result'];
+
 try {
     $html2pdf = new Html2Pdf();
     $html2pdf->writeHTML($_POST['result']);

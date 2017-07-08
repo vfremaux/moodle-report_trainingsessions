@@ -302,8 +302,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     $user = $DB->get_record('user', array('id' => $userid));
     $course = $DB->get_record('course', array('id' => $courseid));
 
-    $str = '<div>';
-    $str .= '<center>';
+    $str = '<div class="center">';
     $str .= '<div class="report-trainingsession userinfobox">';
 
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
@@ -357,6 +356,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         $uroles[] = $roles[$r->roleid]->localname;
     }
     $str .= implode (",", $uroles);
+    $str .= '<br/>';
 
     if (!empty($data->linktousersheet)) {
         $params = array('view' => 'user',
@@ -365,7 +365,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
                         'from' => $data->from,
                         'to' => $data->to);
         $detailurl = new moodle_url('/report/trainingsessions/index.php', $params);
-        $str .= '<br/><a href="'.$detailurl.'">'.get_string('seedetails', 'report_trainingsessions').'</a>';
+        //$str .= '<br/><a href="'.$detailurl.'">'.get_string('seedetails', 'report_trainingsessions').'</a>';
     }
 
     if ($withcompletion) {
@@ -485,7 +485,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         }
     }
 
-    $str .= '</div></div></center>';
+    $str .= '</div></div>';
 
     // Add printing for global course time (out of activities).
     if (!$short) {

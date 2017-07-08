@@ -99,9 +99,12 @@ if ($data->groupid) {
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 // Get course structure.
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+
 // Print result.
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+ob_start();
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
+
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
         $logusers = $auser->id;
@@ -151,6 +154,10 @@ if (!empty($targetusers)) {
 } else {
     echo $OUTPUT->notification(get_string('nousersfound'));
 }
+
+$result = ob_get_clean();
+echo $result;
+
 $options['id'] = $course->id;
 $options['groupid'] = $data->groupid;
 $options['from'] = $data->from; // Alternate way.
@@ -180,17 +187,14 @@ $params = array('id' => $course->id,
 $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php', $params);
 echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
-$result = '<h1>Essai</h1>Bleh';
-if (report_trainingsessions_supports_feature('format/pdf')) {
-    $params = array('id' => $course->id,
-                    'view' => 'course',
-                    'groupid' => $data->groupid,
-                    'from' => $data->from,
-                    'to' => $data->to,
-                    'result' => $result);
-    $url = new moodle_url('/report/trainingsessions/generate_pdf.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'post');
-}
+$params = array('id' => $course->id,
+                'view' => 'course',
+                'groupid' => $data->groupid,
+                'from' => $data->from,
+                'to' => $data->to,
+                'result' => $result);
+$url = new moodle_url('/report/trainingsessions/generate_pdf.php', $params);
+echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'post');
 echo '</div>';
 echo '</div>';
 echo '</div>';

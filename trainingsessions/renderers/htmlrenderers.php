@@ -302,7 +302,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     $user = $DB->get_record('user', array('id' => $userid));
     $course = $DB->get_record('course', array('id' => $courseid));
 
-    $str = '';
+    $str = '<div>';
     $str .= '<center>';
     $str .= '<div class="report-trainingsession userinfobox">';
 
@@ -485,7 +485,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         }
     }
 
-    $str .= '</p></div></center>';
+    $str .= '</div></div></center>';
 
     // Add printing for global course time (out of activities).
     if (!$short) {

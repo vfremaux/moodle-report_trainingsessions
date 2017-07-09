@@ -133,7 +133,7 @@ $headdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $
 $headdata['gradecols'] = $gradecols;
 echo report_trainingsessions_print_header_html($data->userid, $course->id, (object)$headdata);
 
-report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
+//report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
 
 echo $str;
 

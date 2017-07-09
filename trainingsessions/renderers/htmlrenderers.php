@@ -88,11 +88,11 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
                 continue;
             }
             $str .= '<h2>'.strip_tags(format_string($coursecats[$catid]->name)).'</h2>';
-            $str .= '<table class="generaltable" width="100%">';
+            $str .= '<table class="generaltable" style="width:100%">';
             $str .= '<tr class="header">';
-            $str .= '<td class="header c0" width="70%"><b>'.$coursestr.'</b></td>';
-            $str .= '<td class="header c1" width="15%"><b>'.$elapsedstr.'</b></td>';
-            $str .= '<td class="header c2" width="15%"><b>'.$hitsstr.'</b></td>';
+            $str .= '<td class="header c0" style="width:70%"><b>'.$coursestr.'</b></td>';
+            $str .= '<td class="header c1" style="width:15%"><b>'.$elapsedstr.'</b></td>';
+            $str .= '<td class="header c2" style="width:15%"><b>'.$hitsstr.'</b></td>';
             $str .= '</tr>';
             foreach ($catdata as $cid => $cdata) {
                 $ccontext = context_course::instance($cid);
@@ -158,16 +158,15 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
         $str .= $OUTPUT->heading(get_string('instructure', 'report_trainingsessions'));
 
         // Effective printing of available sessions.
-        $str .= '<table width="100%" id="structure-table">';
+        $str .= '<table style="width:100%" id="structure-table">';
         $str .= '<tr valign="top">';
-        $str .= '<td class="userreport-col0"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></td>';
-        $str .= '<td class="userreport-col1"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></td>';
-        $str .= '<td class="userreport-col2"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></td>';
+        $str .= '<th class="userreport-col0"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></th>';
+        $str .= '<th class="userreport-col1"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></th>';
+        $str .= '<th class="userreport-col2"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></th>';
         $label = get_string('duration', 'report_trainingsessions');
         $label .= ' ('.get_string('hits', 'report_trainingsessions').')';
-        $str .= '<td class="userreport-col3"><b>'.$label.'</b></td>';
+        $str .= '<th class="userreport-col3"><b>'.$label.'</b></th>';
         $str .= '</tr>';
-        $str .= '</table>';
     }
 
     $indent = str_repeat('&nbsp;&nbsp;', $level);
@@ -199,9 +198,9 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             // Non visible items should not be displayed.
             // Name is not empty. It is a significant module (non structural).
             if (!empty($structure->name)) {
-                $nodestr .= '<table class="sessionreport level'.$level.'">';
+                //$nodestr .= '<table class="sessionreport level'.$level.'">';
                 $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0" valign="top">';
-                $nodestr .= '<td class="sessionitem item" width="55%">';
+                $nodestr .= '<td class="sessionitem item" style="width:55%">';
                 $nodestr .= $indent;
                 if (debugging()) {
                     $nodestr .= '['.$structure->type.'] ';
@@ -238,7 +237,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                     }
                     $nodestr .= report_trainingsessions_format_time($dataobject->elapsed, $durationformat);
                     if (is_siteadmin()) {
-                        $nodestr .= ' ('.(0 + @$dataobject->events).')';
+                        $nodestr .= ' ('.(0 + @$dataobject->events).' sessions)';
                     }
                 } else {
                     $nodestr .= get_string('ignored', 'block_use_stats');
@@ -247,7 +246,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 // Plug here specific details.
                 $nodestr .= '</td>';
                 $nodestr .= '</tr>';
-                $nodestr .= '</table>';
+                //$nodestr .= '</table>';
             } else {
                 // It is only a structural module that should not impact on level.
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -262,16 +261,19 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
 
             $str .= $nodestr;
             if (!empty($structure->subs)) {
-                $str .= '<table class="trainingreport subs">';
-                $str .= '<tr valign="top">';
-                $str .= '<td colspan="2">';
-                $str .= '<br/>';
+                //$str .= '<table class="trainingreport subs">';
+                //$str .= '<tr class="trainingreport subs" valign="top">';
+                //$str .= '<td colspan="2">';
+                //$str .= '<br/>';
                 $str .= $suboutput;
-                $str .= '</td>';
-                $str .= '</tr>';
-                $str .= "</table>\n";
+                //$str .= '</td>';
+                //$str .= '</tr>';
+                //$str .= "</table>\n";
             }
         }
+    }
+    if($level==1) {
+        $str .= '</table>';
     }
     return $dataobject;
 }
@@ -382,7 +384,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('activitytime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->activitytime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->activityevents).')';
+                $str .= ' ('.(0 + @$data->activityevents).' sessions)';
             }
             $str .= $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
         }
@@ -392,7 +394,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('othertime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->othertime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->otherevents).')';
+                $str .= ' ('.(0 + @$data->otherevents).' sessions)';
             }
             $str .= $OUTPUT->help_icon('othertime', 'report_trainingsessions');
         }
@@ -402,7 +404,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('coursetime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->coursetime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->courseevents).')';
+                $str .= ' ('.(0 + @$data->courseevents).' sessions)';
             }
             $str .= $OUTPUT->help_icon('coursetime', 'report_trainingsessions');
         }
@@ -412,7 +414,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('coursetotaltime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->hits).')';
+                $str .= ' ('.(0 + @$data->hits).' sessions)';
             }
             $str .= '</span>';
             $str .= $OUTPUT->help_icon('coursetotaltime', 'report_trainingsessions');
@@ -423,7 +425,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('extelapsed', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extelapsed, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->exthits).')';
+                $str .= ' ('.(0 + @$data->exthits).' sessions)';
             }
             $str .= $OUTPUT->help_icon('extelapsed', 'report_trainingsessions');
         }
@@ -440,7 +442,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('elapsedlastweek', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsedlastweek, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->hitslastweek).')';
+                $str .= ' ('.(0 + @$data->hitslastweek).' sessions)';
             }
             $str .= $OUTPUT->help_icon('elapsedlastweek', 'report_trainingsessions');
         }
@@ -450,7 +452,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('extelapsedlastweek', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extelapsedlastweek, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->exthitslastweek).')';
+                $str .= ' ('.(0 + @$data->exthitslastweek).' sessions)';
             }
             $str .= $OUTPUT->help_icon('extelapsedlastweek', 'report_trainingsessions');
         }
@@ -491,7 +493,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     if (!$short) {
         if (!$withnooutofstructure) {
             $str .= $OUTPUT->heading(get_string('outofstructure', 'report_trainingsessions'));
-            $str .= '<table cellspacing="0" cellpadding="0" width="100%" class="sessionreport">';
+            $str .= '<table cellspacing="0" cellpadding="0" style="width:100%" class="sessionreport">';
             $str .= '<tr class="sessionlevel2" valign="top">';
             $str .= '<td class="sessionitem">';
             $str .= get_string('courseglobals', 'report_trainingsessions');
@@ -499,7 +501,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
             $str .= report_trainingsessions_format_time(0 + @$data->coursetime + @$data->othertime, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->courseevents + @$data->otherevents).')';
+                $str .= ' ('.(0 + @$data->courseevents + @$data->otherevents).' sessions)';
             }
             $str .= '</td>';
             $str .= '</tr>';
@@ -512,7 +514,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= '<td class="sessionvalue report-trainingsessions session-duration">';
             $str .= report_trainingsessions_format_time(0 + @$data->upload->elapsed, $durationformat);
             if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->upload->events).')';
+                $str .= ' ('.(0 + @$data->upload->events).' sessions)';
             }
             $str .= '</td>';
             $str .= '</tr>';
@@ -572,12 +574,12 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
     $str .= '<br/><p>'.get_string('elapsedadvice', 'report_trainingsessions').'</p>';
 
     // Effective printing of available sessions.
-    $str .= '<table width="70%" id="session-table">';
+    $str .= '<table style="width:70%" id="session-table">';
     $str .= '<tr valign="top">';
-    $str .= '<td width="33%"><b>'.get_string('sessionstart', 'report_trainingsessions').'</b></td>';
-    $str .= '<td width="33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
+    $str .= '<td style="width:33%"><b>'.get_string('sessionstart', 'report_trainingsessions').'</b></td>';
+    $str .= '<td style="width:33%"><b>'.get_string('sessionend', 'report_trainingsessions').'</b></td>';
     $label = get_string('duration', 'report_trainingsessions');
-    $str .= '<td width="33%" class="report-trainingsessions session-duration"><b>'.$label.'</b></td>';
+    $str .= '<td style="width:33%" class="report-trainingsessions session-duration"><b>'.$label.'</b></td>';
     $str .= '</tr>';
 
     $totalelapsed = 0;
@@ -770,7 +772,7 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
 
     $str = '';
 
-    if (!empty($items)) {
+    /*if (!empty($items)) {
         $completed = $done / $items;
     } else {
         $completed = 0;
@@ -790,6 +792,18 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
     $pixurl = $OUTPUT->pix_url('blue', 'report_trainingsessions');
     $style = 'width:'.$remainingwidth.'px';
     $str .= '<img src="'.$pixurl.'" style="'.$style.'" class="remainingbar" align="top"  title="'.$remainingpc.'" />';
+    $str .= '</div>';*/
+
+    $str .= '<div class="completionbar">';
+    $str .= '<b>'.get_string('done', 'report_trainingsessions').'</b>';
+
+    if(empty($items)) {
+        $str .= 'Pas d\'activités';
+    } else {
+        $completionpercent = intval($done/$items*100);
+        $str .= $completionpercent.'% ('.$done.'/'.$items.')';
+    }
+
     $str .= '</div>';
 
     return $str;

@@ -763,10 +763,10 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
         foreach ($graderecs as $rec) {
             $modulegrade = report_trainingsessions_get_module_grade($rec->moduleid, $userid);
             // Push in array.
-            if ($modulegrade) {
-                array_push($columns, sprintf('%.2f', $modulegrade));
+            if ($modulegrade->grade) {
+                array_push($columns, $modulegrade);
             } else {
-                array_push($columns, '');
+                array_push($columns, null);
             }
         }
     }
@@ -779,14 +779,16 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
         foreach ($graderecs as $rec) {
             if ($rec->moduleid == TR_TIMEGRADE_GRADE) {
                 $timegrade = report_trainingsessions_compute_timegrade($rec, $aggregate);
+                $timegrade = array('grade'=>$timegrade, 'grademax'=>$timegrade);
                 array_push($columns, $timegrade);
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 // First add raw course grade.
                 $coursegrade = report_trainingsessions_get_course_grade($rec->courseid, $userid);
-                array_push($columns, sprintf('%.2f', $coursegrade->grade));
+                array_push($columns, $coursegrade);
 
                 // Add bonus columns.
                 $bonus = 0 + report_trainingsessions_compute_timegrade($rec, $aggregate);
+                $timegrade = array('bonus'=>$bonus, 'bonus'=>$bonus);
                 array_push($columns, $bonus);
             }
         }
@@ -796,14 +798,13 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
     $params = array('courseid' => $COURSE->id, 'moduleid' => 0);
     if ($graderec = $DB->get_record('report_trainingsessions', $params)) {
         // Retain the coursegrade for adding at the full end of array.
-        $grade = 0;
         if ($coursegrade = report_trainingsessions_get_course_grade($graderec->courseid, $userid)) {
-            $grade = min($coursegrade->maxgrade, $coursegrade->grade + $bonus);
+            $grade = min($coursegrade->grademax, $coursegrade->grade + $bonus);
         }
-        if ($grade) {
-            array_push($columns, sprintf('%.2f', $grade));
+        if ($coursegrade->grade) {
+            array_push($columns, $coursegrade);
         } else {
-            array_push($columns, '');
+            array_push($columns, null);
         }
     }
 }
@@ -1001,7 +1002,7 @@ function report_trainingsessions_get_course_grade($courseid, $userid) {
     $sql = "
         SELECT
             g.finalgrade as grade,
-            g.rawgrademax as maxgrade
+            g.rawgrademax as grademax
         FROM
             {grade_items} gi,
             {grade_grades} g
@@ -1014,7 +1015,7 @@ function report_trainingsessions_get_course_grade($courseid, $userid) {
     if (!$result = $DB->get_record_sql($sql, array($userid, $courseid))) {
         $result = new StdClass();
         $result->grade = '';
-        $result->maxgrade = '';
+        $result->grademax = '';
     }
 
     return $result;
@@ -1035,7 +1036,7 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
 
     $sql = "
         SELECT
-            g.finalgrade as grade
+            g.finalgrade as grade, gi.grademax as grademax, g.timemodified as timemodified
         FROM
             {grade_items} gi,
             {grade_grades} g
@@ -1049,9 +1050,11 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
     $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->instance));
 
     if ($result) {
-        return $result->grade;
+        return $result;
     }
-    return '';
+    $result = new stdClass();
+    $result->grade = null;
+    return $result;
 }
 
 /**

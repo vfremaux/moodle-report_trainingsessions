@@ -138,7 +138,12 @@ foreach ($targetusers as $user) {
 
     // Assemble keys and data.
     if (!empty($colskeys)) {
-        $userrow = array_combine($colskeys, $colsdata);
+        $reorganizeddata = array();
+        foreach($colsdata as $col) {
+            if(is_object($col)) array_push($reorganizeddata, $col->grade);
+            else array_push($reorganizeddata, $col);
+        }
+        $userrow = array_combine($colskeys, $reorganizeddata);
         $summarizedusers[] = $userrow;
     }
 }
@@ -223,4 +228,3 @@ if (!empty($summarizedusers)) {
 } else {
     echo $OUTPUT->notification('nousersfound');
 }
-

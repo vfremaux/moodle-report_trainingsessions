@@ -90,11 +90,6 @@ if ($dataobject->done > $items) {
     $dataobject->done = $items;
 }
 
-($dataobject);
-
-ob_start();
-echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
-
 // In-activity.
 
 $dataobject->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
@@ -126,20 +121,23 @@ if (array_key_exists('upload', $aggregate)) {
     $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
 }
 
-// Get additional grade columns and add to passed dataobject for header.
-report_trainingsessions_add_graded_data($gradecols, $data->userid, $aggregate);
-
 $user = $DB->get_record('user', array('id' => $data->userid));
 $cols = report_trainingsessions_get_summary_cols();
 $headdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
-$headdata['gradecols'] = $gradecols;
+
 $headdata['items'] = $dataobject->items;
 $headdata['done'] = $dataobject->done;
+
+ob_start();
+echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
 echo report_trainingsessions_print_header_html($data->userid, $course->id, (object)$headdata);
 
 //report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
-
 echo $str;
+
+// Get and display grades
+report_trainingsessions_add_graded_data($gradecols, $data->userid, $aggregate);
+echo report_trainingsessions_print_grades($gradecols);
 
 $result = ob_get_clean();
 echo $result;
@@ -161,8 +159,8 @@ $filename = 'report_user_detail_'.$data->userid.'_'.$course->id.'_'.date('Ymd_Hi
 $params = array('coursename' => $course->idnumber . ' : ' . $course->fullname,
             'view' => 'userdetail',
             'userid' => $data->userid,
-            'from' => $data->from,
-            'to' => $data->to,
+            'from' => userdate($data->from),
+            'to' => userdate($data->to),
             'outputname' => $filename,
             'result' => $result);
 $pdfurl = new moodle_url('/report/trainingsessions/generate_pdf.php', $params);

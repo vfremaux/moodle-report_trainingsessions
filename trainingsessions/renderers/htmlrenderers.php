@@ -261,16 +261,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             }
 
             $str .= $nodestr;
-            if (!empty($structure->subs)) {
-                //$str .= '<table class="trainingreport subs">';
-                //$str .= '<tr class="trainingreport subs" valign="top">';
-                //$str .= '<td colspan="2">';
-                //$str .= '<br/>';
-                $str .= $suboutput;
-                //$str .= '</td>';
-                //$str .= '</tr>';
-                //$str .= "</table>\n";
-            }
+            if (!empty($structure->subs)) $str .= $suboutput;
         }
     }
     if($level<1) {
@@ -297,10 +288,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     // Ask config for enabled info.
     $cols = report_trainingsessions_get_summary_cols();
-    $gradecols = array();
-    $gradetitles = array();
-    $gradeformats = array();
-    report_trainingsessions_add_graded_columns($gradecols, $gradetitles, $gradeformats);
+
 
     $user = $DB->get_record('user', array('id' => $userid));
     $course = $DB->get_record('course', array('id' => $courseid));
@@ -468,18 +456,6 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= ' : </b>'.report_trainingsessions_format_time(0 + @$data->extotherlastweek, $durationformat);
         }
 
-        // Print additional grades.
-        if (!empty($gradecols)) {
-            $i = 0;
-            foreach ($gradecols as $gc) {
-                $str .= '<br/><b>';
-                $str .= $gradetitles[$i];
-                $str .= ' : </b>'.sprintf('%0.2f', $data->gradecols[$i]);
-                $i++;
-            }
-        }
-
-        // Plug here specific details.
     }
     $str .= '<br/>';
 
@@ -777,28 +753,6 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
 
     $str = '';
 
-    /*if (!empty($items)) {
-        $completed = $done / $items;
-    } else {
-        $completed = 0;
-    }
-    $remaining = 1 - $completed;
-    $remainingitems = $items - $done;
-    $completedpc = ceil($completed * 100)."% $done/$items";
-    $remainingpc = floor(100 * $remaining)."% $remainingitems/$items";
-    $completedwidth = floor($width * $completed);
-    $remainingwidth = floor($width * $remaining);
-
-    $str .= '<div class="completionbar">';
-    $str .= '<b>'.get_string('done', 'report_trainingsessions').'</b>';
-
-    $pixurl = $OUTPUT->pix_url('green', 'report_trainingsessions');
-    $str .= '<img src="'.$pixurl.'" style="width:'.$completedwidth.'px" class="donebar" align="top" title="'.$completedpc.'" />';
-    $pixurl = $OUTPUT->pix_url('blue', 'report_trainingsessions');
-    $style = 'width:'.$remainingwidth.'px';
-    $str .= '<img src="'.$pixurl.'" style="'.$style.'" class="remainingbar" align="top"  title="'.$remainingpc.'" />';
-    $str .= '</div>';*/
-
     $str .= '<div class="completionbar">';
     $str .= '<b>'.get_string('done', 'report_trainingsessions').' : </b>';
 
@@ -811,5 +765,32 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
 
     $str .= '</div>';
 
+    return $str;
+}
+
+/***
+ *
+ * Print the grades
+ *
+ */
+function report_trainingsessions_print_grades($grades) {
+    $str = '';
+    $gradecols = array();
+    $gradetitles = array();
+    $gradeformats = array();
+    report_trainingsessions_add_graded_columns($gradecols, $gradetitles, $gradeformats);
+
+    // Print grades if they exist.
+    if (!empty($gradecols)) {
+        $str .= '<br/><h2>'.get_string('grades').'</h2>';
+        $i = 0;
+        foreach ($gradecols as $gc) {
+            $str .= '<b>';
+            $str .= $gradetitles[$i];
+            if($grades[$i]==null) $str .= ' : </b>Pas de note<br/>';
+            else $str .= ' : </b>'.sprintf('%0.2f', $grades[$i]->grade).'<br/>';
+            $i++;
+        }
+    }
     return $str;
 }

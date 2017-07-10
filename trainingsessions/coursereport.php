@@ -192,8 +192,8 @@ echo '<div class="tr-detailed table-cell">';
 $params = array('coursename' => $course->idnumber . ' : ' . $course->fullname,
                 'view' => 'course',
                 'groupid' => $data->groupid,
-                'from' => $data->from,
-                'to' => $data->to,
+                'from' => userdate($data->from),
+                'to' => userdate($data->to),
                 'result' => $result);
 $url = new moodle_url('/report/trainingsessions/generate_pdf.php', $params);
 echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'post');

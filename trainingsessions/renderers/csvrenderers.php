@@ -134,10 +134,16 @@ function report_trainingsessions_print_global_raw($courseid, &$cols, &$user, &$a
     // Add grades.
     report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
 
+    $reorganizeddata = array();
+    foreach($colsdata as $col) {
+        if(is_object($col)) array_push($reorganizeddata, $col->grade);
+        else array_push($reorganizeddata, $col);
+    }
+
     if (!empty($config->csv_iso)) {
-        $rawstr .= mb_convert_encoding(implode(';', $colsdata)."\n", 'ISO-8859-1', 'UTF-8');
+        $rawstr .= mb_convert_encoding(implode(';', $reorganizeddata)."\n", 'ISO-8859-1', 'UTF-8');
     } else {
-        $rawstr .= implode(';', $colsdata)."\n";
+        $rawstr .= implode(';', $reorganizeddata)."\n";
     }
 }
 

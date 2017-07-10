@@ -16,6 +16,8 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST') {
     $_SESSION['printtopdf'] = $_POST['result'];
     $_SESSION['coursename'] = $_POST['coursename'];
     $_SESSION['view'] = $_POST['view'];
+    $_SESSION['from'] = $_POST['from'];
+    $_SESSION['to'] = $_POST['to'];
 } else if(!isset($_SESSION['printtopdf']) ) {
     die("You cannot access this page directly");
 }
@@ -31,6 +33,8 @@ $content .= '<page_header style="text-align: right"><img src="pix/logoupmc.png" 
 if($_SESSION['view']=='userdetail') $content .= '<h1>Détails de l\'étudiant :</h1>';
 else $content .= '<h1>Liste des étudiants :</h1>';
 $content .= '<h2>'.$_SESSION['coursename'].'</h2>';
+$content .= '<p> Depuis le '.$_SESSION['from'];
+$content .= ' jusqu\'au '.$_SESSION['to'].'</p>';
 $content .= $_SESSION['printtopdf'];
 $content .= '<page_footer style="text-align: right"></page_footer>';
 $content .= '</page>';

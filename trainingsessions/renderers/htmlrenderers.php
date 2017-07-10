@@ -116,7 +116,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
             $str .= '</table>';
         }
     } else {
-        $str .= $OUTPUT->box(get_string('nodata', 'report_trainingsessions'), 'generalbox', '', true);
+        $str .= $OUTPUT->box(get_string('nodata', 'report_trainingsessions'));
     }
 
     return $return;

@@ -28,11 +28,11 @@ use Spipu\Html2Pdf\Html2Pdf;
 use Spipu\Html2Pdf\Exception\Html2PdfException;
 use Spipu\Html2Pdf\Exception\ExceptionFormatter;
 
-$content = '<page backtop="7mm" backbottom="7mm" backleft="10mm" backright="10mm">';
+$content = '<page backtop="20mm" backbottom="7mm" backleft="10mm" backright="10mm">';
 $content .= '<page_header style="text-align: right"><img src="pix/logoupmc.png" alt="Logo UPMC" width="200"/></page_header>';
+$content .= '<h1>Cours : '.$_SESSION['coursename'].'</h1>';
 if($_SESSION['view']=='userdetail') $content .= '<h1>Détails de l\'étudiant :</h1>';
 else $content .= '<h1>Liste des étudiants :</h1>';
-$content .= '<h2>'.$_SESSION['coursename'].'</h2>';
 $content .= '<p> Depuis le '.$_SESSION['from'];
 $content .= ' jusqu\'au '.$_SESSION['to'].'</p>';
 $content .= $_SESSION['printtopdf'];

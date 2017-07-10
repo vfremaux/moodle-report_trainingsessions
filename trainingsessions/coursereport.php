@@ -189,7 +189,7 @@ $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batc
 echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 echo '</div>';
 echo '<div class="tr-detailed table-cell">';
-$params = array('coursename' => $course->idnumber . ' : ' . $course->fullname,
+$params = array('coursename' => $course->fullname . ' ('.$course->idnumber.')',
                 'view' => 'course',
                 'groupid' => $data->groupid,
                 'from' => userdate($data->from),

@@ -782,15 +782,33 @@ function report_trainingsessions_print_grades($grades) {
 
     // Print grades if they exist.
     if (!empty($gradecols)) {
+        $str .= '<nobreak>';
         $str .= '<br/><h2>'.get_string('grades').'</h2>';
+        $str .= '<table id="structure-table" style="width:100%;"><tbody>';
+        $str .= '<tr valign="top">';
+        $str .= '<th style="width:40%;"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></th>';
+        $str .= '<th style="width:20%;"><b>'.get_string('grade').'</b></th>';
+        $str .= '<th style="width:20%;"><b>'.get_string('maxgrade', 'grades').'</b></th>';
+        $str .= '<th style="width:20%;"><b>'.get_string('date').'</b></th>';
+        $str .= '</tr>';
         $i = 0;
-        foreach ($gradecols as $gc) {
-            $str .= '<b>';
-            $str .= $gradetitles[$i];
-            if($grades[$i]==null) $str .= ' : </b>Pas de note<br/>';
-            else $str .= ' : </b>'.sprintf('%0.2f', $grades[$i]->grade).'<br/>';
+        foreach($gradecols as $gc) {
+            $str .= '<tr>';
+            $str .= '<td style="width:40%; font-size:0.9em; border:1px solid #a0a0a0;">'.$gradetitles[$i].'</td>';
+            if($grades[$i]==null) {
+                $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+            } else {
+                $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0;">'.sprintf('%0.2f', $grades[$i]->grade).'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.sprintf('%0.2f', $grades[$i]->grademax).'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.userdate($grades[$i]->timemodified).'</td>';
+            }
+            $str .= '</tr>';
             $i++;
         }
+        $str .= '</tbody></table>';
+        $str .= '</nobreak>';
     }
     return $str;
 }

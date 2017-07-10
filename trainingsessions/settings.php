@@ -149,7 +149,7 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configcolourpicker($name, $title, $description, $default, $previewconfig);
     $settings->add($setting);
 
-    $settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
+    /*$settings->add(new admin_setting_heading('layout', get_string('layout', 'report_trainingsessions'), ''));
 
     $key = 'report_trainingsessions/showhits';
     $label = get_string('showhits', 'report_trainingsessions');
@@ -179,7 +179,7 @@ if ($ADMIN->fulltree) {
     $key = 'report_trainingsessions/pdfpagecutoff';
     $label = get_string('pdfpagecutoff', 'report_trainingsessions');
     $desc = get_string('pdfpagecutoff_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configtext($key, $label, $desc, '225'));
+    $settings->add(new admin_setting_configtext($key, $label, $desc, '225'));*/
 
     if (report_trainingsessions_supports_feature('calculation/coupling')) {
         $settings->add(new admin_setting_heading('coupling', get_string('coupling', 'report_trainingsessions'), ''));

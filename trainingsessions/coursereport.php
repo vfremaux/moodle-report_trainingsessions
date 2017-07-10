@@ -114,6 +114,7 @@ if (!empty($targetusers)) {
             $aggregate['sessions'] = array();
         }
         $data->items = $items;
+        $data->activitytime = 0 + @$aggregate['activities'][$course->id]->elapsed;
         $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
         $data->activityevents = @$aggregate['activities'][$course->id]->events;
         $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
@@ -187,7 +188,7 @@ $params = array('id' => $course->id,
 $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php', $params);
 echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
-$params = array('id' => $course->id,
+$params = array('coursename' => $course->idnumber . ' : ' . $course->fullname,
                 'view' => 'course',
                 'groupid' => $data->groupid,
                 'from' => $data->from,

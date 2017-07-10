@@ -158,7 +158,7 @@ echo '</div>';
 
 $now = time();
 $filename = 'report_user_detail_'.$data->userid.'_'.$course->id.'_'.date('Ymd_His', $now).'.pdf';
-$params = array('id' => $COURSE->id,
+$params = array('coursename' => $course->idnumber . ' : ' . $course->fullname,
             'view' => 'userdetail',
             'userid' => $data->userid,
             'from' => $data->from,

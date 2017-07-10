@@ -1652,7 +1652,7 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
 
     $colsources = array(
         'id' => $user->id,
-        'idnumber' => $user->idnumber,
+        'idnumber' => $user->username,
         'firstname' => $user->firstname,
         'lastname' => $user->lastname,
         'email' => $user->email,

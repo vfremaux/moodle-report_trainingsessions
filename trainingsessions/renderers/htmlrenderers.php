@@ -286,6 +286,8 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
                                                    $withnooutofstructure = false) {
     global $DB, $OUTPUT;
 
+    ($data);
+
     $config = get_config('report_trainingsessions');
 
     if (!empty($config->showseconds)) {
@@ -327,10 +329,10 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     }
 
     // Print IDNumber.
-    if (in_array('idnumber', $cols)) {
-        $str .= '<div class="attribute"><b>'.get_string('idnumber').'</b>';
-        $str .= ' : ';
-        $str .= '<span class="attribute-value">'.$user->idnumber.'</span></div>';
+    if (preg_match('/\d{7}/', $user->username)) {
+        $str .= '<div class="attribute"><b>'.get_string('idnumber');
+        $str .= ' : </b>';
+        $str .= '<span class="attribute-value">'.$user->username.'</span></div>';
     }
 
     // Print Institution.
@@ -350,7 +352,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     // Print roles list.
     $context = context_course::instance($courseid);
     $roles = role_fix_names(get_all_roles(), context_system::instance(), ROLENAME_ORIGINAL);
-    $str .= '<br/><b>'.get_string('roles').':</b> ';
+    $str .= '<br/><b>'.get_string('roles').' : </b>';
     $userroles = get_user_roles($context, $userid);
     $uroles = array();
 
@@ -433,7 +435,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         if (in_array('extother', $cols)) {
             $str .= '<br/><b>';
             $str .= get_string('extother', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extother, $durationformat);
+            $str .= ' : </b>'.report_trainingsessions_format_time(0 + @$data->extother, $durationformat);
             //$str .= $OUTPUT->help_icon('extother', 'report_trainingsessions');
         }
 
@@ -795,7 +797,7 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
     $str .= '</div>';*/
 
     $str .= '<div class="completionbar">';
-    $str .= '<b>'.get_string('done', 'report_trainingsessions').'</b>';
+    $str .= '<b>'.get_string('done', 'report_trainingsessions').' : </b>';
 
     if(empty($items)) {
         $str .= 'Pas d\'activités';

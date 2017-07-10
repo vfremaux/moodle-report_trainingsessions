@@ -90,6 +90,8 @@ if ($dataobject->done > $items) {
     $dataobject->done = $items;
 }
 
+($dataobject);
+
 ob_start();
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
 
@@ -131,6 +133,8 @@ $user = $DB->get_record('user', array('id' => $data->userid));
 $cols = report_trainingsessions_get_summary_cols();
 $headdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
 $headdata['gradecols'] = $gradecols;
+$headdata['items'] = $dataobject->items;
+$headdata['done'] = $dataobject->done;
 echo report_trainingsessions_print_header_html($data->userid, $course->id, (object)$headdata);
 
 //report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);

@@ -161,11 +161,13 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
         $str .= '<table style="width:100%" id="structure-table">';
         $str .= '<tr valign="top">';
         $str .= '<th class="userreport-col0" style="width:40%;"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></th>';
-        $str .= '<th class="userreport-col1" style="width:20%;"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></th>';
-        $str .= '<th class="userreport-col2" style="width:20%;"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></th>';
+        $str .= '<th class="userreport-col1" align="center" style="width:20%;"><b>'.get_string('firstaccess', 'report_trainingsessions').'</b></th>';
+        $str .= '<th class="userreport-col2" align="center" style="width:20%;"><b>'.get_string('lastaccess', 'report_trainingsessions').'</b></th>';
         $label = get_string('duration', 'report_trainingsessions');
-        $label .= ' ('.get_string('hits', 'report_trainingsessions').')';
-        $str .= '<th class="userreport-col3" style="width:20%;"><b>'.$label.'</b></th>';
+        if(is_siteadmin()) {
+            $label .= ' ('.get_string('hits', 'report_trainingsessions').')';
+        }
+        $str .= '<th class="userreport-col3" align="right" style="width:20%; padding-right:2px;"><b>'.$label.'</b></th>';
         $str .= '</tr>';
     }
 
@@ -198,10 +200,8 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             // Non visible items should not be displayed.
             // Name is not empty. It is a significant module (non structural).
             if (!empty($structure->name)) {
-                //$nodestr .= '<table class="sessionreport level'.$level.'">';
-                if($level == 1) $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0" valign="top" style="width:40%;">';
-                else $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0" valign="top" style="width:40%;">';
-                $nodestr .= '<td class="sessionitem item" style="width:40%">';
+                $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0" valign="top" style="width:40%;">';
+                $nodestr .= '<td class="sessionitem item" style="width:40%;">';
                 $nodestr .= $indent;
                 if (debugging()) {
                     $nodestr .= '['.$structure->type.'] ';
@@ -218,7 +218,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                     $nodestr .= date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess));
                 }
                 $nodestr .= '</td>';
-                $nodestr .= '<td class="reportvalue rangedate userreport-col3" align="right" style="font-size:0.9em; border:1px solid #a0a0a0; width:20%;">';
+                $nodestr .= '<td class="reportvalue rangedate userreport-col3" align="right" style="font-size:0.9em; border:1px solid #a0a0a0; width:20%; padding-right:2px;">';
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $done++;
                     $dataobject = $aggregate[$structure->type][$structure->id];
@@ -247,7 +247,6 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 // Plug here specific details.
                 $nodestr .= '</td>';
                 $nodestr .= '</tr>';
-                //$nodestr .= '</table>';
             } else {
                 // It is only a structural module that should not impact on level.
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -786,23 +785,23 @@ function report_trainingsessions_print_grades($grades) {
         $str .= '<br/><h2>'.get_string('grades').'</h2>';
         $str .= '<table id="structure-table" style="width:100%;"><tbody>';
         $str .= '<tr valign="top">';
-        $str .= '<th style="width:40%;"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></th>';
-        $str .= '<th style="width:20%;"><b>'.get_string('grade').'</b></th>';
-        $str .= '<th style="width:20%;"><b>'.get_string('maxgrade', 'grades').'</b></th>';
-        $str .= '<th style="width:20%;"><b>'.get_string('date').'</b></th>';
+        $str .= '<th style="width:40%; padding-left:2px;"><b>'.get_string('structureitem', 'report_trainingsessions').'</b></th>';
+        $str .= '<th style="width:20%; padding-left:2px;"><b>'.get_string('grade').'</b></th>';
+        $str .= '<th style="width:20%; padding-left:2px;"><b>'.get_string('maxgrade', 'grades').'</b></th>';
+        $str .= '<th style="width:20%; padding-left:2px;"><b>'.get_string('date').'</b></th>';
         $str .= '</tr>';
         $i = 0;
         foreach($gradecols as $gc) {
             $str .= '<tr>';
-            $str .= '<td style="width:40%; font-size:0.9em; border:1px solid #a0a0a0;">'.$gradetitles[$i].'</td>';
+            $str .= '<td style="width:40%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.$gradetitles[$i].'</td>';
             if($grades[$i]==null) {
-                $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
-                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
-                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+                $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
             } else {
-                $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0;">'.sprintf('%0.2f', $grades[$i]->grade).'</td>';
-                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.sprintf('%0.2f', $grades[$i]->grademax).'</td>';
-                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0;">'.userdate($grades[$i]->timemodified).'</td>';
+                $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.sprintf('%0.2f', $grades[$i]->grade).'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.sprintf('%0.2f', $grades[$i]->grademax).'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.userdate($grades[$i]->timemodified).'</td>';
             }
             $str .= '</tr>';
             $i++;

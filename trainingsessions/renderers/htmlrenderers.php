@@ -200,7 +200,7 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
             // Non visible items should not be displayed.
             // Name is not empty. It is a significant module (non structural).
             if (!empty($structure->name)) {
-                $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0" valign="top" style="width:40%;">';
+                $nodestr .= '<tr class="sessionlevel'.$level.' userreport-col0">';
                 $nodestr .= '<td class="sessionitem item" style="width:40%;">';
                 $nodestr .= $indent;
                 if (debugging()) {
@@ -243,7 +243,6 @@ function report_trainingsessions_print_html(&$str, $structure, &$aggregate, &$do
                 } else {
                     $nodestr .= get_string('ignored', 'block_use_stats');
                 }
-
                 // Plug here specific details.
                 $nodestr .= '</td>';
                 $nodestr .= '</tr>';
@@ -791,9 +790,9 @@ function report_trainingsessions_print_grades($grades) {
         foreach($gradecols as $gc) {
             $str .= '<tr>';
             $str .= '<td style="width:40%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.$gradetitles[$i].'</td>';
-            if($grades[$i]==null) {
+            if($grades[$i]->grade==null) {
                 $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
-                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
+                $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.sprintf('%0.2f', $grades[$i]->grademax).'</td>';
                 $str .= '<td style="width:20%; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.get_string('noextragrade', 'report_trainingsessions').'</td>';
             } else {
                 $str .= '<td style="width:20%; background-color: #d0d0d0; font-size:0.9em; border:1px solid #a0a0a0; padding-left:2px;">'.sprintf('%0.2f', $grades[$i]->grade).'</td>';

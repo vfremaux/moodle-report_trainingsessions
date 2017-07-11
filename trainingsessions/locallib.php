@@ -763,11 +763,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
         foreach ($graderecs as $rec) {
             $modulegrade = report_trainingsessions_get_module_grade($rec->moduleid, $userid);
             // Push in array.
-            if ($modulegrade->grade) {
-                array_push($columns, $modulegrade);
-            } else {
-                array_push($columns, null);
-            }
+            array_push($columns, $modulegrade);
         }
     }
 
@@ -800,11 +796,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
         // Retain the coursegrade for adding at the full end of array.
         if ($coursegrade = report_trainingsessions_get_course_grade($graderec->courseid, $userid)) {
             $grade = min($coursegrade->grademax, $coursegrade->grade + $bonus);
-        }
-        if ($coursegrade->grade) {
             array_push($columns, $coursegrade);
-        } else {
-            array_push($columns, null);
         }
     }
 }
@@ -1014,9 +1006,17 @@ function report_trainingsessions_get_course_grade($courseid, $userid) {
             g.itemid = gi.id
     ";
     if (!$result = $DB->get_record_sql($sql, array($userid, $courseid))) {
-        $result = new StdClass();
+        $sql = "
+            SELECT
+                gi.grademax as grademax
+            FROM
+                {grade_items} gi
+            WHERE
+                gi.itemtype = 'course' AND
+                gi.courseid = ?
+        ";
+        $result = $DB->get_record_sql($sql, array($courseid));
         $result->grade = '';
-        $result->grademax = '';
         $result->timemodified = '';
     }
 
@@ -1053,10 +1053,22 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
 
     if ($result) {
         return $result;
+    } else {
+        $sql = "
+            SELECT
+                gi.grademax as grademax
+            FROM
+                {grade_items} gi
+            WHERE
+                gi.itemtype = 'mod' AND
+                gi.itemmodule = ? AND
+                gi.iteminstance = ?
+        ";
+        $result = $DB->get_record_sql($sql, array($cm->modname, $cm->instance));
+        $result->grade = null;
+        $result->timemodified = null;
+        return $result;
     }
-    $result = new stdClass();
-    $result->grade = null;
-    return $result;
 }
 
 /**

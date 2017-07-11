@@ -339,7 +339,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         $str .= '<span class="attribute-value">'.$user->department.'</span></div>';
     }
 
-    // Print roles list.
+    /*// Print roles list.
     $context = context_course::instance($courseid);
     $roles = role_fix_names(get_all_roles(), context_system::instance(), ROLENAME_ORIGINAL);
     $str .= '<br/><b>'.get_string('roles').' : </b>';
@@ -360,7 +360,7 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
                         'to' => $data->to);
         $detailurl = new moodle_url('/report/trainingsessions/index.php', $params);
         //$str .= '<br/><a href="'.$detailurl.'">'.get_string('seedetails', 'report_trainingsessions').'</a>';
-    }
+    }*/
 
     if ($withcompletion) {
         // Print completion bar.
@@ -761,16 +761,13 @@ function report_trainingsessions_print_completionbar($items, $done, $width) {
         $completionpercent = intval($done/$items*100);
         $str .= $completionpercent.'% ('.$done.'/'.$items.')';
     }
-
     $str .= '</div>';
 
     return $str;
 }
 
 /***
- *
  * Print the grades
- *
  */
 function report_trainingsessions_print_grades($grades) {
     $str = '';

@@ -59,8 +59,8 @@ if ($data = $form->get_data()) {
     // Activate or desactivate course grade.
     $rec = new StdClass();
     $rec->id = $DB->get_field('report_trainingsessions', 'id', array('courseid'=>$course->id, 'moduleid'=>0));
+    $rec->label = $data->courselabel;
     if (!empty($data->coursegrade)) {
-        $rec->label = $data->courselabel;
         $rec->displayed = 1;
     } else {
         $rec->displayed = 0;
@@ -106,7 +106,7 @@ if ($alldata) {
                 $formdata->courselabel = $datum->label;
             } else {
                 $formdata->coursegrade = 0;
-                $formdata->courselabel = '';
+                $formdata->courselabel = $datum->label;
             }
         } else if ($datum->moduleid > 0) {
             $formdata->moduleid[$ix] = $datum->moduleid;

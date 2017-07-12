@@ -47,13 +47,17 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->addElement('header', 'coursegradehead', get_string('coursegrade', 'report_trainingsessions'));
 
         $formgroup = array();
-        $formgroup[] = &$mform->createElement('checkbox', 'coursegrade', get_string('addcoursegrade', 'report_trainingsessions'));
+        $choices = array(
+            0 => get_string('hide'),
+            1 => get_string('show')
+        );
+        $formgroup[] = &$mform->createElement('select', 'coursegrade', '', $choices);
         $formgroup[] = &$mform->createElement('text', 'courselabel', '', array('size' => 60, 'maxlength' => 60));
         $mform->setDefault('coursegrade', true);
         $mform->setType('courselabel', PARAM_TEXT);
         $mform->setDefault('courselabel', 'Total');
         $label = get_string('enablecoursescore', 'report_trainingsessions');
-        $seps = array(get_string('courselabel', 'report_trainingsessions').' ');
+        $seps = array(get_string('columnname', 'report_trainingsessions').' ');
         $mform->addGroup($formgroup, 'coursegroup', $label, $seps, false);
 
         $mform->addElement('header', 'modulegrades', get_string('modulegrades', 'report_trainingsessions'));
@@ -102,8 +106,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             if($gr->moduleid<=0) continue;
             $formgroup = array();
             $choices = array(
-                0 => 'Cacher',
-                1 => 'Afficher'
+                0 => get_string('hide'),
+                1 => get_string('show')
             );
             $formgroup[] = &$mform->createElement('hidden', 'moduleid['.$ix.']', $gr->moduleid);
             $formgroup[] = &$mform->createElement('select', 'displayed['.$ix.']', '', $choices);

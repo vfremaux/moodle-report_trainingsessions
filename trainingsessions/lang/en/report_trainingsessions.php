@@ -208,8 +208,7 @@ $string['reportscope'] = 'Scope';
 $string['role'] = 'Role';
 $string['scheduledbatches'] = 'Scheduled batches';
 $string['scoresettings'] = 'Score Reporting Settings';
-$string['scoresettingsadvice'] = 'In course summary reports (one user per line), you may add additional output columns with scores from the
-gradebook. You can add the global course grade, or choose to add one (or more) single activity grade(s) in the report.';
+$string['scoresettingsadvice'] = 'This menu allows you to show or hide different grades, as well as changing their labels.';
 $string['sectionname'] = 'Section name';
 $string['seedetails'] = 'See details';
 $string['selectforreport'] = 'Select for reports';

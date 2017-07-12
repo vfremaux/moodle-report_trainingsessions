@@ -49,3 +49,9 @@ if(!$DB->record_exists('report_trainingsessions', array('courseid'=>$course->id,
     $rec->displayed = 1;
     $DB->insert_record('report_trainingsessions', $rec);
 }
+
+$grades = $DB->get_records('grade_items', array('courseid'=>$course->id));
+foreach($grades as $gr) {
+    $cm = $DB->get_record('course_modules', array('course'=>$course->id, 'instance'=>$gr->iteminstance));
+    var_dump($cm);
+}

@@ -73,69 +73,6 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
                            array('title' => get_string('addmoduletitle', 'report_trainingsessions')));
         $mform->registerNoSubmitButton('addmodule');
 
-        $mform->addElement('header', 'specialgrades', get_string('specialgrades', 'report_trainingsessions'));
-
-        $mform->addElement('html', $OUTPUT->box_start('trainingsessions-fieldset'));
-
-        $label = get_string('noextragrade', 'report_trainingsessions');
-        $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_DISABLED);
-
-        $label = get_string('addtimegrade', 'report_trainingsessions');
-        $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_GRADE);
-
-        $options = array(TR_GRADE_MODE_BINARY => get_string('binary', 'report_trainingsessions'),
-                         TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
-                         TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
-        $mform->addElement('select', 'timegrademode', get_string('timegrademode', 'report_trainingsessions'), $options);
-        $mform->disabledIf('timegrademode', 'specialgrade', 'neq', TR_TIMEGRADE_GRADE);
-
-        $label = get_string('addtimebonus', 'report_trainingsessions');
-        $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_BONUS);
-
-        $options = array(TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
-                         TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
-        $mform->addElement('select', 'bonusgrademode', get_string('bonusgrademode', 'report_trainingsessions'), $options);
-        $mform->disabledIf('bonusgrademode', 'specialgrade', 'neq', TR_TIMEGRADE_BONUS);
-
-        $mform->addElement('html', $OUTPUT->box_end());
-
-        $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
-                         TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
-                         TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
-        $mform->addElement('select', 'timegradesource', get_string('timesource', 'report_trainingsessions'), $options);
-        $mform->disabledIf('timegradesource', 'specialgrade', 'eq', TR_TIMEGRADE_DISABLED);
-
-        $mform->addElement('modgrade', 'timegrade', get_string('timegrade', 'report_trainingsessions'));
-
-        $attrs = array('size' => 80, 'maxlength' => 254);
-        $mform->addElement('text', 'timegraderanges', get_string('timegraderanges', 'report_trainingsessions'), $attrs);
-        $mform->addHelpButton('timegraderanges', 'timegraderanges', 'report_trainingsessions');
-        $mform->setType('timegraderanges', PARAM_TEXT);
-
-        if (report_trainingsessions_supports_feature('xls/calculated')) {
-            // Preliminary implementation. Not finished yet.
-            $label = get_string('calculatedcolumns', 'report_trainingsessions');
-            $mform->addElement('header', 'calculatedcolumnshead', $label, '');
-
-            $formulastr = get_string('xlsformula', 'report_trainingsessions');
-            $formulalabelstr = get_string('formulalabel', 'report_trainingsessions');
-            for ($i = 1; $i <= 3; $i++) {
-                $attrs = array('cols' => 60, 'rows' => 4, 'maxlength' => 254);
-                $mform->addElement('textarea', 'calculated'.$i, $formulastr.' '.$i, $attrs);
-                $mform->setType('calculated'.$i, PARAM_TEXT);
-                $mform->addHelpButton('calculated'.$i, 'calculated', 'report_trainingsessions');
-                $attrs = array('size' => 20, 'maxlength' => 254);
-                $mform->addElement('text', 'calculated'.$i.'label', $formulalabelstr.' '.$i, $attrs);
-                $mform->setType('calculated'.$i.'label', PARAM_TEXT);
-            }
-
-            $attrs = array('size' => 80, 'maxlength' => 254);
-            $label = get_string('lineaggregators', 'report_trainingsessions');
-            $mform->addElement('text', 'lineaggregators', $label, $attrs);
-            $mform->addHelpButton('lineaggregators', 'lineaggregators', 'report_trainingsessions');
-            $mform->setType('lineaggregators', PARAM_TEXT);
-        }
-
         $this->add_action_buttons(true);
     }
 
@@ -221,39 +158,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
     }
 
     public function validation($data, $files) {
-
         $errors = parent::validation($data, $files);
-
-        if (($data['specialgrade'] == TR_TIMEGRADE_GRADE) &&
-                ($data['timegrademode'] == TR_GRADE_MODE_CONTINUOUS) &&
-                        ($data['timegrade'] < 0)) {
-            // Scales cannot be used in continuous mode.
-            $errors['timegrademode'] = get_string('errorcontinuousscale', 'report_trainingsessions');
-            $errors['timegrade'] = get_string('errorcontinuousscale', 'report_trainingsessions');
-        }
-
-        if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
-                ($data['bonusgrademode'] == TR_GRADE_MODE_CONTINUOUS) &&
-                        ($data['timegrade'] < 0)) {
-            // Scales cannot be used in continuous mode.
-            $errors['bonusgrademode'] = get_string('errorcontinuousscale', 'report_trainingsessions');
-            $errors['timegrade'] = get_string('errorcontinuousscale', 'report_trainingsessions');
-        }
-
-        if (($data['specialgrade'] == TR_TIMEGRADE_GRADE) &&
-                        ($data['timegrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
-                                (empty($data['timegraderanges']))) {
-            $errors['timegrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
-            $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');
-        }
-
-        if (($data['specialgrade'] == TR_TIMEGRADE_BONUS) &&
-                        ($data['bonusgrademode'] < TR_GRADE_MODE_CONTINUOUS) &&
-                                (empty($data['timegraderanges']))) {
-            $errors['bonusgrademode'] = get_string('errordiscretenoranges', 'report_trainingsessions');
-            $errors['timegraderanges'] = get_string('errordiscretenoranges', 'report_trainingsessions');
-        }
-
         return $errors;
     }
 }

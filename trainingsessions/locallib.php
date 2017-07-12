@@ -685,7 +685,7 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         $formats = array();
     }
 
-    $select = " courseid = ? AND moduleid > 0 ";
+    $select = " courseid = ? AND moduleid > 0 AND displayed = 1 ";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         $formatadds = array();
@@ -702,37 +702,8 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         $formats = array_merge($formats, $formatadds);
     }
 
-    // Add special grades.
-    $select = " courseid = ? AND moduleid < 0 ";
-    $params = array($COURSE->id);
-    if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
-
-        foreach ($graderecs as $rec) {
-            if ($rec->moduleid == TR_TIMEGRADE_GRADE) {
-                $ranges = (array) json_decode($rec->ranges);
-                // We are requesting time grade.
-                $columns[] = 'timegrade';
-                $titles[] = get_string('output:timegrade', 'report_trainingsessions');
-                if ($ranges['timemode'] < TR_GRADE_MODE_CONTINUOUS) {
-                    // Discrete and binary output mode use scale labels as output texts.
-                    $formats[] = 'a';
-                } else {
-                    $formats[] = 'n';
-                }
-            } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
-                $columns[] = 'rawcoursegrade';
-                $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
-                $formats[] = 'n';
-
-                $columns[] = 'timebonus';
-                $titles[] = get_string('output:timebonus', 'report_trainingsessions');
-                $formats[] = 'n';
-            }
-        }
-    }
-
     // Add course grade if required.
-    $params = array('courseid' => $COURSE->id, 'moduleid' => 0);
+    $params = array('courseid' => $COURSE->id, 'moduleid' => 0, 'displayed'=>1);
     if ($graderec = $DB->get_record('report_trainingsessions', $params)) {
         $label = get_string('output:finalcoursegrade', 'report_trainingsessions');
         $courselabel = (empty($graderec->label)) ? $label : $graderec->label;
@@ -757,7 +728,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
         $columns = array();
     }
 
-    $select = " courseid = ? AND moduleid > 0 ";
+    $select = " courseid = ? AND moduleid > 0 AND displayed = 1";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         foreach ($graderecs as $rec) {
@@ -769,7 +740,7 @@ function report_trainingsessions_add_graded_data(&$columns, $userid, &$aggregate
 
     // Add special grades.
     $bonus = 0;
-    $select = " courseid = ? AND moduleid < 0 ";
+    $select = " courseid = ? AND moduleid < 0 AND displayed = 1";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         foreach ($graderecs as $rec) {

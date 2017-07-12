@@ -56,23 +56,16 @@ $coursemodinfo = get_fast_modinfo($course->id);
 
 if ($data = $form->get_data()) {
 
-    // Delete all previous recordings.
-    // Purge old special grades for that course.
-    $select = " courseid = ? AND moduleid = 0 ";
-    $params = array($COURSE->id);
-    $DB->delete_records_select('report_trainingsessions', $select, $params);
-
-    // Activate course grade.
+    // Activate or desactivate course grade.
+    $rec = new StdClass();
+    $rec->id = $DB->get_field('report_trainingsessions', 'id', array('courseid'=>$course->id, 'moduleid'=>0));
     if (!empty($data->coursegrade)) {
-        $rec = new StdClass();
-        $rec->courseid = $COURSE->id;
-        $rec->moduleid = 0;
-        $rec->sortorder = 0;
         $rec->label = $data->courselabel;
-        $rec->grade = 0;
-        $rec->ranges = '';
-        $DB->insert_record('report_trainingsessions', $rec);
+        $rec->displayed = 1;
+    } else {
+        $rec->displayed = 0;
     }
+    $DB->update_record('report_trainingsessions', $rec);
 
     // Purge old special grades for that course.
     $select = " courseid = ? AND moduleid > 0 ";
@@ -97,85 +90,6 @@ if ($data = $form->get_data()) {
         }
     }
 
-    // Purge old special grades for that course.
-    $select = " courseid = ? AND moduleid < 0 ";
-    $params = array($COURSE->id);
-    $DB->delete_records_select('report_trainingsessions', $select, $params);
-
-    // Record special grades.
-    if ($data->specialgrade) {
-        $rec = new StdClass();
-        $rec->courseid = $COURSE->id;
-        $rec->moduleid = $data->specialgrade;
-        $rec->sortorder = 0;
-        $rec->label = '';
-        $ranges = explode(',', $data->timegraderanges);
-        $timeranges['ranges'] = array();
-        if (!empty($ranges)) {
-            foreach ($ranges as $r) {
-                $timeranges['ranges'][] = trim($r);
-            }
-        }
-        $timeranges['timemode'] = @$data->timegrademode;
-        $timeranges['bonusmode'] = @$data->bonusgrademode;
-        $timeranges['timesource'] = $data->timegradesource;
-        $rec->ranges = json_encode($timeranges);
-        $rec->grade = $data->timegrade;
-        $DB->insert_record('report_trainingsessions', $rec);
-    }
-
-    // Record sumline.
-    $moduleid = TR_LINEAGGREGATORS;
-    $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
-    if (!empty($data->lineaggregators)) {
-        $update = true;
-        if (!$rec = $DB->get_record('report_trainingsessions', $params)) {
-            $rec = new StdClass;
-            $update = false;
-        }
-        $rec->courseid = $COURSE->id;
-        $rec->moduleid = $moduleid;
-        $rec->sortorder = 0;
-        $rec->label = $data->lineaggregators;
-        $rec->ranges = '';
-        $rec->grade = 0;
-        if ($update) {
-            $DB->update_record('report_trainingsessions', $rec);
-        } else {
-            $DB->insert_record('report_trainingsessions', $rec);
-        }
-    } else {
-        $DB->delete_records('report_trainingsessions', $params);
-    }
-
-    // Record extra formulas.
-    for ($i = 1; $i <= 3; $i++) {
-        $key = 'calculated'.$i;
-        $labelkey = 'calculated'.$i.'label';
-        $moduleid = TR_XLSGRADE_FORMULA1 + ($i - 1);
-        $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
-        if (!empty($data->$key)) {
-            $update = true;
-            if (!$rec = $DB->get_record('report_trainingsessions', $params)) {
-                $rec = new StdClass;
-                $update = false;
-            }
-            $rec->courseid = $COURSE->id;
-            $rec->moduleid = $moduleid;
-            $rec->sortorder = 0;
-            $rec->label = $data->$labelkey;
-            $rec->ranges = json_encode($timeranges);
-            $rec->grade = 0;
-            if ($update) {
-                $DB->update_record('report_trainingsessions', $rec);
-            } else {
-                $DB->insert_record('report_trainingsessions', $rec);
-            }
-        } else {
-            $DB->delete_records('report_trainingsessions', $params);
-        }
-    }
-
     $params = array('id' => $COURSE->id, 'view' => 'gradesettings', 'from' => $from, 'to' => $to);
     redirect(new moodle_url('/report/trainingsessions/gradessettings.php', $params));
 }
@@ -197,8 +111,13 @@ if ($alldata) {
     $formdata->to = $to;
     foreach ($alldata as $datum) {
         if ($datum->moduleid == 0) {
-            $formdata->coursegrade = 1;
-            $formdata->courselabel = $datum->label;
+            if($datum->displayed) {
+                $formdata->coursegrade = 1;
+                $formdata->courselabel = $datum->label;
+            } else {
+                $formdata->coursegrade = 0;
+                $formdata->courselabel = '';
+            }
         } else if ($datum->moduleid > 0) {
             $formdata->moduleid[$ix] = $datum->moduleid;
             $formdata->scorelabel[$ix] = $datum->label;

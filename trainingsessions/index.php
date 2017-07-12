@@ -56,6 +56,9 @@ $strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');
 @ini_set('max_execution_time', '3000');
 raise_memory_limit('250M');
 
+//Autosets basic grades data
+include_once($CFG->dirroot."/report/trainingsessions/autogradesettings.php");
+
 // Defer printing header in report views after potential redirections.
 
 if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")) {
@@ -65,4 +68,3 @@ if (file_exists($CFG->dirroot."/report/trainingsessions/{$view}report.php")) {
 }
 
 echo $OUTPUT->footer();
-

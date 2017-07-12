@@ -1015,11 +1015,16 @@ function report_trainingsessions_get_course_grade($courseid, $userid) {
                 gi.itemtype = 'course' AND
                 gi.courseid = ?
         ";
-        $result = $DB->get_record_sql($sql, array($courseid));
-        $result->grade = '';
-        $result->timemodified = '';
+        if($result = $DB->get_record_sql($sql, array($courseid))) {
+            $result->grade = null;
+            $result->timemodified = null;
+        } else {
+            $result = new stdClass();
+            $result->grademax = '0.0';
+            $result->grade = null;
+            $result->timemodified = null;
+        }
     }
-
     return $result;
 }
 
@@ -1064,9 +1069,15 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
                 gi.itemmodule = ? AND
                 gi.iteminstance = ?
         ";
-        $result = $DB->get_record_sql($sql, array($cm->modname, $cm->instance));
-        $result->grade = null;
-        $result->timemodified = null;
+        if($result = $DB->get_record_sql($sql, array($cm->modname, $cm->instance))) {
+            $result->grade = null;
+            $result->timemodified = null;
+        } else {
+            $result = new stdClass();
+            $result->grademax = '0.0';
+            $result->grade = null;
+            $result->timemodified = null;
+        }
         return $result;
     }
 }

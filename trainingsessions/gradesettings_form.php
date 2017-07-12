@@ -53,7 +53,9 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $formgroup = array();
         $formgroup[] = &$mform->createElement('checkbox', 'coursegrade', get_string('addcoursegrade', 'report_trainingsessions'));
         $formgroup[] = &$mform->createElement('text', 'courselabel', '', array('size' => 60, 'maxlength' => 60));
+        $mform->setDefault('coursegrade', true);
         $mform->setType('courselabel', PARAM_TEXT);
+        $mform->setDefault('courselabel', 'Total');
         $label = get_string('enablecoursescore', 'report_trainingsessions');
         $seps = array(get_string('courselabel', 'report_trainingsessions').' ');
         $mform->addGroup($formgroup, 'coursegroup', $label, $seps, false);

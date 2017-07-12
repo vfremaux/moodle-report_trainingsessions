@@ -994,7 +994,7 @@ function report_trainingsessions_get_course_grade($courseid, $userid) {
     $sql = "
         SELECT
             g.finalgrade as grade,
-            g.rawgrademax as grademax,
+            gi.grademax as grademax,
             g.timemodified as timemodified
         FROM
             {grade_items} gi,

@@ -30,12 +30,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 class TrainingsessionsGradeSettingsForm extends moodleform {
 
-    protected $linkablemodules;
-
     public function definition() {
         global $COURSE, $OUTPUT;
-
-        $this->linkablemodules = report_trainingsessions_get_linkable_modules($COURSE->id);
 
         $mform = $this->_form;
 
@@ -69,9 +65,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
          * that we can get any elements added in the form and not overwrite them with what's in the database.
          */
 
-        $mform->addElement('submit', 'addmodule', get_string('addmodulelabel', 'report_trainingsessions'),
-                           array('title' => get_string('addmoduletitle', 'report_trainingsessions')));
-        $mform->registerNoSubmitButton('addmodule');
+        $mform->addElement('hidden', 'addmodule', get_string('addmodulelabel', 'report_trainingsessions'));
+        $mform->setType('addmodule', PARAM_RAW);
 
         $this->add_action_buttons(true);
     }
@@ -82,7 +77,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
      * Check for an 'addmodule' button. If the linked activities fields are all full, add an empty one.
      */
     public function definition_after_data() {
-        global $COURSE;
+        global $COURSE, $DB;
 
         // Start process core datas (conditions, etc.).
         parent::definition_after_data();
@@ -95,66 +90,33 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             return;
         }
         $this->def_after_data_done = true;
-
         $mform    =& $this->_form;
         $fdata = $mform->getSubmitValues();
 
         /*
-         * Get the existing linked activities from the database, unless this form has resubmitted itself, in
-         * which case they will be in the form already.
+         * Load the module grades settings
          */
-        $moduleids = array();
-
-        if (empty($fdata)) {
-            if ($linkedmodules = report_trainingsessions_get_graded_modules($COURSE->id)) {
-                foreach ($linkedmodules as $cidx => $cmid) {
-                    if ($cmid > 0) {
-                        $moduleids[$cidx] = $cmid;
-                    }
-                }
-            }
-        } else {
-            if (isset($fdata['moduleid'])) {
-                foreach ($fdata['moduleid'] as $cidx => $cmid) {
-                    if ($cmid > 0) {
-                        $moduleids[$cidx] = $cmid;
-                    }
-                }
-            }
-        }
-
-        if (isset($fdata['linkablemodules']) && is_array($fdata['linkablemodules'])) {
-            foreach ($fdata['linkablemodules'] as $linkablemodule) {
-                $moduleids[] = $linkablemodule;
-            }
-        }
-        $moduleids = array_unique($moduleids);
+        $grades = $DB->get_records('report_trainingsessions', array('courseid'=>$COURSE->id));
         $ix = 0;
-        foreach ($moduleids as $cidx => $modid) {
+        foreach ($grades as $ix => $gr) {
+            if($gr->moduleid<=0) continue;
             $formgroup = array();
             $choices = array(
-                '' => get_string('disabled', 'report_trainingsessions'),
-                $modid => $this->linkablemodules[$modid]
+                0 => 'Cacher',
+                1 => 'Afficher'
             );
-            $formgroup[] = &$mform->createElement('select', 'moduleid['.$ix.']', '', $choices);
-            $mform->setDefault('moduleid['.$ix.']', $modid);
+            $formgroup[] = &$mform->createElement('hidden', 'moduleid['.$ix.']', $gr->moduleid);
+            $formgroup[] = &$mform->createElement('select', 'displayed['.$ix.']', '', $choices);
+            $mform->setDefault('displayed['.$ix.']', $gr->displayed);
             $formgroup[] = & $mform->createElement('text', 'scorelabel['.$ix.']', '', array('maxlength' => 60));
             $mform->setType('scorelabel['.$ix.']', PARAM_TEXT);
-            $label = get_string('modgrade', 'report_trainingsessions', ($ix + 1));
-            $padding = array(' '.get_string('columnname', 'report_trainingsessions'));
-            $group =& $mform->createElement('group', 'modgrade'.$ix, $label, $formgroup, $padding, false);
+            $mform->setDefault('scorelabel['.$ix.']', $gr->label);
+            $padding = array(' ', ' '.get_string('columnname', 'report_trainingsessions'));
+            $group =& $mform->createElement('group', 'modgrade'.$ix, $gr->label, $formgroup, $padding, false);
             $mform->insertElementBefore($group, 'addmodule');
             $ix++;
         }
 
-        $availablemodules = $this->linkablemodules;
-        unset($availablemodules[0]);
-        $label = get_string('availableactivities', 'report_trainingsessions');
-        $linkablemodules = $mform->createElement('select', 'linkablemodules', $label, $availablemodules, array('size' => 10));
-        $linkablemodules->setMultiple(true);
-
-        $formgroup[] = $linkablemodules;
-        $mform->insertElementBefore($linkablemodules, 'addmodule');
     }
 
     public function validation($data, $files) {

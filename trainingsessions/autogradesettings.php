@@ -51,7 +51,19 @@ if(!$DB->record_exists('report_trainingsessions', array('courseid'=>$course->id,
 }
 
 $grades = $DB->get_records('grade_items', array('courseid'=>$course->id));
-foreach($grades as $gr) {
-    $cm = $DB->get_record('course_modules', array('course'=>$course->id, 'instance'=>$gr->iteminstance));
-    var_dump($cm);
+foreach($grades as $ix=>$gr) {
+    if(!$gr->itemmodule) continue;
+    $mod = $DB->get_record('modules', array('name'=>$gr->itemmodule));
+    $cm = $DB->get_record('course_modules', array('course'=>$course->id, 'module'=>$mod->id, 'instance'=>$gr->iteminstance));
+    if($DB->record_exists('report_trainingsessions', array('courseid'=>$course->id, 'moduleid'=>$cm->id))) continue;
+    $rec = new stdClass();
+    $rec->courseid = $course->id;
+    $rec->moduleid = $cm->id;
+    $coursemodinfo = get_fast_modinfo($course->id);
+    $cminfo = $coursemodinfo->get_cm($cm->id);
+    $rec->label = $cminfo->get_formatted_name();
+    $rec->sortorder = $ix;
+    $rec->grade = 0;
+    $rec->ranges = '';
+    $DB->insert_record('report_trainingsessions', $rec);
 }

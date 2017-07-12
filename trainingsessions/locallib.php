@@ -640,27 +640,6 @@ function report_trainingsessions_get_graded_modules($courseid) {
 }
 
 /**
- * Get all graded modules into the course excluing those already linked to report and
- * module types that are not gradable.
- *
- * @param int $courseid
- * @return array of linkable cmid/cmname pairs for a select
- */
-function report_trainingsessions_get_linkable_modules($courseid) {
-    $modinfo = get_fast_modinfo($courseid);
-
-    $cms = $modinfo->get_cms();
-    $linkables = array(0 => get_string('disabled', 'report_trainingsessions'));
-    foreach ($cms as $cminfo) {
-        $func = $cminfo->modname.'_supports';
-        if ($func(FEATURE_GRADE_HAS_GRADE)) {
-            $linkables[$cminfo->id] = '['.$cminfo->modname.'] '.$cminfo->name;
-        }
-    }
-    return $linkables;
-}
-
-/**
  * Add extra column headers from grade settings and feeds given arrays.
  *
  * @param arrayref &$columns a reference to the array of column headings.

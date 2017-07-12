@@ -67,25 +67,15 @@ if ($data = $form->get_data()) {
     }
     $DB->update_record('report_trainingsessions', $rec);
 
-    // Purge old special grades for that course.
-    $select = " courseid = ? AND moduleid > 0 ";
-    $params = array($COURSE->id);
-    $DB->delete_records_select('report_trainingsessions', $select, $params);
-
-    // Record all module grades.
+    // Activate or desactivate module grades.
     if (property_exists($data, 'moduleid')) {
         foreach ($data->moduleid as $ix => $moduleid) {
             if ($moduleid) {
                 $rec = new StdClass();
-                $rec->courseid = $COURSE->id;
-                $rec->moduleid = $moduleid;
-                $cminfo = $coursemodinfo->get_cm($moduleid);
-                $altlabel = (($cminfo->idnumber) ? $cminfo->idnumber : $cminfo->get_formatted_name());
-                $rec->label = (empty($data->scorelabel[$ix])) ? $altlabel : $data->scorelabel[$ix];
-                $rec->sortorder = $ix;
-                $rec->grade = 0;
-                $rec->ranges = '';
-                $DB->insert_record('report_trainingsessions', $rec);
+                $rec->id = $DB->get_field('report_trainingsessions', 'id', array('courseid'=>$course->id, 'moduleid'=>$moduleid));
+                if(!empty($data->scorelabel[$ix])) $rec->label = $data->scorelabel[$ix];
+                $rec->displayed = $data->displayed[$ix];
+                $DB->update_record('report_trainingsessions', $rec);
             }
         }
     }

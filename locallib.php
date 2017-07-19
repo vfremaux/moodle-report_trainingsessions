@@ -578,7 +578,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             // For excel time format we need have a fractional day value.
             return $timevalue / DAYSECS;
         } else {
-            return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
+            return strftime('%Y-%m-%d %H:%M:%S', $timevalue);
         }
     } else {
         if ($mode == 'html') {

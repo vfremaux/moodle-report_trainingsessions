@@ -553,10 +553,10 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             $mins = $mins % 60;
 
             if ($hours > 0) {
-                return "{$hours}h {$mins}m";
+                return "{$hours}h {$mins}min";
             }
             if ($mins > 0) {
-                return "{$mins}m";
+                return "{$mins}min";
             }
             return "{$secs}s";
         } else if ($mode == 'htmlds') {
@@ -566,10 +566,10 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             $mins = $mins % 60;
 
             if ($hours > 0) {
-                return "{$hours}h {$mins}m {$secs}s";
+                return "{$hours}h {$mins}min {$secs}s";
             }
             if ($mins > 0) {
-                return "{$mins}m {$secs}s";
+                return "{$mins}min {$secs}s";
             }
             return "{$secs}s";
         } else if ($mode == 'html') {
@@ -578,14 +578,14 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             // For excel time format we need have a fractional day value.
             return $timevalue / DAYSECS;
         } else {
-            return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
+            return strftime('%Y-%m-%d %H:%M:%S', $timevalue);
         }
     } else {
         if ($mode == 'html') {
             return get_string('unvisited', 'report_trainingsessions');
         }
         if ($mode == 'htmld') {
-            return '0m';
+            return '0min';
         }
         if ($mode == 'htmlds') {
             return '0s';

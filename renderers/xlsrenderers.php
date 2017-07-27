@@ -387,10 +387,10 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
 
                 $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
                 if (!empty($fa)) {
-                    $worksheet->write_date($thisrow, 0, (float)$firstaccess, $xlsformats['t']);
+                    $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
                     $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
                 }
-                $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['d']);
+                $worksheet->write_number($thisrow, 2, $dataobject->elapsed, $xlsformats['d']);
                 if (!empty($config->showhits)) {
                     $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['n']);
                 }
@@ -449,7 +449,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
 
     $totalelapsed = 0;
 
-    if (!empty($sessions)) {
+    if (!empty($sessions) && !empty($session->courses)) {
         foreach ($sessions as $session) {
 
             if ($courseid && !array_key_exists($courseid, $session->courses)) {

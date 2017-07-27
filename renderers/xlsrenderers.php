@@ -386,9 +386,10 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 }
 
                 $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
-                $firstaccess = report_trainingsessions_format_time($fa, 'xls');
-                $worksheet->write_number($thisrow, 0, $firstaccess, $xlsformats['t']);
-                $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
+                if (!empty($fa)) {
+                    $worksheet->write_date($thisrow, 0, (float)$firstaccess, $xlsformats['t']);
+                    $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
+                }
                 $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['d']);
                 if (!empty($config->showhits)) {
                     $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['n']);

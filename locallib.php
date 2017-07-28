@@ -545,7 +545,9 @@ function page_get_structure_in_content($source, &$itemcount) {
  * @return string
  */
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
+
     if ($timevalue) {
+
         if ($mode == 'htmld') {
             // Print without seconds.
             $secs = $timevalue % 60;
@@ -560,7 +562,9 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
                 return "{$mins}min";
             }
             return "{$secs}s";
+
         } else if ($mode == 'htmlds') {
+
             // Print with seconds.
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
@@ -574,14 +578,21 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
                 return "{$mins}min {$secs}s";
             }
             return "{$secs}s";
+
         } else if ($mode == 'html') {
+
             return strftime('%Y-%m-%d %H:%I (%a)', $timevalue);
+
         } else if ($mode == 'xlsd') {
+
             // For excel time format we need have a fractional day value.
             return $timevalue / DAYSECS;
+
         } else {
+
             return strftime('%Y-%m-%d %H:%M:%S', $timevalue);
         }
+
     } else {
         if ($mode == 'html') {
             return get_string('unvisited', 'report_trainingsessions');

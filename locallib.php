@@ -547,6 +547,7 @@ function page_get_structure_in_content($source, &$itemcount) {
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
     if ($timevalue) {
         if ($mode == 'htmld') {
+            // Print without seconds.
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
@@ -560,6 +561,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
             }
             return "{$secs}s";
         } else if ($mode == 'htmlds') {
+            // Print with seconds.
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);

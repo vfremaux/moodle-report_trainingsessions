@@ -365,7 +365,8 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
         if (!isset($element->instance) || !empty($element->instance->visible)) {
             // Non visible items should not be displayed.
             if (!empty($structure->name)) {
-                // Write element title.
+
+                // Write element name.
                 $indent = str_pad('', 3 * $level, ' ');
                 $str = $indent.shorten_text(strip_tags($structure->name), 85);
                 $worksheet->write_string($row, 1, $str, $format);
@@ -385,11 +386,16 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                     $dataobject->events += $res->events;
                 }
 
+                // Firstaccess.
                 $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
-                $firstaccess = report_trainingsessions_format_time($fa, 'xls');
-                $worksheet->write_number($thisrow, 0, $firstaccess, $xlsformats['t']);
-                $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
-                $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['d']);
+                if (!empty($fa)) {
+                    $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
+                }
+
+                // Elapsed.
+                $convertedelapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
+                $worksheet->write_number($thisrow, 2, $convertedelapsed, $xlsformats['d']);
+
                 if (!empty($config->showhits)) {
                     $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['n']);
                 }
@@ -448,7 +454,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
 
     $totalelapsed = 0;
 
-    if (!empty($sessions)) {
+    if (!empty($sessions) && !empty($session->courses)) {
         foreach ($sessions as $session) {
 
             if ($courseid && !array_key_exists($courseid, $session->courses)) {

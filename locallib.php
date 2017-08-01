@@ -1701,15 +1701,15 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
             if ($associative) {
                 $data[$colkey] = $colsources[$colkey];
 
-            if (is_siteadmin()) {
-                $data['eventslastweek'] = $data['hitslastweek'] = 0 + @$w[$courseid]->events;
-                $data['activityevents'] = $data['activityhits'] = 0 + @$aggregate['activities'][$courseid]->events;
-                $data['courseevents'] = $data['coursehits'] = 0 + @$aggregate['course'][$courseid]->events;
-                $data['otherevents'] = $data['otherhits'] = 0 + @$t[0]->events;
-                $data['events'] = $data['hits'] = $data['otherevents'] + $data['courseevents'];
-                $data['extevents'] = $data['exthits'] = 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events;
-                $data['exteventslastweek'] = $data['exthitslastweek'] = 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events;
-            }
+                if (is_siteadmin()) {
+                    $data['eventslastweek'] = $data['hitslastweek'] = 0 + @$w[$courseid]->events;
+                    $data['activityevents'] = $data['activityhits'] = 0 + @$aggregate['activities'][$courseid]->events;
+                    $data['courseevents'] = $data['coursehits'] = 0 + @$aggregate['course'][$courseid]->events;
+                    $data['otherevents'] = $data['otherhits'] = 0 + @$t[0]->events;
+                    $data['events'] = $data['hits'] = $data['otherevents'] + $data['courseevents'];
+                    $data['extevents'] = $data['exthits'] = 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events;
+                    $data['exteventslastweek'] = $data['exthitslastweek'] = 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events;
+                }
 
             } else {
                 $data[] = $colsources[$colkey];

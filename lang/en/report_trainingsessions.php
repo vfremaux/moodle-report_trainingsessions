@@ -289,14 +289,13 @@ $string['visiteditems'] = 'Visited Items.';
 $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions';
 $string['xls'] = 'XLS';
+$string['xlsadditions'] = 'XLS Additions';
 
 $string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
 $string['xlsformula'] = 'Formula (Excel expression)';
 $string['formulalabel'] = 'Column label';
 $string['lineaggregators'] = 'Line aggregators';
 $string['calculated'] = 'Calculated';
-$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to
-insert the current line number in cell references.';
 $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
@@ -306,6 +305,14 @@ $string['xlssumformula'] = 'XLS Sum Formula';
 $string['xlssumformula_desc'] = 'XLS Sum Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
 
+$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to
+insert the current line number in cell references. Use english function names.
+
+Example :
+
+=AVERAGE($C${row};$D${row})
+';
+
 $string['lineaggregators_help'] = '
 <p>Define aggregators as a list of aggregators switches starting from left most columns in the
 resulting excel sheet. Separe switches with comas or semicolumns. Leaving blank disables the
@@ -314,7 +321,12 @@ aggregator line.
 <ul>
 <li><b>m :</b> mean</li>
 <li><b>s :</b> sum</li>
-</ul>';
+</ul>
+
+<p>
+Example : if an excel output has 10 colums and a sum is required on column 10, than
+enter : ;;;;;;;;;s
+</p>';
 
 $string['proversionrequired'] = '
 <p>You are trying to use a feature that is only available in the "Pro" version of this plugin. The "Pro" version of this plugin

@@ -287,12 +287,12 @@ $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail&nbsp;';
 $string['xls'] = 'XLS';
+$string['xlsadditions'] = 'Fonctions additionnelles Excel';
 
 $string['calculatedcolumns'] = 'Colonnes calculées (Sortie Excel)';
 $string['xlsformula'] = 'Formule (Excel)';
 $string['formulalabel'] = 'Intitulé de colonne';
 $string['calculated'] = 'Calculé';
-$string['calculated_help'] = 'Entrez une formule Excel avec des références à la feuille locale telle que produite par le générateur. Utilisez le marqueur {row} pour insérer l\'idenifiant de ligne courante. Ex : $C${row}';
 $string['lineaggregators'] = 'Aggrégateurs de ligne';
 $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
@@ -300,6 +300,16 @@ $string['xlsmeanformula'] = 'Formule XLS de Moyenne';
 $string['xlsmeanformula_desc'] = 'Formule XLS de Moyenne. Utilisez les emplacements {minrow} et {maxrow} pour cadrer la plage de calcul et {col} pour la référence de colonne courante. Exemple de cellules : ${col}$3 ou $Y${minrow}';
 $string['xlssumformula'] = 'Formule somme XLS';
 $string['xlssumformula_desc'] = 'Formule somme XLS. Utilisez les emplacements {minrow} et {maxrow} pour cadrer la plage de calcul et {col} pour la référence de colonne courante. Exemple de cellules : ${col}$3 ou $Y${minrow}';
+
+$string['calculated_help'] = 'Entrez une formule Excel avec des références à la feuille locale telle que produite par le générateur.
+Utilisez le marqueur {row} pour insérer l\'identifiant de ligne courante. Ex : $C${row}. Utilisez les noms de fonction anglaises pour les
+formules.
+
+Par exemple :
+
+=AVERAGE($C${row};$D${row})
+
+';
 
 $string['lineaggregators_help'] = '
 <p>Définissez les aggregateurs de ligne sur une éventuelle ligne additionnelle comme une liste
@@ -309,7 +319,11 @@ Laissez la ligne vide pour ne pas générer de ligne d\'aggrégation.
 <ul>
 <li><b>m :</b> moyenne</li>
 <li><b>s :</b> somme</li>
-</ul>';
+</ul>
+
+<p>
+Exemple : Si une sortie excel produit 10 colonnes et une somme globale est souhaitée à la colonne 10, alors entrez : ;;;;;;;;;s
+</p>';
 
 $string['proversionrequired'] = '
 <p>Vous essayez d\'accéder à une fonction qui n\'est disponible que sur la version "Pro" de ce plugin. La version "Pro" de

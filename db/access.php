@@ -81,7 +81,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
         ),
-    )
+    ),
 
     'report/trainingsessions:usegrading' => array(
         'riskbitmask' => RISK_PERSONAL,

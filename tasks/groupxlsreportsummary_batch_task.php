@@ -95,6 +95,7 @@ if (!empty($targetusers)) {
     $dataformats = report_trainingsessions_get_summary_cols('format');
 
     report_trainingsessions_add_graded_columns($cols, $headtitles, $dataformats);
+    report_trainingsessions_add_calculated_columns($cols, $headtitles, $dataformats);
 
     $headerformats = array_pad(array(), count($headtitles), 'a');
 
@@ -113,6 +114,7 @@ if (!empty($targetusers)) {
         $data = report_trainingsessions_map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
 
         report_trainingsessions_add_graded_data($data, $auser->id, $aggregate);
+        report_trainingsessions_add_calculated_data($data, $dataformats);
         $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xlsformats);
         $maxrow++;
     }

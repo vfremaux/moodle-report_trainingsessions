@@ -114,6 +114,7 @@ $string['generatecsv'] = 'Générer en CSV';
 $string['generatepdf'] = 'Générer en PDF';
 $string['generatereports'] = 'Générer les rapports';
 $string['generatexls'] = 'Générer en XLS';
+$string['grademodes'] = 'Modalités de calcul';
 $string['gradesettings'] = 'Notes';
 $string['head1application'] = 'Le jeu de couleurs 1 s\'applique à la rangée de "surtitres" lorsqu\'elle existe.';
 $string['head2application'] = 'Le jeu de couleurs  2 s\'applique à la rangée de titre immédiatement au dessus des colonnes de données. C\'est le cas le plus courant.';
@@ -287,12 +288,12 @@ $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail&nbsp;';
 $string['xls'] = 'XLS';
+$string['xlsadditions'] = 'Fonctions additionnelles Excel';
 
 $string['calculatedcolumns'] = 'Colonnes calculées (Sortie Excel)';
 $string['xlsformula'] = 'Formule (Excel)';
 $string['formulalabel'] = 'Intitulé de colonne';
 $string['calculated'] = 'Calculé';
-$string['calculated_help'] = 'Entrez une formule Excel avec des références à la feuille locale telle que produite par le générateur. Utilisez le marqueur {row} pour insérer l\'idenifiant de ligne courante. Ex : $C${row}';
 $string['lineaggregators'] = 'Aggrégateurs de ligne';
 $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
@@ -300,6 +301,16 @@ $string['xlsmeanformula'] = 'Formule XLS de Moyenne';
 $string['xlsmeanformula_desc'] = 'Formule XLS de Moyenne. Utilisez les emplacements {minrow} et {maxrow} pour cadrer la plage de calcul et {col} pour la référence de colonne courante. Exemple de cellules : ${col}$3 ou $Y${minrow}';
 $string['xlssumformula'] = 'Formule somme XLS';
 $string['xlssumformula_desc'] = 'Formule somme XLS. Utilisez les emplacements {minrow} et {maxrow} pour cadrer la plage de calcul et {col} pour la référence de colonne courante. Exemple de cellules : ${col}$3 ou $Y${minrow}';
+
+$string['calculated_help'] = 'Entrez une formule Excel avec des références à la feuille locale telle que produite par le générateur.
+Utilisez le marqueur {row} pour insérer l\'identifiant de ligne courante. Ex : $C${row}. Utilisez les noms de fonction anglaises pour les
+formules.
+
+Par exemple :
+
+=AVERAGE($C${row}:$D${row})
+
+';
 
 $string['lineaggregators_help'] = '
 <p>Définissez les aggregateurs de ligne sur une éventuelle ligne additionnelle comme une liste
@@ -309,7 +320,11 @@ Laissez la ligne vide pour ne pas générer de ligne d\'aggrégation.
 <ul>
 <li><b>m :</b> moyenne</li>
 <li><b>s :</b> somme</li>
-</ul>';
+</ul>
+
+<p>
+Exemple : Si une sortie excel produit 10 colonnes et une somme globale est souhaitée à la colonne 10, alors entrez : ;;;;;;;;;s
+</p>';
 
 $string['proversionrequired'] = '
 <p>Vous essayez d\'accéder à une fonction qui n\'est disponible que sur la version "Pro" de ce plugin. La version "Pro" de
@@ -404,3 +419,15 @@ ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxq
 
 $string['extother_help'] = '
 <p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du contexte de l\'utilisateur ou à des espaces généraux du site..</p>';
+
+$string['grademodes_help'] = 'Les modalités de calcul définissent la façon dont le score donné est calculé par rapport à la donnée initiale. Elles
+définissent aussi la valeur attendu pour le paramètre "Plages de notation sur le temps" :
+
+    * Binaire (quand possible) : Un seul seuil est attendu qui détermine la bascule entre une note nulle et l\'attribution de la note maximale.
+      si la note est basée sur un barème, la note donnée basculera entre le premier et le dernier index du barème.
+    * Discret : Une série de seuils est attendue qui séparent l\'espace de la donnée d\'entrée en plages. La note maximale est divisée en
+      plages de notes de largeur égale (aux arrondis près) sur le nombre d\'intervalles disponibles. Si un barème est utilisé, alors il faudra veiller
+      à fournir N - 1 seuils (N nombre d\'items du barème).
+    * Continu : Une référence de valeur équivalente à la note complète est attendue. Une valeur au dessus donne le note maximum. Une valeur inférieure
+      donner la portion de note entière la plus proche du prorata "valeur réelle / valeur de référence".
+';

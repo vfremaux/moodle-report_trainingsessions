@@ -133,7 +133,6 @@ foreach ($targetusers as $user) {
     $colsdata = report_trainingsessions_map_summary_cols($colskeys, $user, $aggregate, $weekaggregate, $courseid);
 
     // Fetch and add eventual additional score columns.
-
     report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
 
     // Assemble keys and data.

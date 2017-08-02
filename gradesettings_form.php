@@ -89,6 +89,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->addElement('select', 'timegrademode', get_string('timegrademode', 'report_trainingsessions'), $options);
         $mform->setDefault('timegrademode', $config->timegrademodedefault);
         $mform->disabledIf('timegrademode', 'specialgrade', 'neq', TR_TIMEGRADE_GRADE);
+        $mform->addHelpButton('timegrademode', 'grademodes', 'report_trainingsessions');
 
         $label = get_string('addtimebonus', 'report_trainingsessions');
         $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_BONUS);
@@ -98,6 +99,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $mform->addElement('select', 'bonusgrademode', get_string('bonusgrademode', 'report_trainingsessions'), $options);
         $mform->setDefault('bonusgrademode', $config->bonusgrademodedefault);
         $mform->disabledIf('bonusgrademode', 'specialgrade', 'neq', TR_TIMEGRADE_BONUS);
+        $mform->addHelpButton('timegrademode', 'grademodes', 'report_trainingsessions');
 
         $mform->addElement('html', $OUTPUT->box_end());
 

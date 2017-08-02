@@ -113,6 +113,7 @@ $string['generatepdf'] = 'Generate as PDF';
 $string['generatereports'] = 'Generate reports';
 $string['generatexls'] = 'Generate as XLS';
 $string['gradesettings'] = 'Grade settings';
+$string['grademodes'] = 'Grade modes';
 $string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
 $string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
 $string['head3application'] = 'Head 3 coors are used on end of table sumarizer, xhen suitable.';
@@ -310,7 +311,7 @@ insert the current line number in cell references. Use english function names.
 
 Example :
 
-=AVERAGE($C${row};$D${row})
+=AVERAGE($C${row}:$D${row})
 ';
 
 $string['lineaggregators_help'] = '
@@ -427,3 +428,13 @@ material and some time spent in general site screens the user has access to.';
 
 $string['extother_help'] = '
 <p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';
+
+$string['grademodes_help'] = 'Grade modes define how the grade is calculated from the original data input:
+
+    * Binary (When possible) : A single threshold will be input and the score will be the full scale score or 0. If the score is based on
+      a scale, the score will switch between the lowest and the highest index.
+    * Discrete : A set of ranges will be input that splits the time value into acceptable ranges. The score max grade will be divided into
+      equal portions of the score scale. If a scale is used for scoring, then the ranges should provide N - 1 thresholds.
+    * Continuous : A full score equivalent time will be input. If the input value is greater or equal to the reference value, the given score will be full score,
+      otherwise the score will be the rounded closest linear interpolation of the input vs. the threshold.
+';

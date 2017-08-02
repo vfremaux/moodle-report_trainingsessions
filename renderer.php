@@ -68,7 +68,9 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
             $params = array('id' => $course->id, 'view' => 'allcourses', 'from' => $from, 'to' => $to);
             $allcoursesurl = new moodle_url('/report/trainingsessions/index.php', $params);
             $rows[0][] = new tabobject('allcourses', $allcoursesurl, get_string('allcourses', 'report_trainingsessions'));
+        }
 
+        if (has_capability('report/trainingsessions:usegrading', $context)) {
             $params = array('id' => $course->id, 'from' => $from, 'to' => $to);
             $gradesettingsurl = new moodle_url('/report/trainingsessions/gradessettings.php', $params);
             $rows[0][] = new tabobject('gradesettings', $gradesettingsurl, get_string('gradesettings', 'report_trainingsessions'));

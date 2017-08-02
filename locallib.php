@@ -545,47 +545,60 @@ function page_get_structure_in_content($source, &$itemcount) {
  * @return string
  */
 function report_trainingsessions_format_time($timevalue, $mode = 'html') {
+
     if ($timevalue) {
+
         if ($mode == 'htmld') {
+            // Print without seconds.
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
             $mins = $mins % 60;
 
             if ($hours > 0) {
-                return "{$hours}h {$mins}m";
+                return "{$hours}h {$mins}min";
             }
             if ($mins > 0) {
-                return "{$mins}m";
+                return "{$mins}min";
             }
             return "{$secs}s";
+
         } else if ($mode == 'htmlds') {
+
+            // Print with seconds.
             $secs = $timevalue % 60;
             $mins = floor($timevalue / 60);
             $hours = floor($mins / 60);
             $mins = $mins % 60;
 
             if ($hours > 0) {
-                return "{$hours}h {$mins}m {$secs}s";
+                return "{$hours}h {$mins}min {$secs}s";
             }
             if ($mins > 0) {
-                return "{$mins}m {$secs}s";
+                return "{$mins}min {$secs}s";
             }
             return "{$secs}s";
+
         } else if ($mode == 'html') {
+
             return strftime('%Y-%m-%d %H:%I (%a)', $timevalue);
+
         } else if ($mode == 'xlsd') {
+
             // For excel time format we need have a fractional day value.
             return $timevalue / DAYSECS;
+
         } else {
-            return userdate($timevalue, '%Y-%m-%d %H:%M:%S (%a)');
+
+            return strftime('%Y-%m-%d %H:%M:%S', $timevalue);
         }
+
     } else {
         if ($mode == 'html') {
             return get_string('unvisited', 'report_trainingsessions');
         }
         if ($mode == 'htmld') {
-            return '0m';
+            return '0min';
         }
         if ($mode == 'htmlds') {
             return '0s';
@@ -837,11 +850,11 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         $formatadds = array();
-        foreach ($graderecs as $rec) {
+        foreach ($formulasrecs as $rec) {
             // Push in array.
             array_push($columns, $rec->label);
             array_push($titles, $rec->label);
-            $formatadds[] = 'n';
+            $formatadds[] = 'f';
         }
 
         $formats = array_merge($formats, $formatadds);
@@ -852,32 +865,24 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
  * Add extra column headers from grade settings and feeds given arrays.
  *
  * @param arrayref &$columns a reference to the array of column headings.
- * @param arrayref &$titles a reference to the array of column titles (printable column names).
  * @param arrayref &$formats a reference to the array of data formats.
  * @return void
  */
-function report_trainingsessions_add_calculated_data(&$columns, &$formats) {
+function report_trainingsessions_add_calculated_data(&$columns) {
     global $DB, $COURSE;
 
     if (is_null($columns)) {
         $columns = array();
     }
 
-    if (is_null($formats)) {
-        $formats = array();
-    }
-
     $select = " courseid = ? AND moduleid <= -10 ";
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         $formatadds = array();
-        foreach ($graderecs as $rec) {
-            // Push in array the formula text.
+        foreach ($formulasrecs as $rec) {
+            // Push in array the formula text Note it stored in the "ranges" columns.
             array_push($columns, $rec->ranges);
-            $format[] = 'f';
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 }
 
@@ -1677,7 +1682,8 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'extelapsedlastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'exttimelastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'extotherlastweek' => 0 + @$w[0]->elapsed + @$w[SITEID]->elapsed,
-        'sessions' => $sessions
+        'sessions' => $sessions,
+        'workingsessions' => $sessions
     );
 
     $data = array();
@@ -1688,15 +1694,15 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
             if ($associative) {
                 $data[$colkey] = $colsources[$colkey];
 
-            if (is_siteadmin()) {
-                $data['eventslastweek'] = $data['hitslastweek'] = 0 + @$w[$courseid]->events;
-                $data['activityevents'] = $data['activityhits'] = 0 + @$aggregate['activities'][$courseid]->events;
-                $data['courseevents'] = $data['coursehits'] = 0 + @$aggregate['course'][$courseid]->events;
-                $data['otherevents'] = $data['otherhits'] = 0 + @$t[0]->events;
-                $data['events'] = $data['hits'] = $data['otherevents'] + $data['courseevents'];
-                $data['extevents'] = $data['exthits'] = 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events;
-                $data['exteventslastweek'] = $data['exthitslastweek'] = 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events;
-            }
+                if (is_siteadmin()) {
+                    $data['eventslastweek'] = $data['hitslastweek'] = 0 + @$w[$courseid]->events;
+                    $data['activityevents'] = $data['activityhits'] = 0 + @$aggregate['activities'][$courseid]->events;
+                    $data['courseevents'] = $data['coursehits'] = 0 + @$aggregate['course'][$courseid]->events;
+                    $data['otherevents'] = $data['otherhits'] = 0 + @$t[0]->events;
+                    $data['events'] = $data['hits'] = $data['otherevents'] + $data['courseevents'];
+                    $data['extevents'] = $data['exthits'] = 0 + @$t[$courseid]->events + @$t[0]->events + @$t[SITEID]->events;
+                    $data['exteventslastweek'] = $data['exthitslastweek'] = 0 + @$w[$courseid]->events + @$w[0]->events + @$w[1]->events;
+                }
 
             } else {
                 $data[] = $colsources[$colkey];

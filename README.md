@@ -93,4 +93,12 @@ Community standard concerns:
 * moodle core plugin API contract
 * security implementation
 * base documentation
+<<<<<<< HEAD
+>>>>>>> MOODLE_32_STABLE
+=======
+
+2017080100 - X.X.0006
+=============================
+* adding grading setup control by capability
+* adding defaults to grading mode selectors
 >>>>>>> MOODLE_32_STABLE

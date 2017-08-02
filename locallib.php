@@ -850,11 +850,11 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         $formatadds = array();
-        foreach ($graderecs as $rec) {
+        foreach ($formulasrecs as $rec) {
             // Push in array.
             array_push($columns, $rec->label);
             array_push($titles, $rec->label);
-            $formatadds[] = 'n';
+            $formatadds[] = 'f';
         }
 
         $formats = array_merge($formats, $formatadds);
@@ -865,32 +865,24 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
  * Add extra column headers from grade settings and feeds given arrays.
  *
  * @param arrayref &$columns a reference to the array of column headings.
- * @param arrayref &$titles a reference to the array of column titles (printable column names).
  * @param arrayref &$formats a reference to the array of data formats.
  * @return void
  */
-function report_trainingsessions_add_calculated_data(&$columns, &$formats) {
+function report_trainingsessions_add_calculated_data(&$columns) {
     global $DB, $COURSE;
 
     if (is_null($columns)) {
         $columns = array();
     }
 
-    if (is_null($formats)) {
-        $formats = array();
-    }
-
     $select = " courseid = ? AND moduleid <= -10 ";
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
         $formatadds = array();
-        foreach ($graderecs as $rec) {
-            // Push in array the formula text.
+        foreach ($formulasrecs as $rec) {
+            // Push in array the formula text Note it stored in the "ranges" columns.
             array_push($columns, $rec->ranges);
-            $format[] = 'f';
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 }
 
@@ -1690,7 +1682,8 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'extelapsedlastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'exttimelastweek' => 0 + @$w[$courseid]->elapsed + @$w[0]->elapsed + @$w[1]->elapsed,
         'extotherlastweek' => 0 + @$w[0]->elapsed + @$w[SITEID]->elapsed,
-        'sessions' => $sessions
+        'sessions' => $sessions,
+        'workingsessions' => $sessions
     );
 
     $data = array();

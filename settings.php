@@ -84,7 +84,7 @@ if ($ADMIN->fulltree) {
     $key = 'report_trainingsessions/extrauserinfo2';
     $settings->add(new admin_setting_configselect($key, $label.' 2', $desc, '', $fieldoptions));
 
-    $settings->add(new admin_setting_heading('grading', get_string('grading', 'report_trainingsessions'), ''));
+    $settings->add(new admin_setting_heading('grading', get_string('gradesettings', 'report_trainingsessions'), ''));
 
     $options = array(TR_GRADE_MODE_BINARY => get_string('binary', 'report_trainingsessions'),
                      TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
@@ -223,6 +223,8 @@ if ($ADMIN->fulltree) {
     }
 
     if (report_trainingsessions_supports_feature('xls/calculated')) {
+        $settings->add(new admin_setting_heading('xlsadditions', get_string('xlsadditions', 'report_trainingsessions'), ''));
+
         $key = 'report_trainingsessions/xlsmeanformula';
         $label = get_string('xlsmeanformula', 'report_trainingsessions');
         $desc = get_string('xlsmeanformula_desc', 'report_trainingsessions');

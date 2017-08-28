@@ -166,6 +166,7 @@ if ($data = $form->get_data()) {
             $rec->label = $data->$labelkey;
             $rec->ranges = $data->$formulakey;
             $rec->grade = 0;
+
             if ($update) {
                 $DB->update_record('report_trainingsessions', $rec);
             } else {
@@ -202,18 +203,32 @@ if ($alldata) {
             $formdata->coursegrade = 1;
             $formdata->courselabel = $datum->label;
         } else if ($datum->moduleid > 0) {
-            // A true module id for defining a column
+            // A true module id for defining a column.
             $formdata->moduleid[$ix] = $datum->moduleid;
             $formdata->scorelabel[$ix] = $datum->label;
             $ix++;
         } else if ($datum->moduleid == TR_LINEAGGREGATORS) {
-            // Value of -3
+            // Value of -3.
             $formdata->lineaggregators = $datum->label;
-        } else if ($datum->moduleid <= TR_XLSGRADE_FORMULA1) {
-            // Value of -3
-            $ix = $datum->moduleid - TR_XLSGRADE_FORMULA1 + 1;
-            $formulakey = 'calculated'.$ix;
-            $labelkey = 'calculated'.$ix.'label';
+        } else if ($datum->moduleid == TR_XLSGRADE_FORMULA1) {
+            // Value of -8, -9, -10.
+            $jx = 1;
+            $formulakey = 'calculated'.$jx;
+            $labelkey = 'calculated'.$jx.'label';
+            $formdata->$labelkey = $datum->label;
+            $formdata->$formulakey = $datum->ranges;
+        } else if ($datum->moduleid == TR_XLSGRADE_FORMULA2) {
+            // Value of -8, -9, -10.
+            $jx = 2;
+            $formulakey = 'calculated'.$jx;
+            $labelkey = 'calculated'.$jx.'label';
+            $formdata->$labelkey = $datum->label;
+            $formdata->$formulakey = $datum->ranges;
+        } else if ($datum->moduleid == TR_XLSGRADE_FORMULA3) {
+            // Value of -8, -9, -10.
+            $jx = 3;
+            $formulakey = 'calculated'.$jx;
+            $labelkey = 'calculated'.$jx.'label';
             $formdata->$labelkey = $datum->label;
             $formdata->$formulakey = $datum->ranges;
         } else {
@@ -230,7 +245,6 @@ if ($alldata) {
             $formdata->timegrade = $datum->grade;
         }
     }
-
     $form->set_data($formdata);
 } else {
     $form->from = $from;

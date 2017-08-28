@@ -45,8 +45,8 @@ define('TR_TIMEGRADE_GRADE', -1);
 define('TR_TIMEGRADE_BONUS', -2);
 define('TR_LINEAGGREGATORS', -3);
 define('TR_XLSGRADE_FORMULA1', -10);
-define('TR_XLSGRADE_FORMULA2', -11);
-define('TR_XLSGRADE_FORMULA3', -12);
+define('TR_XLSGRADE_FORMULA2', -9);
+define('TR_XLSGRADE_FORMULA3', -8);
 
 /**
  * Tells wether a feature is supported or not. Gives back the
@@ -1527,7 +1527,7 @@ function report_trainingsessions_plugin_require($file) {
         throw new coding_exception('Path must be relative and start with /');
     }
 
-    $relname = str_replace($CFG->dirroot, '', $file);
+    $relname = preg_replace('#^'.$CFG->dirroot.'#', '', $file);
     $relcompname = str_replace('/report/trainingsessions/', '', $relname);
     $profile = $CFG->dirroot.'/report/trainingsessions/pro/'.$relcompname;
     $communfile = $CFG->dirroot.$relname;
@@ -1536,8 +1536,8 @@ function report_trainingsessions_plugin_require($file) {
         include_once($profile);
         return 'pro';
     } else {
-        if (file_exists($file)) {
-            include_once($file);
+        if (file_exists($CFG->dirroot.$relname)) {
+            include_once($CFG->dirroot.$relname);
             return 'community';
         } else {
             throw new coding_exception('Require path could not be found in either package.');

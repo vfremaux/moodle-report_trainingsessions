@@ -875,9 +875,9 @@ function report_trainingsessions_add_calculated_data(&$columns) {
         $columns = array();
     }
 
-    $select = " courseid = ? AND moduleid <= -10 ";
+    $select = " courseid = ? AND moduleid <= -8 ";
     $params = array($COURSE->id);
-    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'moduleid ASC')) {
         $formatadds = array();
         foreach ($formulasrecs as $rec) {
             // Push in array the formula text Note it stored in the "ranges" columns.

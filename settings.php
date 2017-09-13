@@ -61,6 +61,11 @@ if ($ADMIN->fulltree) {
     $desc = get_string('hideemptymodules_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+    $key = 'report_trainingsessions/disablesuspendedstudents';
+    $label = get_string('disablesuspendedstudents', 'report_trainingsessions');
+    $desc = get_string('disablesuspendedstudents_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
     $key = 'report_trainingsessions/printsessiontotal';
     $label = get_string('printsessiontotal', 'report_trainingsessions');
     $desc = get_string('printsessiontotal_desc', 'report_trainingsessions');

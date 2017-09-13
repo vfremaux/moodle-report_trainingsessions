@@ -74,6 +74,7 @@ $string['csvoutputtoiso'] = 'CSV au format ISO';
 $string['currentcourse'] = 'Cours courant';
 $string['debugmode'] = 'Mode debuggage (admin)';
 $string['disabled'] = '|--------- non actif -----------|';
+$string['disablesuspendedstudents'] = 'Ignorer les étudiants suspendus';
 $string['discrete'] = 'Sortie discrète';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
@@ -431,3 +432,5 @@ définissent aussi la valeur attendu pour le paramètre "Plages de notation sur 
     * Continu : Une référence de valeur équivalente à la note complète est attendue. Une valeur au dessus donne le note maximum. Une valeur inférieure
       donner la portion de note entière la plus proche du prorata "valeur réelle / valeur de référence".
 ';
+
+$string['disablesuspendedstudents_desc'] = 'Si activé, les étudiants suspendus disparaissent des rapports';

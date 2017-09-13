@@ -1069,9 +1069,18 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
  */
 function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
 
+    $config = get_config('report_trainingsessions');
+
     $context = context_course::instance($course->id);
 
     foreach ($targetusers as $uid => $unused) {
+        if (!empty($config->disablesuspendedstudents)) {
+            $suspended = $DB->get_field('user', 'suspended', array('id' => $uid));
+            if ($suspended) {
+                unset($targetusers[$uid]);
+            }
+        }
+
         if (!has_capability('report/trainingsessions:iscompiled', $context, $uid, false)) {
             unset($targetusers[$uid]);
         }

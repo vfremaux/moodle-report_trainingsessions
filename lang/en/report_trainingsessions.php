@@ -72,6 +72,7 @@ $string['currentcourse'] = 'Current course';
 $string['debugmode'] = 'Debug mode on';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['discrete'] = 'Discrete output';
+$string['disablesuspendedstudents'] = 'Ignore suspended students';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total time';
@@ -438,3 +439,5 @@ $string['grademodes_help'] = 'Grade modes define how the grade is calculated fro
     * Continuous : A full score equivalent time will be input. If the input value is greater or equal to the reference value, the given score will be full score,
       otherwise the score will be the rounded closest linear interpolation of the input vs. the threshold.
 ';
+
+$string['disablesuspendedstudents_desc'] = 'If enabled, suspended students wil not appear in reports';

@@ -1068,6 +1068,7 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
  * @return void
  */
 function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
+    global $DB;
 
     $config = get_config('report_trainingsessions');
 

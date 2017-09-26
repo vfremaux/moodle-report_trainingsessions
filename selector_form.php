@@ -42,6 +42,8 @@ class SelectorForm extends moodleform {
     public function definition() {
         global $USER;
 
+        $config = get_config('report_trainingsessions');
+
         $mform = $this->_form;
 
         $mform->addElement('hidden', 'id', $this->courseid);
@@ -85,6 +87,10 @@ class SelectorForm extends moodleform {
 
                 foreach ($users as $user) {
                     if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) {
+                        continue;
+                    }
+
+                    if (!empty($config->disablesuspendedstudents) && $user->suspended) {
                         continue;
                     }
 

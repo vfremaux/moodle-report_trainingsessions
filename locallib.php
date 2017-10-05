@@ -846,18 +846,15 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
         $formats = array();
     }
 
-    $select = " courseid = ? AND moduleid <= -10 ";
+    $select = " courseid = ? AND moduleid <= -8 ";
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
-        $formatadds = array();
         foreach ($formulasrecs as $rec) {
             // Push in array.
             array_push($columns, $rec->label);
             array_push($titles, $rec->label);
-            $formatadds[] = 'f';
+            array_push($formats, 'f');
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 }
 
@@ -1068,6 +1065,7 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
  * @return void
  */
 function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
+    global $DB;
 
     $config = get_config('report_trainingsessions');
 
@@ -1351,6 +1349,8 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
  */
 function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
 
+    $config = get_config('report_trainingsessions');
+
     // If no groups existing, get all course.
     $groups = groups_get_all_groups($courseid);
     if (!$groups && !$groupid) {
@@ -1360,20 +1360,20 @@ function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
         $group->name = get_string('course');
         if ($range == 'user') {
             $context = context_course::instance($courseid);
-            $group->target = get_enrolled_users($context);
+            $group->target = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         }
         $groups[] = $group;
     } else if ($groups && !$groupid) {
         if ($range == 'user') {
             foreach ($groups as $group) {
-                $group->target = groups_get_members($group->id);
+                $group->target = get_enrolled_users($context, '', $group->id, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
             }
         }
     } else {
         // Only one group. Reduce group list to this group.
         if ($range == 'user') {
             $group = $groups[$groupid];
-            $group->target = groups_get_members($groupid);
+            $group->target = get_enrolled_users($context, '', $groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
             $groups = array();
             $groups[] = $group;
         }

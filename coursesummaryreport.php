@@ -52,6 +52,7 @@ $context = context_course::instance($course->id);
 if (!has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
     throw new Exception("User doesn't have rights to see this view");
 }
+$config = get_config('report_trainingsessions');
 
 report_trainingsessions_process_bounds($data, $course);
 
@@ -82,9 +83,9 @@ if (!$allgroupsaccess) {
 }
 
 if ($data->groupid) {
-    $targetusers = get_enrolled_users($context, '', $data->groupid);
+    $targetusers = get_enrolled_users($context, '', $data->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
 } else {
-    $targetusers = get_enrolled_users($context);
+    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
 }
 
 // Filter out non compiling users.

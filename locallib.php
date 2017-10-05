@@ -1352,6 +1352,8 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
  */
 function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
 
+    $config = get_config('report_trainingsessions');
+
     // If no groups existing, get all course.
     $groups = groups_get_all_groups($courseid);
     if (!$groups && !$groupid) {
@@ -1361,20 +1363,20 @@ function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
         $group->name = get_string('course');
         if ($range == 'user') {
             $context = context_course::instance($courseid);
-            $group->target = get_enrolled_users($context);
+            $group->target = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         }
         $groups[] = $group;
     } else if ($groups && !$groupid) {
         if ($range == 'user') {
             foreach ($groups as $group) {
-                $group->target = groups_get_members($group->id);
+                $group->target = get_enrolled_users($context, '', $group->id, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
             }
         }
     } else {
         // Only one group. Reduce group list to this group.
         if ($range == 'user') {
             $group = $groups[$groupid];
-            $group->target = groups_get_members($groupid);
+            $group->target = get_enrolled_users($context, '', $groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
             $groups = array();
             $groups[] = $group;
         }

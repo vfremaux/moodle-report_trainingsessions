@@ -846,18 +846,15 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
         $formats = array();
     }
 
-    $select = " courseid = ? AND moduleid <= -10 ";
+    $select = " courseid = ? AND moduleid <= -8 ";
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
-        $formatadds = array();
         foreach ($formulasrecs as $rec) {
             // Push in array.
             array_push($columns, $rec->label);
             array_push($titles, $rec->label);
-            $formatadds[] = 'f';
+            array_push($formats, 'f');
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 }
 

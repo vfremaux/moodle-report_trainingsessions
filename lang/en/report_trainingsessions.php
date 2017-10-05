@@ -443,4 +443,4 @@ $string['grademodes_help'] = 'Grade modes define how the grade is calculated fro
 
 $string['disablesuspendedstudents_desc'] = 'If enabled, suspended students wil not appear in reports';
 
-$string['disablesuspendedenrolments_desc'] = 'If enabled, students with suspended enromments only wil not appear in reports';
+$string['disablesuspendedenrolments_desc'] = 'If enabled, students with suspended enrolments only will not appear in reports';

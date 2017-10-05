@@ -73,6 +73,7 @@ $string['debugmode'] = 'Debug mode on';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['discrete'] = 'Discrete output';
 $string['disablesuspendedstudents'] = 'Ignore suspended students';
+$string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total time';
@@ -441,3 +442,5 @@ $string['grademodes_help'] = 'Grade modes define how the grade is calculated fro
 ';
 
 $string['disablesuspendedstudents_desc'] = 'If enabled, suspended students wil not appear in reports';
+
+$string['disablesuspendedenrolments_desc'] = 'If enabled, students with suspended enrolments only will not appear in reports';

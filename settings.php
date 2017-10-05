@@ -66,6 +66,11 @@ if ($ADMIN->fulltree) {
     $desc = get_string('disablesuspendedstudents_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
+    $key = 'report_trainingsessions/disablesuspendedenrolments';
+    $label = get_string('disablesuspendedenrolments', 'report_trainingsessions');
+    $desc = get_string('disablesuspendedenrolments_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
     $key = 'report_trainingsessions/printsessiontotal';
     $label = get_string('printsessiontotal', 'report_trainingsessions');
     $desc = get_string('printsessiontotal_desc', 'report_trainingsessions');

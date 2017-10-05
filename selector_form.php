@@ -82,7 +82,7 @@ class SelectorForm extends moodleform {
         if ($this->mode == 'user' || $this->mode == 'allcourses') {
 
             if (has_capability('report/trainingsessions:viewother', $context)) {
-                $users = get_enrolled_users($context);
+                $users = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
                 $useroptions = array();
 
                 foreach ($users as $user) {

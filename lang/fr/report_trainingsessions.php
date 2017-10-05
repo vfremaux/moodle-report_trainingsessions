@@ -75,6 +75,7 @@ $string['currentcourse'] = 'Cours courant';
 $string['debugmode'] = 'Mode debuggage (admin)';
 $string['disabled'] = '|--------- non actif -----------|';
 $string['disablesuspendedstudents'] = 'Ignorer les étudiants suspendus';
+$string['disablesuspendedenrolments'] = 'Ignorer les inscriptions suspendues';
 $string['discrete'] = 'Sortie discrète';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
@@ -434,3 +435,5 @@ définissent aussi la valeur attendu pour le paramètre "Plages de notation sur 
 ';
 
 $string['disablesuspendedstudents_desc'] = 'Si activé, les étudiants suspendus disparaissent des rapports';
+
+$string['disablesuspendedenrolments_desc'] = 'Si activé, les étudiants n\'ayant que des inscriptions suspendues disparaissent des rapports';

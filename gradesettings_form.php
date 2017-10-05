@@ -37,6 +37,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
         $this->linkablemodules = report_trainingsessions_get_linkable_modules($COURSE->id);
 
+        $config = get_config('report_trainingsessions');
+
         $mform = $this->_form;
 
         $mform->addElement('hidden', 'id', $COURSE->id);
@@ -85,7 +87,9 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
                          TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
                          TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
         $mform->addElement('select', 'timegrademode', get_string('timegrademode', 'report_trainingsessions'), $options);
+        $mform->setDefault('timegrademode', $config->timegrademodedefault);
         $mform->disabledIf('timegrademode', 'specialgrade', 'neq', TR_TIMEGRADE_GRADE);
+        $mform->addHelpButton('timegrademode', 'grademodes', 'report_trainingsessions');
 
         $label = get_string('addtimebonus', 'report_trainingsessions');
         $mform->addElement('radio', 'specialgrade', '', $label, TR_TIMEGRADE_BONUS);
@@ -93,7 +97,9 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
         $options = array(TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
                          TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
         $mform->addElement('select', 'bonusgrademode', get_string('bonusgrademode', 'report_trainingsessions'), $options);
+        $mform->setDefault('bonusgrademode', $config->bonusgrademodedefault);
         $mform->disabledIf('bonusgrademode', 'specialgrade', 'neq', TR_TIMEGRADE_BONUS);
+        $mform->addHelpButton('timegrademode', 'grademodes', 'report_trainingsessions');
 
         $mform->addElement('html', $OUTPUT->box_end());
 
@@ -101,6 +107,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
                          TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
                          TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
         $mform->addElement('select', 'timegradesource', get_string('timesource', 'report_trainingsessions'), $options);
+        $mform->setDefault('timegradesource', $config->timegradesourcedefault);
         $mform->disabledIf('timegradesource', 'specialgrade', 'eq', TR_TIMEGRADE_DISABLED);
 
         $mform->addElement('modgrade', 'timegrade', get_string('timegrade', 'report_trainingsessions'));

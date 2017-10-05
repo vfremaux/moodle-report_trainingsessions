@@ -150,11 +150,11 @@ if ($data = $form->get_data()) {
 
     // Record extra formulas.
     for ($i = 1; $i <= 3; $i++) {
-        $key = 'calculated'.$i;
+        $formulakey = 'calculated'.$i;
         $labelkey = 'calculated'.$i.'label';
         $moduleid = TR_XLSGRADE_FORMULA1 + ($i - 1);
         $params = array('courseid' => $COURSE->id, 'moduleid' => $moduleid);
-        if (!empty($data->$key)) {
+        if (!empty($data->$formulakey)) {
             $update = true;
             if (!$rec = $DB->get_record('report_trainingsessions', $params)) {
                 $rec = new StdClass;
@@ -164,8 +164,9 @@ if ($data = $form->get_data()) {
             $rec->moduleid = $moduleid;
             $rec->sortorder = 0;
             $rec->label = $data->$labelkey;
-            $rec->ranges = json_encode($timeranges);
+            $rec->ranges = $data->$formulakey;
             $rec->grade = 0;
+
             if ($update) {
                 $DB->update_record('report_trainingsessions', $rec);
             } else {
@@ -196,19 +197,38 @@ if ($alldata) {
     $formdata->from = $from;
     $formdata->to = $to;
     foreach ($alldata as $datum) {
+
         if ($datum->moduleid == 0) {
+            // Course score column.
             $formdata->coursegrade = 1;
             $formdata->courselabel = $datum->label;
         } else if ($datum->moduleid > 0) {
+            // A true module id for defining a column.
             $formdata->moduleid[$ix] = $datum->moduleid;
             $formdata->scorelabel[$ix] = $datum->label;
             $ix++;
         } else if ($datum->moduleid == TR_LINEAGGREGATORS) {
+            // Value of -3.
             $formdata->lineaggregators = $datum->label;
-        } else if ($datum->moduleid >= TR_XLSGRADE_FORMULA1) {
-            $ix = $datum->moduleid - TR_XLSGRADE_FORMULA1 + 1;
-            $formulakey = 'calculated'.$ix;
-            $labelkey = 'calculated'.$ix.'label';
+        } else if ($datum->moduleid == TR_XLSGRADE_FORMULA1) {
+            // Value of -8, -9, -10.
+            $jx = 1;
+            $formulakey = 'calculated'.$jx;
+            $labelkey = 'calculated'.$jx.'label';
+            $formdata->$labelkey = $datum->label;
+            $formdata->$formulakey = $datum->ranges;
+        } else if ($datum->moduleid == TR_XLSGRADE_FORMULA2) {
+            // Value of -8, -9, -10.
+            $jx = 2;
+            $formulakey = 'calculated'.$jx;
+            $labelkey = 'calculated'.$jx.'label';
+            $formdata->$labelkey = $datum->label;
+            $formdata->$formulakey = $datum->ranges;
+        } else if ($datum->moduleid == TR_XLSGRADE_FORMULA3) {
+            // Value of -8, -9, -10.
+            $jx = 3;
+            $formulakey = 'calculated'.$jx;
+            $labelkey = 'calculated'.$jx.'label';
             $formdata->$labelkey = $datum->label;
             $formdata->$formulakey = $datum->ranges;
         } else {

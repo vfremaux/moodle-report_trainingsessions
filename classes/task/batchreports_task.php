@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * A scheduled task for forum cron.
+ * A scheduled task for trainingsessions cron.
  *
  * @todo MDL-44734 This job will be split up properly.
  *
@@ -28,7 +28,7 @@ namespace report_trainingsessions\task;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/report/trainingsessions/cronlib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 class batchreports_task extends \core\task\scheduled_task {
 
@@ -47,8 +47,12 @@ class batchreports_task extends \core\task\scheduled_task {
     public function execute() {
 
         // Requires community or pro version if available.
-        \report_trainingsessions_plugin_require('/report/trainingsessions/cronlib.php');
+        $distrib = \report_trainingsessions_plugin_require('/report/trainingsessions/cronlib.php');
 
-         \report_trainingsessions_crontask();
+        if ($distrib == 'pro') {
+            \report_trainingsessions_pro_crontask();
+        } else {
+            \report_trainingsessions_crontask();
+        }
     }
 }

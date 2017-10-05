@@ -61,6 +61,16 @@ if ($ADMIN->fulltree) {
     $desc = get_string('hideemptymodules_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+    $key = 'report_trainingsessions/disablesuspendedstudents';
+    $label = get_string('disablesuspendedstudents', 'report_trainingsessions');
+    $desc = get_string('disablesuspendedstudents_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/disablesuspendedenrolments';
+    $label = get_string('disablesuspendedenrolments', 'report_trainingsessions');
+    $desc = get_string('disablesuspendedenrolments_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
     $key = 'report_trainingsessions/printsessiontotal';
     $label = get_string('printsessiontotal', 'report_trainingsessions');
     $desc = get_string('printsessiontotal_desc', 'report_trainingsessions');
@@ -83,6 +93,31 @@ if ($ADMIN->fulltree) {
 
     $key = 'report_trainingsessions/extrauserinfo2';
     $settings->add(new admin_setting_configselect($key, $label.' 2', $desc, '', $fieldoptions));
+
+    $settings->add(new admin_setting_heading('grading', get_string('gradesettings', 'report_trainingsessions'), ''));
+
+    $options = array(TR_GRADE_MODE_BINARY => get_string('binary', 'report_trainingsessions'),
+                     TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
+                     TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
+    $key = 'report_trainingsessions/timegrademodedefault';
+    $label = get_string('timegrademodedefault', 'report_trainingsessions');
+    $desc = get_string('timegrademodedefault_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configselect($key, $label.' 1', $desc , '', $options));
+
+    $options = array(TR_GRADE_MODE_DISCRETE => get_string('discrete', 'report_trainingsessions'),
+                     TR_GRADE_MODE_CONTINUOUS => get_string('continuous', 'report_trainingsessions'));
+    $key = 'report_trainingsessions/bonusgrademodedefault';
+    $label = get_string('bonusgrademodedefault', 'report_trainingsessions');
+    $desc = get_string('bonusgrademodedefault_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configselect($key, $label.' 1', $desc , '', $options));
+
+    $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
+                     TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
+                     TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
+    $key = 'report_trainingsessions/timegradesourcedefault';
+    $label = get_string('timegradesourcedefault', 'report_trainingsessions');
+    $desc = get_string('timegradesourcedefault_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configselect($key, $label.' 1', $desc , '', $options));
 
     $settings->add(new admin_setting_heading('colors', get_string('colors', 'report_trainingsessions'), ''));
 
@@ -198,6 +233,8 @@ if ($ADMIN->fulltree) {
     }
 
     if (report_trainingsessions_supports_feature('xls/calculated')) {
+        $settings->add(new admin_setting_heading('xlsadditions', get_string('xlsadditions', 'report_trainingsessions'), ''));
+
         $key = 'report_trainingsessions/xlsmeanformula';
         $label = get_string('xlsmeanformula', 'report_trainingsessions');
         $desc = get_string('xlsmeanformula_desc', 'report_trainingsessions');

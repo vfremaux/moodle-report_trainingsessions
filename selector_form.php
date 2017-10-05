@@ -42,6 +42,8 @@ class SelectorForm extends moodleform {
     public function definition() {
         global $USER;
 
+        $config = get_config('report_trainingsessions');
+
         $mform = $this->_form;
 
         $mform->addElement('hidden', 'id', $this->courseid);
@@ -80,11 +82,15 @@ class SelectorForm extends moodleform {
         if ($this->mode == 'user' || $this->mode == 'allcourses') {
 
             if (has_capability('report/trainingsessions:viewother', $context)) {
-                $users = get_enrolled_users($context);
+                $users = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
                 $useroptions = array();
 
                 foreach ($users as $user) {
                     if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) {
+                        continue;
+                    }
+
+                    if (!empty($config->disablesuspendedstudents) && $user->suspended) {
                         continue;
                     }
 

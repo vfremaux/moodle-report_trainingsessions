@@ -46,6 +46,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
     die ('Invalid course ID');
 }
 $context = context_course::instance($course->id);
+$config = get_config('report_trainingsessions');
 
 $input = report_trainingsessions_batch_input($course);
 
@@ -59,9 +60,9 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 if ($groupid) {
     $group = $DB->get_record('groups', array('id' => $groupid));
-    $targetusers = groups_get_members($groupid);
+    $targetusers = get_enrolled_users($context, '', $groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
 } else {
-    $targetusers = get_enrolled_users($context);
+    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
 }
 
 // Filter out non compiling users.
@@ -95,6 +96,7 @@ if (!empty($targetusers)) {
     $dataformats = report_trainingsessions_get_summary_cols('format');
 
     report_trainingsessions_add_graded_columns($cols, $headtitles, $dataformats);
+    report_trainingsessions_add_calculated_columns($cols, $headtitles, $dataformats);
 
     $headerformats = array_pad(array(), count($headtitles), 'a');
 
@@ -113,6 +115,7 @@ if (!empty($targetusers)) {
         $data = report_trainingsessions_map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
 
         report_trainingsessions_add_graded_data($data, $auser->id, $aggregate);
+        report_trainingsessions_add_calculated_data($data);
         $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xlsformats);
         $maxrow++;
     }
@@ -120,7 +123,7 @@ if (!empty($targetusers)) {
     $select = " courseid = ? AND moduleid = ".TR_LINEAGGREGATORS;
     $params = array($COURSE->id);
     if ($summaryrec = $DB->get_record_select('report_trainingsessions', $select, $params)) {
-        report_trainingsessions_print_sumline_xls($worksheet, $summaryrec->label, $minrow, $maxrow - 1, $xlsformats);
+        report_trainingsessions_print_sumline_xls($worksheet, $dataformats, $summaryrec->label, $minrow, $maxrow - 1, $xlsformats);
     }
 
     $workbook->close();

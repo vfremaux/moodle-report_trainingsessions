@@ -119,6 +119,10 @@ function report_trainingsessions_xls_formats(&$workbook) {
 
     // Formula formatting (same as numbers).
     $xlsformats['f'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    // Duration variant.
+    $xlsformats['fd'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, $timefmt);
+    // Time date variant.
+    $xlsformats['ft'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, $datefmt);
 
     // Time/duration formats.
     $xlsformats['d1'] = report_trainingsessions_build_xls_format($workbook, $sizehd1, $notbold, $colorhd1, $fgcolorhd1, $timefmt);
@@ -365,7 +369,8 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
         if (!isset($element->instance) || !empty($element->instance->visible)) {
             // Non visible items should not be displayed.
             if (!empty($structure->name)) {
-                // Write element title.
+
+                // Write element name.
                 $indent = str_pad('', 3 * $level, ' ');
                 $str = $indent.shorten_text(strip_tags($structure->name), 85);
                 $worksheet->write_string($row, 1, $str, $format);
@@ -385,11 +390,16 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                     $dataobject->events += $res->events;
                 }
 
+                // Firstaccess.
                 $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
-                $firstaccess = report_trainingsessions_format_time($fa, 'xls');
-                $worksheet->write_number($thisrow, 0, $firstaccess, $xlsformats['t']);
-                $elapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
-                $worksheet->write_number($thisrow, 2, $elapsed, $xlsformats['d']);
+                if (!empty($fa)) {
+                    $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
+                }
+
+                // Elapsed.
+                $convertedelapsed = report_trainingsessions_format_time($dataobject->elapsed, 'xlsd');
+                $worksheet->write_number($thisrow, 2, $convertedelapsed, $xlsformats['d']);
+
                 if (!empty($config->showhits)) {
                     $worksheet->write_number($thisrow, 3, $dataobject->events, $xlsformats['n']);
                 }
@@ -448,7 +458,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
 
     $totalelapsed = 0;
 
-    if (!empty($sessions)) {
+    if (!empty($sessions) && !empty($session->courses)) {
         foreach ($sessions as $session) {
 
             if ($courseid && !array_key_exists($courseid, $session->courses)) {
@@ -634,7 +644,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
 
         if ($dataformats[$i] == 'f') {
             if ($celldata) {
-                $celldata = str_replace('{row}', $row, $celldata);
+                $celldata = str_replace('{row}', ($row + 1), $celldata);
                 $worksheet->write_formula($row, $i, $celldata, $xlsformats['f']);
                 continue;
             }
@@ -676,12 +686,12 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
  * prints a data row with column aggregators in the worksheet
  *
  * @param object $worksheet
- * @param array $data
  * @param array $dataformats
+ * @param array $sumline
  * @param int $row
  * @param array $xlsformats predefined set of formats
  */
-function report_trainingsessions_print_sumline_xls(&$worksheet, $sumline, $minrow, $maxrow, &$xlsformats) {
+function report_trainingsessions_print_sumline_xls(&$worksheet, &$dataformats, $sumline, $minrow, $maxrow, &$xlsformats) {
 
     $config = get_config('report_trainingsessions');
 
@@ -703,7 +713,13 @@ function report_trainingsessions_print_sumline_xls(&$worksheet, $sumline, $minro
                 $formula = str_replace('{col}', $col, $formula);
                 $formula = str_replace('{minrow}', $minrow, $formula);
                 $formula = str_replace('{maxrow}', $maxrow, $formula);
-                $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['f']);
+                if ($dataformats[$i][0] == 'd') {
+                    $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['fd']);
+                } else if ($dataformats[$i][0] == 't') {
+                    $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['ft']);
+                } else {
+                    $worksheet->write_formula($maxrow, $i, $formula, $xlsformats['f']);
+                }
                 break;
             }
             case 's': {

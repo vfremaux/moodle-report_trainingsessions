@@ -27,6 +27,7 @@ $string['trainingsessions:view'] = 'Can view training session report';
 $string['trainingsessions:viewother'] = 'Can view training session reports from other users';
 $string['trainingsessions:downloadreports'] = 'Can download report documents';
 $string['trainingsessions:batch'] = 'Can batch reports';
+$string['trainingsessions:usegrading'] = 'Can setup grading output';
 
 $string['activitytime'] = 'Time in activities';
 $string['addcoursegrade'] = 'Add course grade to report';
@@ -71,6 +72,8 @@ $string['currentcourse'] = 'Current course';
 $string['debugmode'] = 'Debug mode on';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['discrete'] = 'Discrete output';
+$string['disablesuspendedstudents'] = 'Ignore suspended students';
+$string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total time';
@@ -112,6 +115,7 @@ $string['generatepdf'] = 'Generate as PDF';
 $string['generatereports'] = 'Generate reports';
 $string['generatexls'] = 'Generate as XLS';
 $string['gradesettings'] = 'Grade settings';
+$string['grademodes'] = 'Grade modes';
 $string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
 $string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
 $string['head3application'] = 'Head 3 coors are used on end of table sumarizer, xhen suitable.';
@@ -249,6 +253,12 @@ $string['timeperpart'] = 'Time elapsed per part';
 $string['timesource'] = 'Time source';
 $string['timespent'] = 'Spent';
 $string['timespentlastweek'] = 'Spent last week';
+$string['timegrademodedefault'] = 'Time grade mode default';
+$string['timegrademodedefault_desc'] = 'Default value for the time grade mode when first setup in a course';
+$string['bonusgrademodedefault'] = 'Bonus grade mode default';
+$string['bonusgrademodedefault_desc'] = 'Default value for the bonus grade mode when first setup in a course';
+$string['timegradesourcedefault'] = 'Time grade source default';
+$string['timegradesourcedefault_desc'] = 'Default value for the bonus grade source when first setup in a course';
 $string['to'] = 'To';
 $string['todate'] = 'Date end';
 $string['tonow'] = 'To now';
@@ -282,14 +292,13 @@ $string['visiteditems'] = 'Visited Items.';
 $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions';
 $string['xls'] = 'XLS';
+$string['xlsadditions'] = 'XLS Additions';
 
 $string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
 $string['xlsformula'] = 'Formula (Excel expression)';
 $string['formulalabel'] = 'Column label';
 $string['lineaggregators'] = 'Line aggregators';
 $string['calculated'] = 'Calculated';
-$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to
-insert the current line number in cell references.';
 $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
@@ -299,6 +308,14 @@ $string['xlssumformula'] = 'XLS Sum Formula';
 $string['xlssumformula_desc'] = 'XLS Sum Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
 
+$string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to
+insert the current line number in cell references. Use english function names.
+
+Example :
+
+=AVERAGE($C${row}:$D${row})
+';
+
 $string['lineaggregators_help'] = '
 <p>Define aggregators as a list of aggregators switches starting from left most columns in the
 resulting excel sheet. Separe switches with comas or semicolumns. Leaving blank disables the
@@ -307,7 +324,12 @@ aggregator line.
 <ul>
 <li><b>m :</b> mean</li>
 <li><b>s :</b> sum</li>
-</ul>';
+</ul>
+
+<p>
+Example : if an excel output has 10 colums and a sum is required on column 10, than
+enter : ;;;;;;;;;s
+</p>';
 
 $string['proversionrequired'] = '
 <p>You are trying to use a feature that is only available in the "Pro" version of this plugin. The "Pro" version of this plugin
@@ -408,3 +430,17 @@ material and some time spent in general site screens the user has access to.';
 
 $string['extother_help'] = '
 <p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';
+
+$string['grademodes_help'] = 'Grade modes define how the grade is calculated from the original data input:
+
+    * Binary (When possible) : A single threshold will be input and the score will be the full scale score or 0. If the score is based on
+      a scale, the score will switch between the lowest and the highest index.
+    * Discrete : A set of ranges will be input that splits the time value into acceptable ranges. The score max grade will be divided into
+      equal portions of the score scale. If a scale is used for scoring, then the ranges should provide N - 1 thresholds.
+    * Continuous : A full score equivalent time will be input. If the input value is greater or equal to the reference value, the given score will be full score,
+      otherwise the score will be the rounded closest linear interpolation of the input vs. the threshold.
+';
+
+$string['disablesuspendedstudents_desc'] = 'If enabled, suspended students wil not appear in reports';
+
+$string['disablesuspendedenrolments_desc'] = 'If enabled, students with suspended enrolments only will not appear in reports';

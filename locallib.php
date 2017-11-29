@@ -728,7 +728,11 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 $titles[] = get_string('output:timegrade', 'report_trainingsessions');
                 if ($ranges['timemode'] < TR_GRADE_MODE_CONTINUOUS) {
                     // Discrete and binary output mode use scale labels as output texts.
-                    $formats[] = 'a';
+                    if (get_config('report_trainingsessions', 'discreteforcenumber')) {
+                        $formats[] = 'n';
+                    } else {
+                        $formats[] = 'a';
+                    }
                 } else {
                     $formats[] = 'n';
                 }

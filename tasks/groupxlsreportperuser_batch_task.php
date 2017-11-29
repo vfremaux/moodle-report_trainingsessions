@@ -79,7 +79,7 @@ ob_end_clean();
 $workbook->send($filename);
 
 $xlsformats = report_trainingsessions_xls_formats($workbook);
-$startrow = 15;
+$startrow = report_trainingsessions_count_header_rows($course->id);
 
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {

@@ -74,7 +74,7 @@ ob_end_clean();
 $workbook->send($filename);
 
 $xlsformats = report_trainingsessions_xls_formats($workbook);
-$startrow = 15;
+$startrow = report_trainingsessions_count_header_rows($course->id);
 
 $row = $startrow;
 $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xlsformats, $workbook);

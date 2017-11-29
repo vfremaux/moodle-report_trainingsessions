@@ -111,6 +111,11 @@ if ($ADMIN->fulltree) {
     $desc = get_string('bonusgrademodedefault_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configselect($key, $label.' 1', $desc , '', $options));
 
+    $key = 'report_trainingsessions/discreteforcenumber';
+    $label = get_string('discreteforcenumber', 'report_trainingsessions');
+    $desc = get_string('discreteforcenumber_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
+
     $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));

@@ -72,6 +72,7 @@ $string['currentcourse'] = 'Current course';
 $string['debugmode'] = 'Debug mode on';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['discrete'] = 'Discrete output';
+$string['discreteforcenumber'] = 'Force numeric on discrete';
 $string['disablesuspendedstudents'] = 'Ignore suspended students';
 $string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['done'] = 'Performed: ';
@@ -444,3 +445,5 @@ $string['grademodes_help'] = 'Grade modes define how the grade is calculated fro
 $string['disablesuspendedstudents_desc'] = 'If enabled, suspended students wil not appear in reports';
 
 $string['disablesuspendedenrolments_desc'] = 'If enabled, students with suspended enrolments only will not appear in reports';
+
+$string['discreteforcenumber_desc'] = 'Force numeric format on discrete time grade (excel output). the discrete values of time grade scale should be numerically interpretable.';

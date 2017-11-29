@@ -77,6 +77,7 @@ $string['disabled'] = '|--------- non actif -----------|';
 $string['disablesuspendedstudents'] = 'Ignorer les étudiants suspendus';
 $string['disablesuspendedenrolments'] = 'Ignorer les inscriptions suspendues';
 $string['discrete'] = 'Sortie discrète';
+$string['discreteforcenumber'] = 'Echelle discrète numérique';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps passé';
@@ -437,3 +438,5 @@ définissent aussi la valeur attendu pour le paramètre "Plages de notation sur 
 $string['disablesuspendedstudents_desc'] = 'Si activé, les étudiants suspendus disparaissent des rapports';
 
 $string['disablesuspendedenrolments_desc'] = 'Si activé, les étudiants n\'ayant que des inscriptions suspendues disparaissent des rapports';
+
+$string['discreteforcenumber_desc'] = 'Forcer l\'interprétation numérique des notes discrètes (sortie excel uniquement). Dans ce cas, les notes discrètes fournies doivent être des nombres.';

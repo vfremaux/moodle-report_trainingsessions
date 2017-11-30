@@ -389,7 +389,7 @@ function report_trainingsessions_count_header_rows($courseid) {
 
     $cols = report_trainingsessions_get_summary_cols();
 
-    $row = 8;
+    $row = 12;
 
     if ($courseid) {
         $row++;

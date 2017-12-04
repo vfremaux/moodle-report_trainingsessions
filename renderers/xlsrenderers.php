@@ -763,7 +763,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
 
         if ($dataformats[$i] == 'n') {
             if ($celldata) {
-::                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
+                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
                 continue;
             }
         }

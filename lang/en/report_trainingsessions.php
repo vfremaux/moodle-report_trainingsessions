@@ -295,6 +295,7 @@ $string['visiteditems'] = 'Visited Items.';
 $string['weekstartdate'] = 'Week start';
 $string['workingsessions'] = 'Work sessions';
 $string['xls'] = 'XLS';
+$string['xlsexportlocale'] = 'XLS Export Locale';
 $string['xlsadditions'] = 'XLS Additions';
 
 $string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
@@ -363,8 +364,8 @@ $string['summarycolumns_desc'] = '
 <p>(format keys : a as text, t as date, d as duration, n as numeric).</p>
 ';
 
-$string['totalsessiontime_help'] = 'Note that session list counts some durations that can be outside this course. Total session time should usually be
-higher than in course time calculation';
+$string['totalsessiontime_help'] = 'Note that session list counts some durations that can be outside this course. Total session
+time should usually be higher than in course time calculation';
 
 $string['insessiontime_help'] = 'This is the "in" learning time that matched validated rules';
 
@@ -440,7 +441,8 @@ $string['grademodes_help'] = 'Grade modes define how the grade is calculated fro
       a scale, the score will switch between the lowest and the highest index.
     * Discrete : A set of ranges will be input that splits the time value into acceptable ranges. The score max grade will be divided into
       equal portions of the score scale. If a scale is used for scoring, then the ranges should provide N - 1 thresholds.
-    * Continuous : A full score equivalent time will be input. If the input value is greater or equal to the reference value, the given score will be full score,
+    * Continuous : A full score equivalent time will be input. If the input value is greater or equal to the reference value,
+    the given score will be full score,
       otherwise the score will be the rounded closest linear interpolation of the input vs. the threshold.
 ';
 
@@ -448,4 +450,8 @@ $string['disablesuspendedstudents_desc'] = 'If enabled, suspended students wil n
 
 $string['disablesuspendedenrolments_desc'] = 'If enabled, students with suspended enrolments only will not appear in reports';
 
-$string['discreteforcenumber_desc'] = 'Force numeric format on discrete time grade (excel output). the discrete values of time grade scale should be numerically interpretable.';
+$string['discreteforcenumber_desc'] = 'Force numeric format on discrete time grade (excel output). the discrete values
+of time grade scale should be numerically interpretable.';
+
+$string['xlsexportlocale_desc'] = 'Used to force locale when exporting and générating excel exports.
+Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';

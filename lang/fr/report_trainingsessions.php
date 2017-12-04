@@ -293,6 +293,7 @@ $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
 $string['workingsessions'] = 'Sessions de travail&nbsp;';
 $string['xls'] = 'XLS';
+$string['xlsexportlocale'] = 'Locale d\'export XLS&nbsp;';
 $string['xlsadditions'] = 'Fonctions additionnelles Excel';
 
 $string['calculatedcolumns'] = 'Colonnes calculées (Sortie Excel)';
@@ -423,7 +424,8 @@ Le temps cours étendu comptabilise les temps strictement passés dans le contex
 ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail.';
 
 $string['extother_help'] = '
-<p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du contexte de l\'utilisateur ou à des espaces généraux du site..</p>';
+<p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du
+contexte de l\'utilisateur ou à des espaces généraux du site..</p>';
 
 $string['grademodes_help'] = 'Les modalités de calcul définissent la façon dont le score donné est calculé par rapport à la donnée initiale. Elles
 définissent aussi la valeur attendu pour le paramètre "Plages de notation sur le temps" :
@@ -441,4 +443,9 @@ $string['disablesuspendedstudents_desc'] = 'Si activé, les étudiants suspendus
 
 $string['disablesuspendedenrolments_desc'] = 'Si activé, les étudiants n\'ayant que des inscriptions suspendues disparaissent des rapports';
 
-$string['discreteforcenumber_desc'] = 'Forcer l\'interprétation numérique des notes discrètes (sortie excel uniquement). Dans ce cas, les notes discrètes fournies doivent être des nombres.';
+$string['discreteforcenumber_desc'] = 'Forcer l\'interprétation numérique des notes discrètes (sortie excel uniquement). Dans ce cas,
+les notes discrètes fournies doivent être des nombres.';
+
+$string['xlsexportlocale_desc'] = 'Utilisé pour forcer la locale lors d\'un export excel si la licence d\'excel ne travaille pas
+sur la même mangue que la langue d\'usage de moodle. Laisser vide pour utiliser la locale par défaut de emoodle, , ou forcer avec un code de
+locale, par exemple: en_EN.UTF-8';

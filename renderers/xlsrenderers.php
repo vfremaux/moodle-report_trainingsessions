@@ -156,6 +156,12 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
     global $DB;
 
     $config = get_config('report_trainingsessions');
+
+    if (!empty($config->xlsexportlocale)) {
+        // We may nbeed sometime to force the export locale for other Excel locales.
+        moodle_setlocale($config->xlsexportlocale);
+    }
+
     $user = $DB->get_record('user', array('id' => $userid));
 
     if (($purpose == 'usertimes') || ($purpose == 'allcourses')) {

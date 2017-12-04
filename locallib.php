@@ -701,7 +701,6 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
     $select = " courseid = ? AND moduleid > 0 ";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
-        $formatadds = array();
         foreach ($graderecs as $rec) {
             // Push in array.
             $cminfo = $coursemodinfo->get_cm($rec->moduleid);
@@ -709,10 +708,12 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
             $modlabel = (empty($rec->label)) ? $fulllabel : $rec->label;
             array_push($columns, $cminfo->modname.$cminfo->instance);
             array_push($titles, $modlabel);
-            $formatadds[] = 'n';
+            if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                $formats[] = $xlsgradeformat;
+            } else {
+                $formats[] = 'n.2';
+            }
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 
     // Add special grades.
@@ -729,21 +730,37 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 if ($ranges['timemode'] < TR_GRADE_MODE_CONTINUOUS) {
                     // Discrete and binary output mode use scale labels as output texts.
                     if (get_config('report_trainingsessions', 'discreteforcenumber')) {
-                        $formats[] = 'n';
+                        if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                            $formats[] = $xlsgradeformat;
+                        } else {
+                            $formats[] = 'n.2';
+                        }
                     } else {
                         $formats[] = 'a';
                     }
                 } else {
-                    $formats[] = 'n';
+                    if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                        $formats[] = $xlsgradeformat;
+                    } else {
+                        $formats[] = 'n.2';
+                    }
                 }
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 $columns[] = 'rawcoursegrade';
                 $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
-                $formats[] = 'n';
+                if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                    $formats[] = $xlsgradeformat;
+                } else {
+                    $formats[] = 'n.2';
+                }
 
                 $columns[] = 'timebonus';
                 $titles[] = get_string('output:timebonus', 'report_trainingsessions');
-                $formats[] = 'n';
+                if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                    $formats[] = $xlsgradeformat;
+                } else {
+                    $formats[] = 'n.2';
+                }
             }
         }
     }
@@ -755,7 +772,11 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         $courselabel = (empty($graderec->label)) ? $label : $graderec->label;
         $titles[] = $courselabel;
         $columns[] = 'finalcoursegrade';
-        $formats[] = 'n';
+        if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+            $formats[] = $xlsgradeformat;
+        } else {
+            $formats[] = 'n.2';
+        }
     }
 }
 

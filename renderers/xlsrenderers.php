@@ -116,6 +116,8 @@ function report_trainingsessions_xls_formats(&$workbook) {
 
     // Number formats.
     $xlsformats['n'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['n.1'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, '0.0');
+    $xlsformats['n.2'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, PHPExcel_Style_NumberFormat::FORMAT_NNUMBER_00);
 
     // Formula formatting (same as numbers).
     $xlsformats['f'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
@@ -755,7 +757,7 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
 
         if ($dataformats[$i] == 'n') {
             if ($celldata) {
-                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
+::                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
                 continue;
             }
         }

@@ -768,6 +768,20 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
             }
         }
 
+        if ($dataformats[$i] == 'n.1') {
+            if ($celldata) {
+                $worksheet->write_number($row, $i, $celldata, $xlsformats['n.1']);
+                continue;
+            }
+        }
+
+        if ($dataformats[$i] == 'n.2') {
+            if ($celldata) {
+                $worksheet->write_number($row, $i, $celldata, $xlsformats['n.2']);
+                continue;
+            }
+        }
+
         if ($dataformats[$i] == 'd') {
             if ($data[$i]) {
                 $celldata = report_trainingsessions_format_time($data[$i], 'xlsd');

@@ -1829,7 +1829,7 @@ function report_trainingsessions_calculate_course_structure(&$structure, &$aggre
             $res = report_trainingsessions_calculate_course_structure($element, $aggregate, $done, $items);
             $dataobject->elapsed += $res->elapsed;
             $dataobject->events += $res->events;
-        } 
+        }
     } else {
         if (!empty($structure->visible) || !isset($structure->instance) || !empty($structure->instance->visible)) {
             // Non visible items should not be displayed.

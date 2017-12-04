@@ -116,6 +116,8 @@ function report_trainingsessions_xls_formats(&$workbook) {
 
     // Number formats.
     $xlsformats['n'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['n.1'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, '0.0');
+    $xlsformats['n.2'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, PHPExcel_Style_NumberFormat::FORMAT_NNUMBER_00);
 
     // Formula formatting (same as numbers).
     $xlsformats['f'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
@@ -154,6 +156,12 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
     global $DB;
 
     $config = get_config('report_trainingsessions');
+
+    if (!empty($config->xlsexportlocale)) {
+        // We may nbeed sometime to force the export locale for other Excel locales.
+        moodle_setlocale($config->xlsexportlocale);
+    }
+
     $user = $DB->get_record('user', array('id' => $userid));
 
     if (($purpose == 'usertimes') || ($purpose == 'allcourses')) {
@@ -754,10 +762,18 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         }
 
         if ($dataformats[$i] == 'n') {
-            if ($celldata) {
-                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
-                continue;
-            }
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
+            continue;
+        }
+
+        if ($dataformats[$i] == 'n.1') {
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n.1']);
+            continue;
+        }
+
+        if ($dataformats[$i] == 'n.2') {
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n.2']);
+            continue;
         }
 
         if ($dataformats[$i] == 'd') {

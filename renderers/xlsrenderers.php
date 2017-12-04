@@ -762,10 +762,18 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         }
 
         if ($dataformats[$i] == 'n') {
-            if ($celldata) {
-                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
-                continue;
-            }
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
+            continue;
+        }
+
+        if ($dataformats[$i] == 'n.1') {
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n.1']);
+            continue;
+        }
+
+        if ($dataformats[$i] == 'n.2') {
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n.2']);
+            continue;
         }
 
         if ($dataformats[$i] == 'd') {

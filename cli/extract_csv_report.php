@@ -110,6 +110,7 @@ if (empty($CFG->version)) {
 }
 
 mtrace('Starting CLI trainingsession reports in '.$options['outputpath']."\n");
+$config = get_config('report_trainingsession');
 
 // Get all options from config file.
 
@@ -129,7 +130,7 @@ if ($userid) {
 } else {
     $context = context_course::instance($courseid);
     $processedusers = array();
-    if ($users = get_enrolled_users($context)) {
+    if ($users = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments)) {
         foreach ($users as $u) {
             $processedusers[] = $u->id;
             if (empty($options['launch'])) {

@@ -701,7 +701,6 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
     $select = " courseid = ? AND moduleid > 0 ";
     $params = array($COURSE->id);
     if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
-        $formatadds = array();
         foreach ($graderecs as $rec) {
             // Push in array.
             $cminfo = $coursemodinfo->get_cm($rec->moduleid);
@@ -709,10 +708,12 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
             $modlabel = (empty($rec->label)) ? $fulllabel : $rec->label;
             array_push($columns, $cminfo->modname.$cminfo->instance);
             array_push($titles, $modlabel);
-            $formatadds[] = 'n';
+            if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                $formats[] = $xlsgradeformat;
+            } else {
+                $formats[] = 'n.2';
+            }
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 
     // Add special grades.
@@ -728,18 +729,38 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
                 $titles[] = get_string('output:timegrade', 'report_trainingsessions');
                 if ($ranges['timemode'] < TR_GRADE_MODE_CONTINUOUS) {
                     // Discrete and binary output mode use scale labels as output texts.
-                    $formats[] = 'a';
+                    if (get_config('report_trainingsessions', 'discreteforcenumber')) {
+                        if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                            $formats[] = $xlsgradeformat;
+                        } else {
+                            $formats[] = 'n.2';
+                        }
+                    } else {
+                        $formats[] = 'a';
+                    }
                 } else {
-                    $formats[] = 'n';
+                    if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                        $formats[] = $xlsgradeformat;
+                    } else {
+                        $formats[] = 'n.2';
+                    }
                 }
             } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                 $columns[] = 'rawcoursegrade';
                 $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
-                $formats[] = 'n';
+                if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                    $formats[] = $xlsgradeformat;
+                } else {
+                    $formats[] = 'n.2';
+                }
 
                 $columns[] = 'timebonus';
                 $titles[] = get_string('output:timebonus', 'report_trainingsessions');
-                $formats[] = 'n';
+                if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                    $formats[] = $xlsgradeformat;
+                } else {
+                    $formats[] = 'n.2';
+                }
             }
         }
     }
@@ -751,7 +772,11 @@ function report_trainingsessions_add_graded_columns(&$columns, &$titles, &$forma
         $courselabel = (empty($graderec->label)) ? $label : $graderec->label;
         $titles[] = $courselabel;
         $columns[] = 'finalcoursegrade';
-        $formats[] = 'n';
+        if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+            $formats[] = $xlsgradeformat;
+        } else {
+            $formats[] = 'n.2';
+        }
     }
 }
 
@@ -846,18 +871,15 @@ function report_trainingsessions_add_calculated_columns(&$columns, &$titles, &$f
         $formats = array();
     }
 
-    $select = " courseid = ? AND moduleid <= -10 ";
+    $select = " courseid = ? AND moduleid <= -8 ";
     $params = array($COURSE->id);
     if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
-        $formatadds = array();
         foreach ($formulasrecs as $rec) {
             // Push in array.
             array_push($columns, $rec->label);
             array_push($titles, $rec->label);
-            $formatadds[] = 'f';
+            array_push($formats, 'f');
         }
-
-        $formats = array_merge($formats, $formatadds);
     }
 }
 
@@ -875,9 +897,9 @@ function report_trainingsessions_add_calculated_data(&$columns) {
         $columns = array();
     }
 
-    $select = " courseid = ? AND moduleid <= -10 ";
+    $select = " courseid = ? AND moduleid <= -8 ";
     $params = array($COURSE->id);
-    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+    if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'moduleid ASC')) {
         $formatadds = array();
         foreach ($formulasrecs as $rec) {
             // Push in array the formula text Note it stored in the "ranges" columns.
@@ -1068,10 +1090,20 @@ function report_trainingsessions_get_module_grade($moduleid, $userid) {
  * @return void
  */
 function report_trainingsessions_filter_unwanted_users(&$targetusers, $course) {
+    global $DB;
+
+    $config = get_config('report_trainingsessions');
 
     $context = context_course::instance($course->id);
 
     foreach ($targetusers as $uid => $unused) {
+        if (!empty($config->disablesuspendedstudents)) {
+            $suspended = $DB->get_field('user', 'suspended', array('id' => $uid));
+            if ($suspended) {
+                unset($targetusers[$uid]);
+            }
+        }
+
         if (!has_capability('report/trainingsessions:iscompiled', $context, $uid, false)) {
             unset($targetusers[$uid]);
         }
@@ -1342,6 +1374,8 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
  */
 function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
 
+    $config = get_config('report_trainingsessions');
+
     // If no groups existing, get all course.
     $groups = groups_get_all_groups($courseid);
     if (!$groups && !$groupid) {
@@ -1351,20 +1385,20 @@ function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
         $group->name = get_string('course');
         if ($range == 'user') {
             $context = context_course::instance($courseid);
-            $group->target = get_enrolled_users($context);
+            $group->target = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         }
         $groups[] = $group;
     } else if ($groups && !$groupid) {
         if ($range == 'user') {
             foreach ($groups as $group) {
-                $group->target = groups_get_members($group->id);
+                $group->target = get_enrolled_users($context, '', $group->id, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
             }
         }
     } else {
         // Only one group. Reduce group list to this group.
         if ($range == 'user') {
             $group = $groups[$groupid];
-            $group->target = groups_get_members($groupid);
+            $group->target = get_enrolled_users($context, '', $groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
             $groups = array();
             $groups[] = $group;
         }
@@ -1763,4 +1797,77 @@ function report_trainingsessions_process_bounds(&$data, &$course) {
             print_error('Bad end date');
         }
     }
+}
+
+/**
+ * Precalculates subtree aggregates without printing anything
+ * @param objectref &$pdf the pdf document
+ * @param int $y the current vertical position in page
+ * @param objectref &$structure the course structure subtree
+ * @param objectref &$aggregate the log aggregation
+ * @param intref &$done the "done items" counter
+ * @param int $level the current recursion level in structure
+ */
+function report_trainingsessions_calculate_course_structure(&$structure, &$aggregate, &$done, &$items) {
+
+    if (empty($structure)) {
+        return;
+    }
+
+    // makes a blank dataobject.
+    $dataobject = new StdClass;
+    $dataobject->elapsed = 0;
+    $dataobject->events = 0;
+
+    if (is_array($structure)) {
+        // recurse in sub structures
+        foreach ($structure as &$element) {
+            if (isset($element->instance) && empty($element->instance->visible)) {
+                // non visible items should not be displayed.
+                continue;
+            }
+            $res = report_trainingsessions_calculate_course_structure($element, $aggregate, $done, $items);
+            $dataobject->elapsed += $res->elapsed;
+            $dataobject->events += $res->events;
+        }
+    } else {
+        if (!empty($structure->visible) || !isset($structure->instance) || !empty($structure->instance->visible)) {
+            // Non visible items should not be displayed.
+            if (!empty($structure->name)) {
+                $items++;
+                if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                    $done++;
+                    $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
+                    $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
+                } else {
+                    $dataobject->elapsed = 0;
+                    $dataobject->events = 0;
+                }
+
+                if (!empty($structure->subs)) {
+                    $res = report_trainingsessions_calculate_course_structure($structure->subs, $aggregate, $done, $items);
+                    $dataobject->elapsed += $res->elapsed;
+                    $dataobject->events += $res->events;
+                }
+            } else {
+                // It is only a structural module that should not impact on level
+                if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                    $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
+                    $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
+                }
+                if (!empty($structure->subs)) {
+                    $res = report_trainingsessions_calculate_course_structure($structure->subs, $aggregate, $done, $items);
+                    $dataobject->elapsed += $res->elapsed;
+                    $dataobject->events += $res->events;
+                }
+            }
+
+            // Report in element.
+            $structure->elapsed = $dataobject->elapsed;
+            $structure->events = $dataobject->events;
+        }
+    }
+
+    // Returns acumulated aggregates.
+    return $dataobject;
 }

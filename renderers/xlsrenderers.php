@@ -116,6 +116,8 @@ function report_trainingsessions_xls_formats(&$workbook) {
 
     // Number formats.
     $xlsformats['n'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
+    $xlsformats['n.1'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, '0.0');
+    $xlsformats['n.2'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, PHPExcel_Style_NumberFormat::FORMAT_NNUMBER_00);
 
     // Formula formatting (same as numbers).
     $xlsformats['f'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
@@ -154,6 +156,12 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
     global $DB;
 
     $config = get_config('report_trainingsessions');
+
+    if (!empty($config->xlsexportlocale)) {
+        // We may nbeed sometime to force the export locale for other Excel locales.
+        moodle_setlocale($config->xlsexportlocale);
+    }
+
     $user = $DB->get_record('user', array('id' => $userid));
 
     if (($purpose == 'usertimes') || ($purpose == 'allcourses')) {
@@ -226,11 +234,12 @@ function report_trainingsessions_init_worksheet($userid, $startrow, &$xlsformats
  * @version    moodle 2.x
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 function report_trainingsessions_print_header_xls(&$worksheet, $userid, $courseid, &$data, $xlsformats) {
     global $CFG, $DB;
 
     $config = get_config('report_trainingsessions');
+
+    $cols = report_trainingsessions_get_summary_cols();
 
     $user = $DB->get_record('user', array('id' => $userid));
     if ($courseid) {
@@ -316,15 +325,117 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $celldata = (0 + @$data->done).' '.get_string('over', 'report_trainingsessions').' ';
     $celldata .= (0 + @$data->items).' ('.$completedpc.' %)';
     $worksheet->write_string($row, 1, $celldata);
-    $row++;
-    $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xlsformats['b']);
-    $elapsed = report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd');
-    $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+
+    if (in_array('elapsed', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('elapsed', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->elapsed), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('extelapsed', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('extelapsed', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->extelapsed), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('extother', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('extother', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->extother), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('elapsedlastweek', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('elapsedlastweek', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->elapsedlastweek), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('extelapsedlastweek', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('extelapsedlastweek', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->extelapsedlastweek), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('extotherlastweek', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('extotherlastweek', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->extotherlastweek), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('coursetime', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('coursetime', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->courseelapsed), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('activityelapsed', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('activitytime', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->activityelapsed), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
+    if (in_array('otherelapsed', $cols)) {
+        $row++;
+        $worksheet->write_string($row, 0, get_string('othertime', 'report_trainingsessions').' :', $xlsformats['b']);
+        $elapsed = report_trainingsessions_format_time((0 + @$data->otherelapsed + @$data->courseelapsed), 'xlsd');
+        $worksheet->write_number($row, 1, $elapsed, $xlsformats['d']);
+    }
 
     if (!empty($config->showhits)) {
         $row++;
         $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xlsformats['b']);
         $worksheet->write_number($row, 1, (0 + @$data->events), $xlsformats['n']);
+    }
+
+    return $row;
+}
+
+function report_trainingsessions_count_header_rows($courseid) {
+    global $CFG, $DB;
+
+    $config = get_config('report_trainingsessions');
+
+    $cols = report_trainingsessions_get_summary_cols();
+
+    $row = 12;
+
+    if ($courseid) {
+        $row++;
+    }
+
+    if ($courseid) {
+        $row += 2;
+    }
+
+    if (in_array('elapsed', $cols)) {
+        $row++;
+    }
+    if (in_array('extelapsed', $cols)) {
+        $row++;
+    }
+    if (in_array('extother', $cols)) {
+        $row++;
+    }
+    if (in_array('elapsedlastweek', $cols)) {
+        $row++;
+    }
+    if (in_array('extelapsedlastweek', $cols)) {
+        $row++;
+    }
+    if (in_array('extotherlastweek', $cols)) {
+        $row++;
+    }
+    if (in_array('coursetime', $cols)) {
+        $row++;
+    }
+    if (in_array('activityelapsed', $cols)) {
+        $row++;
+    }
+    if (in_array('otherelapsed', $cols)) {
+        $row++;
+    }
+    if (!empty($config->showhits)) {
+        $row++;
     }
 
     return $row;
@@ -651,10 +762,18 @@ function report_trainingsessions_print_rawline_xls(&$worksheet, $data, $dataform
         }
 
         if ($dataformats[$i] == 'n') {
-            if ($celldata) {
-                $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
-                continue;
-            }
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n']);
+            continue;
+        }
+
+        if ($dataformats[$i] == 'n.1') {
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n.1']);
+            continue;
+        }
+
+        if ($dataformats[$i] == 'n.2') {
+            $worksheet->write_number($row, $i, $celldata, $xlsformats['n.2']);
+            continue;
         }
 
         if ($dataformats[$i] == 'd') {

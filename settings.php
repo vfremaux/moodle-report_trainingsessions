@@ -61,6 +61,16 @@ if ($ADMIN->fulltree) {
     $desc = get_string('hideemptymodules_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+    $key = 'report_trainingsessions/disablesuspendedstudents';
+    $label = get_string('disablesuspendedstudents', 'report_trainingsessions');
+    $desc = get_string('disablesuspendedstudents_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/disablesuspendedenrolments';
+    $label = get_string('disablesuspendedenrolments', 'report_trainingsessions');
+    $desc = get_string('disablesuspendedenrolments_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
     $key = 'report_trainingsessions/printsessiontotal';
     $label = get_string('printsessiontotal', 'report_trainingsessions');
     $desc = get_string('printsessiontotal_desc', 'report_trainingsessions');
@@ -100,6 +110,24 @@ if ($ADMIN->fulltree) {
     $label = get_string('bonusgrademodedefault', 'report_trainingsessions');
     $desc = get_string('bonusgrademodedefault_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configselect($key, $label.' 1', $desc , '', $options));
+
+    $key = 'report_trainingsessions/discreteforcenumber';
+    $label = get_string('discreteforcenumber', 'report_trainingsessions');
+    $desc = get_string('discreteforcenumber_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
+
+    $options = array('n' => '0',
+                     'n.1' => '0.0',
+                     'n.2' => '0.00');
+    $key = 'report_trainingsessions/gradexlsformat';
+    $label = get_string('gradexlsformat', 'report_trainingsessions');
+    $desc = get_string('gradexlsformat_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configselect($key, $label, $desc , 'n.2', $options));
+
+    $key = 'report_trainingsessions/xlsexportlocale';
+    $label = get_string('xlsexportlocale', 'report_trainingsessions');
+    $desc = get_string('xlsexportlocale_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configtext($key, $label, $desc , ''));
 
     $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),

@@ -116,7 +116,7 @@ if ($ADMIN->fulltree) {
     $desc = get_string('discreteforcenumber_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
-    $options = array('n' => 0,
+    $options = array('n' => '0',
                      'n.1' => '0.0',
                      'n.2' => '0.00');
     $key = 'report_trainingsessions/gradexlsformat';
@@ -127,7 +127,7 @@ if ($ADMIN->fulltree) {
     $key = 'report_trainingsessions/xlsexportlocale';
     $label = get_string('xlsexportlocale', 'report_trainingsessions');
     $desc = get_string('xlsexportlocale_desc', 'report_trainingsessions');
-    $settings->add(new admin_setting_configtext($key, $label, $desc , '', $options));
+    $settings->add(new admin_setting_configtext($key, $label, $desc , ''));
 
     $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),

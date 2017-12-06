@@ -85,7 +85,7 @@ $workbook->send($filename);
 $xlsformats = report_trainingsessions_xls_formats($workbook);
 
 // Define variables.
-$startrow = 15; // Start data output at this line, under user info.
+$startrow = report_trainingsessions_count_header_rows($course->id);
 $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook);
 
 report_trainingsessions_print_header_xls($worksheet, $userid, 0, $data, $xlsformats);

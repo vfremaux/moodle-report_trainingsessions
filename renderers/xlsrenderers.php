@@ -117,7 +117,7 @@ function report_trainingsessions_xls_formats(&$workbook) {
     // Number formats.
     $xlsformats['n'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
     $xlsformats['n.1'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, '0.0');
-    $xlsformats['n.2'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, PHPExcel_Style_NumberFormat::FORMAT_NNUMBER_00);
+    $xlsformats['n.2'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
 
     // Formula formatting (same as numbers).
     $xlsformats['f'] = report_trainingsessions_build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);

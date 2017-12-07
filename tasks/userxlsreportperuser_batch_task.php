@@ -106,7 +106,7 @@ $grantotal->otherevents = 0 + @$aggregate['other'][$id]->events;
 $grantotal->courseevents = 0 + @$aggregate['course'][$id]->events;
 $grantotal->events = 0 + $grantotal->activityevents + $grantotal->otherevents + $grantotal->courseevents;
 $grantotal->items = $grantotal->events; // Compatibility ?
-$grantotal->extevents = 0 + @$aggregate['coursetotal'][$id]->events + @$aggregate['coursetotal'][0]->events;
+$grantotal->exteevents = 0 + @$aggregate['coursetotal'][$id]->events + @$aggregate['coursetotal'][0]->events;
 $grantotal->extevents += @$aggregate['coursetotal'][SITEID]->events;
 
 report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $grantotal, $xlsformats);

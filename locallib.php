@@ -920,7 +920,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
     $ranges = (array) json_decode($graderec->ranges);
 
     if (empty($ranges['ranges'])) {
-        return '0.00';
+        return sprintf('%.2f', 0);
     }
 
     switch (@$ranges['timesource']) {
@@ -949,7 +949,7 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
         // @TODO : better deal with scale if multiple items scale. Grade submitted should be scaled to the max item number.
         $scale = grade_scale::fetch(array('id' => -$graderec->grade));
     } else {
-        return '0.00';
+        return  sprintf('%.2f', 0);
     }
 
     switch ($graderec->moduleid) {

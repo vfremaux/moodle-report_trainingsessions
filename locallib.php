@@ -917,6 +917,8 @@ function report_trainingsessions_add_calculated_data(&$columns) {
  */
 function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
 
+    $config = get_config('report_trainingsessions');
+
     $ranges = (array) json_decode($graderec->ranges);
 
     if (empty($ranges['ranges'])) {
@@ -974,8 +976,15 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
                 }
             } else if ($graderec->grade < 0) {
                 if ($coursetime >= $timethreshold * MINSECS) {
+                    // Points the second item precisely
+                    if (!empty($config->discreteforcenumber)) {
+                        return 1;
+                    }
                     return $scale->get_nearest_item(2);
                 } else {
+                    if (!empty($config->discreteforcenumber)) {
+                        return 0;
+                    }
                     return $scale->get_nearest_item(0);
                 }
             }

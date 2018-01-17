@@ -102,3 +102,13 @@ Community standard concerns:
 * moodle core plugin API contract
 * security implementation
 * base documentation
+
+2017080100 - X.X.0006
+=============================
+* adding grading setup control by capability
+* adding defaults to grading mode selectors
+
+2017080100 - X.X.0007
+=============================
+
+Allow suspended students to be removed from reports with a setting.

@@ -48,6 +48,7 @@ if (!$data = $selform->get_data()) {
 }
 
 $context = context_course::instance($id);
+$config = get_config('report_trainingsessions');
 
 // Calculate start time.
 
@@ -95,15 +96,15 @@ if (!$allgroupsaccess) {
 }
 
 if ($data->groupid) {
-    $targetusers = get_enrolled_users($context, '', $data->groupid);
+    $targetusers = get_enrolled_users($context, '', $data->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
 } else {
-    $targetusers = get_enrolled_users($context);
+    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
     if (count($targetusers) > 100) {
         if (!empty($allowedgroupids)) {
             $OUTPUT->notification(get_string('errorcoursetoolarge', 'report_trainingsessions'));
             $data->groupid = $allowedgroupids[0];
             // Refetch again after eventual group correction.
-            $targetusers = get_enrolled_users($context, '', $data->groupid);
+            $targetusers = get_enrolled_users($context, '', $data->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         } else {
             // DO NOT COMPILE.
             echo $OUTPUT->notification('Course is too large and no groups in. Cannot compile.');

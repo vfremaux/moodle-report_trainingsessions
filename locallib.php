@@ -917,6 +917,8 @@ function report_trainingsessions_add_calculated_data(&$columns) {
  */
 function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
 
+    $config = get_config('report_trainingsessions');
+
     $ranges = (array) json_decode($graderec->ranges);
 
     if (empty($ranges['ranges'])) {

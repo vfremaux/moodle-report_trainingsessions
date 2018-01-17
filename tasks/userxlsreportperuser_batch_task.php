@@ -74,7 +74,7 @@ ob_end_clean();
 $workbook->send($filename);
 
 $xlsformats = report_trainingsessions_xls_formats($workbook);
-$startrow = 15;
+$startrow = report_trainingsessions_count_header_rows($course->id);
 
 $row = $startrow;
 $worksheet = report_trainingsessions_init_worksheet($auser->id, $row, $xlsformats, $workbook);
@@ -84,16 +84,35 @@ $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id
 $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
 
 $overall = report_trainingsessions_print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xlsformats);
-$data = new StdClass();
-$data->items = $items;
-$data->done = $done;
-$data->from = $input->from;
-$data->elapsed = $overall->elapsed;
-$data->events = $overall->events;
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
+
+$grantotal = report_trainingsessions_calculate_course_structure($coursestructure, $aggregate, $done, $items);
+
+$grantotal->from = $input->from;
+$grantotal->activityelapsed = 0 + @$aggregate['activities'][$id]->elapsed;
+$grantotal->otherelapsed = 0 + @$aggregate['other'][$id]->elapsed;
+$grantotal->courseelapsed = 0 + @$aggregate['course'][$id]->elapsed;
+
+$grantotal->elapsed = 0 + @$aggregate['coursetotal'][$id]->elapsed;
+$grantotal->elapsedlastweek = 0 + @$aggregatelastweek['coursetotal'][$id]->elapsed;
+$grantotal->extelapsed = 0 + @$aggregate['coursetotal'][$id]->elapsed + @$aggregate['coursetotal'][0]->elapsed;
+$grantotal->extelapsed += @$aggregate['coursetotal'][SITEID]->elapsed;
+$grantotal->extelapsedlastweek = 0 + @$aggregatelastweek['coursetotal'][$id]->elapsed + @$aggregatelastweek['coursetotal'][0]->elapsed;
+$grantotal->extelapsedlastweek += @$aggregatelastweek['coursetotal'][SITEID]->elapsed;
+$grantotal->extother = 0 + @$aggregate['coursetotal'][0]->elapsed + @$aggregate['coursetotal'][SITEID]->elapsed;
+$grantotal->extotherlastweek = 0 + @$aggregatelastweek['coursetotal'][0]->elapsed + @$aggregatelastweek['coursetotal'][SITEID]->elapsed;
+
+$grantotal->activityevents = 0 + @$aggregate['activities'][$id]->events;
+$grantotal->otherevents = 0 + @$aggregate['other'][$id]->events;
+$grantotal->courseevents = 0 + @$aggregate['course'][$id]->events;
+$grantotal->events = 0 + $grantotal->activityevents + $grantotal->otherevents + $grantotal->courseevents;
+$grantotal->items = $grantotal->events; // Compatibility ?
+$grantotal->extevents = 0 + @$aggregate['coursetotal'][$id]->events + @$aggregate['coursetotal'][0]->events;
+$grantotal->extevents += @$aggregate['coursetotal'][SITEID]->events;
+
+report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $grantotal, $xlsformats);
 
 $worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
 report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xlsformats);
-report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $data, $xlsformats);
+report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $grantotal, $xlsformats);
 
 $workbook->close();

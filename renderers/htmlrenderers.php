@@ -408,23 +408,14 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
         }
 
         if (in_array('elapsed', $cols)) {
-            $str .= '<br/><b>';
+            $str .= '<hr><br/><span class="trainingsessions-main-total"><b>';
             $str .= get_string('coursetotaltime', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsed, $durationformat);
             if (is_siteadmin()) {
                 $str .= ' ('.(0 + @$data->hits).')';
             }
+            $str .= '</span>';
             $str .= $OUTPUT->help_icon('coursetotaltime', 'report_trainingsessions');
-        }
-
-        if (in_array('elapsedlastweek', $cols)) {
-            $str .= '<br/><b>';
-            $str .= get_string('elapsedlastweek', 'report_trainingsessions');
-            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsedlastweek, $durationformat);
-            if (is_siteadmin()) {
-                $str .= ' ('.(0 + @$data->hitslastweek).')';
-            }
-            $str .= $OUTPUT->help_icon('elapsedlastweek', 'report_trainingsessions');
         }
 
         if (in_array('extelapsed', $cols)) {
@@ -442,6 +433,16 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $str .= get_string('extother', 'report_trainingsessions');
             $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->extother, $durationformat);
             $str .= $OUTPUT->help_icon('extother', 'report_trainingsessions');
+        }
+
+        if (in_array('elapsedlastweek', $cols)) {
+            $str .= '<hr><br/><b>';
+            $str .= get_string('elapsedlastweek', 'report_trainingsessions');
+            $str .= ':</b> '.report_trainingsessions_format_time(0 + @$data->elapsedlastweek, $durationformat);
+            if (is_siteadmin()) {
+                $str .= ' ('.(0 + @$data->hitslastweek).')';
+            }
+            $str .= $OUTPUT->help_icon('elapsedlastweek', 'report_trainingsessions');
         }
 
         if (in_array('extelapsedlastweek', $cols)) {

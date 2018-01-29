@@ -107,3 +107,8 @@ Community standard concerns:
 =============================
 * adding grading setup control by capability
 * adding defaults to grading mode selectors
+
+2017080100 - X.X.0007
+=============================
+
+Allow suspended students to be removed from reports with a setting.

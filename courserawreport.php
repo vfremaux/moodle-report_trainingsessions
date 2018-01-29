@@ -87,7 +87,7 @@ if (!empty($selform->groupid)) {
     $targetusers = groups_get_members($selform->groupid);
     $groupname = $DB->get_field('groups', 'name', array('id' => $selform->groupid));
 } else {
-    $targetusers = get_enrolled_users($context);
+    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
 
     $hasgroups = $DB->count_records('groups', array('courseid' => $id));
 

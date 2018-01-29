@@ -59,7 +59,7 @@ if ($groupid) {
     $targetusers = groups_get_members($groupid);
     $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".xls";
 } else {
-    $targetusers = get_enrolled_users($context);
+    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
     $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".xls";
 }
 
@@ -79,7 +79,7 @@ ob_end_clean();
 $workbook->send($filename);
 
 $xlsformats = report_trainingsessions_xls_formats($workbook);
-$startrow = 15;
+$startrow = report_trainingsessions_count_header_rows($course->id);
 
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {

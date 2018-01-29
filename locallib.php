@@ -976,15 +976,8 @@ function report_trainingsessions_compute_timegrade(&$graderec, &$aggregate) {
                 }
             } else if ($graderec->grade < 0) {
                 if ($coursetime >= $timethreshold * MINSECS) {
-                    // Points the second item precisely
-                    if (!empty($config->discreteforcenumber)) {
-                        return 1;
-                    }
                     return $scale->get_nearest_item(2);
                 } else {
-                    if (!empty($config->discreteforcenumber)) {
-                        return 0;
-                    }
                     return $scale->get_nearest_item(0);
                 }
             }

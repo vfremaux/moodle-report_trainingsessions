@@ -164,7 +164,7 @@ if (!empty($targetusers)) {
         $strupload = get_string('uploadresult', 'report_trainingsessions');
         $fileurl = moodle_url::make_pluginfile_url($context->id, 'report_trainingsessions', 'rawreports', $fileinfo['itemid'],
                                                    '/', 'raw_'.$timestamp.'.csv');
-        $pix = '<img src="'.$OUTPUT->pix_url('f/spreadsheet').'" height="40" width="30" />';
+        $pix = $OUTPUT->pix_icon('f/spreadsheet');
         echo '<p><br/>'.$strupload.': <a href="'.$fileurl.'">'.$pix.'</a></p>';
 
     } else {
@@ -277,7 +277,7 @@ if (!empty($CFG->trainingreporttasks)) {
                 default:
                     $layoutimg = 'sessions';
             }
-            $attrs = array('src' => $OUTPUT->pix_url($layoutimg, 'report_trainingsessions'),
+            $attrs = array('src' => $OUTPUT->image_url($layoutimg, 'report_trainingsessions'),
                            'title' => get_string($layoutimg, 'report_trainingsessions'));
             $layout = html_writer::tag('img', null, $attrs);
 
@@ -285,13 +285,13 @@ if (!empty($CFG->trainingreporttasks)) {
                 $task->reportformat = 'csv';
             }
             $icons = array('pdf' => 'pdf', 'csv' => 'writer', 'xls' => 'spreadsheet');
-            $attrs = array('src' => $OUTPUT->pix_url('f/'.$icons[$task->reportformat].'-32'),
+            $attrs = array('src' => $OUTPUT->image_url('f/'.$icons[$task->reportformat].'-32'),
                            'title' => get_string($task->reportformat, 'report_trainingsessions'));
             $format = html_writer::tag('img', null, $attrs);
 
             $params = array('id' => $id, 'view' => 'courseraw', 'delete' => $task->id);
             $deleteurl = new moodle_url('/report/trainingsessions/index.php', $params);
-            $attrs = array('src' => $OUTPUT->pix_url('/t/delete'), 'title' => get_string('delete'));
+            $attrs = array('src' => $OUTPUT->image_url('/t/delete'), 'title' => get_string('delete'));
             $deleteimg = html_writer::tag('img', null, $attrs);
 
             $commands = '<a href="'.$deleteurl.'">'.$deleteimg.'</a>';
@@ -315,21 +315,27 @@ if (!empty($CFG->trainingreporttasks)) {
             $commands .= '&nbsp;'.html_writer::tag('a', get_string('interactive', 'report_trainingsessions'), $attrs);
 
             switch($task->replay) {
-                case TASK_REPLAY:
-                    $attrs = array('src' => $OUTPUT->pix_url('replay', 'report_trainingsessions'));
-                    $replayimg = html_writer::tag('img', '', $attrs);
+                case TASK_REPLAY: {
+                    $alt = get_string('replay', 'report_trainingsessions');
+                    $replayimg = $OUTPUT->pix_icon('replay', $alt, 'report_trainingsessions');
                     break;
+                }
 
-                case TASK_SHIFT:
-                    $attrs = array('src' => $OUTPUT->pix_url('periodshift', 'report_trainingsessions'));
-                    $replayimg = html_writer::tag('img', '', $attrs);
+                case TASK_SHIFT: {
+                    $alt = get_string('periodshift', 'report_trainingsessions');
+                    $replayimg = $OUTPUT->pix_icon('periodshift', $alt, 'report_trainingsessions');
                     break;
+                }
 
-                case TASK_SHIFT_TO:
-                    $attrs = array('src' => $OUTPUT->pix_url('endshift', 'report_trainingsessions'));
-                    $replayimg = html_writer::tag('img', '', $attrs);
+                case TASK_SHIFT_TO: {
+                    $alt = get_string('periodshiftto', 'report_trainingsessions');
+                    $replayimg = $OUTPUT->pix_icon('endshift', $alt, 'report_trainingsessions');
                     break;
-                default:
+                }
+
+                default: {
+                    assert(1);
+                }
             }
 
             $table->rowclasses[] = ($id == $task->courseid) ? 'trainingsessions-green' : '';
@@ -362,7 +368,7 @@ if (!empty($targetusers)) {
     $form->set_data($formdata);
     $form->display();
 } else {
-    echo $OUTPUT->box(get_string('nothing', 'report_trainingsessions'), 'report-trainingsession userinfobox');
+    echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
 }
 
 echo $OUTPUT->heading(get_string('reports', 'report_trainingsessions'));

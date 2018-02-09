@@ -65,6 +65,7 @@ $string['coursestart'] = 'Course start date';
 $string['coursesummary'] = 'Per participant summary';
 $string['coursetime'] = 'Time in course (activities excluded)';
 $string['coursetotaltime'] = 'Total course time';
+$string['coursetoolargenotice'] = 'Course is too large and no groups inside. Cannot compile.';
 $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
 $string['csvoutputtoiso'] = 'Iso CSV Output';

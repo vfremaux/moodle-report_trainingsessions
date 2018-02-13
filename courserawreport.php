@@ -164,7 +164,7 @@ if (!empty($targetusers)) {
         $strupload = get_string('uploadresult', 'report_trainingsessions');
         $fileurl = moodle_url::make_pluginfile_url($context->id, 'report_trainingsessions', 'rawreports', $fileinfo['itemid'],
                                                    '/', 'raw_'.$timestamp.'.csv');
-        $pix = $OUTPUT->pix_icon('f/spreadsheet');
+        $pix = $OUTPUT->pix_icon('f/spreadsheet', '');
         echo '<p><br/>'.$strupload.': <a href="'.$fileurl.'">'.$pix.'</a></p>';
 
     } else {

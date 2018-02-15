@@ -314,22 +314,24 @@ if (!empty($CFG->trainingreporttasks)) {
                            'title' => get_string('interactivetitle', 'report_trainingsessions'));
             $commands .= '&nbsp;'.html_writer::tag('a', get_string('interactive', 'report_trainingsessions'), $attrs);
 
-            switch($task->replay) {
-                case TASK_REPLAY:
+            switch ($task->replay) {
+                case TASK_REPLAY: {
                     $attrs = array('src' => $OUTPUT->pix_url('replay', 'report_trainingsessions'));
                     $replayimg = html_writer::tag('img', '', $attrs);
                     break;
+                }
 
-                case TASK_SHIFT:
+                case TASK_SHIFT: {
                     $attrs = array('src' => $OUTPUT->pix_url('periodshift', 'report_trainingsessions'));
                     $replayimg = html_writer::tag('img', '', $attrs);
                     break;
+                }
 
-                case TASK_SHIFT_TO:
+                case TASK_SHIFT_TO: {
                     $attrs = array('src' => $OUTPUT->pix_url('endshift', 'report_trainingsessions'));
                     $replayimg = html_writer::tag('img', '', $attrs);
                     break;
-                default:
+                }
             }
 
             $table->rowclasses[] = ($id == $task->courseid) ? 'trainingsessions-green' : '';

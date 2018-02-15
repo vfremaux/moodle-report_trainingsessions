@@ -43,11 +43,12 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         $userurl = new moodle_url('/report/trainingsessions/index.php', $params);
         $rows[0][] = new tabobject('user', $userurl, get_string('userdetail', 'report_trainingsessions'));
 
-        $params = array('id' => $course->id, 'view' => 'coursesummary', 'from' => $from, 'to' => $to);
-        $usersummaryurl = new moodle_url('/report/trainingsessions/index.php', $params);
-        $rows[0][] = new tabobject('coursesummary', $usersummaryurl, get_string('coursesummary', 'report_trainingsessions'));
-
         if (has_capability('report/trainingsessions:viewother', $context)) {
+
+            $params = array('id' => $course->id, 'view' => 'coursesummary', 'from' => $from, 'to' => $to);
+            $usersummaryurl = new moodle_url('/report/trainingsessions/index.php', $params);
+            $rows[0][] = new tabobject('coursesummary', $usersummaryurl, get_string('coursesummary', 'report_trainingsessions'));
+
             $params = array('id' => $course->id, 'view' => 'course', 'from' => $from, 'to' => $to);
             $courseurl = new moodle_url('/report/trainingsessions/index.php', $params);
             $rows[0][] = new tabobject('course', $courseurl, get_string('course', 'report_trainingsessions'));
@@ -81,94 +82,31 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return $str;
     }
 
-    /**
-     *
-     * @global type $DB
-     * @global type $OUTPUT
-     * @global type $COURSE
-     * @global type $CFG
-     * @param type $userid
-     * @param type $scope
-     * @return string
-     */
-    public function user_session_reports_buttons($userid, $scope = 'course') {
-        global $DB, $OUTPUT, $COURSE, $CFG;
+    public function xls_userexport_button($data) {
+        global $COURSE;
 
-        if (!is_dir($CFG->dirroot.'/local/vflibs')) {
-            if (debugging()) {
-                return $OUTPUT->notification(get_string('libsmissing', 'report_trainingsessions'));
-            }
+        if ($COURSE->id > SITEID) {
+            $context = context_course::instance($COURSE->id);
+        } else {
+            $context = context_system::instance();
+        }
+        if (!has_capability('report/trainingsessions:downloadreports', $context)) {
+            return '';
         }
 
-        $mon = array('JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUI', 'JUIL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC');
+        $str = '<br/><center>';
 
-        $str = '';
-
-        $user = $DB->get_record('user', array('id' => $userid));
-        $start = $user->firstaccess;
-        $last = $user->lastaccess;
-
-        if (!$start) {
-            return;
-        }
-
-        $startmonth = date('m', $start);
-        $startyear = date('Y', $start);
-        $lastmonth = date('m', $last);
-        $lastyear = date('Y', $last);
-
-        $this->next_month($lastmonth, $lastyear);
-
-        $notfirst = false;
-        $startlistmonth = 1;
-        $str .= '<div class="trainingsessions-buttons-wrapper">';
-        while (($startyear * 100 + $startlistmonth) <= ($lastyear * 100 + 12)) {
-
-            if ($startyear * 100 + $startlistmonth < $startyear * 100 + $startmonth) {
-                $str .= $this->placeholder();
-                $this->next_month($startlistmonth, $startyear);
-                continue;
-            }
-
-            if ($startyear * 100 + $startlistmonth >= $lastyear * 100 + $lastmonth) {
-                $str .= $this->placeholder();
-                $this->next_month($startlistmonth, $startyear);
-                continue;
-            }
-
-            $params['from'] = mktime(0, 0, 0, $startmonth, 1, $startyear);
-
-            $nextyear = $startyear;
-            $nextmonth = $startmonth;
-            $this->next_month($nextmonth, $nextyear);
-
-            $params['to'] = mktime(0, 0, 0, $nextmonth, 1, $nextyear);
-            $params['id'] = $COURSE->id; // The course id (context for user targets).
-            $params['userid'] = $userid; // User id.
-            $params['scope'] = $scope;
-            $params['outputname'] = 'report_user_'.$userid.'_sessions_'.$params['scope'].'.pdf';
-
-            if ($startmonth == 1 && $notfirst) {
-                $str .= '</div><div class="trainingsessions-buttons-wrapper">';
-            }
-            $url = new moodle_url('/report/trainingsessions/pro/tasks/userpdfreportsessions_batch_task.php', $params);
-            $attribs = array('target' => '_blank', 'class' => 'trainingsessions-inline-buttons');
-            $str .= $this->single_button($url, $mon[(int)($startmonth - 1)].' '.$startyear, $attribs);
-            $startmonth = $nextmonth;
-            $startyear = $nextyear;
-            $startlistmonth = $startmonth;
-            $notfirst = true;
-        }
+        $params = array('id' => $COURSE->id,
+                        'view' => 'user',
+                        'userid' => $data->userid,
+                        'from' => $data->from,
+                        'to' => $data->to);
+        $xlsurl = new moodle_url('/report/trainingsessions/tasks/userxlsreportperuser_batch_task.php', $params);
+        $str .= '<div class="trainingsessions-inline">';
+        $str .= $this->output->single_button($xlsurl, get_string('generatexls', 'report_trainingsessions'));
         $str .= '</div>';
-        return $str;
-    }
 
-    /**
-     *
-     * @return string
-     */
-    public function placeholder() {
-        return '<div class="month-placeholder"></div>';
+        return $str;
     }
 
     /**
@@ -232,16 +170,4 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return html_writer::tag('div', $str, array('class' => @$attrs['class']));
     }
 
-    /**
-     *
-     * @param int $m
-     * @param type $y
-     */
-    public function next_month(&$m, &$y) {
-        $m++;
-        if ($m > 12) {
-            $y++;
-            $m = 1;
-        }
-    }
 }

@@ -117,6 +117,9 @@ class SelectorForm extends moodleform {
                 }
                 $titles[] = get_string('user');
                 $row[] = & $mform->createElement('select', 'userid', '', $useroptions);
+            } else {
+                $mform->addElement('hidden', 'userid', $USER->id);
+                $mform->setType('userid', PARAM_INT);
             }
         } else {
             $groups = groups_get_all_groups($this->courseid);

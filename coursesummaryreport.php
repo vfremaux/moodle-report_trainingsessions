@@ -91,6 +91,8 @@ if ($data->groupid) {
 // Filter out non compiling users.
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
+// Note: targetusers shoud default to array() if empty. Emptyness is considered later.
+
 // Setup column list.
 $namedcols = report_trainingsessions_get_summary_cols();
 $durationcols = array('activitytime',
@@ -221,6 +223,6 @@ if (!empty($summarizedusers)) {
     echo '</center>';
     echo '<br/>';
 } else {
-    echo $OUTPUT->notification('nousersfound');
+    echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
 }
 

@@ -329,7 +329,11 @@ if (!empty($CFG->trainingreporttasks)) {
                     $attrs = array('src' => $OUTPUT->pix_url('endshift', 'report_trainingsessions'));
                     $replayimg = html_writer::tag('img', '', $attrs);
                     break;
-                default:
+                }
+
+                default: {
+                    assert(1);
+                }
             }
 
             $table->rowclasses[] = ($id == $task->courseid) ? 'trainingsessions-green' : '';

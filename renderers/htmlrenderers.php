@@ -116,7 +116,7 @@ function report_trainingsessions_print_allcourses_html(&$str, &$aggregate) {
             $str .= '</table>';
         }
     } else {
-        $str .= $OUTPUT->box(get_string('nodata', 'report_trainingsessions'), 'generalbox', '', true);
+        $str .= $OUTPUT->notification(get_string('nodata', 'report_trainingsessions'));
     }
 
     return $return;
@@ -565,7 +565,7 @@ function report_trainingsessions_print_session_list(&$str, $sessions, $courseid 
     $sessionsstr = ($courseid) ? get_string('coursesessions', 'report_trainingsessions') : get_string('sessions', 'report_trainingsessions');
     $str .= $OUTPUT->heading($sessionsstr, 2);
     if (empty($sessions)) {
-        $str .= $OUTPUT->box(get_string('nosessions', 'report_trainingsessions'));
+        $str .= $OUTPUT->notification(get_string('nosessions', 'report_trainingsessions'));
         return;
     }
 

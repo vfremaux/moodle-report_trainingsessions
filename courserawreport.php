@@ -368,7 +368,7 @@ if (!empty($targetusers)) {
     $form->set_data($formdata);
     $form->display();
 } else {
-    echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
+    echo $OUTPUT->box(get_string('nothing', 'report_trainingsessions'), 'report-trainingsession userinfobox');
 }
 
 echo $OUTPUT->heading(get_string('reports', 'report_trainingsessions'));

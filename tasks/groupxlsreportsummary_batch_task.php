@@ -33,7 +33,7 @@ ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
-require_once($CFG->libdir.'/excellib.class.php');
+require_once($CFG->dirroot.'/report/trainingsessions/lib/excellib.php');
 require_once($CFG->libdir.'/gradelib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
@@ -79,7 +79,7 @@ if (!empty($targetusers)) {
     } else {
         $filename = "trainingsessions_course_{$course->id}_summary_".$input->filenametimesession.".xls";
     }
-    $workbook = new MoodleExcelWorkbook('-');
+    $workbook = new MoodleExcelWorkbookTS('-');
 
     // Sending HTTP headers.
     ob_end_clean();

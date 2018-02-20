@@ -34,7 +34,7 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/blocks/use_stats/xlib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
-require_once($CFG->libdir.'/excellib.class.php');
+require_once($CFG->dirroot.'/report/trainingsessions/lib/excellib.php');
 
 $id = required_param('id', PARAM_INT); // The course id (context for user targets).
 $userid = required_param('userid', PARAM_INT); // User id.
@@ -57,7 +57,7 @@ $input = report_trainingsessions_batch_input($course);
 
 // Security.
 
-report_trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course, $userid);
 
 $config = get_config('report_trainingsessions');
 
@@ -73,7 +73,7 @@ list($displaycourses,
      $courseevents) = block_use_stats_get_coursetable($aggregate, $fulltotal, $fullevents);
 
 // Generate XLS.
-$workbook = new MoodleExcelWorkbook("-");
+$workbook = new MoodleExcelWorkbookTS("-");
 if (!$workbook) {
     die("Excel Librairies Failure");
 }

@@ -64,12 +64,6 @@ $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->i
 $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
 $weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->to - WEEKSECS, $data->to);
 
-$automatondebug = optional_param('debug', 0, PARAM_BOOL) && is_siteadmin();
-if ($automatondebug) {
-    echo '<h2>Aggregator output</h2>';
-    block_use_stats_render_aggregate($aggregate);
-}
-
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
@@ -113,7 +107,8 @@ if (!empty($aggregate['course'])) {
 
 // Calculate everything.
 
-$dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
+$dataobject->elapsed = $dataobject->activityelapsed + $dataobject->course->elapsed;
+$dataobject->extelapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
 $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
 if (array_key_exists('upload', $aggregate)) {
@@ -136,35 +131,12 @@ report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course
 
 echo $str;
 
-echo '<br/><center>';
-
-$params = array('id' => $course->id,
-                'view' => 'user',
-                'userid' => $data->userid,
-                'from' => $data->from,
-                'to' => $data->to);
-$xlsurl = new moodle_url('/report/trainingsessions/tasks/userxlsreportperuser_batch_task.php', $params);
-echo '<div class="trainingsessions-inline">';
-echo $OUTPUT->single_button($xlsurl, get_string('generatexls', 'report_trainingsessions'));
-echo '</div>';
+echo $renderer->xls_userexport_button($data);
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
-    $now = time();
-    $filename = 'report_user_detail_'.$data->userid.'_'.$course->id.'_'.date('Ymd_His', $now).'.pdf';
-    $params = array('id' => $COURSE->id,
-                    'userid' => $data->userid,
-                    'from' => $data->from,
-                    'to' => $data->to,
-                    'outputname' => $filename);
-    $pdfurl = new moodle_url('/report/trainingsessions/pro/tasks/userpdfreportperuser_batch_task.php', $params);
-    echo '<div class="trainingsessions-inline">';
-    echo $OUTPUT->single_button($pdfurl, get_string('generatepdf', 'report_trainingsessions'));
-    echo '</div>';
-
-    echo '<h3>'.get_string('quickmonthlyreport', 'report_trainingsessions').'</h3>';
-    echo $renderer->user_session_reports_buttons($data->userid, 'course');
-    echo "<!-- {$data->from} / {$data->to} -->";
-    echo '</center>';
+    include_once($CFG->dirroot.'/report/trainingsessions/pro/renderer.php');
+    $prorenderer = new \report_trainingsessions\output\pro_renderer($PAGE, '');
+    echo $prorenderer->pdf_userexport_buttons($data);
 }
 
 echo '<br/>';

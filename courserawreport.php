@@ -314,7 +314,7 @@ if (!empty($CFG->trainingreporttasks)) {
                            'title' => get_string('interactivetitle', 'report_trainingsessions'));
             $commands .= '&nbsp;'.html_writer::tag('a', get_string('interactive', 'report_trainingsessions'), $attrs);
 
-            switch($task->replay) {
+            switch ($task->replay) {
                 case TASK_REPLAY: {
                     $alt = get_string('replay', 'report_trainingsessions');
                     $replayimg = $OUTPUT->pix_icon('replay', $alt, 'report_trainingsessions');
@@ -331,10 +331,6 @@ if (!empty($CFG->trainingreporttasks)) {
                     $alt = get_string('periodshiftto', 'report_trainingsessions');
                     $replayimg = $OUTPUT->pix_icon('endshift', $alt, 'report_trainingsessions');
                     break;
-                }
-
-                default: {
-                    assert(1);
                 }
             }
 
@@ -368,7 +364,7 @@ if (!empty($targetusers)) {
     $form->set_data($formdata);
     $form->display();
 } else {
-    echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
+    echo $OUTPUT->box(get_string('nothing', 'report_trainingsessions'), 'report-trainingsession userinfobox');
 }
 
 echo $OUTPUT->heading(get_string('reports', 'report_trainingsessions'));

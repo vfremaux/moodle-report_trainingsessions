@@ -1142,7 +1142,7 @@ function report_trainingsessions_back_office_get_ticket() {
  *
  * @param object $course
  */
-function report_trainingsessions_back_office_access($course = null) {
+function report_trainingsessions_back_office_access($course = null, $userid = 0) {
     global $CFG, $USER;
 
     $securitytoken = optional_param('ticket', '', PARAM_RAW);
@@ -1156,14 +1156,26 @@ function report_trainingsessions_back_office_access($course = null) {
             die('Ticket presented but no library for it');
         }
     } else {
+        $pass = 0;
         if (!is_null($course)) {
             require_login($course);
             $context = context_course::instance($course->id);
-            require_capability('report/trainingsessions:viewother', $context);
+            if (has_capability('report/trainingsessions:viewother', $context)) {
+                $pass = 1;
+            }
+            if ($userid == $USER->id && has_capability('report/trainingsessions:downloadreports', $context)) {
+                $pass = 1;
+            }
         } else {
             require_login();
             $context = context_system::instance();
-            require_capability('report/trainingsessions:viewother', $context);
+            if (has_capability('report/trainingsessions:viewother', $context)) {
+                $pass = 1;
+            }
+        }
+
+        if (!$pass) {
+            print_error(get_string('notallowed', 'report_trainingsessions'));
         }
     }
 }
@@ -1713,8 +1725,7 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
         'othertime' => 0 + @$t[0]->elapsed,
         'otherelapsed' => 0 + @$t[0]->elapsed,
-        'courseelapsed' => 0 + @$t[$courseid]->elapsed,
-        'elapsed' => 0 + @$t[$courseid]->elapsed + @$aggregate['course'][$courseid]->elapsed,
+        'elapsed' => 0 + @$t[$courseid]->elapsed,
         'exttime' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
         'extother' => 0 + @$t[0]->elapsed + @$t[SITEID]->elapsed,

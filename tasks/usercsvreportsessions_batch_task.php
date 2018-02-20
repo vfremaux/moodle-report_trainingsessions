@@ -39,7 +39,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-report_trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course, $userid);
 
 $input = report_trainingsessions_batch_input($course);
 

@@ -68,6 +68,7 @@ $string['coursestart'] = 'Début du cours';
 $string['coursesummary'] = 'Résumé par participant';
 $string['coursetime'] = 'Temps dans le cours (hors activités)&nbsp;';
 $string['coursetotaltime'] = 'Temps total dans le cours&nbsp;';
+$string['coursetoolargenotice'] = 'Ce cours a trops d\'utilisateurs et aucun groupe pour les segmenter. La compilation interactive n\'est pas possible.';
 $string['crop'] = 'Tronquer';
 $string['csv'] = 'Texte (CSV)';
 $string['csvoutputtoiso'] = 'CSV au format ISO';

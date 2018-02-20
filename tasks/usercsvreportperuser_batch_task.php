@@ -48,7 +48,7 @@ $context = context_course::instance($course->id);
 $input = report_trainingsessions_batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course);
+report_trainingsessions_back_office_access($course, $userid);
 
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 

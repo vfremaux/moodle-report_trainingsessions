@@ -107,7 +107,7 @@ if ($data->groupid) {
             $targetusers = get_enrolled_users($context, '', $data->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         } else {
             // DO NOT COMPILE.
-            echo $OUTPUT->notification('Course is too large and no groups in. Cannot compile.');
+            echo $OUTPUT->notification('coursetoolargenotice', 'report_trainingsessions');
             echo $OUTPUT->footer($course);
             die;
         }
@@ -185,7 +185,7 @@ if (!empty($targetusers)) {
         echo report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
     }
 } else {
-    echo $OUTPUT->notification(get_string('nousersfound'));
+    echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
 }
 
 $options['id'] = $course->id;

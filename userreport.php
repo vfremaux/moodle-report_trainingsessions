@@ -64,12 +64,6 @@ $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->i
 $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
 $weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->to - WEEKSECS, $data->to);
 
-$automatondebug = optional_param('debug', 0, PARAM_BOOL) && is_siteadmin();
-if ($automatondebug) {
-    echo '<h2>Aggregator output</h2>';
-    block_use_stats_render_aggregate($aggregate);
-}
-
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
@@ -113,7 +107,8 @@ if (!empty($aggregate['course'])) {
 
 // Calculate everything.
 
-$dataobject->elapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
+$dataobject->elapsed = $dataobject->activityelapsed + $dataobject->course->elapsed;
+$dataobject->extelapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
 $dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
 
 if (array_key_exists('upload', $aggregate)) {

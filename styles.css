@@ -6,13 +6,13 @@ table * td {
 }
 
 .sessionlevel1 td {
-   font-size:1.2em;
    border: solid 1px #888888;
+   font-size:1.2em;
 }
 
 .sessionlevel2 td {
-   font-size:1.1em;
    border-bottom: solid 1px #EEEEEE;
+   font-size:1.1em;
 }
 
 .sessionlevel3 td {
@@ -24,52 +24,52 @@ table * td {
 }
 
 .donebar{
-    height:18px;
     background-color : #579F4A;
+    height:18px;
 }
 
 .remainingbar{
-    height:18px;
-    background-color : #4B41A9;
+    background-color: #4B41A9;
+    height: 18px;
 }
 
 .completionbar{
-    margin-top:5px;
+    margin-top: 5px;
 }
 
 .reportdetails{
-    font-size:0.85em;
+    font-size: 0.85em;
 }
 
 .trainingreport.subs,
 .sessionreport{
-    width:100%;
-    margin-bottom:15px;
+    margin-bottom: 15px;
+    width: 100%;
 }
 
 .sessionitem.rangedate{
-    background-color:#d0d0d0;
-    font-size:0.9em;
-    border:1px solid #a0a0a0;
+    background-color: #d0d0d0;
+    border:1px solid  #a0a0a0;
+    font-size: 0.9em;
 }
 
 .report-trainingsession.userinfobox{
-    width:80%;
-    text-align:left;
-    padding:10px;
-    background-color:white;
-    border:1px #d0d0d0 solid;
-    border-radius:10px;
-    margin:10px;
-    font-size:1.2em;
+    background-color: white;
+    border-radius: 10px;
+    border: 1px #d0d0d0 solid;
+    font-size: 1.2em;
+    margin: 10px;
+    padding: 10px;
+    text-align: left;
+    width: 80%;
 }
 
 .report-trainingsessions.session-duration {
-    text-align:right;
+    text-align: right;
 }
 
 .trainingsessions-buttons-wrapper{
-    display:table-row;
+    display: table-row;
 }
 
 .trainingsessions-inline-buttons {
@@ -84,21 +84,21 @@ table * td {
 .trainingsessions-inline-buttons form,
 .trainingsessions-inline-buttons form * {
     display: inline;
-    margin:0px;
+    margin: 0;
 }
 
 .month-placeholder {
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: 1px #e0e0e0 solid;
     display: table-cell;
-    margin:0px 5px;
-    border:1px #e0e0e0 solid;
-    height:18px;
-    width:60px;
-    border-radius:4px;
-    -moz-border-radius:4px;
+    height: 18px;
+    margin: 0 5px;
+    width: 60px;
 }
 
 .trainingsessions-green {
-    background-color:#C4FBAC !important;
+    background-color:#c4fbac !important;
 }
 
 .trainingsessions-inline * {
@@ -106,19 +106,19 @@ table * td {
 }
 
 .trainingsessions-fieldset {
-    -moz-border-radius:8px;
-    padding:5px;
-    border:1px solid #CDCDCD;
-    border-radius:8px;
-    margin-bottom:15px;
+    -moz-border-radius: 8px;
+    border: 1px solid #CDCDCD;
+    border-radius: 8px;
+    padding: 5px;
+    margin-bottom: 15px;
 }
 
 .table-row {
-    display:table-row;
+    display: table-row;
 }
 
 .table-cell {
-    display:table-cell;
+    display: table-cell;
 }
 
 #report-trainingsessions-totalisers {
@@ -126,26 +126,29 @@ table * td {
 }
 
 .report-col-right {
-    text-align:right;
-    padding-right:20px;
+    text-align: right;
+    padding-right: 20px;
 }
 
 .userreport-col0 {
-    width:55%;
+    width: 55%;
 }
+
 .userreport-col1 {
-    width:15%;
-    text-align:center;
+    width: 15%;
+    text-align: center;
 }
+
 .userreport-col2 {
-    width:15%;
-    text-align:center;
+    width: 15%;
+    text-align: center;
 }
+
 .userreport-col3 {
-    width:15%;
-    text-align:right;
+    width: 15%;
+    text-align: right;
 }
 
 .trainingsessions-main-total {
-    font-size:1.3em;
+    font-size: 1.3em;
 }

@@ -267,6 +267,44 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 0, get_string('institution').' :', $xlsformats['b']);
     $worksheet->write_string($row, 1, $user->institution);
     $row++;
+
+    $timeformat = get_string('profileinfotimeformat', 'report_trainingsessions');
+
+    // Add some custom info from profile.
+    if (!empty($config->extrauserinfo1)) {
+        $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->extrauserinfo1)).':';
+        $fieldtype = $DB->get_field('user_info_field', 'datatype', array('id' => $config->extrauserinfo1));
+        $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->extrauserinfo1));
+        $worksheet->write_string($row, 0, $fieldname.' :', $xlsformats['b']);
+        if ($fieldtype == 'datetime') {
+            // Possible alternatives : write in real date cell or in text.
+            // $worksheet->write_date($row, 1, $info);
+
+            $info = strftime($timeformat, $info);
+            $worksheet->write_string($row, 1, $info);
+        } else {
+            $worksheet->write_string($row, 1, $info);
+        }
+        $row++;
+    }
+
+    if (!empty($config->extrauserinfo2)) {
+        $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->extrauserinfo2)).':';
+        $fieldtype = $DB->get_field('user_info_field', 'datatype', array('id' => $config->extrauserinfo2));
+        $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->extrauserinfo2));
+        $worksheet->write_string($row, 0, $fieldname.' :', $xlsformats['b']);
+        if ($fieldtype == 'datetime') {
+            // Possible alternatives : write in real date cell or in text.
+            // $worksheet->write_date($row, 1, $info);
+
+            $info = strftime($timeformat, $info);
+            $worksheet->write_string($row, 1, $info);
+        } else {
+            $worksheet->write_string($row, 1, $info);
+        }
+        $row++;
+    }
+
     if ($courseid) {
         $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
         $worksheet->write_string($row, 1, format_string($course->fullname));
@@ -435,6 +473,14 @@ function report_trainingsessions_count_header_rows($courseid) {
         $row++;
     }
     if (!empty($config->showhits)) {
+        $row++;
+    }
+
+    if (!empty($config->extrauserinfo1)) {
+        $row++;
+    }
+
+    if (!empty($config->extrauserinfo2)) {
         $row++;
     }
 

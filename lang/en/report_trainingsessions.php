@@ -198,6 +198,7 @@ $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
 $string['printsessiontotal'] = 'Display the overal session elapsed time';
 $string['printsessiontotal_desc'] = 'Do NOT display the total session time in on screen session reports.';
+$string['profileinfotimeformat'] = '%d %B %Y';
 $string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
 50 users, directly in the root directory of your course files.</p>';
 $string['quickmonthlyreport'] = 'Quick monthly reports (PDF)';
@@ -432,6 +433,13 @@ and improvement effort.</p>
 $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
 material and some time spent in general site screens the user has access to.';
+
+$string['extelapsedlastweek_help'] = '
+The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
+material and some time spent in general site screens the user has access to limited to the last week timerange.';
+
+$string['elapsedlastweek_help'] = '
+The extended course time calculates the time strictly spent inside the course context limited to the last week timerange.';
 
 $string['extother_help'] = '
 <p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';

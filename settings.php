@@ -84,8 +84,9 @@ if ($ADMIN->fulltree) {
     $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherlastweek,d\n#hitslastweek,n\n#exthitslastweek,n\nworkingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
-    $novalue = array('0' => get_string('disabled', 'report_trainingsessions'));
-    $fieldoptions = array_merge($novalue, $DB->get_records_menu('user_info_field', array(), 'id', 'id,name'));
+    $fieldoptions = $DB->get_records_menu('user_info_field', array(), 'id', 'id,name');
+    $fieldoptions[0] = get_string('disabled', 'report_trainingsessions');
+    asort($fieldoptions);
     $key = 'report_trainingsessions/extrauserinfo1';
     $label = get_string('extrauserinfo', 'report_trainingsessions');
     $desc = get_string('extrauserinfo_desc', 'report_trainingsessions');

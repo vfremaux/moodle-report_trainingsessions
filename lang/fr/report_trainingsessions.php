@@ -201,6 +201,7 @@ $string['printidnumber'] = 'Afficher le numéro d\'identification';
 $string['printidnumber_desc'] = 'si coché, ajoute le numéro d\'identification au rapports.';
 $string['printsessiontotal'] = 'Afficher le total des temps de session';
 $string['printsessiontotal_desc'] = 'Vous pouvez masquer le temps total de session affiché dans le rapport de sessions en décochant cette case.';
+$string['profileinfotimeformat'] = '%d %B %Y';
 $string['quickgroupcompile'] = '<h3>Compilation express pour {$a} utilisateurs:</h3><p>La compilation express produit une rapport de synthèse pour le groupe courant s\'il contient moins de 50 utilisateurs. Le rapport brut est généré à la racine des fichiers du cours.</p>';
 $string['quickmonthlyreport'] = 'Rapports mensuels (PDF)';
 $string['range'] = 'Plage ';

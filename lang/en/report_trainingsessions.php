@@ -198,6 +198,7 @@ $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
 $string['printsessiontotal'] = 'Display the overal session elapsed time';
 $string['printsessiontotal_desc'] = 'Do NOT display the total session time in on screen session reports.';
+$string['profileinfotimeformat'] = '%d %B %Y';
 $string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
 50 users, directly in the root directory of your course files.</p>';
 $string['quickmonthlyreport'] = 'Quick monthly reports (PDF)';

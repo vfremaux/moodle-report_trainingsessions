@@ -421,9 +421,17 @@ sous certaines conditions, afin de soutenir l\'effort de développement, amélio
 <p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
 <p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=fr_utf8">Distributeurs MyLF</a></p>';
 
+$string['elapsedlastweek_help'] = '
+Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours réduit à la dernière semaine écoulée.';
+
 $string['extelapsed_help'] = '
-Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajout les temps passés à rejoidre le cours
+Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajoute les temps passés à rejoidre le cours
 ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail.';
+
+$string['extelapsedlastweek_help'] = '
+Le temps cours étendu comptabilise les temps strictement passés dans le contexte du cours et y ajoute les temps passés à rejoidre le cours
+ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail,
+le tout réduit à la dernière semaine écoulée.';
 
 $string['extother_help'] = '
 <p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du

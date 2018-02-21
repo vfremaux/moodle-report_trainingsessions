@@ -434,6 +434,13 @@ $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
 material and some time spent in general site screens the user has access to.';
 
+$string['extelapsedlastweek_help'] = '
+The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
+material and some time spent in general site screens the user has access to limited to the last week timerange.';
+
+$string['elapsedlastweek_help'] = '
+The extended course time calculates the time strictly spent inside the course context limited to the last week timerange.';
+
 $string['extother_help'] = '
 <p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';
 

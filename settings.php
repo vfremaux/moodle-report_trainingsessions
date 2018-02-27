@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/lib.php');
 
 if ($ADMIN->fulltree) {
     // No report settings.

@@ -135,8 +135,8 @@ echo $renderer->xls_userexport_button($data);
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
     include_once($CFG->dirroot.'/report/trainingsessions/pro/renderer.php');
-    $prorenderer = new \report_trainingsessions\output\pro_renderer($PAGE, '');
-    echo $prorenderer->pdf_userexport_buttons($data);
+    $rendererext = new \report_trainingsessions\output\pro_renderer($PAGE, '');
+    echo $rendererext->pdf_userexport_buttons($data);
 }
 
 echo '<br/>';

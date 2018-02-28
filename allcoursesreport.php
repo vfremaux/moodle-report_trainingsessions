@@ -145,7 +145,11 @@ if ($data->output == 'html') {
     $url = new moodle_url('/report/trainingsessions/tasks/userxlsreportallcourses_batch_task.php', $params);
     echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
-    echo $renderer->user_session_reports_buttons($data->userid, 'allcourses');
+    if (report_trainingsessions_supports_feature('format/pdf')) {
+        include_once($CFG->dirroot.'/report/trainingsessions/pro/renderer.php');
+        $rendererext = new \report_trainingsessions\output\pro_renderer($PAGE, '');
+        echo $rendererext->user_session_reports_buttons($data->userid, 'allcourses');
+    }
 
     echo '</center>';
     echo '<br/>';

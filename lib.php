@@ -118,7 +118,7 @@ function report_trainingsessions_supports_feature($feature) {
             'pro' => array(
                 'format' => array('xls', 'csv', 'pdf', 'json'),
                 'replay' => array('single', 'replay', 'shift', 'shiftto'),
-                'calculation' => array('coupling'),
+                'calculation' => array('coupling', 'specialgrades'),
                 'xls' => array('calculated'),
                 'export' => array('ws')
             ),

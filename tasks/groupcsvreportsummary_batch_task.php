@@ -74,8 +74,8 @@ if (!empty($targetusers)) {
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->from - WEEKSECS);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
+        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS);
 
         $cols = report_trainingsessions_get_summary_cols();
         report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer);

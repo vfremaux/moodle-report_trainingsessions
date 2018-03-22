@@ -584,7 +584,7 @@ function report_trainingsessions_print_usersessions(&$worksheet, $userid, $row, 
 
     // Get data.
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
-    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
+    $aggregate = use_stats_aggregate_logs($logs, $from, $to);
 
     report_trainingsessions_print_sessions_xls($worksheet, $row, $aggregate['sessions'], $course, $xlsformats);
 }

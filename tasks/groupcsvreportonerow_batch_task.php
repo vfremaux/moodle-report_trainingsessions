@@ -74,8 +74,8 @@ if (!empty($targetusers)) {
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->from - WEEKSECS);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
+        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS);
 
         /*
         $globalresults = new StdClass;

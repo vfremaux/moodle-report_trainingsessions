@@ -65,7 +65,7 @@ if ($auser) {
 
     $logusers = $auser->id;
     $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
+    $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
 
     $csvbuffer = '';
     report_trainingsessions_print_userinfo($csvbuffer, $auser);

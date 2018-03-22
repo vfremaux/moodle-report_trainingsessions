@@ -130,11 +130,11 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
             for ($i = 1; $i <= 3; $i++) {
                 $attrs = array('cols' => 60, 'rows' => 4, 'maxlength' => 254);
                 $mform->addElement('textarea', 'calculated'.$i, $formulastr.' '.$i, $attrs);
-                $mform->setType('calculated'.$i, PARAM_TEXT);
+                $mform->setType('calculated'.$i, PARAM_RAW);
                 $mform->addHelpButton('calculated'.$i, 'calculated', 'report_trainingsessions');
                 $attrs = array('size' => 20, 'maxlength' => 254);
                 $mform->addElement('text', 'calculated'.$i.'label', $formulalabelstr.' '.$i, $attrs);
-                $mform->setType('calculated'.$i.'label', PARAM_TEXT);
+                $mform->setType('calculated'.$i.'label', PARAM_RAW);
             }
 
             $attrs = array('size' => 80, 'maxlength' => 254);

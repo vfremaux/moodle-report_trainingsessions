@@ -153,7 +153,7 @@ if (!empty($options['launch'])) {
 
             $logs = use_stats_extract_logs($data->from, time(), $userid, null);
 
-            $aggregate = use_stats_aggregate_logs($logs, 'module');
+            $aggregate = use_stats_aggregate_logs($logs, $data->from, time());
 
             $user = $DB->get_record('user', array('id' => $userid));
 

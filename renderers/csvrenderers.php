@@ -187,7 +187,7 @@ function report_trainingsessions_print_usersessions(&$csvbuffer, $userid, $cours
 
     // Get data.
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
-    $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $from, $to);
+    $aggregate = use_stats_aggregate_logs($logs, $from, $to);
 
     if (report_trainingsessions_supports_feature('calculation/coupling')) {
         $config = get_config('report_traningsessions');

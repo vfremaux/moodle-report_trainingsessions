@@ -40,6 +40,11 @@ $id = required_param('id', PARAM_INT); // The course id (context for user target
 $userid = required_param('userid', PARAM_INT); // User id.
 $filename = optional_param('outputname', '', PARAM_FILE);
 
+if (empty($filename)) {
+    // TODO : this is a quick fix. Should see if report_trainingsessions_batch_input is usable here.
+    $filename = "trainingsessions_allcourses_{$userid}_report_".date('Ymd_His', time()).'.xls';
+}
+
 ini_set('memory_limit', '512M');
 
 if (!$course = $DB->get_record('course', array('id' => $id))) {

@@ -68,7 +68,7 @@ $config = get_config('report_trainingsessions');
 
 // Get all results for this user.
 $logs = use_stats_extract_logs($input->from, $input->to, $user->id, 0);
-$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $input->from, $input->to);
+$aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
 
 $fulltotal = 0;
 list($displaycourses,

@@ -131,7 +131,7 @@ if (!empty($targetusers)) {
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
-        $aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
+        $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 
         if (empty($aggregate['sessions'])) {
             $aggregate['sessions'] = array();

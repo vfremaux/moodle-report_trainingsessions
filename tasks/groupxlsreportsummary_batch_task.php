@@ -107,10 +107,10 @@ if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
 
         $logs = use_stats_extract_logs($input->from, $input->to, array($auser->id), $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, 'module');
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
 
         $weeklogs = use_stats_extract_logs($input->to - DAYSECS * 7, $input->to, array($auser->id), $course->id);
-        $weekaggregate = use_stats_aggregate_logs($weeklogs, 'module');
+        $weekaggregate = use_stats_aggregate_logs($weeklogs, $input->to - DAYSECS * 7, $input->to);
 
         $data = report_trainingsessions_map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
 

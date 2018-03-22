@@ -79,7 +79,7 @@ if ($data->output == 'html') {
 
 // Get log data.
 $logs = use_stats_extract_logs($data->from, $data->to, $userid, null);
-$aggregate = use_stats_aggregate_logs($logs, 'module');
+$aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();

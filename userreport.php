@@ -61,8 +61,8 @@ echo ' '.get_string('to', 'report_trainingsessions')." : ".userdate($data->to);
 // Get data.
 
 $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->from, $data->to);
-$weekaggregate = use_stats_aggregate_logs($logs, 'module', 0, $data->to - WEEKSECS, $data->to);
+$aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
+$weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
 
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();

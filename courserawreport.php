@@ -131,10 +131,10 @@ if (!empty($targetusers)) {
 
         foreach ($targetusers as $u) {
             $logs = use_stats_extract_logs($from, $to, $u->id, $id);
-            $aggregate[$u->id] = use_stats_aggregate_logs($logs, 'module');
+            $aggregate[$u->id] = use_stats_aggregate_logs($logs, $from, $to);
 
             $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, $u->id, $id);
-            $weekaggregate[$u->id] = use_stats_aggregate_logs($weeklogs, 'module');
+            $weekaggregate[$u->id] = use_stats_aggregate_logs($weeklogs, $to - DAYSECS * 7, $to);
         }
 
         $timestamp = time();

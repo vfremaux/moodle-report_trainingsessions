@@ -124,10 +124,10 @@ foreach ($targetusers as $user) {
 
     // Get data from moodle.
     $logs = use_stats_extract_logs($data->from, $data->to, $user->id, $courseid);
-    $aggregate = use_stats_aggregate_logs($logs, 'module', $user->id, $data->from, $data->to);
+    $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 
     $weeklogs = use_stats_extract_logs($data->to - DAYSECS * 7, $data->to, array($user->id), $courseid);
-    $weekaggregate = use_stats_aggregate_logs($weeklogs, 'module');
+    $weekaggregate = use_stats_aggregate_logs($weeklogs, $data->to - DAYSECS * 7, $data->to);
 
     @$aggregate['coursetotal'][$courseid]->items = $items;
 

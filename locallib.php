@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/lib/grade/grade_scale.php');
+require_once($CFG->dirroot.'/report/trainingsessions/lib.php');
 
 define('TASK_SINGLE', 0);
 define('TASK_REPLAY', 1);

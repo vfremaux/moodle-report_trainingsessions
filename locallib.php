@@ -1690,6 +1690,10 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         }
     }
 
+    // Map those columns all the time to avoid loosing course structure "out of course" values.
+    $data['coursetime'] = 0 + @$aggregate['course'][$courseid]->elapsed;
+    $data['othertime'] = 0 + @$t[0]->elapsed;
+
     return $data;
 }
 

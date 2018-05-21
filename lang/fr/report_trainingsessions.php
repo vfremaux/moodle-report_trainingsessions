@@ -66,7 +66,7 @@ $string['courseraw'] = 'Batchs';
 $string['coursesessions'] = 'Sessions de travail pour ce cours (au réel plateforme)';
 $string['coursestart'] = 'Début du cours';
 $string['coursesummary'] = 'Résumé par participant';
-$string['coursetime'] = 'Temps dans le cours (hors activités)&nbsp;';
+$string['coursetime'] = 'Temps hors activités&nbsp;';
 $string['coursetotaltime'] = 'Temps total dans le cours&nbsp;';
 $string['coursetoolargenotice'] = 'Ce cours a trops d\'utilisateurs et aucun groupe pour les segmenter. La compilation interactive n\'est pas possible.';
 $string['crop'] = 'Tronquer';
@@ -152,6 +152,10 @@ $string['layout'] = 'Mise en page';
 $string['learningtimesessioncrop'] = 'Avec les sessions hors plage valide';
 $string['learningtimesessioncrop_desc'] = 'Lorsqu\'une session sort d\'une plage validée par les contraintes du module de temps d\'apprentissage, elle peut être tronquée ou simplement marquée dans les rapports.';
 $string['libsmissing'] = 'Des librairies manquent pour utiliser cette fonctionnalité. Installez les librairies à partir de http://github.com/vfremaux/moodle-local_vflibs pour activer la génération PDF.';
+$string['licenseprovider'] = 'Fournisseur version Pro';
+$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
+$string['licensekey'] = 'Clef de license pro';
+$string['licensekey_desc'] = 'Entrez ici la clef de produit que vous avez reçu de votre distributeur.';
 $string['mark'] = 'Signaler dans les rapports (PDF)';
 $string['modgrade'] = 'Score d\'activité';
 $string['modulegrade'] = 'Module d\'activité';
@@ -419,6 +423,7 @@ $string['plugindist_desc'] = '
 correspondant à une utilisation courante du plugin. Une version "professionnelle" de ce plugn existe et est distribuée
 sous certaines conditions, afin de soutenir l\'effort de développement, amélioration; documentation et suivi des versions.</p>
 <p>Contactez un distributeur pour obtenir la version "Pro" et son support.</p>
+<p>Notez que les deux composants report_trainingsessions et blocks_use_stats doivent être utilisés sur le même niveau de distribution.</p>
 <p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=fr_utf8">Distributeurs MyLF</a></p>';
 
 $string['elapsedlastweek_help'] = '

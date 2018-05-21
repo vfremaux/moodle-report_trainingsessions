@@ -148,6 +148,10 @@ $string['layout'] = 'Document layout';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
 $string['learningtimesessioncrop_desc'] = 'When coupling with learningtimecheck, out of valid range sessions could be croped, or kept and only marked into reports';
 $string['libsmissing'] = 'This feature has been disabled as libs are missing. Install libs from http://github.com/vfremaux/moodle-local_vflibs to get PDF generation enabled.';
+$string['licenseprovider'] = 'Pro License provider';
+$string['licenseprovider_desc'] = 'Input here your provider key';
+$string['licensekey'] = 'Pro license key';
+$string['licensekey_desc'] = 'Input here the product license key you got from your provider';
 $string['mark'] = 'Mark out of range sessions';
 $string['modgrade'] = 'Activity grade';
 $string['modulegrade'] = 'Activity module';
@@ -427,6 +431,7 @@ $string['plugindist_desc'] = '
 <p>This plugin is the community version and is published for anyone to use as is and check the plugin\'s
 core application. A "pro" version of this plugin exists and is distributed under conditions to feed the life cycle, upgrade, documentation
 and improvement effort.</p>
+<p>Note that both components report_trainingsessions and blocks_use_stats must work using the same distribution level.</p>
 <p>Please contact one of our distributors to get "Pro" version support.</p>
 <p><a href="http://www.mylearningfactory.com/index.php/documentation/Distributeurs?lang=en_utf8">MyLF Distributors</a></p>';
 

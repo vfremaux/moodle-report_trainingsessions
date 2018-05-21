@@ -89,4 +89,4 @@ define(['jquery', 'core/log', 'core/config'], function($, log, cfg) {
     };
 
     return trainingsessionspro;
-})
+});

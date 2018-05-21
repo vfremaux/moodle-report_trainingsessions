@@ -1,7 +1,7 @@
 <?php
 
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/report/etl/db" VERSION="20090603" COMMENT="XMLDB file for Moodle report/trainingsessions"
+<XMLDB PATH="report/trainingsessions/db" VERSION="20180324" COMMENT="XMLDB file for Moodle report/trainingsessions"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >

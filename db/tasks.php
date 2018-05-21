@@ -28,10 +28,10 @@ $tasks = array(
     array(
         'classname' => 'report_trainingsessions\task\batchreports_task',
         'blocking' => 0,
-        'minute' => '*',
+        'minute' => '0',
         'hour' => '3',
         'day' => '*',
         'month' => '*',
-        'dayofweek' => '1,2,3,4,5'
+        'dayofweek' => '2,3,4,5,6'
     )
 );

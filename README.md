@@ -1,27 +1,18 @@
 moodle-report_trainingsessions
 ==============================
 
-A structured report of use time using use_stats bloc time compliations.
+A structured report of use time using use_stats bloc time compliatons.
 
-Provides: 
+Provides : 
 
-- Student individual details report :
-- Use time detailed in course structure
-- Use time in course space (outside activities)
-- Working sessions reports
-- supports CSV and XLS output (pro version for PDF and JSON formats)
-- Trainng session overview
-- Course summary report
-- Course raw and batch programming 
+Student individual details report :
+* Use time detailed in course structure
+* Use time in course space (outside activities)
+* Working sessions reports 
 
-<<<<<<< HEAD
-Dependencies: 
-=======
 Dependencies:
->>>>>>> MOODLE_34_STABLE
 ===============
 Block moodle-block_use_stats
-Block moodle-auth_ticket for securing batch CURL tasks distribution.
 
 Optional (PRO version):
 
@@ -35,38 +26,10 @@ page breaks for long reports. This is not handled by the standard TCPDF library
 
 Versions:
 =========
-Moodle < 2.7 not supprted any more. 
-active branches: 
-- MOODLE_27_STABLE
-- MOODLE_28_STABLE
-- MOODLE_29_STABLE
-- MOODLE_30_STABLE
-- MOODLE_31_STABLE
+Available in Moodle 2.x (master) and Moodle 1.9 (MOODLE_19_STABLE)
 
-<<<<<<< HEAD
-Next comming branches:
-- MOODLE_32_STALE
-
-WORKING branches are unstable and used for continuous integration automated tests.
-
-This is the community version of the report_trainingsessions plugin
-A "Pro" featured version is available from our Distributors.
-
-ActiveProLearn SAS (sales@activeprolearn.com)
-Edunao SAS (cyril@edunao.com)
-
-Pro version provides:
-- Batch parallel execution using MultiCurl
-- PDF renderers and generators
-- JSON renderers and generators
-- LearningTimeCheck time credits coupling
-- Laborable/non laborable separation
-=======
 2016042900 : Adds a specific capability for batchs
 
-<<<<<<< HEAD
->>>>>>> MOODLE_32_STABLE
-=======
 2017021600 - New distribution policy
 ====================================
 
@@ -96,20 +59,13 @@ Community standard concerns:
 * moodle core plugin API contract
 * security implementation
 * base documentation
-<<<<<<< HEAD
->>>>>>> MOODLE_32_STABLE
-=======
 
 2017080100 - X.X.0006
 =============================
 * adding grading setup control by capability
 * adding defaults to grading mode selectors
-<<<<<<< HEAD
->>>>>>> MOODLE_32_STABLE
-=======
 
 2017080100 - X.X.0007
 =============================
 
 Allow suspended students to be removed from reports with a setting.
->>>>>>> MOODLE_34_STABLE

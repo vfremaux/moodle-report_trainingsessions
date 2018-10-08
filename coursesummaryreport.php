@@ -137,6 +137,9 @@ foreach ($targetusers as $user) {
 
     // Fetch and add eventual additional score columns.
     report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
+    if (count($colskeys) != count($colsdata)) {
+        throw(new moodle_exception("Not same number of columns. " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
+    }
 
     // Assemble keys and data.
     if (!empty($colskeys)) {
@@ -183,6 +186,9 @@ if (!empty($summarizedusers)) {
     // Add a row for each user.
     $line = 1;
     foreach ($summarizedusers as $auser) {
+        if (empty($auser)) {
+            continue;
+        }
         echo '<tr>';
         echo '<td>'.$line.'</td>';
         foreach ($auser as $fieldname => $field) {

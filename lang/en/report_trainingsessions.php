@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// Privacy.
+$string['privacy:metadata'] = "The Trainingsessions Report does not store any data belonging to users";
+
 $string['trainingsessions:iscompiled'] = 'Is compiled in reports';
 $string['trainingsessions:view'] = 'Can view training session report';
 $string['trainingsessions:viewother'] = 'Can view training session reports from other users';

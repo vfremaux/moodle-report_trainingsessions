@@ -1619,7 +1619,7 @@ function report_trainingsessions_get_summary_cols($what = false) {
  * @param boolean $associative if true, returns an associative array mapped on column names
  * @return array or hash table
  */
-function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$weekaggregate,
+function report_trainingsessions_map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate,
                                                   $courseid = 0, $associative = false) {
     global $COURSE;
 
@@ -1690,9 +1690,11 @@ function report_trainingsessions_map_summary_cols($cols, &$user, &$aggregate, &$
         }
     }
 
-    // Map those columns all the time to avoid loosing course structure "out of course" values.
-    $data['coursetime'] = 0 + @$aggregate['course'][$courseid]->elapsed;
-    $data['othertime'] = 0 + @$t[0]->elapsed;
+    if ($associative) {
+        // Map those columns all the time to avoid loosing course structure "out of course" values.
+        $data['coursetime'] = 0 + @$aggregate['course'][$courseid]->elapsed;
+        $data['othertime'] = 0 + @$t[0]->elapsed;
+    }
 
     return $data;
 }

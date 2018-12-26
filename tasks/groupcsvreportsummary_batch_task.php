@@ -43,6 +43,7 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 $input = report_trainingsessions_batch_input($course);
+$config = get_config('report_trainingsessions');
 
 // Security.
 report_trainingsessions_back_office_access($course);

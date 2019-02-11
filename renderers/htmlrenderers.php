@@ -477,7 +477,11 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     if (in_array('workingsessions', $cols)) {
         $str .= '<b>'.get_string('workingsessions', 'report_trainingsessions');
-        $str .= ':</b> '.(0 + @$data->sessions);
+        if (!empty($data->sessions)) {
+            $str .= ':</b> '.(0 + @$data->sessions);
+        } else {
+            $str .= ':</b> '.get_string('nosessions', 'report_trainingsessions');
+        }
 
         if (@$data->sessions == 0 && (@$completedwidth > 0)) {
             $str .= $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');

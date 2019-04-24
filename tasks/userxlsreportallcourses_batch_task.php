@@ -91,9 +91,9 @@ $xlsformats = report_trainingsessions_xls_formats($workbook);
 
 // Define variables.
 $startrow = report_trainingsessions_count_header_rows($course->id);
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook);
+$worksheet = report_trainingsessions_init_worksheet($user->id, $startrow, $xlsformats, $workbook);
 
-report_trainingsessions_print_header_xls($worksheet, $userid, 0, $data, $xlsformats);
+report_trainingsessions_print_header_xls($worksheet, $user->id, 0, $input, $xlsformats);
 
 $y = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
 

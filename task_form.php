@@ -90,6 +90,11 @@ class Task_Form extends moodleform {
             'sessionsonly' => get_string('sessionsonly', 'report_trainingsessions')
         );
 
+        $config = get_config('report_trainingsessions');
+        if (!empty($config->enablelearningtimecheckcoupling)) {
+            $layoutoptions['workingdays'] = get_string('workingdays', 'report_trainingsessions');
+        }
+
         $mform->addElement('select', 'reportlayout', get_string('reportlayout', 'report_trainingsessions'), $layoutoptions);
 
         // Which data to export and how to build the report.

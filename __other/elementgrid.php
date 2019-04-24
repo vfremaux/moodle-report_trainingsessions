@@ -25,11 +25,17 @@
  */
 
 if (!class_exists('MoodleQuickForm_elementgrid')) {
-    if (file_exists($CFG->libdir.'/pear/HTML/QuickForm/elementgrid.php')) {
-        require_once('HTML/QuickForm/elementgrid.php');
-    } else {
-        require_once($CFG->dirroot.'/report/trainingsessions/__other/HTML/QuickForm/elementgrid.php');
+    function initElementGrids() {
+        global $CFG;
+
+        if (file_exists($CFG->libdir.'/pear/HTML/QuickForm/elementgrid.php')) {
+            include_once('HTML/QuickForm/elementgrid.php');
+        } else {
+            include_once($CFG->dirroot.'/report/trainingsessions/__other/HTML/QuickForm/elementgrid.php');
+        }
     }
+
+    initElementGrids();
 
 /**
  * HTML class for a button type element
@@ -44,7 +50,7 @@ if (!class_exists('MoodleQuickForm_elementgrid')) {
     class MoodleQuickForm_elementgrid extends HTML_QuickForm_elementgrid {
         /** @var string html for help button, if empty then no help */
         var $_helpbutton='';
-    
+
         /**
          * constructor
          *

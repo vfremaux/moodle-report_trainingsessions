@@ -274,6 +274,9 @@ if (!empty($CFG->trainingreporttasks)) {
                 case 'oneuserperrow' :
                     $layoutimg = 'userlist';
                     break;
+                case 'workingdays' :
+                    $layoutimg = 'workingdays';
+                    break;
                 default:
                     $layoutimg = 'sessions';
             }

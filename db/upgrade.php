@@ -103,5 +103,44 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017020200, 'report', 'trainingsessions');
     }
 
+    if ($oldversion < 2019041700) {
+        // Relocate pdf header/footer configs if necessary.
+        relocate_header_files();
+
+        upgrade_plugin_savepoint(true, 2019041700, 'report', 'trainingsessions');
+    }
+
     return true;
+}
+
+function relocate_header_files() {
+    global $DB;
+
+    $fs = get_file_storage();
+
+    $fileareas = array('pdfreportheader', 'pdfreportinnerheader', 'pdfreportfooter');
+
+    foreach ($fileareas as $filearea) {
+        $goodparams = array('component' => 'report_trainingsessions', 'filearea' => $filearea);
+        $goodrecs = $DB->get_records('files', $params);
+
+        $badparams = array('component' => 'core', 'filearea' => $filearea);
+        $badrecs = $DB->get_records('files', $params);
+
+        if (empty($goodrecs) && !empty($badrecs)) {
+            $sql = "
+                UPDATE
+                    {files}
+                SET
+                    component = 'report_trainingsessions'
+                WHERE
+                    component = 'core' AND
+                    filearea = ?
+            ";
+            $DB->execute($sql, array($filearea));
+        }
+
+        // Clean old area whenever.
+        $fs->clear_area_files($systemcontext->id, 'core', $filearea);
+    }
 }

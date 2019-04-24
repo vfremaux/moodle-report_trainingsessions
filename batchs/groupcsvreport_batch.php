@@ -41,13 +41,16 @@ $to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when 
 $groupid = optional_param('groupid', '', PARAM_INT); // Compiling for given group or all groups.
 $outputdir = optional_param('outputdir', 'autoreports', PARAM_TEXT); // Where to put the file.
 $reportlayout = optional_param('reportlayout', 'onefulluserpersheet', PARAM_TEXT); // Where to put the file.
-$reportscope = optional_param('reportscope', 'onefulluserpersheet', PARAM_TEXT); // Allcourses or currentcourse.
+$reportscope = optional_param('reportscope', 'currentcourse', PARAM_TEXT); // Allcourses or currentcourse.
 $reportformat = 'csv';
 
 if ($reportlayout == 'onefulluserpersheet') {
     print_error('unsupported', 'report_trainingsessions');
 } else if ($reportlayout == 'oneuserperrow') {
     $reporttype = 'summary';
+    $range = 'group';
+} else if ($reportlayout == 'workingdays') {
+    $reporttype = 'workingdays';
     $range = 'group';
 } else {
     $reporttype = 'sessions';

@@ -238,8 +238,13 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     global $CFG, $DB;
 
     $config = get_config('report_trainingsessions');
+    $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
 
     $cols = report_trainingsessions_get_summary_cols();
+    $gradecols = array();
+    $gradetitles = array();
+    $gradeformats = array();
+    report_trainingsessions_add_graded_columns($gradecols, $gradetitles, $gradeformats);
 
     $user = $DB->get_record('user', array('id' => $userid));
     if ($courseid) {
@@ -267,6 +272,15 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
     $worksheet->write_string($row, 0, get_string('institution').' :', $xlsformats['b']);
     $worksheet->write_string($row, 1, $user->institution);
     $row++;
+    $label = get_string('reportdate', 'report_trainingsessions');
+    $worksheet->write_string($row, 0, $label.' :', $xlsformats['b']);
+    $worksheet->write_string($row, 1, strftime($datetimefmt, time()));
+    $row++;
+    if (!empty($config->printlocation)) {
+        $label = get_string('location', 'report_trainingsessions').':';
+        $worksheet->write_string($row, 0, $label.' :', $xlsformats['b']);
+        $worksheet->write_string($row, 1, format_string($config->printlocation));
+    }
 
     $timeformat = get_string('profileinfotimeformat', 'report_trainingsessions');
 
@@ -310,11 +324,12 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
         $worksheet->write_string($row, 1, format_string($course->fullname));
         $row++;
     }
+
     $worksheet->write_string($row, 0, get_string('from').' :', $xlsformats['b']);
-    $worksheet->write_string($row, 1, userdate($data->from));
+    $worksheet->write_string($row, 1, strftime($datetimefmt, $data->from));
     $row++;
     $worksheet->write_string($row, 0, get_string('to').' :', $xlsformats['b']);
-    $worksheet->write_string($row, 1, userdate(time()));
+    $worksheet->write_string($row, 1, strftime($datetimefmt, time()));
     $row++;
 
     if ($courseid) {
@@ -423,6 +438,17 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
         $row++;
         $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xlsformats['b']);
         $worksheet->write_number($row, 1, (0 + @$data->events), $xlsformats['n']);
+    }
+
+    // Print additional grades.
+    if (!empty($gradecols)) {
+        $i = 0;
+        foreach ($gradecols as $gc) {
+            $row++;
+            $worksheet->write_string($row, 0, $gradetitles[$i].' :', $xlsformats['b']);
+            $worksheet->write_number($row, 1, sprintf('%0.2f', $data->gradecols[$i]), $xlsformats['n']);
+            $i++;
+        }
     }
 
     return $row;
@@ -550,7 +576,9 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 // Firstaccess.
                 $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
                 if (!empty($fa)) {
-                    $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
+                    // $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
+                    $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
+                    $worksheet->write_string($thisrow, 0, strftime($datetimefmt, $fa), $xlsformats['a']);
                 }
 
                 // Elapsed.
@@ -586,7 +614,7 @@ function report_trainingsessions_print_usersessions(&$worksheet, $userid, $row, 
     $logs = use_stats_extract_logs($from, $to, $userid, $course);
     $aggregate = use_stats_aggregate_logs($logs, $from, $to);
 
-    report_trainingsessions_print_sessions_xls($worksheet, $row, $aggregate['sessions'], $course, $xlsformats);
+    report_trainingsessions_print_sessions_xls($worksheet, $row, $aggregate['sessions'], $course, $xlsformats, $userid = 0);
 }
 
 /**
@@ -598,7 +626,7 @@ function report_trainingsessions_print_usersessions(&$worksheet, $userid, $row, 
  * @param object $course
  * @param object $xlsformats
  */
-function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions, $courseorid, &$xlsformats) {
+function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions, $courseorid, &$xlsformats, $userid = 0) {
     global $CFG;
 
     if (is_object($courseorid)) {
@@ -622,7 +650,7 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
     if (!empty($sessions)) {
         foreach ($sessions as $session) {
 
-            if (empty($session->courses) || ($courseid && !array_key_exists($courseid, $session->courses))) {
+            if ($courseid && (empty($session->courses) || !array_key_exists($courseid, $session->courses))) {
                 // Omit all sessions not visiting this course.
                 continue;
             }
@@ -642,15 +670,29 @@ function report_trainingsessions_print_sessions_xls(&$worksheet, $row, $sessions
 
                 if ($hasltc && !empty($config->enablelearningtimecheckcoupling)) {
 
+                    $startfakecheck = new StdClass;
+                    $startfakecheck->userid = $userid;
+                    $startfakecheck->usertimestamp = $session->sessionstart;
+
+                    $endfakecheck = new StdClass;
+                    $endfakecheck->userid = $userid;
+                    $endfakecheck->usertimestamp = $session->sessionend;
+
                     if (!empty($ltcconfig->checkworkingdays) || !empty($ltcconfig->checkworkinghours)) {
                         if (!empty($ltcconfig->checkworkingdays)) {
-                            if (!report_learningtimecheck_is_valid($fakecheck)) {
+                            $startisvalid = report_learningtimecheck_is_valid($startfakecheck);
+                            $endisvalid = report_learningtimecheck_is_valid($endfakecheck);
+                            if (!$startisvalid && !$endisvalid) {
+                                // Session start nor end are in a workingday day.
                                 continue;
                             }
                         }
 
                         if (!empty($ltcconfig->checkworkinghours)) {
-                            if (!report_learningtimecheck_check_day($fakecheck, $ltcconfig)) {
+                            $startdaycheck = report_learningtimecheck_check_day($startfakecheck, $ltcconfig);
+                            $enddaycheck = report_learningtimecheck_check_day($startfakecheck, $ltcconfig);
+                            if (!$startdaycheck && !$enddaycheck) {
+                                // Session start nor end are in a valid day.
                                 continue;
                             }
 

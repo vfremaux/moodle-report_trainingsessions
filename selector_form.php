@@ -139,13 +139,19 @@ class SelectorForm extends moodleform {
         }
         $updatestr = get_string('updatefromcoursestart', 'report_trainingsessions');
         $updatestr2 = get_string('updatefromaccountstart', 'report_trainingsessions');
-        $updatefromstr = ($this->mode == 'user') ? $updatestr : $updatestr2;
+        $updatestr3 = get_string('updatefromenrolstart', 'report_trainingsessions');
         $updatetostr = get_string('tonow', 'report_trainingsessions');
         $debugmodestr = get_string('debugmode', 'report_trainingsessions');
 
         $row[] = $mform->createElement('submit', 'go_btn', get_string('update'));
 
-        $row2[] = & $mform->createElement('checkbox', 'fromstart', '', $updatefromstr);
+        if ($this->mode == 'user') {
+            $row2[] = & $mform->createElement('radio', 'fromstart', '', $updatestr, 'course');
+            $row2[] = & $mform->createElement('radio', 'fromstart', '', $updatestr2, 'account');
+            $row2[] = & $mform->createElement('radio', 'fromstart', '', $updatestr3, 'enrol');
+        } else {
+            $row2[] = & $mform->createElement('radio', 'fromstart', '', $updatestr);
+        }
         $row2[] = & $mform->createElement('checkbox', 'tonow', '', $updatetostr);
         if (has_capability('moodle/site:config', $context)) {
             $row2[] = & $mform->createElement('checkbox', 'debug', '', $debugmodestr);

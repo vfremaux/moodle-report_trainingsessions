@@ -211,17 +211,17 @@ if ($ADMIN->fulltree) {
     $desc = get_string('showhits_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
-    $key = 'pdfreportheader';
+    $key = 'report_trainingsessions/pdfreportheader';
     $label = get_string('pdfreportheader', 'report_trainingsessions');
     $desc = get_string('pdfreportheader_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportheader', 0));
 
-    $key = 'pdfreportinnerheader';
+    $key = 'report_trainingsessions/pdfreportinnerheader';
     $label = get_string('pdfreportinnerheader', 'report_trainingsessions');
     $desc = get_string('pdfreportinnerheader_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportinnerheader', 0));
 
-    $key = 'pdfreportfooter';
+    $key = 'report_trainingsessions/pdfreportfooter';
     $label = get_string('pdfreportfooter', 'report_trainingsessions');
     $desc = get_string('pdfreportfooter_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configstoredfile($key, $label, $desc, 'pdfreportfooter'));

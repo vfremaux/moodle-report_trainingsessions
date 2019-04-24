@@ -1,0 +1,68 @@
+
+
+
+<!-- report_trainingsessions/structure -->
+{{^hasstructure}}
+{{#str}}nostructure, report_trainingsessions{{/str}}
+{{/hasstructure}}
+
+{{#hasstructure}}
+
+{{#withtitle}}
+<h2>{{#str}}instructure, report_trainingsessions{{/str}}</h2>
+{{/withtitle}}
+
+<table width="100%" id="structure-table">
+    <tr valign="top">
+        <td class="userreport-col0">
+            <b>{{#str}}structureitem, report_trainingsessions{{/str}}</b>
+        </td>
+
+        <td class="userreport-col1">
+            <b>{{#str}}firstaccess, report_trainingsessions{{/str}}</b>
+        </td>
+
+        <td class="userreport-col2">
+            <b>{{#str}}lastaccess, report_trainingsessions{{/str}}</b>
+        </td>
+        <td class="userreport-col3">
+            <b>{{#str}}duration, report_trainingsessions{{/str}} {{#isadmin}} ({{#str}}hits, report_trainingsessions{{/str}}){{/isadmin}}</b>
+        </td>
+    </tr>
+</table>
+
+{{#structures}}
+{{#hasbody}}
+<table class="sessionreport level{{level}}">
+    <tr class="sessionlevel{{level}} userreport-col0" valign="top">
+        <td class="sessionitem item" width="55%">
+            {{{indent}}} {{{debuginfo}}} {{name}}
+        </td>
+
+        <td class="sessionitem rangedate userreport-col1">
+            {{{firstaccess}}}
+        </td>
+
+        <td class="sessionitem rangedate  userreport-col2">
+            {{{lastaccess}}}
+        </td>
+
+        <td class="reportvalue rangedate userreport-col3" align="right">
+            {{{source}}} {{{elapsed}}} {{#isadmin}} ({{events}}){{/isadmin}}
+        </td>
+    </tr>
+</table>
+{{/hasbody}}
+{{#hassubs}}
+<div class="trainingreport subs">
+    {{#structures}}
+    {{> report_trainingsessions/structure }}
+    {{/structures}}
+</div>
+{{/hassubs}}
+
+{{/structures}}
+
+{{/hasstructure}}
+
+<!-- /report_trainingsessions/structure -->

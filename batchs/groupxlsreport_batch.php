@@ -50,6 +50,9 @@ if ($reportlayout == 'onefulluserpersheet') {
 } else if ($reportlayout == 'oneuserperrow') {
     $reporttype = 'summary';
     $range = 'group';
+} else if ($reportlayout == 'workingdays') {
+    $reporttype = 'workingdays';
+    $range = 'group';
 } else {
     $reporttype = 'sessions';
     $range = 'user';

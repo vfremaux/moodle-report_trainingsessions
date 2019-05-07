@@ -39,7 +39,7 @@
         <td>{{coursename}}</td>
         <td>
         {{#canview}}
-            {{elapsed}} {{#isadmin}} ({{events}}){{/isadmin}}
+            {{{elapsed}}} {{#isadmin}} ({{events}}){{/isadmin}}
         {{/canview}}
         {{^canview}}
             {{#str}}nopermissiontoview, report_trainingsessions{{/str}}
@@ -49,6 +49,7 @@
     {{/catlines}}
 
 </table>
+{{/categories}}
 {{/hasoutput}}
 
 {{^hasoutput}}

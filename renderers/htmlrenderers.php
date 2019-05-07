@@ -114,7 +114,7 @@ function report_trainingsessions_print_allcourses_html(&$aggregate, &$return) {
         $template->nodatanotification = $OUTPUT->notification(get_string('nodata', 'report_trainingsessions'));
     }
 
-    return $OUTPUT->render_from_template('report_trainingsessions', $template);
+    return $OUTPUT->render_from_template('report_trainingsessions/allcourses', $template);
 }
 
 /**

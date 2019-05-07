@@ -111,6 +111,10 @@ $grantotal->items = $grantotal->events; // Compatibility ?
 $grantotal->extevents = 0 + @$aggregate['coursetotal'][$id]->events + @$aggregate['coursetotal'][0]->events;
 $grantotal->extevents += @$aggregate['coursetotal'][SITEID]->events;
 
+// Get additional grade columns and add to passed dataobject for header.
+report_trainingsessions_add_graded_data($gradecols, $auser->id, $aggregate);
+$grantotal->gradecols = $gradecols;
+
 report_trainingsessions_print_header_xls($worksheet, $auser->id, $course->id, $grantotal, $xlsformats);
 
 if (!empty($aggregate['sessions'])) {

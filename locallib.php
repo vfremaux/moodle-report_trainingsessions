@@ -100,8 +100,10 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
         // Browse through course_sections and collect course items.
         $structure = array();
 
+        /*
         $params = array('courseid' => $courseid, 'format' => $course->format, 'name' => 'numsections');
         $maxsections = $DB->get_field('course_format_options', 'value', $params);
+        */
 
         if ($sections = $DB->get_records('course_sections', array('course' => $courseid), 'section ASC')) {
             trainingsessions_fill_structure_from_sections($structure, $sections, $itemcount);
@@ -268,8 +270,12 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
         if (!empty($section->sequence)) {
             $element->subs = array();
             $sequence = explode(",", $section->sequence);
+            $sequence = array_unique($sequence);
             foreach ($sequence as $seq) {
                 if (!$cm = $DB->get_record('course_modules', array('id' => $seq))) {
+                    continue;
+                }
+                if ($cm->section != $section->id) {
                     continue;
                 }
                 $module = $DB->get_record('modules', array('id' => $cm->module));
@@ -291,12 +297,6 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
             }
         }
         $structure[] = $element;
-        $params = array('courseid' => $COURSE->id, 'format' => $COURSE->format, 'name' => 'numsections');
-        $maxsections = $DB->get_field('course_format_options', 'value', $params);
-        if ($sectioncount == $maxsections) {
-            // Do not go further, even if more sections are in database.
-            break;
-        }
         $sectioncount++;
     }
 }
@@ -338,7 +338,10 @@ function page_get_structure_from_page($page, &$itemcount) {
                 if (!$b) {
                     continue;
                 }
-                $bp = $DB->get_record('block_positions', array('blockinstanceid' => $pi->blockinstance));
+                $bp = null;
+                if ($bps = $DB->get_records('block_positions', array('blockinstanceid' => $pi->blockinstance))) {
+                    $bp = array_shift($bps);
+                }
                 $blockinstance = block_instance($b->blockname, $b);
 
                 $element = new StdClass;
@@ -516,7 +519,7 @@ function report_trainingsessions_format_time($timevalue, $mode = 'html') {
 
         } else {
 
-            return strftime('%Y-%m-%d %H:%M:%S', $timevalue);
+            return strftime(get_string('strfdatetime', 'report_trainingsessions'), $timevalue);
         }
 
     } else {
@@ -1168,7 +1171,7 @@ function report_trainingsessions_process_user_file($user, $id, $from, $to, $time
     $rqfields[] = 'userid='.$user->id;
     $rqfields[] = 'timesession='.$timesession;
     $rqfields[] = 'scope='.$reportscope;
-    $rqfields[] = 'ticket='.report_trainingsessions_back_office_get_ticket();
+    $rqfields[] = 'ticket='.urlencode(report_trainingsessions_back_office_get_ticket());
 
     $rq = implode('&', $rqfields);
 
@@ -1254,7 +1257,7 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
     $rqfields[] = 'groupid='.$group->id;
     $rqfields[] = 'timesession='.$timesession;
     $rqfields[] = 'scope='.$reportscope;
-    $rqfields[] = 'ticket='.report_trainingsessions_back_office_get_ticket();
+    $rqfields[] = 'ticket='.urlencode(report_trainingsessions_back_office_get_ticket());
 
     $rq = implode('&', $rqfields);
 
@@ -1265,11 +1268,11 @@ function report_trainingsessions_process_group_file($group, $id, $from, $to, $ti
     }
 
     if (debugging()) {
-        mtrace('Calling : '.$uri.'?'.$rq."<br/>\n");
+        mtrace('Calling : '.$uri.'<br/>: '.$rq."<br/>\n");
         mtrace('direct link : <a href="'.$uri.'?'.$rq."\">Generate direct single doc</a><br/>\n");
     }
 
-    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 300);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, false);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
@@ -1325,13 +1328,13 @@ function report_trainingsessions_compute_groups($courseid, $groupid, $range) {
 
     // If no groups existing, get all course.
     $groups = groups_get_all_groups($courseid);
+    $context = context_course::instance($courseid);
     if (!$groups && !$groupid) {
         $groups = array();
         $group = new StdClass;
         $group->id = 0;
         $group->name = get_string('course');
         if ($range == 'user') {
-            $context = context_course::instance($courseid);
             $group->target = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         }
         $groups[] = $group;
@@ -1705,14 +1708,47 @@ function report_trainingsessions_map_summary_cols(&$cols, &$user, &$aggregate, &
  * @param array $data
  */
 function report_trainingsessions_process_bounds(&$data, &$course) {
-    // Calculate start time.
+    global $DB;
 
+    $changed = false;
     // Calculate start time.
-    if (!empty($data->fromstart)) {
+    if (!empty($data->fromstart) && ($data->fromstart == 'course' || $data->fromstart === 1)) {
         $data->from = $course->startdate;
+        $changed = true;
+    } else if (!empty($data->fromstart) && ($data->fromstart == 'account')) {
+        $data->from = $course->startdate;
+        $changed = true;
+    } else if (!empty($data->fromstart) && (trim($data->fromstart) == 'enrol')) {
+
+        $sql = "
+            SELECT
+                ue.id,
+                ue.timestart,
+                ue.timecreated
+            FROM
+                {enrol} e,
+                {user_enrolments} ue
+            WHERE
+                e.status = 0 AND
+                e.id = ue.enrolid AND
+                ue.status = 0 AND
+                e.courseid = ? AND
+                ue.userid = ?
+        ";
+        $enrols = $DB->get_records_sql($sql, array($course->id, $data->userid));
+
+        $lastenrol = 0;
+        if ($enrols) {
+            foreach ($enrols as $ue) {
+                $lastenrol = max($lastenrol, $ue->timestart, $ue->timecreated);
+            }
+        }
+        $data->from = $lastenrol;
+        $changed = true;
     } else {
         if ($data->from == -1) {
             $data->from = $course->startdate;
+            $changed = true;
         } else {
             if ($data->from > 0) {
                 // Maybe we get it from parameters.
@@ -1722,10 +1758,17 @@ function report_trainingsessions_process_bounds(&$data, &$course) {
                 $data->startday = $dateelms['mday'];
 
                 $data->from = mktime(0, 0, 0, $data->startmonth, $data->startday, $data->startyear);
+                $changed = true;
             } else {
                 print_error('Bad start date');
             }
         }
+    }
+
+    if ($changed) {
+        $_POST['from']['day'] = date('d', $data->from);
+        $_POST['from']['month'] = date('m', $data->from);
+        $_POST['from']['year'] = date('!y', $data->from);
     }
 
     if (($data->to == -1) || @$data->tonow) {
@@ -1823,4 +1866,63 @@ function report_trainingsessions_calculate_course_structure(&$structure, &$aggre
 
     // Returns acumulated aggregates.
     return $dataobject;
+}
+
+function report_trainingsessions_get_workingdays_cols($what = '') {
+    $cols = array();
+    $cols[0] = 'userid';
+    $cols[1] = 'username';
+    $cols[2] = 'fullname';
+    $cols[3] = 'workday';
+    $cols[4] = 'workweek';
+    $cols[5] = 'sessions';
+    $cols[6] = 'duration';
+    $cols[7] = 'readableduration';
+    $cols[8] = 'firstsessiontime';
+    $cols[9] = 'courses';
+
+    if ($what == 'title') {
+        $cols = array();
+        $cols[0] = get_string('userid', 'report_trainingsessions');
+        $cols[1] = get_string('username');
+        $cols[2] = get_string('fullname');
+        $cols[3] = get_string('workday', 'report_trainingsessions');
+        $cols[4] = get_string('workweek', 'report_trainingsessions');
+        $cols[5] = get_string('sessions', 'report_trainingsessions');
+        $cols[6] = get_string('duration', 'report_trainingsessions');
+        $cols[7] = get_string('readableduration', 'report_trainingsessions');
+        $cols[8] = get_string('firstsessiontime', 'report_trainingsessions');
+        $cols[9] = get_string('courses', 'report_trainingsessions');
+    }
+
+    if ($what == 'format') {
+        $cols = array();
+        $cols[0] = 'n';
+        $cols[1] = 'a';
+        $cols[2] = 'a';
+        $cols[3] = 't';
+        $cols[4] = 'n';
+        $cols[5] = 'n';
+        $cols[6] = 'd';
+        $cols[7] = 'a';
+        $cols[8] = 't';
+        $cols[9] = 'a';
+    }
+
+    if ($what == 'studentwdstatsformat') {
+        $cols = array();
+        $cols[0] = 'a';
+        $cols[1] = 'n';
+        $cols[2] = 'a';
+        $cols[3] = 'a';
+        $cols[4] = 'n';
+        $cols[5] = 'a';
+        $cols[6] = 'a';
+        $cols[7] = 'n';
+        $cols[8] = 'a';
+        $cols[9] = 'a';
+        $cols[10] = 'a';
+    }
+
+    return $cols;
 }

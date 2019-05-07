@@ -141,6 +141,29 @@ function report_trainingsessions_print_global_raw($courseid, &$cols, &$user, &$a
     }
 }
 
+/**
+ * A raster for printing in raw format with all the relevant data about a user.
+ * @param int $courseid the course to compile reports in
+ * @param arrayref &$cols the course to compile reports in
+ * @param objectref &$user user to compile info for
+ * @param objectref &$data input data to aggregate. Provides time information as 'elapsed" and 'weekelapsed' members.
+ * @param string &$rawstr the output buffer reference. Column names come from outside.
+ * @param int $from compilation start time
+ * @param int $to compilation end time
+ * @return void. $rawstr is appended by reference.
+ */
+function report_trainingsessions_print_row(&$colsdata, &$rawstr) {
+    global $COURSE, $DB;
+
+    $config = get_config('report_trainingsessions');
+
+    if (!empty($config->csv_iso)) {
+        $rawstr .= mb_convert_encoding(implode(';', $colsdata)."\n", 'ISO-8859-1', 'UTF-8');
+    } else {
+        $rawstr .= implode(';', $colsdata)."\n";
+    }
+}
+
 function report_trainingsessions_print_global_header(&$csvbuffer) {
 
     $config = get_config('report_trainingsessions');
@@ -190,10 +213,14 @@ function report_trainingsessions_print_usersessions(&$csvbuffer, $userid, $cours
     $aggregate = use_stats_aggregate_logs($logs, $from, $to);
 
     if (report_trainingsessions_supports_feature('calculation/coupling')) {
-        $config = get_config('report_traningsessions');
-        if (!empty($config->enablelearningtimecheckcoupling)) {
-            require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
-            $ltcconfig = get_config('report_learningtimecheck');
+        $hasltc = false;
+        if (file_exists($CFG->dirroot.'/report/learningtimecheck/lib.php')) {
+            $config = get_config('report_traningsessions');
+            if (!empty($config->enablelearningtimecheckcoupling)) {
+                require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
+                $ltcconfig = get_config('report_learningtimecheck');
+                $hasltc = true;
+            }
         }
     }
 
@@ -220,17 +247,31 @@ function report_trainingsessions_print_usersessions(&$csvbuffer, $userid, $cours
 
             foreach ($daysessions as $s) {
 
-                if (!empty($config->enablelearningtimecheckcoupling)) {
+                if ($hasltc && !empty($config->enablelearningtimecheckcoupling)) {
+
+                    $startfakecheck = new StdClass;
+                    $startfakecheck->userid = $userid;
+                    $startfakecheck->usertimestamp = $session->sessionstart;
+
+                    $endfakecheck = new StdClass;
+                    $endfakecheck->userid = $userid;
+                    $endfakecheck->usertimestamp = $session->sessionend;
 
                     if (!empty($ltcconfig->checkworkingdays) || !empty($ltcconfig->checkworkinghours)) {
                         if (!empty($ltcconfig->checkworkingdays)) {
-                            if (!report_learningtimecheck_is_valid($fakecheck)) {
+                            $startisvalid = report_learningtimecheck_is_valid($startfakecheck);
+                            $endisvalid = report_learningtimecheck_is_valid($endfakecheck);
+                            if (!$startisvalid && !$endisvalid) {
+                                // Session start nor end are in a workingday day.
                                 continue;
                             }
                         }
 
                         if (!empty($ltcconfig->checkworkinghours)) {
-                            if (!report_learningtimecheck_check_day($fakecheck, $ltcconfig)) {
+                            $startdaycheck = report_learningtimecheck_check_day($startfakecheck, $ltcconfig);
+                            $enddaycheck = report_learningtimecheck_check_day($startfakecheck, $ltcconfig);
+                            if (!$startdaycheck && !$enddaycheck) {
+                                // Session start nor end are in a valid day.
                                 continue;
                             }
 

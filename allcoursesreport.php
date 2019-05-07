@@ -94,8 +94,7 @@ if ($data->output == 'html') {
 
     echo '<br/>';
 
-    $str = '';
-    $dataobject = report_trainingsessions_print_allcourses_html($str, $aggregate);
+    $str = report_trainingsessions_print_allcourses_html($aggregate, $dataobject);
 
     $dataobject->activityelapsed = @$aggregate['activities'][$COURSE->id]->elapsed;
     $dataobject->activityevents = @$aggregate['activities'][$COURSE->id]->events;
@@ -133,8 +132,7 @@ if ($data->output == 'html') {
     echo $OUTPUT->heading(get_string('incourses', 'report_trainingsessions'));
     echo $str;
 
-    report_trainingsessions_print_session_list($str2, @$aggregate['sessions'], 0, $userid);
-    echo $str2;
+    echo report_trainingsessions_print_session_list(@$aggregate['sessions'], 0, $userid);
 
     $params = array('id' => $course->id,
                     'userid' => $userid,

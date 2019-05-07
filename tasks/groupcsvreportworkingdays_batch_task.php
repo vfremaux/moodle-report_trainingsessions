@@ -30,6 +30,7 @@ require('../../../config.php');
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
+require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // Group id.
@@ -65,24 +66,60 @@ report_trainingsessions_filter_unwanted_users($targetusers, $course);
 // Print result.
 
 $csvbuffer = '';
-report_trainingsessions_print_global_header($csvbuffer);
-
 if (!empty($targetusers)) {
     // generate CSV.
 
+    $cols = report_trainingsessions_get_workingdays_cols();
+    report_trainingsessions_print_row($cols, $csvbuffer);
+
     foreach ($targetusers as $auser) {
 
-        $logusers = $auser->id;
-        $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS);
+        $events = report_learningtimecheck_get_user_workdays($auser->id);
 
-        $cols = report_trainingsessions_get_summary_cols();
-        report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer);
+        if ($events) {
+            foreach ($events as $e) {
+                // Workdays events are given at noon.
+                $start = $e->timestart - 12 * HOURSECS + 1;
+                $end = $e->timestart + 12 * HOURSECS - 1;
+
+                $logs = use_stats_extract_logs($start, $end, $auser->id);
+                $aggregate = use_stats_aggregate_logs($logs, $start, $end);
+
+                $totaltime = 0;
+                if (!empty($aggregate['sessions'])) {
+                    foreach ($aggregate['sessions'] as $s) {
+                        $totaltime += 0 + @$s->elapsed;
+                    }
+                }
+
+                $traversedcourses = array();
+                if (!empty($aggregate['course'])) {
+                    foreach (array_keys($aggregate['course']) as $courseid) {
+                        $traversedcourses[] = $DB->get_field('course', 'shortname', array('id' => $courseid));
+                    }
+                }
+
+                $cols = array();
+                $cols[0] = $auser->id;
+                $cols[1] = $auser->username;
+                $cols[2] = fullname($auser);
+                $cols[3] = strftime(get_string('strfdate', 'report_trainingsessions'), $e->timestart);
+                $cols[4] = date('W', $e->timestart);
+                $cols[5] = count($aggregate['sessions']);
+                $cols[6] = $totaltime;
+                $cols[7] = report_trainingsessions_format_time($totaltime, $mode = 'htmld');
+                $cols[8] = strftime(get_string('strftime', 'report_trainingsessions'), @$aggregate['sessions'][0]->sessionstart);
+                $cols[9] = implode(", ", $traversedcourses);
+
+                report_trainingsessions_print_row($cols, $csvbuffer);
+            }
+        } else {
+            $csvbuffer .= '# '.fullname($auser)." has no events \n\n";
+        }
+        $csvbuffer .= "#\n"; // Blank comment separator
     }
 
 }
-
 // Sending HTTP headers.
 ob_end_clean();
 header("Pragma: public");

@@ -107,7 +107,7 @@ if ($data->groupid) {
             $targetusers = get_enrolled_users($context, '', $data->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         } else {
             // DO NOT COMPILE.
-            echo $OUTPUT->notification('coursetoolargenotice', 'report_trainingsessions');
+            echo $OUTPUT->notification(get_string('coursetoolargenotice', 'report_trainingsessions'));
             echo $OUTPUT->footer($course);
             die;
         }
@@ -196,21 +196,15 @@ $options['output'] = 'xls'; // Ask for XLS.
 $options['asxls'] = 'xls'; // Force XLS for index.php.
 $options['view'] = 'course'; // Force course view.
 
-echo '<br/><center>';
-
-echo '<div class="report-buttons">';
-echo '<div class="table-row">';
-echo '<div class="tr-summary table-cell">';
+$template = new StdClass;
 $params = array('id' => $course->id,
                 'from' => $data->from,
                 'to' => $data->to,
                 'timesession' => time(),
                 'groupid' => $data->groupid);
 $csvurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportonerow_batch_task.php', $params);
-echo $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
-echo '</div>';
+$template->generatecsvbutton = $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
 
-echo '<div class="tr-detailed table-cell">';
 $params = array('id' => $course->id,
                 'view' => 'course',
                 'groupid' => $data->groupid,
@@ -218,7 +212,7 @@ $params = array('id' => $course->id,
                 'to' => $data->to,
                 'output' => 'xls');
 $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php', $params);
-echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
+$template->generatexlsbutton = $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
     $params = array('id' => $course->id,
@@ -227,11 +221,7 @@ if (report_trainingsessions_supports_feature('format/pdf')) {
                     'from' => $data->from,
                     'to' => $data->to);
     $url = new moodle_url('/report/trainingsessions/pro/tasks/grouppdfreportperuser_batch_task.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'get');
+    $template->generatepdfbutton = $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'get');
 }
-echo '</div>';
-echo '</div>';
-echo '</div>';
 
-echo '</center>';
-echo '<br/>';
+echo $OUTPUT->render_from_template('report_trainingsessions/coursereportbuttons', $template);

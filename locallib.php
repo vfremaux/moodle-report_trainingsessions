@@ -338,7 +338,10 @@ function page_get_structure_from_page($page, &$itemcount) {
                 if (!$b) {
                     continue;
                 }
-                $bp = $DB->get_record('block_positions', array('blockinstanceid' => $pi->blockinstance));
+                $bp = null;
+                if ($bps = $DB->get_records('block_positions', array('blockinstanceid' => $pi->blockinstance))) {
+                    $bp = array_shift($bps);
+                }
                 $blockinstance = block_instance($b->blockname, $b);
 
                 $element = new StdClass;

@@ -42,7 +42,7 @@ $filename = optional_param('outputname', '', PARAM_FILE);
 
 if (empty($filename)) {
     // TODO : this is a quick fix. Should see if report_trainingsessions_batch_input is usable here.
-    $filename = "trainingsessions_allcourses_{$userid}_report_".date('Ymd_His', time()).'.xls';
+    $filename = "ts_allcourses_{$userid}_report_".date('Ymd_His', time()).'.xls';
 }
 
 ini_set('memory_limit', '512M');
@@ -63,6 +63,8 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 
 report_trainingsessions_back_office_access($course, $userid);
+
+$PAGE->set_context($context);
 
 $config = get_config('report_trainingsessions');
 

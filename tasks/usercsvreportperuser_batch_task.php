@@ -50,13 +50,15 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 report_trainingsessions_back_office_access($course, $userid);
 
+$PAGE->set_context($context);
+
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // TODO : secure groupid access depending on proper capabilities.
 
 // Generate XLS.
 
-$filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.".csv";
+$filename = "ts_user_{$userid}_report_".$input->filenametimesession.".csv";
 
 $auser = $DB->get_record('user', array('id' => $userid));
 
@@ -76,12 +78,12 @@ if ($auser) {
     ob_end_clean();
 
     // Output CSV-specific headers.
-    header("Pragma: public");
+    header("Pragma: no-cache");
     header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Cache-Control: private", false);
-    header("Content-Type: application/octet-stream");
-    header("Content-Disposition: attachment filename=\"$filename\";" );
-    header("Content-Transfer-Encoding: binary");
+    header("Cache-Control: no-cache, must-revalidate");
+    header("Content-Type: application/csv");
+    header("Content-Disposition: inline; filename=\"$filename\";");
+    header("Content-Transfer-Encoding: text");
+    header("Content-Length: ".strlen($csvbuffer));
     echo $csvbuffer;
 }

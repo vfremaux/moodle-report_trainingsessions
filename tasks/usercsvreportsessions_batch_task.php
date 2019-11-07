@@ -41,6 +41,8 @@ $context = context_course::instance($course->id);
 // Security
 report_trainingsessions_back_office_access($course, $userid);
 
+$PAGE->set_context($context);
+
 $input = report_trainingsessions_batch_input($course);
 
 $user = $DB->get_record('user', array('id' => $userid));
@@ -54,15 +56,15 @@ if (!empty($user)) {
 
 }
 
-$filename = "trainingsessions_usersessions_{$course->id}_report_".$input->filenametimesession.".csv";
+$filename = "ts_usersessions_{$course->id}_report_".$input->filenametimesession.".csv";
 
 // Sending HTTP headers.
 ob_end_clean();
-header("Pragma: public");
+header("Pragma: no-cache");
 header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header("Cache-Control: private", false);
-header("Content-Type: application/octet-stream");
-header("Content-Disposition: attachment filename=\"$filename\";");
-header("Content-Transfer-Encoding: binary");
+header("Cache-Control: no-cache, must-revalidate");
+header("Content-Type: application/csv");
+header("Content-Disposition: inline; filename=\"$filename\";");
+header("Content-Transfer-Encoding: text");
+header("Content-Length: ".strlen($csvbuffer));
 echo $csvbuffer;

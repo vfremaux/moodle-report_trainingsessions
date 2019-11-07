@@ -829,6 +829,14 @@ class MoodleExcelFormat {
      * @param mixed $num_format The numeric format
      */
     public function set_num_format($num_format) {
+
+        // PATCH+ : fix lib when using direct textual format codes.
+        if (!is_numeric($num_format)) {
+            $this->format['numberformat']['code'] = $num_format;
+            return;
+        }
+        // PATCH-.
+
         $numbers = array();
 
         $numbers[1] = '0';

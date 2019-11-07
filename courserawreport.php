@@ -141,8 +141,10 @@ if (!empty($targetusers)) {
         report_trainingsessions_print_global_header($rawstr);
         $cols = report_trainingsessions_get_summary_cols();
 
+        $dataformats = report_trainingsessions_get_summary_cols('format');
+
         foreach ($targetusers as $userid => $auser) {
-            report_trainingsessions_print_global_raw($id, $cols, $auser, $aggregate, $weekaggregate, $rawstr);
+            report_trainingsessions_print_global_raw($id, $cols, $auser, $aggregate, $weekaggregate, $rawstr, $dataformats);
         }
 
         $fs = get_file_storage();

@@ -54,6 +54,8 @@ $input = report_trainingsessions_batch_input($course);
 
 report_trainingsessions_back_office_access($course);
 
+$PAGE->set_context($context);
+
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // Compute target group.
@@ -69,15 +71,14 @@ if ($groupid) {
 report_trainingsessions_filter_unwanted_users($targetusers, $course);
 
 // Print result.
-
 if (!empty($targetusers)) {
 
     // Generate XLS.
 
     if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_summary_".$input->filenametimesession.".xls";
+        $filename = "ts_course_{$course->shortname}_group_{$groupid}_summary_".$input->filenametimesession.".xls";
     } else {
-        $filename = "trainingsessions_course_{$course->id}_summary_".$input->filenametimesession.".xls";
+        $filename = "ts_course_{$course->shortname}_summary_".$input->filenametimesession.".xls";
     }
     $workbook = new MoodleExcelWorkbookTS('-');
 
@@ -127,4 +128,6 @@ if (!empty($targetusers)) {
     }
 
     $workbook->close();
+} else {
+    echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'), 'notifyerror');
 }

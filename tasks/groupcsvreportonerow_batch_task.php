@@ -47,16 +47,18 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 report_trainingsessions_back_office_access($course);
 
+$PAGE->set_context($context);
+
 // Compute target group.
 
 $group = $DB->get_record('groups', array('id' => $groupid));
 
 if ($groupid) {
     $targetusers = groups_get_members($groupid);
-    $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".csv";
+    $filename = "ts_course_{$course->shortname}_group_{$groupid}_report_".$input->filenametimesession.".csv";
 } else {
     $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
-    $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".csv";
+    $filename = "ts_course_{$course->shortname}_report_".$input->filenametimesession.".csv";
 }
 
 // Filter out non compiling users.
@@ -89,20 +91,21 @@ if (!empty($targetusers)) {
         */
 
         $cols = report_trainingsessions_get_summary_cols();
-        report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer);
+        $dataformats = report_trainingsessions_get_summary_cols('format');
+        report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer, $dataformats);
     }
 
 }
 
 // Sending HTTP headers.
 ob_end_clean();
-header("Pragma: public");
+header("Pragma: no-cache");
 header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header("Cache-Control: private", false);
-header("Content-Type: application/octet-stream");
-header("Content-Disposition: attachment filename=\"$filename\";");
-header("Content-Transfer-Encoding: binary");
+header("Cache-Control: no-cache, must-revalidate");
+header("Content-Type: application/csv");
+header("Content-Disposition: inline; filename=\"$filename\";");
+header("Content-Transfer-Encoding: text");
+header("Content-Length: ".strlen($csvbuffer));
 echo $csvbuffer;
 
 // echo '200';

@@ -130,7 +130,7 @@ foreach ($groups as $group) {
                 $filerec->filearea = 'reports';
                 $filerec->itemid = $course->id;
                 $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-                $filerec->filename = "trainingsessions_user_{$user->username}_{$reporttype}_".$filenametimesession.".xls";
+                $filerec->filename = "ts_course_{$course->shortname}_user_{$user->username}_{$reporttype}_".$filenametimesession.".xls";
 
                 report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
             }
@@ -146,7 +146,7 @@ foreach ($groups as $group) {
         $filerec->filearea = 'reports';
         $filerec->itemid = $course->id;
         $filerec->filepath = "/{$outputdir}/{$sessionday}/";
-        $filerec->filename = "trainingsessions_group_{$group->name}_{$reporttype}_".$filenametimesession.".xls";
+        $filerec->filename = "ts_course_{$course->shortname}_group_{$group->name}_{$reporttype}_".$filenametimesession.".xls";
 
         report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
     }

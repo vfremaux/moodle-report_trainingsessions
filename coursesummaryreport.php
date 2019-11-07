@@ -105,6 +105,10 @@ $durationcols = array('activitytime',
                       'coursetime',
                       'elapsedlastweek',
                       'extelapsedlastweek');
+$datecols = array('lastlogin',
+                  'lastcourseaccess',
+                  'firstaccess');
+$rightaligncols = array('workingsessions');
 
 // Get base data from moodle and bake it into a local format.
 $courseid = $course->id;
@@ -117,7 +121,9 @@ $colstitles = report_trainingsessions_get_summary_cols('title');
 $colsformats = report_trainingsessions_get_summary_cols('format');
 
 // Add potential additional grading cols.
+$pregradekeysnum = count($colskeys); //  Controls
 report_trainingsessions_add_graded_columns($colskeys, $colstitles, $colsformats);
+$postgradekeysnum = count($colskeys); //  Controls
 
 $summarizedusers = array();
 foreach ($targetusers as $user) {
@@ -134,11 +140,16 @@ foreach ($targetusers as $user) {
     $elapsed = 0 + @$aggregate['coursetotal'][$course->id]->elapsed;
 
     $colsdata = report_trainingsessions_map_summary_cols($colskeys, $user, $aggregate, $weekaggregate, $courseid);
+    $pregradecolsnum = count($colsdata); //  Controls
+    if ($pregradekeysnum != $pregradecolsnum) {
+        throw(new moodle_exception("Not same number of columns (1). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
+    }
 
     // Fetch and add eventual additional score columns.
     report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
-    if (count($colskeys) != count($colsdata)) {
-        throw(new moodle_exception("Not same number of columns. " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
+    $postgradecolsnum = count($colsdata); //  Controls
+    if ($postgradekeysnum != $postgradecolsnum) {
+        throw(new moodle_exception("Not same number of columns (2). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
     }
 
     // Assemble keys and data.
@@ -159,9 +170,6 @@ $selform->set_data($data);
 $selform->display();
 echo $OUTPUT->box_end();
 
-echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
-echo ' '.get_string('to', 'report_trainingsessions')."  : ".userdate($data->to);
-
 $config = get_config('report_trainingsessions');
 if (!empty($config->showseconds)) {
     $durationformat = 'htmlds';
@@ -169,19 +177,19 @@ if (!empty($config->showseconds)) {
     $durationformat = 'htmld';
 }
 
-// Time and group period form.
-echo '<br/>';
+$template = new StdClass;
+
+$template->from = userdate($data->from);
+$template->to = userdate($data->to);
 
 if (!empty($summarizedusers)) {
-    echo '<table class="coursesummary" width="100%">';
     // Add a table header row.
-    echo '<tr>';
-    echo '<th></th>';
 
     foreach ($colstitles as $title) {
-        echo '<th>'.$title.'</th>';
+        $coltpl = new StdClass;
+        $coltpl->title = $title;
+        $template->colstitles[] = $coltpl;
     }
-    echo '</tr>';
 
     // Add a row for each user.
     $line = 1;
@@ -189,25 +197,32 @@ if (!empty($summarizedusers)) {
         if (empty($auser)) {
             continue;
         }
-        echo '<tr>';
-        echo '<td>'.$line.'</td>';
+        $userdatatpl = new StdClass;
+        $userdatatpl->line = $line;
+        $col = 1;
         foreach ($auser as $fieldname => $field) {
+            $fieldtpl = new StdClass;
+            $fieldtpl->col = $col;
             if (in_array($fieldname, $durationcols)) {
-                $cssclass = 'report-col-right';
-                echo '<td class="'.$cssclass.'">'.report_trainingsessions_format_time($field, $durationformat).'</td>';
+                $fieldtpl->class = 'report-col-right';
+                $fieldtpl->value = report_trainingsessions_format_time($field, $durationformat);
+            } else if (in_array($fieldname, $datecols)) {
+                $fieldtpl->class = 'report-col-right';
+                $fieldtpl->value = report_trainingsessions_format_time($field, 'html');
+            } else if (in_array($fieldname, $rightaligncols)) {
+                $fieldtpl->class = 'report-col-right';
+                $fieldtpl->value = $field;
             } else if (in_array($fieldname, $colskeys)) {
                 // Those may come from grade columns.
-                echo '<td>'.$field.'</td>';
+                $fieldtpl->value = $field;
             }
+            $userdatatpl->fields[] = $fieldtpl;
+            $col++;
         }
-        echo '</tr>';
+        $userdatatpl->line = $line;
+        $template->userdata[] = $userdatatpl;
         ++$line;
     }
-
-    echo '</table>';
-    echo '<br/>';
-
-    echo '<center>';
 
     $params = array('id' => $course->id,
                     'groupid' => $data->groupid,
@@ -215,7 +230,7 @@ if (!empty($summarizedusers)) {
                     'to' => $data->to);
     $label = get_string('generatecsv', 'report_trainingsessions');
     $buttonurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportsummary_batch_task.php', $params);
-    echo $OUTPUT->single_button($buttonurl, $label);
+    $template->generatecsvbutton = $OUTPUT->single_button($buttonurl, $label);
 
     // Add a 'generate XLS' button after the table.
     $params = array('id' => $course->id,
@@ -224,10 +239,9 @@ if (!empty($summarizedusers)) {
                     'to' => $data->to);
     $label = get_string('generatexls', 'report_trainingsessions');
     $buttonurl = new moodle_url('/report/trainingsessions/tasks/groupxlsreportsummary_batch_task.php', $params);
-    echo $OUTPUT->single_button($buttonurl, $label);
+    $template->generatexlsbutton = $OUTPUT->single_button($buttonurl, $label);
 
-    echo '</center>';
-    echo '<br/>';
+    echo $OUTPUT->render_from_template('report_trainingsessions/coursesummary', $template);
 } else {
     echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
 }

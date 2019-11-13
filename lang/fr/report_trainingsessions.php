@@ -498,3 +498,5 @@ les notes discrètes fournies doivent être des nombres.';
 $string['xlsexportlocale_desc'] = 'Utilisé pour forcer la locale lors d\'un export excel si la licence d\'excel ne travaille pas
 sur la même mangue que la langue d\'usage de moodle. Laisser vide pour utiliser la locale par défaut de emoodle, , ou forcer avec un code de
 locale, par exemple: en_EN.UTF-8';
+
+$string['hasdisabledenrolmentsrestriction'] = 'Les inscriptions inactives sont ignorées par le rapport.';

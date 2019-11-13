@@ -390,24 +390,28 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
 
     if (!$short) {
         if (in_array('activitytime', $cols)) {
+            // Time in activity modules.
             $template->activitytime = report_trainingsessions_format_time(0 + @$data->activitytime, $durationformat);
             $template->activityevents = ' ('.(0 + @$data->activityevents).')';
             $template->activitytimehelp = $OUTPUT->help_icon('activitytime', 'report_trainingsessions');
         }
 
         if (in_array('othertime', $cols)) {
+            // Time in the session outside the course scope.
             $template->othertime = report_trainingsessions_format_time(0 + @$data->othertime, $durationformat);
             $template->otherevents = ' ('.(0 + @$data->otherevents).')';
             $template->othertimehelp = $OUTPUT->help_icon('othertime', 'report_trainingsessions');
         }
 
         if (in_array('coursetime', $cols)) {
+            // Time in course scope but outside activities.
             $template->coursetime = report_trainingsessions_format_time(0 + @$data->coursetime, $durationformat);
             $template->courseevents = ' ('.(0 + @$data->courseevents).')';
             $template->coursetimehelp = $OUTPUT->help_icon('coursetime', 'report_trainingsessions');
         }
 
         if (in_array('elapsed', $cols)) {
+            // Total time spent in course session.
             $template->coursetotaltime = report_trainingsessions_format_time(0 + @$data->elapsed, $durationformat);
             $template->coursetotalevents = ' ('.(0 + @$data->hits).')';
             $template->coursetotaltimehelp = $OUTPUT->help_icon('coursetotaltime', 'report_trainingsessions');

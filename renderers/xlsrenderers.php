@@ -569,8 +569,8 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 if (!empty($structure->subs)) {
                     $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done,
                                                              $row, $xlsformats, $level + 1);
-                    $dataobject->elapsed += $res->elapsed;
-                    $dataobject->events += $res->events;
+                    $dataobject->elapsed = $res->elapsed;
+                    $dataobject->events = $res->events;
                 }
 
                 // Firstaccess.

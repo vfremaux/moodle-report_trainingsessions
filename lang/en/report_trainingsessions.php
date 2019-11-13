@@ -498,3 +498,5 @@ of time grade scale should be numerically interpretable.';
 
 $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and générating excel exports.
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
+
+$string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';

@@ -58,56 +58,92 @@
 
         {{^short}}
         <tr>
-            <td colspan="2">
-                <table id="report-trainingsessions-totalizers" width="100%">
-                    <tr>
+            <td>{{#str}}timespent, report_trainingsessions{{/str}}
+            </td>
+            <td>
+                <div id="report-trainingsessions-totalizers">
 
-                        {{#activitytime}}
-                        <td id="sample-activitytime">{{#str}}activitytime, report_trainingsessions{{/str}} {{{activitytimehelp}}}</td>
-                        <td>{{activitytime}} {{#isadmin}}/ {{activityevents}}{{/isadmin}}</td>
-                        {{/activitytime}}
+                    {{#activitytime}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-activitytime">{{#str}}activitytime, report_trainingsessions{{/str}} {{{activitytimehelp}}}</div>
+                        <div class="sample-value">{{activitytime}} {{#isadmin}}/ {{activityevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/activitytime}}
 
-                        {{#othertime}}
-                        <td id="sample-othertime">{{#str}}othertime, report_trainingsessions{{/str}} {{{othertimehelp}}}</td>
-                        <td>{{othertime}} {{#isadmin}}/ {{otherevents}}{{/isadmin}}</td>
-                        {{/othertime}}
+                    {{#othertime}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-othertime">{{#str}}othertime, report_trainingsessions{{/str}} {{{othertimehelp}}}</div>
+                        <div class="sample-value">{{othertime}} {{#isadmin}}/ {{otherevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/othertime}}
 
-                        {{#coursetime}}
-                        <td id="sample-othertime">{{#str}}coursetime, report_trainingsessions{{/str}} {{{coursetimehelp}}}</td>
-                        <td>{{coursetime}} {{#isadmin}}/ {{courseevents}}{{/isadmin}}</td>
-                        {{/coursetime}}
+                    {{#coursetime}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-coursetime">{{#str}}coursetime, report_trainingsessions{{/str}} {{{coursetimehelp}}}</div>
+                        <div class="sample-value">{{coursetime}} {{#isadmin}}/ {{courseevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/coursetime}}
 
-                        {{#elapsed}}
-                        <td id="sample-coursetotaltime">{{#str}}coursetotaltime, report_trainingsessions{{/str}} {{{coursetotaltimehelp}}}</td>
-                        <td>{{coursetotaltime}} {{#isadmin}}/ {{coursetotalevents}}{{/isadmin}}</td>
-                        {{/elapsed}}
+                    {{#coursetotaltime}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-coursetotaltime">{{#str}}coursetotaltime, report_trainingsessions{{/str}} {{{coursetotaltimehelp}}}</div>
+                        <div class="sample-value">{{coursetotaltime}} {{#isadmin}}/ {{coursetotalevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/coursetotaltime}}
 
-                        {{#extelapsed}}
-                        <td id="sample-extelapsed">{{#str}}extelapsed, report_trainingsessions{{/str}} {{{extelapsedhelp}}}</td>
-                        <td>{{extelapsed}} {{#isadmin}}/ {{extevents}}{{/isadmin}}</td>
-                        {{/extelapsed}}
+                    {{#extelapsed}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-extelapsed">{{#str}}extelapsed, report_trainingsessions{{/str}} {{{extelapsedhelp}}}</div>
+                        <div class="sample-value">{{extelapsed}} {{#isadmin}}/ {{extevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/extelapsed}}
 
-                        {{#extother}}
-                        <td id="sample-extelapsed">{{#str}}extother, report_trainingsessions{{/str}} {{{extotherhelp}}}</td>
-                        <td>{{extother}} {{#isadmin}}/ {{extotherevents}}{{/isadmin}}</td>
-                        {{/extother}}
+                    {{#extother}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-extother">{{#str}}extother, report_trainingsessions{{/str}} {{{extotherhelp}}}</div>
+                        <div class="sample-value">{{extother}} {{#isadmin}}/ {{extotherevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/extother}}
 
-                        {{#elapsedlastweek}}
-                        <td id="sample-elapsedlastweek">{{#str}}elapsedlastweek, report_trainingsessions{{/str}} {{{elapsedlastweekhelp}}}</td>
-                        <td>{{elapsedlastweek}} {{#isadmin}}/ {{elapsedlastweekevents}}{{/isadmin}}</td>
-                        {{/elapsedlastweek}}
+                    {{#elapsedlastweek}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-elapsedlastweek">{{#str}}elapsedlastweek, report_trainingsessions{{/str}} {{{elapsedlastweekhelp}}}</div>
+                        <div class="sample-value">{{elapsedlastweek}} {{#isadmin}}/ {{elapsedlastweekevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/elapsedlastweek}}
 
-                        {{#extelapsedlastweek}}
-                        <td id="sample-extelapsedlastweek">{{#str}}extelapsedlastweek, report_trainingsessions{{/str}} {{{extelapsedlastweekhelp}}}</td>
-                        <td>{{extelapsedlastweek}} {{#isadmin}}/ {{extelapsedlastweekevents}}{{/isadmin}}</td>
-                        {{/extelapsedlastweek}}
+                    {{#extelapsedlastweek}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-extelapsedlastweek">{{#str}}extelapsedlastweek, report_trainingsessions{{/str}} {{{extelapsedlastweekhelp}}}</div>
+                        <div class="sample-value">{{extelapsedlastweek}} {{#isadmin}}/ {{extelapsedlastweekevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/extelapsedlastweek}}
 
-                        {{#extotherlastweek}}
-                        <td id="sample-extotherlastweek">{{#str}}extotherlastweek, report_trainingsessions{{/str}} {{{extotherlastweekhelp}}}</td>
-                        <td>{{extotherlastweek}} {{#isadmin}}/ {{extotherlastweekevents}}{{/isadmin}}</td>
-                        {{/extotherlastweek}}
-                    </tr>
-                </table>
+                    {{#extotherlastweek}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-extotherlastweek">{{#str}}extotherlastweek, report_trainingsessions{{/str}} {{{extotherlastweekhelp}}}</div>
+                        <div class="sample-value">{{extotherlastweek}} {{#isadmin}}/ {{extotherlastweekevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/extotherlastweek}}
+
+                    {{#hasupload}}
+                    <div class="time-sample">
+                        <div class="sample-name" id="sample-uploadtime">{{#str}}uploadglobals, report_trainingsessions{{/str}}</div>
+                        <div class="sample-value">{{uploadtime}} {{#isadmin}} {{uploadevents}}{{/isadmin}}</div>
+                    </div>
+                    {{/hasupload}}
+
+                    {{^short}}
+                    {{#withoutofstructure}}
+                    <div class="time-sample" valign="top">
+                        <div class="sample-name">{{#str}}outofstructure, report_trainingsessions{{/str}}</div>
+                        <div class="sample-value">
+                            {{sessionduration}} {{#isadmin}} {{sessionevents}}{{/isadmin}}
+                        </div>
+                    </div>
+                    {{/withoutofstructure}}
+                    {{/short}}
+                </div>
             </td>
         </tr>
 
@@ -148,26 +184,6 @@
         </tr>
         {{/checklistadvice}}
         {{/workingsessions}}
-
-        {{^short}}
-        {{#withoutofstructure}}
-        <tr class="sessionlevel2" valign="top">
-            <td class="sessionitem">{{#str}}outofstructure, report_trainingsessions{{/str}}</td>
-            <td class="sessionvalue report-trainingsessions session-duration">
-                {{sessionduration}} {{#isadmin}} {{sessionevents}}{{/isadmin}}
-            </td>
-        </tr>
-        {{/withoutofstructure}}
-
-        {{#hasupload}}
-        <tr class="sessionlevel2" valign="top">
-            <td class="sessionitem">{{#str}}uploadglobals, report_trainingsessions{{/str}}</td>
-            <td class="sessionvalue report-trainingsessions session-duration">';
-                {{uploadtime}} {{#isadmin}} {{uploadevents}}{{/isadmin}}
-            </td>
-        </tr>
-        {{/hasupload}}
-    {{/short}}
     </table>
 
 </div>

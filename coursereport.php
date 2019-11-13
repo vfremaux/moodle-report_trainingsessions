@@ -124,6 +124,10 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
+if ($config->disablesuspendedenrolments && has_capability('report/trainingsessions:viewother', $context)) {
+    echo $OUTPUT->notification(get_string('hasdisabledenrolmentsrestriction', 'report_trainingsessions'));
+}
+
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
 
 if (!empty($targetusers)) {

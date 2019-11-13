@@ -75,7 +75,7 @@ function report_trainingsessions_get_course_structure($courseid, &$itemcount) {
         include_once($CFG->dirroot.'/course/format/page/classes/page.class.php');
 
         // Get first top level page (contains course structure).
-        $nestedpages = course_page::get_all_pages($courseid, 'nested');
+        $nestedpages = \format\page\course_page::get_all_pages($courseid, 'nested');
         if (empty($nestedpages)) {
             print_error('errorcoursestructurefirstpage', 'report_trainingsessions');
         }
@@ -297,6 +297,15 @@ function trainingsessions_fill_structure_from_sections(&$structure, $sections, &
             }
         }
         $structure[] = $element;
+        /*
+        // From 3.6 and upper.
+            $params = array('courseid' => $COURSE->id, 'format' => $COURSE->format, 'name' => 'numsections');
+            $maxsections = $DB->get_field('course_format_options', 'value', $params);
+            if ($sectioncount == $maxsections) {
+                // Do not go further, even if more sections are in database.
+                break;
+            }
+        */
         $sectioncount++;
     }
 }
@@ -1467,8 +1476,8 @@ function report_trainingsessions_batch_input($course) {
     $input->from = optional_param('from', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
     $input->to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
     $input->timesession = optional_param('timesession', time(), PARAM_INT); // Time of the generation batch.
-    $input->readabletimesession = date('Y/m/d H:i:s', $input->timesession);
-    $input->filenametimesession = date('Ymd_His', $input->timesession);
+    $input->readabletimesession = date('Y/m/d H:i', $input->timesession);
+    $input->filenametimesession = date('Ymd_Hi', $input->timesession);
     $input->sessionday = date('Ymd', $input->timesession);
 
     if ($input->from == -1) {
@@ -1596,9 +1605,11 @@ function report_trainingsessions_get_summary_cols($what = false) {
 
         if ($what == 'title') {
             if (in_array($c, $corekeys)) {
-                $result[] = get_string($key);
+                // Core keys get column name in core strings.
+                $result[] = preg_replace('/&nbsp;$/', '', get_string($key));
             } else {
-                $result[] = get_string($key, 'report_trainingsessions');
+                // Other keys get column name in trainingsessions report.
+                $result[] = preg_replace('/&nbsp;$/', '', get_string($key, 'report_trainingsessions'));
             }
         } else if ($what == 'format') {
             $result[] = $format;
@@ -1624,7 +1635,7 @@ function report_trainingsessions_get_summary_cols($what = false) {
  */
 function report_trainingsessions_map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate,
                                                   $courseid = 0, $associative = false) {
-    global $COURSE;
+    global $COURSE, $DB;
 
     if ($courseid == 0) {
         $courseid = $COURSE->id;
@@ -1647,7 +1658,10 @@ function report_trainingsessions_map_summary_cols(&$cols, &$user, &$aggregate, &
         'email' => $user->email,
         'institution' => $user->institution,
         'department' => $user->department,
-        'lastlogin' => $user->lastlogin,
+        'lastlogin' => ($user->currentlogin > $user->lastlogin) ? $user->currentlogin : $user->lastlogin,
+        'lastcourseaccess' => $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $user->id, 'courseid' => $courseid]),
+        'firstaccess' => $user->firstaccess,
+        'groups' => report_trainingsessions_get_user_groups($user->id, $courseid),
         'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
         'activityelapsed' => 0 + @$aggregate['activities'][$courseid]->elapsed,
         'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
@@ -1701,6 +1715,32 @@ function report_trainingsessions_map_summary_cols(&$cols, &$user, &$aggregate, &
     }
 
     return $data;
+}
+
+/**
+ * Return list of groups of a user in a course.
+ * @param int $userid
+ * @param int $courseid
+ * @return string a comma separated, readable list of groups.
+ */
+function report_trainingsessions_get_user_groups($userid, $courseid) {
+    global $DB;
+
+    $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
+    $course = $DB->get_record('course', array('id' => $courseid));
+    $groupnamesstr = '';
+    if (!empty($usergroups)) {
+        foreach ($usergroups as $group) {
+            $strbuf = $group->name;
+            if ($group->id == groups_get_course_group($course)) {
+                $strbuf = "<b>$strbuf</b>";
+            }
+            $groupnames[] = format_string($strbuf);
+        }
+        $groupnamesstr = implode(', ', $groupnames);
+    }
+
+    return $groupnamesstr;
 }
 
 /**
@@ -1842,11 +1882,11 @@ function report_trainingsessions_calculate_course_structure(&$structure, &$aggre
 
                 if (!empty($structure->subs)) {
                     $res = report_trainingsessions_calculate_course_structure($structure->subs, $aggregate, $done, $items);
-                    $dataobject->elapsed += $res->elapsed;
-                    $dataobject->events += $res->events;
+                    $dataobject->elapsed = $res->elapsed;
+                    $dataobject->events = $res->events;
                 }
             } else {
-                // It is only a structural module that should not impact on level
+                // It is only a structural module that should not impact on level.
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                     $dataobject->events = $aggregate[$structure->type][$structure->id]->events;

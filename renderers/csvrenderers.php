@@ -124,12 +124,32 @@ function report_trainingsessions_print_course_structure(&$csvbuffer, &$structure
  * @param int $to compilation end time
  * @return void. $rawstr is appended by reference.
  */
-function report_trainingsessions_print_global_raw($courseid, &$cols, &$user, &$aggregate, &$weekaggregate, &$rawstr) {
+function report_trainingsessions_print_global_raw($courseid, &$cols, &$user, &$aggregate, &$weekaggregate, &$rawstr, $dataformats) {
     global $COURSE, $DB;
 
     $config = get_config('report_trainingsessions');
+    $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
 
     $colsdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $courseid);
+    $i = 0;
+    foreach ($colsdata as &$data) {
+        if ($dataformats[$i] == 'd') {
+            if ($data > 0) {
+                if ($data > 100000000) {
+                    // Is very likely a date.
+                    $data = strftime($datetimefmt, $data);
+                } else {
+                    $data = sprintf('%02d:%02d:%02d', ($data / 3600), ($data / 60) % 60, $data % 60);
+                }
+            }
+        }
+        if ($dataformats[$i] == 't') {
+            if ($data > 0) {
+                $data = strftime($datetimefmt, $data);
+            }
+        }
+        $i++;
+    }
 
     // Add grades.
     report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);

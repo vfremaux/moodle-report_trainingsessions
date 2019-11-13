@@ -50,6 +50,8 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 report_trainingsessions_back_office_access($course);
 
+$PAGE->set_context($context);
+
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // TODO : secure groupid access depending on proper capabilities.
@@ -57,10 +59,10 @@ $coursestructure = report_trainingsessions_get_course_structure($course->id, $it
 
 if ($groupid) {
     $targetusers = groups_get_members($groupid);
-    $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".xls";
+    $filename = "ts_course_{$course->shortname}_group_{$groupid}_report_".$input->filenametimesession.".xls";
 } else {
     $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
-    $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".xls";
+    $filename = "ts_course_{$course->shortname}_report_".$input->filenametimesession.".xls";
 }
 
 report_trainingsessions_filter_unwanted_users($targetusers, $course);

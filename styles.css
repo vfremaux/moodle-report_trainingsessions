@@ -5,21 +5,21 @@ table * td {
    spacing:0px;
 }
 
-.sessionlevel1 td {
+.sessionlevel1 > td {
    border: solid 1px #888888;
    font-size:1.2em;
 }
 
-.sessionlevel2 td {
+.sessionlevel2 > td {
    border-bottom: solid 1px #EEEEEE;
    font-size:1.1em;
 }
 
-.sessionlevel3 td {
+.sessionlevel3 > td {
    font-size:1em;
 }
 
-.sessionlevel4 td {
+.sessionlevel4 > td {
    font-size:0.9em;
 }
 
@@ -48,12 +48,11 @@ table * td {
 }
 
 .sessionitem.rangedate{
-    background-color: #d0d0d0;
     border:1px solid  #a0a0a0;
     font-size: 0.9em;
 }
 
-.report-trainingsession.userinfobox{
+.report-trainingsession.userinfobox {
     background-color: white;
     border-radius: 10px;
     border: 1px #d0d0d0 solid;
@@ -61,7 +60,11 @@ table * td {
     margin: 10px;
     padding: 10px;
     text-align: left;
-    width: 80%;
+    width: 98%;
+}
+
+.report-trainingsession.userinfobox .completionbar {
+    margin: 10px 0;
 }
 
 .report-trainingsessions.session-duration {
@@ -151,4 +154,41 @@ table * td {
 
 .trainingsessions-main-total {
     font-size: 1.3em;
+}
+
+.coursesummary-period div {
+    margin-right: 10px;
+}
+
+table#trainingsession-userinfo > tbody > tr > th,
+table#trainingsession-userinfo > tbody > tr > td {
+    padding: 4px;
+    border-bottom: 1px #f0f0f0 solid;
+}
+
+#report-trainingsessions-totalizers {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: start;
+}
+
+#report-trainingsessions-totalizers .time-sample {
+    border: 1px solid #9383c0;
+    border-radius: 5px;
+    min-width: 20%;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#report-trainingsessions-totalizers .time-sample .sample-name {
+    background-color: #9383c0;
+    color: #fff;
+    font-weight: bolder;
+    padding: 2px 5px;
+    margin-bottom: 3px;
+}
+
+#report-trainingsessions-totalizers .time-sample .sample-value{
+    color: #000;
+    padding: 2px 5px;
 }

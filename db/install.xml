@@ -23,5 +23,20 @@
         <INDEX NAME="coursemodule_ix" UNIQUE="true" FIELDS="courseid,moduleid" />
       </INDEXES>
     </TABLE>
+
+    <TABLE NAME="report_trainingsessions_fa" COMMENT="Stores course first access">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" ENUM="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" ENUM="false"/>
+        <FIELD NAME="timeaccessed" TYPE="int" LENGTH="11" NOTNULL="true" SEQUENCE="false" ENUM="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course_user_ix" UNIQUE="true" FIELDS="courseid,userid" />
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

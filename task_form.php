@@ -127,7 +127,7 @@ class Task_Form extends moodleform {
         $mform->addElement('text', 'replaydelay', get_string('replaydelay', 'report_trainingsessions'), array('size' => 10));
         $mform->setType('replaydelay', PARAM_INT);
         $mform->setDefault('replaydelay', 1440);
-        $mform->disabledIf('replaydelay', 'replay');
+        $mform->disabledIf('replaydelay', 'replay', 'eq', 0);
         $mform->addHelpButton('replaydelay', 'replaydelay', 'report_trainingsessions');
 
         $this->add_action_buttons();

@@ -61,6 +61,10 @@ echo $OUTPUT->box_end();
 
 echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
 echo ' '.get_string('to', 'report_trainingsessions')." : ".userdate($data->to);
+$usconfig = get_config('block_use_stats');
+if ($usconfig->enrolmentfilter && has_capability('report/trainingsessions:viewother', $context)) {
+    echo $OUTPUT->notification(get_string('warningusestateenrolfilter', 'block_use_stats'));
+}
 
 // Get data.
 

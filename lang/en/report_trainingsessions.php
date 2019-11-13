@@ -128,6 +128,7 @@ $string['generatereports'] = 'Generate reports';
 $string['generatexls'] = 'Generate as XLS';
 $string['gradesettings'] = 'Grade settings';
 $string['grademodes'] = 'Grade modes';
+$string['groups'] = 'Groups';
 $string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
 $string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
 $string['head3application'] = 'Head 3 coors are used on end of table sumarizer, xhen suitable.';
@@ -153,6 +154,7 @@ $string['lastaccess'] = 'Last access';
 $string['lastlogin'] = 'Last login';
 $string['lastname'] = 'Surname';
 $string['layout'] = 'Document layout';
+$string['lastcourseaccess'] = 'Last course access';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
 $string['learningtimesessioncrop_desc'] = 'When coupling with learningtimecheck, out of valid range sessions could be croped, or kept and only marked into reports';
 $string['libsmissing'] = 'This feature has been disabled as libs are missing. Install libs from http://github.com/vfremaux/moodle-local_vflibs to get PDF generation enabled.';
@@ -218,6 +220,8 @@ $string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick c
 50 users, directly in the root directory of your course files.</p>';
 $string['quickmonthlyreport'] = 'Quick monthly reports (PDF)';
 $string['range'] = 'Range ';
+$string['real'] = 'Real: ';
+$string['credit'] = 'Credit: ';
 $string['recipient'] = 'Recipient';
 $string['recipient_desc'] = 'Default recipient of the PDF documents. May be locally overloaded by each operator.';
 $string['replay'] = 'Replay same settings';
@@ -494,3 +498,5 @@ of time grade scale should be numerically interpretable.';
 
 $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and générating excel exports.
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
+
+$string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';

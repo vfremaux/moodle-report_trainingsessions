@@ -421,7 +421,7 @@ function report_trainingsessions_print_header_xls(&$worksheet, $userid, $coursei
         $elapsed = report_trainingsessions_format_time((0 + @$data->courseelapsed), 'xlsd');
         $worksheet->write_time($row, 1, $elapsed, $xlsformats['d']);
     }
-    if (in_array('activityelapsed', $cols)) {
+    if (in_array('activitytime', $cols)) {
         $row++;
         $worksheet->write_string($row, 0, get_string('activitytime', 'report_trainingsessions').' :', $xlsformats['b']);
         $elapsed = report_trainingsessions_format_time((0 + @$data->activityelapsed), 'xlsd');
@@ -569,8 +569,8 @@ function report_trainingsessions_print_xls(&$worksheet, &$structure, &$aggregate
                 if (!empty($structure->subs)) {
                     $res = report_trainingsessions_print_xls($worksheet, $structure->subs, $aggregate, $done,
                                                              $row, $xlsformats, $level + 1);
-                    $dataobject->elapsed += $res->elapsed;
-                    $dataobject->events += $res->events;
+                    $dataobject->elapsed = $res->elapsed;
+                    $dataobject->events = $res->events;
                 }
 
                 // Firstaccess.

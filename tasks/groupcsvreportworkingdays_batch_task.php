@@ -48,16 +48,28 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 report_trainingsessions_back_office_access($course);
 
+<<<<<<< HEAD
+=======
+$PAGE->set_context($context);
+
+>>>>>>> MOODLE_37_STABLE
 // Compute target group.
 
 $group = $DB->get_record('groups', array('id' => $groupid));
 
 if ($groupid) {
     $targetusers = groups_get_members($groupid);
+<<<<<<< HEAD
     $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".csv";
 } else {
     $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
     $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".csv";
+=======
+    $filename = "ts_course_{$course->shortname}_group_{$groupid}_report_".$input->filenametimesession.".csv";
+} else {
+    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
+    $filename = "ts_course_{$course->shortname}_report_".$input->filenametimesession.".csv";
+>>>>>>> MOODLE_37_STABLE
 }
 
 // Filter out non compiling users.
@@ -122,6 +134,7 @@ if (!empty($targetusers)) {
 }
 // Sending HTTP headers.
 ob_end_clean();
+<<<<<<< HEAD
 header("Pragma: public");
 header("Expires: 0");
 header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -129,6 +142,15 @@ header("Cache-Control: private", false);
 header("Content-Type: application/octet-stream");
 header("Content-Disposition: attachment filename=\"$filename\";");
 header("Content-Transfer-Encoding: binary");
+=======
+header("Pragma: no-cache");
+header("Expires: 0");
+header("Cache-Control: no-cache, must-revalidate");
+header("Content-Type: application/csv");
+header("Content-Disposition: inline; filename=\"$filename\";");
+header("Content-Transfer-Encoding: text");
+header("Content-Length: ".strlen($csvbuffer));
+>>>>>>> MOODLE_37_STABLE
 echo $csvbuffer;
 
 // echo '200';

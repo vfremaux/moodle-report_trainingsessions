@@ -187,20 +187,46 @@ function report_trainingsessions_print_html($structure, &$aggregate, &$dataobjec
             $dataobject->events += (0 + @$subdataobject->events);
         }
     } else {
+<<<<<<< HEAD
+=======
+        $template->id = $structure->id;
+>>>>>>> MOODLE_37_STABLE
         $template->hasbody = true;
         if (!isset($structure->instance) || !empty($structure->instance->visible)) {
             // Non visible items should not be displayed.
             // Name is not empty. It is a significant module (non structural).
+            $template->type = $structure->type;
+            $template->issection = false;
+            if ($structure->type == 'section') {
+                $template->issection = true;
+            }
             if (!empty($structure->name)) {
                 if (debugging()) {
                     $template->debuginfo = '['.$structure->type.'] ';
                 }
                 $template->name = shorten_text(strip_tags(format_string($structure->name)), 85);
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+<<<<<<< HEAD
                     $template->firstaccess = date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess));
                 }
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $template->lastaccess = date('Y/m/d H:i', 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess));
+=======
+                    $fa = 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess);
+                    if ($fa) {
+                        $template->firstaccess = date('Y/m/d H:i', $fa);
+                    } else {
+                        $template->firstaccess = '--';
+                    }
+                }
+                if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                    $la = 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess);
+                    if ($la) {
+                        $template->lastaccess = date('Y/m/d H:i', $la);
+                    } else {
+                        $template->lastaccess = '--';
+                    }
+>>>>>>> MOODLE_37_STABLE
                 }
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $done++;
@@ -210,8 +236,11 @@ function report_trainingsessions_print_html($structure, &$aggregate, &$dataobjec
                     $template->hassubs = true;
                     $subdataobject = null;
                     $template->structures[] = report_trainingsessions_print_html($structure->subs, $aggregate, $subdataobject, $done, $indent, $level + 1);
+<<<<<<< HEAD
                     $dataobject->elapsed += $subdataobject->elapsed;
                     $dataobject->events += $subdataobject->events;
+=======
+>>>>>>> MOODLE_37_STABLE
                 }
 
                 if (!in_array($structure->type, $ignoremodulelist)) {
@@ -220,8 +249,18 @@ function report_trainingsessions_print_html($structure, &$aggregate, &$dataobjec
                     }
                     if (!empty($dataobject->timesource) && $dataobject->timesource == 'declared' && $dataobject->elapsed) {
                         $template->source = get_string('declaredtime', 'block_use_stats');
+<<<<<<< HEAD
                     }
                     $template->elapsed = report_trainingsessions_format_time($dataobject->elapsed, $durationformat);
+=======
+                    }
+                    $template->elapsed = report_trainingsessions_format_time($dataobject->elapsed, $durationformat);
+                    if (!empty($dataobject->real)) {
+                        $template->real = report_trainingsessions_format_time($dataobject->real, $durationformat);
+                    } else if (!empty($dataobject->credit)) {
+                        $template->credit = report_trainingsessions_format_time($dataobject->credit, $durationformat);
+                    }
+>>>>>>> MOODLE_37_STABLE
                     if (is_siteadmin()) {
                         $template->events = ' ('.(0 + @$dataobject->events).')';
                     }
@@ -281,11 +320,15 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
     $template->short = $short;
     $template->isadmin = is_siteadmin();
 
+<<<<<<< HEAD
     $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
+=======
+>>>>>>> MOODLE_37_STABLE
     $template->userpicture = $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
     $template->fullname = fullname($user);
 
     // Print group status.
+<<<<<<< HEAD
     if (!empty($usergroups)) {
         foreach ($usergroups as $group) {
             $strbuf = $group->name;
@@ -295,6 +338,11 @@ function report_trainingsessions_print_header_html($userid, $courseid, $data, $s
             $groupnames[] = format_string($strbuf);
         }
         $template->groupnames = implode(', ', $groupnames);
+=======
+    $groupnames = report_trainingsessions_get_user_groups($userid, $courseid);
+    if (!empty($groupnames)) {
+        $template->groupnames = $groupnames;
+>>>>>>> MOODLE_37_STABLE
         $template->hasgroups = true;
     }
 

@@ -58,11 +58,13 @@ $input = report_trainingsessions_batch_input($course);
 // Security.
 report_trainingsessions_back_office_access($course, $userid);
 
+$PAGE->set_context($context);
+
 $coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
 
 // Generate XLS.
 
-$filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.'.xls';
+$filename = "ts_course_{$course->shortname}_user_{$userid}_report_".$input->filenametimesession.'.xls';
 
 $workbook = new MoodleExcelWorkbookTS("-");
 if (!$workbook) {

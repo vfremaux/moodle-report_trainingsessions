@@ -55,6 +55,11 @@ $input = report_trainingsessions_batch_input($course);
 
 report_trainingsessions_back_office_access($course);
 
+<<<<<<< HEAD
+=======
+$PAGE->set_context($context);
+
+>>>>>>> MOODLE_37_STABLE
 // Compute target group.
 
 if ($groupid) {
@@ -74,9 +79,15 @@ if (!empty($targetusers)) {
     // Generate XLS.
 
     if ($groupid) {
+<<<<<<< HEAD
         $filename = "trainingsessions_group_{$groupid}_workingdays_".$input->filenametimesession.".xls";
     } else {
         $filename = "trainingsessions_course_{$course->id}_workingdays_".$input->filenametimesession.".xls";
+=======
+        $filename = "ts_course_{$course->shortname}_group_{$groupid}_workingdays_".$input->filenametimesession.".xls";
+    } else {
+        $filename = "ts_course_{$course->shortname}_workingdays_".$input->filenametimesession.".xls";
+>>>>>>> MOODLE_37_STABLE
     }
     $workbook = new MoodleExcelWorkbook('-');
 

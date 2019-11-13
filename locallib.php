@@ -1881,11 +1881,11 @@ function report_trainingsessions_calculate_course_structure(&$structure, &$aggre
 
                 if (!empty($structure->subs)) {
                     $res = report_trainingsessions_calculate_course_structure($structure->subs, $aggregate, $done, $items);
-                    $dataobject->elapsed += $res->elapsed;
-                    $dataobject->events += $res->events;
+                    $dataobject->elapsed = $res->elapsed;
+                    $dataobject->events = $res->events;
                 }
             } else {
-                // It is only a structural module that should not impact on level
+                // It is only a structural module that should not impact on level.
                 if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                     $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                     $dataobject->events = $aggregate[$structure->type][$structure->id]->events;

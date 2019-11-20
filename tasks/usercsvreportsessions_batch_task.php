@@ -30,6 +30,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php'
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // User id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -39,9 +41,11 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-report_trainingsessions_back_office_access($course, $userid);
+$rt->back_office_access($course, $userid);
 
-$input = report_trainingsessions_batch_input($course);
+$PAGE->set_context($context);
+
+$input = $rt->batch_input($course);
 
 $user = $DB->get_record('user', array('id' => $userid));
 
@@ -49,20 +53,20 @@ $user = $DB->get_record('user', array('id' => $userid));
 if (!empty($user)) {
 
     $csvbuffer = '';
-    report_trainingsessions_print_session_header($csvbuffer);
-    $y = report_trainingsessions_print_usersessions($csvbuffer, $userid, $course, $input->from, $input->to, $id);
+    $renderer->print_session_header($csvbuffer);
+    $y = $renderer->print_usersessions($csvbuffer, $userid, $course, $input->from, $input->to, $id);
 
 }
 
-$filename = "trainingsessions_usersessions_{$course->id}_report_".$input->filenametimesession.".csv";
+$filename = "ts_usersessions_{$course->id}_report_".$input->filenametimesession.".csv";
 
 // Sending HTTP headers.
 ob_end_clean();
-header("Pragma: public");
+header("Pragma: no-cache");
 header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header("Cache-Control: private", false);
-header("Content-Type: application/octet-stream");
-header("Content-Disposition: attachment filename=\"$filename\";");
-header("Content-Transfer-Encoding: binary");
+header("Cache-Control: no-cache, must-revalidate");
+header("Content-Type: application/csv");
+header("Content-Disposition: inline; filename=\"$filename\";");
+header("Content-Transfer-Encoding: text");
+header("Content-Length: ".strlen($csvbuffer));
 echo $csvbuffer;

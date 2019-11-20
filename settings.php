@@ -62,6 +62,16 @@ if ($ADMIN->fulltree) {
     $desc = get_string('hideemptymodules_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+    $key = 'report_trainingsessions/defaultstartdate';
+    $label = get_string('defaultstartdate', 'report_trainingsessions');
+    $desc = get_string('defaultstartdate_desc', 'report_trainingsessions');
+    $options = array(
+        'course' => get_string('coursestart', 'report_trainingsessions'),
+        'account' => get_string('accountstart', 'report_trainingsessions'),
+        'enrol' => get_string('enroldate', 'report_trainingsessions')
+    );
+    $settings->add(new admin_setting_configselect($key, $label, $desc, 'course', $options));
+
     $key = 'report_trainingsessions/disablesuspendedstudents';
     $label = get_string('disablesuspendedstudents', 'report_trainingsessions');
     $desc = get_string('disablesuspendedstudents_desc', 'report_trainingsessions');
@@ -77,11 +87,16 @@ if ($ADMIN->fulltree) {
     $desc = get_string('printsessiontotal_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 1));
 
+    $key = 'report_trainingsessions/printlocation';
+    $label = get_string('printlocation', 'report_trainingsessions');
+    $desc = get_string('printlocation_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configtext($key, $label, $desc, ''));
+
     $key = 'report_trainingsessions/summarycolumns';
     $label = get_string('summarycolumns', 'report_trainingsessions');
     $desc = get_string('summarycolumns_desc', 'report_trainingsessions');
-    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#lastlogin,t\nactivitytime,d\n";
-    $default .= "#othertime,d\n#coursetime,d\nelapsed,d\n#extelapsed,d\nextother,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
+    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#groups,a\n#lastlogin,t\n#firstaccess,t\nlastcourseaccess,t\n";
+    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\nelapsedoutofstructure,d\nelapsed,d\n#extelapsed,d\nextotherelapsed,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
     $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherlastweek,d\n#hitslastweek,n\n#exthitslastweek,n\nworkingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
@@ -131,7 +146,7 @@ if ($ADMIN->fulltree) {
     $desc = get_string('xlsexportlocale_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configtext($key, $label, $desc , ''));
 
-    $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
+    $options = array(TR_GRADE_SOURCE_COURSE => get_string('elapsed', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
     $key = 'report_trainingsessions/timegradesourcedefault';

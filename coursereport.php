@@ -30,8 +30,11 @@ ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\HtmlRenderer($rt);
 
 // Calculate start time.
 
@@ -52,12 +55,12 @@ $config = get_config('report_trainingsessions');
 
 // Calculate start time.
 
-report_trainingsessions_process_bounds($data, $course);
+$rt->process_bounds($data, $course);
 
 if ($data->output == 'html') {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
-    echo $renderer->tabs($course, $view, $data->from, $data->to);
+    echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
     echo $OUTPUT->container_end();
 
     echo $OUTPUT->box_start('block');
@@ -115,16 +118,21 @@ if ($data->groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Get course structure.
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = $rt->get_course_structure($course->id, $items);
 
 // Print result.
 
-require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+if ($config->disablesuspendedenrolments && has_capability('report/trainingsessions:viewother', $context)) {
+    echo $OUTPUT->notification(get_string('hasdisabledenrolmentsrestriction', 'report_trainingsessions'));
+}
 
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
+
+$cols = $rt->get_summary_cols('keys');
+$rt->add_graded_columns($cols, $unusedtitles);
 
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
@@ -137,32 +145,17 @@ if (!empty($targetusers)) {
             $aggregate['sessions'] = array();
         }
 
-        $data->items = $items;
+        $headdata = (object) $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true);
+        $rt->add_graded_data($headdata, $auser->id, $aggregate);
 
-        $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
-        $data->activityevents = @$aggregate['activities'][$course->id]->events;
-        $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
-        $data->otherevents = @$aggregate['other'][$course->id]->events;
-        $data->done = 0;
+        $headdata->done = 0;
+        $headdata->items = $items;
 
         if (!empty($aggregate)) {
 
-            $data->course = new StdClass();
-            $data->course->elapsed = 0;
-            $data->course->events = 0;
-
-            if (!empty($aggregate['course'])) {
-                $data->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-                $data->course->events = 0 + @$aggregate['course'][$course->id]->events;
-            }
-
             // Calculate everything.
-
-            $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
-            $data->events = $data->activityevents + $data->otherevents + $data->course->events;
-
-            $sesscount = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id);
-            $data->sessions = (!empty($aggregate['sessions'])) ? $sesscount : 0;
+            $sesscount = $rt->count_sessions_in_course($aggregate['sessions'], $course->id);
+            $headdata->sessions = (!empty($aggregate['sessions'])) ? $sesscount : 0;
 
             foreach (array_keys($aggregate) as $module) {
                 /*
@@ -172,17 +165,17 @@ if (!empty($targetusers)) {
                 if (preg_match('/course|user|upload|sessions|system|activities|other/', $module)) {
                     continue;
                 }
-                $data->done += count($aggregate[$module]);
+                $headdata->done += count($aggregate[$module]);
             }
         } else {
-            $data->sessions = 0;
+            $headdata->sessions = 0;
         }
-        if ($data->done > $items) {
-            $data->done = $items;
+        if ($headdata->done > $items) {
+            $headdata->done = $items;
         }
 
-        $data->linktousersheet = 1;
-        echo report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
+        $headdata->linktousersheet = 1;
+        echo $renderer->print_header_html($auser, $course, $headdata, $cols, true /* short */);
     }
 } else {
     echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));

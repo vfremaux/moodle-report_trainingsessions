@@ -10,12 +10,11 @@
 
 {{#withtitle}}
 <h2>{{#str}}instructure, report_trainingsessions{{/str}}</h2>
-{{/withtitle}}
 
 <table width="100%" id="structure-table">
     <tr valign="top">
         <td class="userreport-col0">
-            <b>{{#str}}structureitem, report_trainingsessions{{/str}}</b>
+            <!-- b>{{#str}}structureitem, report_trainingsessions{{/str}}</b -->
         </td>
 
         <td class="userreport-col1">
@@ -25,30 +24,32 @@
         <td class="userreport-col2">
             <b>{{#str}}lastaccess, report_trainingsessions{{/str}}</b>
         </td>
+
         <td class="userreport-col3">
             <b>{{#str}}duration, report_trainingsessions{{/str}} {{#isadmin}} ({{#str}}hits, report_trainingsessions{{/str}}){{/isadmin}}</b>
         </td>
     </tr>
 </table>
+{{/withtitle}}
 
 {{#structures}}
 {{#hasbody}}
 <table class="sessionreport level{{level}}">
     <tr class="sessionlevel{{level}} userreport-col0" valign="top">
-        <td class="sessionitem item" width="55%">
+        <td class="sessionitem item" width="55%" data-cmid="{{id}}">
             {{{indent}}} {{{debuginfo}}} {{name}}
         </td>
 
         <td class="sessionitem rangedate userreport-col1">
-            {{{firstaccess}}}
+            {{^issection}}{{{firstaccess}}}{{/issection}}
         </td>
 
         <td class="sessionitem rangedate  userreport-col2">
-            {{{lastaccess}}}
+            {{^issection}}{{{lastaccess}}}{{/issection}}
         </td>
 
-        <td class="reportvalue rangedate userreport-col3" align="right">
-            {{{source}}} {{{elapsed}}} {{#isadmin}} ({{events}}){{/isadmin}}
+        <td class="reportvalue rangedate userreport-col3" align="right" {{#real}}title="{{#str}}real, report_trainingsessions{{/str}}: {{real}}"{{/real}}{{#credit}}title="{{#str}}credit, report_trainingsessions{{/str}}: {{credit}}"{{/credit}}>
+            {{{source}}} {{{elapsed}}} {{#isadmin}} {{events}} {{/isadmin}}
         </td>
     </tr>
 </table>

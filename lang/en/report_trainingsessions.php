@@ -49,6 +49,8 @@ $string['batchreports_task'] = 'Batch reports';
 $string['bgcolor'] = 'Background color';
 $string['binary'] = 'Binary output';
 $string['bonusgrademode'] = 'Time bonus grade mode';
+$string['bonusgrademodedefault'] = 'Bonus grade mode default';
+$string['bonusgrademodedefault_desc'] = 'Default value for the bonus grade mode when first setup in a course';
 $string['checklistadvice'] = 'Special side completion effects';
 $string['chooseagroup'] = 'Choose a group';
 $string['chooseaninstitution'] = 'Choose an institution';
@@ -64,27 +66,29 @@ $string['coursegrade'] = 'Enable course score';
 $string['courselabel'] = 'as column: ';
 $string['coursename'] = 'Group name';
 $string['courseraw'] = 'Batchs';
+$string['courses'] = 'Courses';
 $string['coursesessions'] = 'Working sessions in course (real guessed times)';
 $string['coursestart'] = 'Course start date';
 $string['coursesummary'] = 'Per participant summary';
 $string['coursetime'] = 'Time in course (activities excluded)';
-$string['coursetotaltime'] = 'Total course time';
 $string['coursetoolargenotice'] = 'Course is too large and no groups inside. Cannot compile.';
+$string['credit'] = 'Credit: ';
 $string['crop'] = 'Crop out of range sessions';
 $string['csv'] = 'Text (CSV)';
 $string['csvoutputtoiso'] = 'Iso CSV Output';
 $string['currentcourse'] = 'Current course';
+$string['dates'] = 'Key dates';
 $string['debugmode'] = 'Debug mode on';
 $string['defaultstartdate'] = 'Default start date';
 $string['defaultstartdate_desc'] = 'Default start date';
 $string['disabled'] = '|--------- disabled -----------|';
+$string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
+$string['disablesuspendedstudents'] = 'Ignore suspended students';
 $string['discrete'] = 'Discrete output';
 $string['discreteforcenumber'] = 'Force numeric on discrete';
-$string['disablesuspendedstudents'] = 'Ignore suspended students';
-$string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
-$string['elapsed'] = 'Total time';
+$string['elapsed'] = 'Total course time';
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
 $string['elapsedlastweek'] = 'Last week time';
 $string['email'] = 'Email';
@@ -97,19 +101,19 @@ $string['enddate'] = 'End date';
 $string['enroldate'] = 'User enrol date';
 $string['enterprisesign'] = 'Enterprise';
 $string['equlearningtime'] = 'Equivalent training time: ';
-$string['errornoabsolutepath'] = 'Path must be relative';
 $string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
 $string['errorbadviewid'] = 'non existing report view';
 $string['errorcontinuousscale'] = 'You cannot use scales as grade source in continuous mode';
 $string['errorcoursestructurefirstpage'] = 'Course structure error: failed getting first page';
 $string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
 $string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
+$string['errornoabsolutepath'] = 'Path must be relative';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
 $string['extelapsed'] = 'Total time (extended)';
 $string['extelapsedlastweek'] = 'Last week time (extended)';
 $string['exthits'] = 'Hits (extended)';
 $string['exthitslastweek'] = 'Hits last week (extended)';
-$string['extother'] = 'Extra out of course time';
+$string['extotherelapsed'] = 'Extra out of course time';
 $string['extotherlastweek'] = 'Extra time (last week)';
 $string['extrauserinfo'] = 'Additional user info in reports';
 $string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
@@ -117,17 +121,21 @@ $string['fail'] = 'FAIL';
 $string['filetimesuffixformat'] = 'Ymd_His';
 $string['firstaccess'] = 'First access';
 $string['firstconnection'] = 'First connection';
+$string['firstcourseaccess'] = 'First course access';
+$string['firstcourseaccess_help'] = 'First time course has been accessed';
 $string['firstenrolldate'] = 'First enroll';
 $string['firstname'] = 'First Name';
+$string['firstsessiontime'] = 'First session';
 $string['from'] = 'From';
-$string['gradexlsformat'] = 'Excel grade format';
-$string['gradexlsformat_desc'] = 'Choose a number format for grades';
 $string['generatecsv'] = 'Generate as CSV';
 $string['generatepdf'] = 'Generate as PDF';
 $string['generatereports'] = 'Generate reports';
 $string['generatexls'] = 'Generate as XLS';
-$string['gradesettings'] = 'Grade settings';
 $string['grademodes'] = 'Grade modes';
+$string['gradesettings'] = 'Grade settings';
+$string['gradexlsformat'] = 'Excel grade format';
+$string['gradexlsformat_desc'] = 'Choose a number format for grades';
+$string['groups'] = 'Groups';
 $string['head1application'] = 'Head 1 colors are uses on top super header row when suitable.';
 $string['head2application'] = 'Head 2 colors are uses on normal header row just above data columns. this is the most common case.';
 $string['head3application'] = 'Head 3 coors are used on end of table sumarizer, xhen suitable.';
@@ -150,18 +158,22 @@ $string['item'] = 'Item';
 $string['items'] = 'Items';
 $string['json'] = 'JSON';
 $string['lastaccess'] = 'Last access';
+$string['lastcourseaccess'] = 'Last course access';
+$string['lastcourseaccess_help'] = 'when course was last accessed';
 $string['lastlogin'] = 'Last login';
 $string['lastname'] = 'Surname';
 $string['layout'] = 'Document layout';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
 $string['learningtimesessioncrop_desc'] = 'When coupling with learningtimecheck, out of valid range sessions could be croped, or kept and only marked into reports';
 $string['libsmissing'] = 'This feature has been disabled as libs are missing. Install libs from http://github.com/vfremaux/moodle-local_vflibs to get PDF generation enabled.';
-$string['licenseprovider'] = 'Pro License provider';
-$string['licenseprovider_desc'] = 'Input here your provider key';
 $string['licensekey'] = 'Pro license key';
 $string['licensekey_desc'] = 'Input here the product license key you got from your provider';
+$string['licenseprovider'] = 'Pro License provider';
+$string['licenseprovider_desc'] = 'Input here your provider key';
 $string['location'] = 'Location';
 $string['mark'] = 'Mark out of range sessions';
+$string['meandaytime'] = 'Mean Time per day';
+$string['meanweektime'] = 'Mean time per week';
 $string['modgrade'] = 'Activity grade';
 $string['modulegrade'] = 'Activity module';
 $string['modulegrades'] = 'Activity grades';
@@ -201,8 +213,6 @@ $string['pdfreportfooter_desc'] = 'Provide a JPG image for the bottom footer (88
 $string['pdfreportheader'] = 'PDF report header image';
 $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (880px large x up to 220px height)';
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
-$string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If
-none given, the first page header will be used again.';
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
 $string['plugindist'] = 'Plugin distribution';
@@ -214,10 +224,10 @@ $string['printlocation_desc'] = 'The physical location of the training';
 $string['printsessiontotal'] = 'Display the overal session elapsed time';
 $string['printsessiontotal_desc'] = 'Do NOT display the total session time in on screen session reports.';
 $string['profileinfotimeformat'] = '%d %B %Y';
-$string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
-50 users, directly in the root directory of your course files.</p>';
 $string['quickmonthlyreport'] = 'Quick monthly reports (PDF)';
 $string['range'] = 'Range ';
+$string['readableduration'] = 'Duration';
+$string['real'] = 'Real: ';
 $string['recipient'] = 'Recipient';
 $string['recipient_desc'] = 'Default recipient of the PDF documents. May be locally overloaded by each operator.';
 $string['replay'] = 'Replay same settings';
@@ -232,8 +242,6 @@ $string['reportscope'] = 'Scope';
 $string['role'] = 'Role';
 $string['scheduledbatches'] = 'Scheduled batches';
 $string['scoresettings'] = 'Score Reporting Settings';
-$string['scoresettingsadvice'] = 'In course summary reports (one user per line), you may add additional output columns with scores from the
-gradebook. You can add the global course grade, or choose to add one (or more) single activity grade(s) in the report.';
 $string['sectionname'] = 'Section name';
 $string['seedetails'] = 'See details';
 $string['selectforreport'] = 'Select for reports';
@@ -255,8 +263,8 @@ $string['siteglobals'] = 'Site (non course sections)';
 $string['specialgrades'] = 'Special grades';
 $string['startdate'] = 'Start date';
 $string['strfdate'] = '%Y-%m-%d';
-$string['strftime'] = '%H:%M:%S';
 $string['strfdatetime'] = '%Y-%m-%d %H:%M';
+$string['strftime'] = '%H:%M:%S';
 $string['structureitem'] = 'Course trackable item';
 $string['structuretotal'] = 'Total {$a}:';
 $string['studentsign'] = 'Student';
@@ -271,36 +279,24 @@ $string['timeelapsed'] = 'Time spent';
 $string['timeelapsedcurweek'] = 'Time spent cur. week';
 $string['timegrade'] = 'Time grade source';
 $string['timegrademode'] = 'Time grade mode';
+$string['timegrademodedefault'] = 'Time grade mode default';
+$string['timegrademodedefault_desc'] = 'Default value for the time grade mode when first setup in a course';
 $string['timegraderanges'] = 'Time grade ranges';
+$string['timegradesourcedefault'] = 'Time grade source default';
+$string['timegradesourcedefault_desc'] = 'Default value for the bonus grade source when first setup in a course';
 $string['timeperpart'] = 'Time elapsed per part';
 $string['timesource'] = 'Time source';
 $string['timespent'] = 'Spent';
 $string['timespentlastweek'] = 'Spent last week';
-$string['timegrademodedefault'] = 'Time grade mode default';
-$string['timegrademodedefault_desc'] = 'Default value for the time grade mode when first setup in a course';
-$string['bonusgrademodedefault'] = 'Bonus grade mode default';
-$string['bonusgrademodedefault_desc'] = 'Default value for the bonus grade mode when first setup in a course';
-$string['timegradesourcedefault'] = 'Time grade source default';
-$string['timegradesourcedefault_desc'] = 'Default value for the bonus grade source when first setup in a course';
 $string['to'] = 'To';
-$string['totalwdtime'] = 'Total WD time';
-$string['meanweektime'] = 'Mean time per week';
-$string['meandaytime'] = 'Mean Time per day';
-$string['userid'] = 'User ID';
 $string['todate'] = 'Date end';
-$string['workday'] = 'WDay';
-$string['workweek'] = 'Week';
-$string['readableduration'] = 'Duration';
 $string['tonow'] = 'To now';
-$string['toobig'] = '<p>Compilation group is too big to be performed in quick compilation. We incline you programming a delayed batch at a
-time that will not affect your currently working users.<br/>To setup a batch, preset the compilation parameters in the above form, and
-register a new batch with the desired configuration, and setting batch time and output dir from the course file storage location origin
-(relative path, absolute path rejected).</p><p>You can also program a regular compilation batch that will compile every \"replaydelay\"
-minutes to the desired output.</p>';
+$string['total'] = 'Total';
 $string['totalduration'] = 'Total duration';
 $string['totalsessions'] = 'Total session time';
 $string['totalsessiontime'] = 'Total working sessions time';
 $string['totalsitetime'] = 'Total site time';
+$string['totalwdtime'] = 'Total WD time';
 $string['trainingreports'] = 'Training Reports';
 $string['trainingsessions'] = 'Training Sessions';
 $string['trainingsessions_report_advancement'] = 'Progress Report';
@@ -310,24 +306,25 @@ $string['trainingsessionsreport'] = 'Training Session Reports';
 $string['trainingsessionsscores'] = 'Score addition to reports';
 $string['unvisited'] = 'Unvisited';
 $string['updatefromaccountstart'] = 'Get from user first access';
-$string['updatefromenrolstart'] = 'Get from user\'s enrol date';
 $string['updatefromcoursestart'] = 'Get from course start';
+$string['updatefromenrolstart'] = 'Get from user\'s enrol date';
 $string['uploadglobals'] = 'File uploads';
 $string['uploadresult'] = 'Download raw results';
 $string['user'] = 'Per participant';
 $string['userdetail'] = 'Participant detail';
+$string['userid'] = 'User ID';
 $string['userlist'] = 'One row per participant';
 $string['usersheets'] = 'One sheetset per participant';
 $string['usersummary'] = 'Participant summary';
 $string['visiteditems'] = 'Visited Items.';
 $string['weekstartdate'] = 'Week start';
-$string['workingsessions'] = 'Work sessions';
+$string['workday'] = 'WDay';
 $string['workingdays'] = 'Work days report';
+$string['workingsessions'] = 'Work sessions';
+$string['workweek'] = 'Week';
 $string['xls'] = 'XLS';
-$string['xlsexportlocale'] = 'XLS Export Locale';
 $string['xlsadditions'] = 'XLS Additions';
-$string['firstsessiontime'] = 'First session';
-$string['courses'] = 'Courses';
+$string['xlsexportlocale'] = 'XLS Export Locale';
 
 $string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
 $string['xlsformula'] = 'Formula (Excel expression)';
@@ -337,11 +334,22 @@ $string['calculated'] = 'Calculated';
 $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
+$string['xlssumformula'] = 'XLS Sum Formula';
+
+$string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If
+none given, the first page header will be used again.';
+
+$string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
+50 users, directly in the root directory of your course files.</p>';
+
 $string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
-$string['xlssumformula'] = 'XLS Sum Formula';
+
 $string['xlssumformula_desc'] = 'XLS Sum Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
+
+$string['scoresettingsadvice'] = 'In course summary reports (one user per line), you may add additional output columns with scores from the
+gradebook. You can add the global course grade, or choose to add one (or more) single activity grade(s) in the report.';
 
 $string['calculated_help'] = 'Enter an excel formula using local excel references as produced in the output document. Use {row} placeholder to
 insert the current line number in cell references. Use english function names.
@@ -350,6 +358,12 @@ Example :
 
 =AVERAGE($C${row}:$D${row})
 ';
+
+$string['toobig'] = '<p>Compilation group is too big to be performed in quick compilation. We incline you programming a delayed batch at a
+time that will not affect your currently working users.<br/>To setup a batch, preset the compilation parameters in the above form, and
+register a new batch with the desired configuration, and setting batch time and output dir from the course file storage location origin
+(relative path, absolute path rejected).</p><p>You can also program a regular compilation batch that will compile every \"replaydelay\"
+minutes to the desired output.</p>';
 
 $string['lineaggregators_help'] = '
 <p>Define aggregators as a list of aggregators switches starting from left most columns in the
@@ -409,7 +423,7 @@ $string['activitytime_help'] = '
     standard time are used rather than real extracted times from log.</p>
 ';
 
-$string['coursetotaltime_help'] = '
+$string['elapsed_help'] = '
 <p>This summarizes all time spent in the course or any dependancy of the course.</p>
 ';
 
@@ -471,7 +485,7 @@ material and some time spent in general site screens the user has access to limi
 $string['elapsedlastweek_help'] = '
 The extended course time calculates the time strictly spent inside the course context limited to the last week timerange.';
 
-$string['extother_help'] = '
+$string['extotherelapsed_help'] = '
 <p>Elapsed time outside of this course, but attached to this course sessions. They are usually spent in user pages, or in global site scope.</p>';
 
 $string['grademodes_help'] = 'Grade modes define how the grade is calculated from the original data input:
@@ -494,3 +508,5 @@ of time grade scale should be numerically interpretable.';
 
 $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and générating excel exports.
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
+
+$string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';

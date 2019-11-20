@@ -29,6 +29,10 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 require_once($CFG->dirroot.'/report/trainingsessions/task_form.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\HtmlRenderer($rt);
 
 $offset = optional_param('offset', 0, PARAM_INT);
 $page = 20;
@@ -108,12 +112,12 @@ if (!empty($selform->groupid)) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Print result.
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
-echo $renderer->tabs($course, $view, $from, $to);
+echo $rtrenderer->tabs($course, $view, $from, $to);
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->box_start('block');
@@ -126,23 +130,26 @@ if (!empty($targetusers)) {
 
     if (count($targetusers) < 50) {
         include_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
+        $csvrenderer = new \report\trainingsessions\CsvRenderer($rt);
         // This is a quick immediate compilation for small groups.
         echo get_string('quickgroupcompile', 'report_trainingsessions', count($targetusers));
 
         foreach ($targetusers as $u) {
-            $logs = use_stats_extract_logs($from, $to, $u->id, $id);
+            $logs = use_stats_extract_logs($from, $to, $u->id, $course->id);
             $aggregate[$u->id] = use_stats_aggregate_logs($logs, $from, $to);
 
-            $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, $u->id, $id);
+            $weeklogs = use_stats_extract_logs($to - DAYSECS * 7, $to, $u->id, $course->id);
             $weekaggregate[$u->id] = use_stats_aggregate_logs($weeklogs, $to - DAYSECS * 7, $to);
         }
 
         $timestamp = time();
-        report_trainingsessions_print_global_header($rawstr);
-        $cols = report_trainingsessions_get_summary_cols();
+        $csvrenderer->print_global_header($rawstr);
+
+        $cols = $rt->get_summary_cols();
+        $dataformats = $rt->get_summary_cols('format');
 
         foreach ($targetusers as $userid => $auser) {
-            report_trainingsessions_print_global_raw($id, $cols, $auser, $aggregate, $weekaggregate, $rawstr);
+            $csvrenderer->print_global_raw($id, $cols, $auser, $aggregate[$auser->id], $weekaggregate[$auser->id], $rawstr, $dataformats);
         }
 
         $fs = get_file_storage();

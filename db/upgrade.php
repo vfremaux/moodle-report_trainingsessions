@@ -110,6 +110,30 @@ function xmldb_report_trainingsessions_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019041700, 'report', 'trainingsessions');
     }
 
+    if ($oldversion < 2019111900) {
+
+        // Define table report_trainingsessions_fa to be created.
+        $table = new xmldb_table('report_trainingsessions_fa');
+
+        // Adding fields to table report_trainingsessions_fa.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '11', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, 0);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '11', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, 0);
+        $table->add_field('timeaccessed', XMLDB_TYPE_INTEGER, '11', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null, null, 0);
+
+        // Adding keys to table report_trainingsessions.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        $table->add_index('ix_usercourse', XMLDB_INDEX_NOTUNIQUE, array('userid, courseid'));
+
+        if (!$dbman->table_exists($table)) {
+            // Launch create table for flashcard_card.
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2019111900, 'report', 'trainingsessions');
+    }
+
     return true;
 }
 
@@ -122,10 +146,10 @@ function relocate_header_files() {
 
     foreach ($fileareas as $filearea) {
         $goodparams = array('component' => 'report_trainingsessions', 'filearea' => $filearea);
-        $goodrecs = $DB->get_records('files', $params);
+        $goodrecs = $DB->get_records('files', $goodparams);
 
         $badparams = array('component' => 'core', 'filearea' => $filearea);
-        $badrecs = $DB->get_records('files', $params);
+        $badrecs = $DB->get_records('files', $badparams);
 
         if (empty($goodrecs) && !empty($badrecs)) {
             $sql = "
@@ -141,6 +165,7 @@ function relocate_header_files() {
         }
 
         // Clean old area whenever.
-        $fs->clear_area_files($systemcontext->id, 'core', $filearea);
+        $systemcontext = context_system::instance();
+        $fs->delete_area_files($systemcontext->id, 'core', $filearea);
     }
 }

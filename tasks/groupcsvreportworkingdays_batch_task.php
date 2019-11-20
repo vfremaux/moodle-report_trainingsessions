@@ -34,6 +34,8 @@ require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // Group id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -43,10 +45,12 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course);
+$rt->back_office_access($course);
+
+$PAGE->set_context($context);
 
 // Compute target group.
 
@@ -54,14 +58,14 @@ $group = $DB->get_record('groups', array('id' => $groupid));
 
 if ($groupid) {
     $targetusers = groups_get_members($groupid);
-    $filename = "trainingsessions_group_{$groupid}_report_".$input->filenametimesession.".csv";
+    $filename = "ts_course_{$course->shortname}_group_{$groupid}_report_".$input->filenametimesession.".csv";
 } else {
     $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
-    $filename = "trainingsessions_course_{$course->id}_report_".$input->filenametimesession.".csv";
+    $filename = "ts_course_{$course->shortname}_report_".$input->filenametimesession.".csv";
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Print result.
 
@@ -69,12 +73,12 @@ $csvbuffer = '';
 if (!empty($targetusers)) {
     // generate CSV.
 
-    $cols = report_trainingsessions_get_workingdays_cols();
-    report_trainingsessions_print_row($cols, $csvbuffer);
+    $cols = $rt->get_workingdays_cols();
+    $renderer->print_row($cols, $csvbuffer);
 
     foreach ($targetusers as $auser) {
 
-        $events = report_learningtimecheck_get_user_workdays($auser->id);
+        $events = $rt->get_user_workdays($auser->id);
 
         if ($events) {
             foreach ($events as $e) {
@@ -107,11 +111,11 @@ if (!empty($targetusers)) {
                 $cols[4] = date('W', $e->timestart);
                 $cols[5] = count($aggregate['sessions']);
                 $cols[6] = $totaltime;
-                $cols[7] = report_trainingsessions_format_time($totaltime, $mode = 'htmld');
+                $cols[7] = $rt->format_time($totaltime, $mode = 'htmld');
                 $cols[8] = strftime(get_string('strftime', 'report_trainingsessions'), @$aggregate['sessions'][0]->sessionstart);
                 $cols[9] = implode(", ", $traversedcourses);
 
-                report_trainingsessions_print_row($cols, $csvbuffer);
+                $renderer->print_row($cols, $csvbuffer);
             }
         } else {
             $csvbuffer .= '# '.fullname($auser)." has no events \n\n";
@@ -122,13 +126,13 @@ if (!empty($targetusers)) {
 }
 // Sending HTTP headers.
 ob_end_clean();
-header("Pragma: public");
+header("Pragma: no-cache");
 header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header("Cache-Control: private", false);
-header("Content-Type: application/octet-stream");
-header("Content-Disposition: attachment filename=\"$filename\";");
-header("Content-Transfer-Encoding: binary");
+header("Cache-Control: no-cache, must-revalidate");
+header("Content-Type: application/csv");
+header("Content-Disposition: inline; filename=\"$filename\";");
+header("Content-Transfer-Encoding: text");
+header("Content-Length: ".strlen($csvbuffer));
 echo $csvbuffer;
 
 // echo '200';

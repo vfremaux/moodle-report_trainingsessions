@@ -83,7 +83,7 @@ Options:
 -P, --outputpath  the path where to output. Defaults in moodledata/temp/trainingsessions/<date_of_day>
 
 Example:
-\$sudo -u www-data /usr/bin/php blocks/vmoodle/cli/bulkcreatenodes.php
+\$sudo -u www-data /usr/bin/php report/trainingsessions/cli/extract_csv_report.php
 "; // TODO: localize - to be translated later when everything is finished.
 
     echo $help;
@@ -142,6 +142,9 @@ if ($userid) {
 
 if (!empty($options['launch'])) {
 
+    $rt = \report\trainingsessions\trainingsessions::instance();
+    $renderer = new \report\trainingsessions\trainingsessions\XlsRenderer($rt);
+
     foreach ($processedusers as $userid) {
         $data = new StdClass;
         $data->from = (empty($options['from'])) ? 0 : $options['from'];
@@ -154,14 +157,14 @@ if (!empty($options['launch'])) {
 
         // Sending HTTP headers.
 
-        $overall = report_trainingsessions_print_allcourses_csv($csvfilecontent, $aggregate);
+        $overall = $renderer->print_allcourses_csv($csvfilecontent, $aggregate);
 
         $data->elapsed = $overall->elapsed;
         $data->events = $overall->events;
 
-        $csvfilecontentheader = report_trainingsessions_print_header_csv($userid, $courseid, $data);
+        $csvfilecontentheader = $renderer->print_header_csv($userid, $courseid, $data);
 
-        report_trainingsessions_print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
+        $renderer->print_sessions_csv($csvsessions, $aggregate['sessions'], $courseid);
 
         echo "Opening output file as $filename\n";
         if ($file = fopen($options['outputpath'].'/'.$filename, 'w+')) {

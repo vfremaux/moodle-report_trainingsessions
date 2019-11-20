@@ -10,38 +10,38 @@
     <p><a href="{{{detailurl}}}">{{#str}}seedetails, report_trainingsessions{{/str}}</a></p>
     {{/hasdetails}}
 
-    <table width="100%" class="generaltable">
+    <table width="100%" id="trainingsession-userinfo">
         {{#hasgroups}}
         <tr>
-            <td class="trainingsessions-label attribute" width="25%">{{#str}}groups{{/str}}</td>
+            <td class="attribute-label" width="25%">{{#str}}groups{{/str}}</td>
             <td class="attribute-value">{{groupnames}}</td>
         </tr>
         {{/hasgroups}}
 
         {{#idnumber}}
         <tr>
-            <td class="trainingsessions-label attribute" width="25%">{{#str}}idnumber{{/str}}</td>
+            <td class="attribute-label" width="25%">{{#str}}idnumber{{/str}}</td>
             <td class="attribute-value">{{idnumber}}</td>
         </tr>
         {{/idnumber}}
 
         {{#institution}}
         <tr>
-            <td class="trainingsessions-label attribute" width="25%">{{#str}}institution{{/str}}</td>
+            <td class="attribute-label" width="25%">{{#str}}institution{{/str}}</td>
             <td class="attribute-value">{{institution}}</td>
         </tr>
         {{/institution}}
 
         {{#department}}
         <tr>
-            <td class="trainingsessions-label attribute" width="25%">{{#str}}department{{/str}}</td>
+            <td class="attribute-label" width="25%">{{#str}}department{{/str}}</td>
             <td class="attribute-value">{{department}}</td>
         </tr>
         {{/department}}
 
         {{#roles}}
         <tr>
-            <td class="trainingsessions-label attribute" width="25%">{{#str}}roles{{/str}}</td>
+            <td class="attribute-label" width="25%">{{#str}}roles{{/str}}</td>
             <td class="attribute-value">{{roles}}</td>
         </tr>
         {{/roles}}
@@ -58,56 +58,20 @@
 
         {{^short}}
         <tr>
-            <td colspan="2">
-                <table id="report-trainingsessions-totalizers" width="100%">
-                    <tr>
+            <td>
+                {{#str}}timespent, report_trainingsessions{{/str}}
+            </td>
+            <td>
+                <div id="report-trainingsessions-totalizers">
 
-                        {{#activitytime}}
-                        <td id="sample-activitytime">{{#str}}activitytime, report_trainingsessions{{/str}} {{{activitytimehelp}}}</td>
-                        <td>{{activitytime}} {{#isadmin}}/ {{activityevents}}{{/isadmin}}</td>
-                        {{/activitytime}}
+                    {{#totalizers}}
+                    <div class="time-sample" id="sample-{{key}}">
+                        <div class="sample-name">{{name}} {{{help}}}</div>
+                        <div class="sample-value">{{elapsed}} {{#isadmin}}/ {{hits}}{{/isadmin}}</div>
+                    </div>
+                    {{/totalizers}}
 
-                        {{#othertime}}
-                        <td id="sample-othertime">{{#str}}othertime, report_trainingsessions{{/str}} {{{othertimehelp}}}</td>
-                        <td>{{othertime}} {{#isadmin}}/ {{otherevents}}{{/isadmin}}</td>
-                        {{/othertime}}
-
-                        {{#coursetime}}
-                        <td id="sample-othertime">{{#str}}coursetime, report_trainingsessions{{/str}} {{{coursetimehelp}}}</td>
-                        <td>{{coursetime}} {{#isadmin}}/ {{courseevents}}{{/isadmin}}</td>
-                        {{/coursetime}}
-
-                        {{#elapsed}}
-                        <td id="sample-coursetotaltime">{{#str}}coursetotaltime, report_trainingsessions{{/str}} {{{coursetotaltimehelp}}}</td>
-                        <td>{{coursetotaltime}} {{#isadmin}}/ {{coursetotalevents}}{{/isadmin}}</td>
-                        {{/elapsed}}
-
-                        {{#extelapsed}}
-                        <td id="sample-extelapsed">{{#str}}extelapsed, report_trainingsessions{{/str}} {{{extelapsedhelp}}}</td>
-                        <td>{{extelapsed}} {{#isadmin}}/ {{extevents}}{{/isadmin}}</td>
-                        {{/extelapsed}}
-
-                        {{#extother}}
-                        <td id="sample-extelapsed">{{#str}}extother, report_trainingsessions{{/str}} {{{extotherhelp}}}</td>
-                        <td>{{extother}} {{#isadmin}}/ {{extotherevents}}{{/isadmin}}</td>
-                        {{/extother}}
-
-                        {{#elapsedlastweek}}
-                        <td id="sample-elapsedlastweek">{{#str}}elapsedlastweek, report_trainingsessions{{/str}} {{{elapsedlastweekhelp}}}</td>
-                        <td>{{elapsedlastweek}} {{#isadmin}}/ {{elapsedlastweekevents}}{{/isadmin}}</td>
-                        {{/elapsedlastweek}}
-
-                        {{#extelapsedlastweek}}
-                        <td id="sample-extelapsedlastweek">{{#str}}extelapsedlastweek, report_trainingsessions{{/str}} {{{extelapsedlastweekhelp}}}</td>
-                        <td>{{extelapsedlastweek}} {{#isadmin}}/ {{extelapsedlastweekevents}}{{/isadmin}}</td>
-                        {{/extelapsedlastweek}}
-
-                        {{#extotherlastweek}}
-                        <td id="sample-extotherlastweek">{{#str}}extotherlastweek, report_trainingsessions{{/str}} {{{extotherlastweekhelp}}}</td>
-                        <td>{{extotherlastweek}} {{#isadmin}}/ {{extotherlastweekevents}}{{/isadmin}}</td>
-                        {{/extotherlastweek}}
-                    </tr>
-                </table>
+                </div>
             </td>
         </tr>
 
@@ -131,11 +95,31 @@
         </tr>
         {{/hasgrades}}
 
+        {{#hastimes}}
+        <tr>
+            <td>
+                {{#str}}dates, report_trainingsessions{{/str}}
+            </td>
+            <td>
+                <div id="report-trainingsessions-times">
+
+                    {{#times}}
+                    <div class="time-sample" id="sample-{{key}}">
+                        <div class="sample-name">{{name}} {{{help}}}</div>
+                        <div class="sample-value">{{elapsed}} {{#isadmin}}/ {{hits}}{{/isadmin}}</div>
+                    </div>
+                    {{/times}}
+
+                </div>
+            </td>
+        </tr>
+        {{/hastimes}}
+
         {{/short}}
 
         {{#workingsessions}}
         <tr>
-            <td class="attribute">{{#str}}workingsessions, report_trainingsessions{{/str}} {{{workingsessionshelp}}}</td>
+            <td class="attribute-label">{{#str}}workingsessions, report_trainingsessions{{/str}} {{{workingsessionshelp}}}</td>
             <td class="attribute-value">{{{sessions}}}</td>
         </tr>
         {{#checklistadvice}}
@@ -148,26 +132,6 @@
         </tr>
         {{/checklistadvice}}
         {{/workingsessions}}
-
-        {{^short}}
-        {{#withoutofstructure}}
-        <tr class="sessionlevel2" valign="top">
-            <td class="sessionitem">{{#str}}outofstructure, report_trainingsessions{{/str}}</td>
-            <td class="sessionvalue report-trainingsessions session-duration">
-                {{sessionduration}} {{#isadmin}} {{sessionevents}}{{/isadmin}}
-            </td>
-        </tr>
-        {{/withoutofstructure}}
-
-        {{#hasupload}}
-        <tr class="sessionlevel2" valign="top">
-            <td class="sessionitem">{{#str}}uploadglobals, report_trainingsessions{{/str}}</td>
-            <td class="sessionvalue report-trainingsessions session-duration">';
-                {{uploadtime}} {{#isadmin}} {{uploadevents}}{{/isadmin}}
-            </td>
-        </tr>
-        {{/hasupload}}
-    {{/short}}
     </table>
 
 </div>

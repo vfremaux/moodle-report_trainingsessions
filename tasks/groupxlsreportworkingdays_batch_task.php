@@ -39,6 +39,8 @@ require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // The group id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\XlsRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -49,11 +51,13 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 $config = get_config('report_trainingsessions');
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
 
-report_trainingsessions_back_office_access($course);
+$rt->back_office_access($course);
+
+$PAGE->set_context($context);
 
 // Compute target group.
 
@@ -65,7 +69,7 @@ if ($groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Print result.
 
@@ -74,9 +78,9 @@ if (!empty($targetusers)) {
     // Generate XLS.
 
     if ($groupid) {
-        $filename = "trainingsessions_group_{$groupid}_workingdays_".$input->filenametimesession.".xls";
+        $filename = "ts_course_{$course->shortname}_group_{$groupid}_workingdays_".$input->filenametimesession.".xls";
     } else {
-        $filename = "trainingsessions_course_{$course->id}_workingdays_".$input->filenametimesession.".xls";
+        $filename = "ts_course_{$course->shortname}_workingdays_".$input->filenametimesession.".xls";
     }
     $workbook = new MoodleExcelWorkbook('-');
 
@@ -84,25 +88,25 @@ if (!empty($targetusers)) {
     ob_end_clean();
     $workbook->send($filename);
 
-    $xlsformats = report_trainingsessions_xls_formats($workbook);
+    $xlsformats = $renderer->xls_formats($workbook);
 
     $row = 0;
     $sheetdate = date('d-M-Y', time());
     $worksheet = $workbook->add_worksheet($sheetdate);
 
-    $cols = report_trainingsessions_get_workingdays_cols();
-    $headtitles = report_trainingsessions_get_workingdays_cols('title');
+    $cols = $rt->get_workingdays_cols();
+    $headtitles = $rt->get_workingdays_cols('title');
     $headerformats = array('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a');
-    $dataformats = report_trainingsessions_get_workingdays_cols('format');
-    $studentformats = report_trainingsessions_get_workingdays_cols('studentwdstatsformat');
+    $dataformats = $rt->get_workingdays_cols('format');
+    $studentformats = $rt->get_workingdays_cols('studentwdstatsformat');
 
-    $row = report_trainingsessions_print_rawline_xls($worksheet, $headtitles, $headerformats, $row, $xlsformats);
+    $row = $renderer->print_rawline_xls($worksheet, $headtitles, $headerformats, $row, $xlsformats);
 
     $minrow = 2;
     $maxrow = 2;
     foreach ($targetusers as $auser) {
 
-        $events = report_learningtimecheck_get_user_workdays($auser->id);
+        $events = $rt->get_user_workdays($auser->id);
         $totaltime = 0;
         $totalweeks = 0;
         $totaldays = 0;
@@ -146,27 +150,27 @@ if (!empty($targetusers)) {
                 $data[4] = $weeknum;
                 $data[5] = count($aggregate['sessions']);
                 $data[6] = $wdtime;
-                $data[7] = report_trainingsessions_format_time($wdtime, $mode = 'htmld');
+                $data[7] = $rt->format_time($wdtime, $mode = 'htmld');
                 $data[8] = strftime(get_string('strftime', 'report_trainingsessions'), @$aggregate['sessions'][0]->sessionstart);
                 $data[9] = implode(", ", $traversedcourses);
 
-                $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $dataformats, $row, $xlsformats);
+                $row = $renderer->print_rawline_xls($worksheet, $data, $dataformats, $row, $xlsformats);
                 $maxrow++;
             }
 
             $data = array();
             $data[] = get_string('totalwdtime', 'report_trainingsessions');
             $data[] = $totaltime;
-            $data[] = report_trainingsessions_format_time($totaltime, $mode = 'htmld');
+            $data[] = $rt->format_time($totaltime, $mode = 'htmld');
             $data[] = get_string('meanweektime', 'report_trainingsessions');
             $meanweeks = ($totalweeks) ? $totaltime / $totalweeks : 0;
             $data[] = $meanweeks;
-            $data[] = report_trainingsessions_format_time($meanweeks, $mode = 'htmld');
+            $data[] = $rt->format_time($meanweeks, $mode = 'htmld');
             $data[] = get_string('meandaytime', 'report_trainingsessions');
             $meandays = ($totaldays) ? $totaltime / $totaldays : 0;
             $data[] = $meandays;
-            $data[] = report_trainingsessions_format_time($meandays, $mode = 'htmld');
-            $row = report_trainingsessions_print_rawline_xls($worksheet, $data, $studentformats, $row, $xlsformats);
+            $data[] = $rt->format_time($meandays, $mode = 'htmld');
+            $row = $renderer->print_rawline_xls($worksheet, $data, $studentformats, $row, $xlsformats);
             $row++; // Jump a row.
             $maxrow++;
         }

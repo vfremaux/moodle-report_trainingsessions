@@ -175,6 +175,8 @@ if (!empty($targetusers)) {
         }
 
         $headdata->linktousersheet = 1;
+        $headdata->from = $data->from;
+        $headdata->to = $data->to;
         echo $renderer->print_header_html($auser, $course, $headdata, $cols, true /* short */);
     }
 } else {

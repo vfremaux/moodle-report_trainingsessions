@@ -111,12 +111,12 @@ if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
 
         $logs = use_stats_extract_logs($input->from, $input->to, array($auser->id), $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
 
         $weeklogs = use_stats_extract_logs($input->to - DAYSECS * 7, $input->to, array($auser->id), $course->id);
-        $weekaggregate = use_stats_aggregate_logs($weeklogs, $input->to - DAYSECS * 7, $input->to);
+        $weekaggregate = use_stats_aggregate_logs($weeklogs, $input->to - DAYSECS * 7, $input->to, '', false, $course);
 
-        $data = $r->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
+        $data = $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id);
 
         $rt->add_graded_data($data, $auser->id, $aggregate);
         $rt->add_calculated_data($data);

@@ -67,7 +67,7 @@
                     {{#totalizers}}
                     <div class="time-sample" id="sample-{{key}}">
                         <div class="sample-name">{{name}} {{{help}}}</div>
-                        <div class="sample-value">{{elapsed}} {{#isadmin}}/ {{hits}}{{/isadmin}}</div>
+                        <div class="sample-value">{{elapsed}} {{#showhits}}/ {{hits}}{{/showhits}}</div>
                     </div>
                     {{/totalizers}}
 
@@ -106,7 +106,7 @@
                     {{#times}}
                     <div class="time-sample" id="sample-{{key}}">
                         <div class="sample-name">{{name}} {{{help}}}</div>
-                        <div class="sample-value">{{elapsed}} {{#isadmin}}/ {{hits}}{{/isadmin}}</div>
+                        <div class="sample-value">{{elapsed}} {{#showhits}}/ {{hits}}{{/showhits}}</div>
                     </div>
                     {{/times}}
 

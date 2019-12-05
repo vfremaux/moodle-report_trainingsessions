@@ -87,7 +87,7 @@ if (!empty($targetusers)) {
                 $end = $e->timestart + 12 * HOURSECS - 1;
 
                 $logs = use_stats_extract_logs($start, $end, $auser->id);
-                $aggregate = use_stats_aggregate_logs($logs, $start, $end);
+                $aggregate = use_stats_aggregate_logs($logs, $start, $end, '', false, $course);
 
                 $totaltime = 0;
                 if (!empty($aggregate['sessions'])) {

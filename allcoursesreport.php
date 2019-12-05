@@ -36,6 +36,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
 $rt = \report\trainingsessions\trainingsessions::instance();
+$tsconfig = get_config('report_trainingsessions');
 
 $id = required_param('id', PARAM_INT); // The course id.
 
@@ -181,9 +182,11 @@ if ($data->output == 'html') {
     $data->events = $overall->events;
     $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
 
-    $worksheet = $renderer->init_worksheet($userid, $startrow, $xlsformats, $workbook, 'sessions');
-    $renderer->print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xlsformats);
-    $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+    if (!empty($tsconfig->showsessions)) {
+        $worksheet = $renderer->init_worksheet($userid, $startrow, $xlsformats, $workbook, 'sessions');
+        $renderer->print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xlsformats);
+        $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+    }
 
     $workbook->close();
 }

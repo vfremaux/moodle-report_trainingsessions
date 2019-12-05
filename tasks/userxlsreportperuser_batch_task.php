@@ -41,6 +41,7 @@ $userid = required_param('userid', PARAM_INT); // The group id.
 $reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // Only currentcourse is consistant.
 $rt = \report\trainingsessions\trainingsessions::instance();
 $renderer = new \report\trainingsessions\XlsRenderer($rt);
+$config = get_config('report_trainingsessions');
 
 ini_set('memory_limit', '512M');
 
@@ -78,15 +79,15 @@ ob_end_clean();
 $workbook->send($filename);
 
 $xlsformats = $renderer->xls_formats($workbook);
-$startrow = $renderer->count_header_rows($course->id);
+$startrow = $renderer->count_header_rows($course->id) + 5;
 
 $row = $startrow;
 $worksheet = $renderer->init_worksheet($auser->id, $row, $xlsformats, $workbook);
 
 $logusers = $auser->id;
 $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
-$weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to);
+$aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
+$weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to, '', false, $course);
 
 $coursestructure = $rt->get_course_structure($course->id, $items);
 $cols = $rt->get_summary_cols();
@@ -98,18 +99,16 @@ $renderer->print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls
 $headdata->done = $done;
 $rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
 
-
 $headdata->from = $input->from;
-
-// Get additional grade columns and add to passed dataobject for header.
-$headdata->gradecols = $gradecols;
 
 $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
 
-if (!empty($aggregate['sessions'])) {
-    $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
-    $renderer->print_sessions_xls($worksheet, 15, $aggregate['sessions'], $course, $xlsformats);
-    $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+if (!empty($config->showsessions)) {
+    if (!empty($aggregate['sessions'])) {
+        $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
+        $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+        $renderer->print_sessions_xls($worksheet, $startrow, $aggregate['sessions'], $course, $xlsformats);
+    }
 }
 
 $workbook->close();

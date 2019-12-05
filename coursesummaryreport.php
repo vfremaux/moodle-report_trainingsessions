@@ -101,7 +101,7 @@ $durationcols = array('activitytime',
                       'elapsed',
                       'extelapsed',
                       'extelapsedlastweek',
-                      'extother',
+                      'extotherelapsed',
                       'extotherlastweek',
                       'coursetime',
                       'elapsedlastweek',
@@ -187,9 +187,11 @@ $template->to = userdate($data->to);
 if (!empty($summarizedusers)) {
     // Add a table header row.
 
-    foreach ($colstitles as $title) {
+    for ($i = 0; $i < count($colstitles); $i++) {
+        $title = $colstitles[$i];
         $coltpl = new StdClass;
         $coltpl->title = $title;
+        $coltpl->key = $colskeys[$i];
         $template->colstitles[] = $coltpl;
     }
 
@@ -210,7 +212,7 @@ if (!empty($summarizedusers)) {
                 $fieldtpl->value = $rt->format_time($field, $durationformat);
             } else if (in_array($fieldname, $datecols)) {
                 $fieldtpl->class = 'report-col-right';
-                $fieldtpl->value = $rt->format_time($field, 'html');
+                $fieldtpl->value = $rt->format_time($field, get_string('profileinfotimeformat', 'report_trainingsessions'));
             } else if (in_array($fieldname, $rightaligncols)) {
                 $fieldtpl->class = 'report-col-right';
                 $fieldtpl->value = $field;

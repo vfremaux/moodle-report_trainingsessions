@@ -544,12 +544,18 @@ class trainingsessions {
 
             } else if ($mode == 'html') {
 
-                return strftime('%Y-%m-%d %H:%I (%a)', $timevalue);
+                return strftime('%Y-%m-%d %H:%M (%a)', $timevalue);
 
             } else if ($mode == 'xlsd') {
 
+                // Print with seconds.
+                $secs = $timevalue % 60;
+                $mins = floor($timevalue / 60);
+                $hours = floor($mins / 60);
+                $mins = $mins % 60;
+
                 // For excel time format we need have a fractional day value.
-                return $timevalue / DAYSECS;
+                return "$hours:$mins:$secs";
 
             } else {
 
@@ -1195,6 +1201,8 @@ class trainingsessions {
     public function process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec = null,
                                                        $reportscope = 'currentcourse') {
         mtrace('Compile_users for user : '.fullname($user)."<br/>\n");
+        mtrace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
+        mtrace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
 
         $fs = get_file_storage();
 
@@ -1281,6 +1289,8 @@ class trainingsessions {
     public function process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec = null,
                                                         $reportscope = 'currentcourse') {
         mtrace('Compile_users for group : '.$group->name."<br/>\n");
+        mtrace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
+        mtrace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
 
         $fs = get_file_storage();
 
@@ -1702,8 +1712,7 @@ class trainingsessions {
      * @param boolean $associative if true, returns an associative array mapped on column names
      * @return array or hash table
      */
-    public function map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate,
-                                                      $courseid = 0, $associative = false) {
+    public function map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0, $associative = false) {
         global $COURSE, $DB;
 
         if ($courseid == 0) {

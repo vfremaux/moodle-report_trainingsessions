@@ -90,9 +90,13 @@ $rt->add_graded_data($headdata, $data->userid, $aggregate);
 
 $str = $renderer->print_html($coursestructure, $aggregate, $dataobject, $done);
 $headdata->done = $done;
+$headdata->items = $items;
 echo $renderer->print_header_html($user, $course, $headdata, $cols);
 echo $str;
-echo $renderer->print_session_list($aggregate['sessions'], $course->id, $data->userid);
+
+if (!empty($tsconfig->showsessions)) {
+    echo $renderer->print_session_list($aggregate['sessions'], $course->id, $data->userid);
+}
 
 echo $rtrenderer->xls_userexport_button($data);
 

@@ -114,7 +114,7 @@ foreach ($groups as $group) {
         $targetusers = $group->target;
 
         // Filters teachers out.
-        $rt-filter_unwanted_users($targetusers, $course);
+        $rt->filter_unwanted_users($targetusers, $course);
 
         if (!empty($targetusers)) {
 

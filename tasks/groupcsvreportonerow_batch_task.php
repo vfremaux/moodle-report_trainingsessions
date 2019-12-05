@@ -81,8 +81,8 @@ if (!empty($targetusers)) {
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
+        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS, '', false, $course);
 
         // Processes graded columns internally. No need to invoke grades at task level.
         $renderer->print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer, $dataformats);

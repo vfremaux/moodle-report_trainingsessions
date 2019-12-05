@@ -38,6 +38,7 @@ $id = required_param('id', PARAM_INT); // The course id.
 $groupid = optional_param('groupid', 0, PARAM_INT); // The group id.
 $rt = \report\trainingsessions\trainingsessions::instance();
 $renderer = new \report\trainingsessions\XlsRenderer($rt);
+$config = get_config('report_trainingsessions');
 
 ini_set('memory_limit', '512M');
 
@@ -83,7 +84,7 @@ ob_end_clean();
 $workbook->send($filename);
 
 $xlsformats = $renderer->xls_formats($workbook);
-$startrow = $renderer->count_header_rows($course->id);
+$startrow = $renderer->count_header_rows($course->id) + 5;
 
 $cols = $rt->get_summary_cols();
 
@@ -95,8 +96,8 @@ if (!empty($targetusers)) {
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
+        $weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to, '', false, $course);
 
         $headdata = (object) $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true /* associative */);
 
@@ -104,9 +105,11 @@ if (!empty($targetusers)) {
         $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
 
         // Print separate page for sessions.
-        $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
-        $renderer->print_sessions_xls($worksheet, 15, @$aggregate['sessions'], $course, $xlsformats);
-        $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+        if (!empty($config->showsessions)) {
+            $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
+            $renderer->print_sessions_xls($worksheet, $startrow, @$aggregate['sessions'], $course, $xlsformats);
+            $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+        }
     }
 } else {
     $workbook->add_worksheet('No users');

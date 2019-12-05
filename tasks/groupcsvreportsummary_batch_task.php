@@ -79,10 +79,15 @@ if (!empty($targetusers)) {
 
     foreach ($targetusers as $auser) {
 
+        /*
+         * Current course context must be explicted when calling to aggregates as we are in a batch and
+         * not an interactive session.
+         */
+
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
+        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS, '', false, $course);
 
         // Processes graded columns internally. No need to invoke grades at task level.
         $renderer->print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer, $dataformats);
@@ -91,7 +96,7 @@ if (!empty($targetusers)) {
 }
 
 // Sending HTTP headers.
-ob_end_clean();
+ ob_end_clean();
 header("Pragma: no-cache");
 header("Expires: 0");
 header("Cache-Control: no-cache, must-revalidate");

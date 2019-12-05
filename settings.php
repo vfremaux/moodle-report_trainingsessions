@@ -226,6 +226,26 @@ if ($ADMIN->fulltree) {
     $desc = get_string('showhits_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
+    $key = 'report_trainingsessions/showsessions';
+    $label = get_string('showsessions', 'report_trainingsessions');
+    $desc = get_string('showsessions_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showitemfirstaccess';
+    $label = get_string('showitemfirstaccess', 'report_trainingsessions');
+    $desc = get_string('showitemfirstaccess_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showitemlastaccess';
+    $label = get_string('showitemlastaccess', 'report_trainingsessions');
+    $desc = get_string('showitemlastaccess_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showmonthlyquickreports';
+    $label = get_string('showmonthlyquickreports', 'report_trainingsessions');
+    $desc = get_string('showmonthlyquickreports_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
     $key = 'report_trainingsessions/pdfreportheader';
     $label = get_string('pdfreportheader', 'report_trainingsessions');
     $desc = get_string('pdfreportheader_desc', 'report_trainingsessions');

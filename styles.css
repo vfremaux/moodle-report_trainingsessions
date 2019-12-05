@@ -225,3 +225,8 @@ table#trainingsession-userinfo > tbody > tr > td {
     box-shadow: 0 0 4px #229b15;
     border-radius: 2px;
 }
+
+.bigicon{
+    width:64px;
+    height:64px;
+}

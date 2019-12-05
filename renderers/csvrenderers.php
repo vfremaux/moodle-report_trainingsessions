@@ -140,14 +140,15 @@ class CsvRenderer {
         $config = get_config('report_trainingsessions');
         $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
 
-        $colsdata = $this->rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $courseid);
+        $colsdata = $this->rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $courseid, false /* non associative */);
+
         $i = 0;
         foreach ($colsdata as &$data) {
             if ($dataformats[$i] == 'd') {
                 if ($data > 0) {
                     if ($data > 100000000) {
                         // Is very likely a date.
-                        $data = strftime($datetimefmt, $data);
+                        $data = $this->rt->format_time($data, 'htmld');
                     } else {
                         $data = sprintf('%02d:%02d:%02d', ($data / 3600), ($data / 60) % 60, $data % 60);
                     }
@@ -155,7 +156,7 @@ class CsvRenderer {
             }
             if ($dataformats[$i] == 't') {
                 if ($data > 0) {
-                    $data = strftime($datetimefmt, $data);
+                    $data = $this->rt->format_time($data, 'html');
                 }
             }
             $i++;

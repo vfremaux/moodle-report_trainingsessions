@@ -165,9 +165,9 @@ class HtmlRenderer {
         $template = new StdClass;
         $template->level = $level;
         $template->hassubs = false;
-        if (is_siteadmin()) {
-            $template->isadmin = true;
-        }
+        $template->showhits = $config->showhits;
+        $template->showitemfirstaccess = $config->showitemfirstaccess;
+        $template->showitemlastaccess = $config->showitemlastaccess;
 
         if (empty($structure)) {
             $template->hasstructure = false;
@@ -309,7 +309,7 @@ class HtmlRenderer {
 
         $template = new StdClass;
         $template->short = $short;
-        $template->isadmin = is_siteadmin();
+        $template->showhits = $config->showhits;
 
         $template->userpicture = $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
         $template->fullname = fullname($user);
@@ -431,7 +431,7 @@ class HtmlRenderer {
     /**
      * Prints all time measurement items.
      */
-    public function add_times($data, $cols, &$template, $durationformat) {
+    public function add_times($data, $cols, &$template, $timeformat) {
         global $OUTPUT;
 
         $timecols = array('firstaccess', 'lastlogin', 'firstcourseaccess', 'lastcourseaccess');
@@ -448,10 +448,12 @@ class HtmlRenderer {
             $timestpl->key = $c;
             $timestpl->name = get_string($c, 'report_trainingsessions');
             $timestpl->help = $OUTPUT->help_icon($c, 'report_trainingsessions');
-            $timestpl->elapsed = $this->rt->format_time(0 + @$data->$c, $durationformat);
+            $timestpl->elapsed = $this->rt->format_time(0 + @$data->$c, $timeformat);
+            /*
             $h = str_replace('elapsed', 'hits', $c);
             $h = str_replace('time', 'hits', $h);  // Alternative if not an "elapsed" column.
             $timestpl->hits = 0 + $data->$h;
+            */
 
             $template->times[] = $timestpl;
             $template->hastimes = true;
@@ -696,23 +698,10 @@ class HtmlRenderer {
         } else {
             $completed = 0;
         }
-        $template->items = $items;
+        $template->total = $items;
         $template->done = $done;
         $template->value = round($completed * 100);
         $template->pixurl = $OUTPUT->image_url('progress1', 'report_trainingsessions');
-
-
-        /*
-        $remaining = 1 - $completed;
-        $remainingitems = $items - $done;
-        $template->completedpc = ceil($completed * 100)."% $done/$items";
-        $template->remainingpc = floor(100 * $remaining)."% $remainingitems/$items";
-        $template->completedwidth = floor($width * $completed);
-        $template->remainingwidth = floor($width * $remaining);
-
-        $template->donepixurl = $OUTPUT->image_url('green', 'report_trainingsessions');
-        $template->remainpixurl = $OUTPUT->image_url('blue', 'report_trainingsessions');
-        */
 
         return $OUTPUT->render_from_template('report_trainingsessions/progressionbar', $template);
     }

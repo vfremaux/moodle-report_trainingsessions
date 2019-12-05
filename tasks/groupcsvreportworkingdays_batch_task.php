@@ -34,6 +34,8 @@ require_once($CFG->dirroot.'/report/learningtimecheck/lib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // Group id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -43,10 +45,10 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course);
+$rt->back_office_access($course);
 
 <<<<<<< HEAD
 =======
@@ -73,7 +75,7 @@ if ($groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Print result.
 
@@ -81,12 +83,12 @@ $csvbuffer = '';
 if (!empty($targetusers)) {
     // generate CSV.
 
-    $cols = report_trainingsessions_get_workingdays_cols();
-    report_trainingsessions_print_row($cols, $csvbuffer);
+    $cols = $rt->get_workingdays_cols();
+    $renderer->print_row($cols, $csvbuffer);
 
     foreach ($targetusers as $auser) {
 
-        $events = report_learningtimecheck_get_user_workdays($auser->id);
+        $events = $rt->get_user_workdays($auser->id);
 
         if ($events) {
             foreach ($events as $e) {
@@ -95,7 +97,7 @@ if (!empty($targetusers)) {
                 $end = $e->timestart + 12 * HOURSECS - 1;
 
                 $logs = use_stats_extract_logs($start, $end, $auser->id);
-                $aggregate = use_stats_aggregate_logs($logs, $start, $end);
+                $aggregate = use_stats_aggregate_logs($logs, $start, $end, '', false, $course);
 
                 $totaltime = 0;
                 if (!empty($aggregate['sessions'])) {
@@ -119,11 +121,11 @@ if (!empty($targetusers)) {
                 $cols[4] = date('W', $e->timestart);
                 $cols[5] = count($aggregate['sessions']);
                 $cols[6] = $totaltime;
-                $cols[7] = report_trainingsessions_format_time($totaltime, $mode = 'htmld');
+                $cols[7] = $rt->format_time($totaltime, $mode = 'htmld');
                 $cols[8] = strftime(get_string('strftime', 'report_trainingsessions'), @$aggregate['sessions'][0]->sessionstart);
                 $cols[9] = implode(", ", $traversedcourses);
 
-                report_trainingsessions_print_row($cols, $csvbuffer);
+                $renderer->print_row($cols, $csvbuffer);
             }
         } else {
             $csvbuffer .= '# '.fullname($auser)." has no events \n\n";

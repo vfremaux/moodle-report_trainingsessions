@@ -49,6 +49,8 @@ $string['batchreports_task'] = 'Rapports différés';
 $string['bgcolor'] = 'Couleur du fond';
 $string['binary'] = 'Sortie binaire';
 $string['bonusgrademode'] = 'Modalité du bonus de temps';
+$string['bonusgrademodedefault'] = 'Modalité du bonus par défaut';
+$string['bonusgrademodedefault_desc'] = 'Valeur par défaut de la modalité du bonus pour un premier réglage';
 $string['checklistadvice'] = 'Effet de bords sur la completion';
 $string['chooseagroup'] = 'Choisir un groupe';
 $string['chooseaninstitution'] = 'Choisir une institution';
@@ -64,27 +66,30 @@ $string['coursegrade'] = 'Score (cours)';
 $string['courselabel'] = 'dans la colonne&nbsp;:&ensp;';
 $string['coursename'] = 'Nom du groupe';
 $string['courseraw'] = 'Batchs';
+$string['courses'] = 'Cours traversés';
 $string['coursesessions'] = 'Sessions de travail pour ce cours (au réel plateforme)';
 $string['coursestart'] = 'Début du cours';
 $string['coursesummary'] = 'Résumé par participant';
 $string['coursetime'] = 'Temps hors activités ';
-$string['coursetotaltime'] = 'Temps total dans le cours ';
 $string['coursetoolargenotice'] = 'Ce cours a trop d\'utilisateurs et aucun groupe pour les segmenter. La compilation interactive n\'est pas possible.';
+$string['credit'] = 'Credit: ';
 $string['crop'] = 'Tronquer';
 $string['csv'] = 'Texte (CSV)';
 $string['csvoutputtoiso'] = 'CSV au format ISO';
 $string['currentcourse'] = 'Cours courant';
+$string['dates'] = 'Dates clefs';
 $string['debugmode'] = 'Mode debuggage (admin)';
 $string['defaultstartdate'] = 'Date de début par défaut';
 $string['defaultstartdate_desc'] = 'Date de début par défaut';
 $string['disabled'] = '|--------- non actif -----------|';
-$string['disablesuspendedstudents'] = 'Ignorer les étudiants suspendus';
 $string['disablesuspendedenrolments'] = 'Ignorer les inscriptions suspendues';
+$string['disablesuspendedstudents'] = 'Ignorer les étudiants suspendus';
 $string['discrete'] = 'Sortie discrète';
 $string['discreteforcenumber'] = 'Echelle discrète numérique';
 $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
-$string['elapsed'] = 'Temps passé';
+$string['elapsed'] = 'Temps total dans le cours ';
+$string['elapsedinitem'] = 'Temps passé';
 $string['elapsedadvice'] = 'Les durées affichées de vos sessions de travail peuvent différer légèrement des mesures du cours affichées ci-dessus. Ces sessions peuvent en effet calculer des temps que vous avez passé pendant la même session de connexion, mais dans d\'autres volumes de cours où vous êtes inscrit.';
 $string['elapsedlastweek'] = 'Temps passé dern. semaine';
 $string['email'] = 'Mail';
@@ -100,11 +105,15 @@ $string['enterprisesign'] = 'Signature de l\'entreprise';
 $string['equlearningtime'] = 'Temps équivalent de formation&nbsp;:&ensp;';
 =======
 $string['equlearningtime'] = 'Temps équivalent de formation : ';
+<<<<<<< HEAD
 >>>>>>> MOODLE_37_STABLE
 $string['errornoabsolutepath'] = 'Le chemin doit être relatif';
+=======
+>>>>>>> MOODLE_37_STABLE
 $string['errorcontinuousscale'] = 'Vous ne pouvez pas utiliser de barème en mode continu.';
 $string['errorcoursetoolarge'] = 'Le cours a trop de participants. Choix forcé d\'un groupe';
 $string['errordiscretenoranges'] = 'Vous devez définir des plages de note lorsque vous utilisez une modalité "discrète".';
+$string['errornoabsolutepath'] = 'Le chemin doit être relatif';
 $string['errornotingroup'] = 'Vous n\'avez pas accès à tous les groupes et n\'êtes membre d\'aucun groupe.';
 $string['evaluating'] = 'Evaluation';
 $string['executing'] = 'Formation';
@@ -112,25 +121,28 @@ $string['extelapsed'] = 'Temps passé (Etendu)';
 $string['extelapsedlastweek'] = 'Temps passé dern. semaine (Etendu)';
 $string['exthits'] = 'Evénéments (Etendu)';
 $string['exthitslastweek'] = 'Evénéments dern. semaine (Etendu)';
-$string['extother'] = 'Dont temps complémentaires';
-$string['extotherlastweek'] = 'Dont temps compl. (dernière semaine)';
+$string['extotherelapsed'] = 'Temps complémentaires';
+$string['extotherlastweek'] = 'Temps complémentaires (dernière semaine)';
 $string['extrauserinfo'] = 'Information utilisateur additionnelle';
 $string['extrauserinfo_desc'] = 'Vous pouvez éventuellement ajouter des informations utilisateur dans les rapports';
 $string['fail'] = 'NON ACQUIS';
 $string['filetimesuffixformat'] = 'Ymd_His';
 $string['firstaccess'] = 'Premier accès';
 $string['firstconnection'] = 'Première connexion';
+$string['firstcourseaccess'] = 'Premier accès au cours';
+$string['firstcourseaccess_help'] = 'Date de premer accès au cours';
 $string['firstenrolldate'] = 'Première date d\'inscription';
 $string['firstname'] = 'Prénom';
+$string['firstsessiontime'] = 'Première session';
 $string['from'] = 'Depuis';
-$string['gradexlsformat'] = 'Format de note pour Excel';
-$string['gradexlsformat_desc'] = 'Choisissez un format de note pour les exports excel.';
 $string['generatecsv'] = 'Générer en CSV';
 $string['generatepdf'] = 'Générer en PDF';
 $string['generatereports'] = 'Générer les rapports';
 $string['generatexls'] = 'Générer en XLS';
 $string['grademodes'] = 'Modalités de calcul';
 $string['gradesettings'] = 'Notes';
+$string['gradexlsformat'] = 'Format de note pour Excel';
+$string['gradexlsformat_desc'] = 'Choisissez un format de note pour les exports excel.';
 $string['groups'] = 'Groupes';
 $string['head1application'] = 'Le jeu de couleurs 1 s\'applique à la rangée de "surtitres" lorsqu\'elle existe.';
 $string['head2application'] = 'Le jeu de couleurs  2 s\'applique à la rangée de titre immédiatement au dessus des colonnes de données. C\'est le cas le plus courant.';
@@ -139,7 +151,6 @@ $string['headsection'] = 'Section d\'en-tête';
 $string['hideemptymodules'] = 'Cacher les modules vides';
 $string['hideemptymodules_desc'] = 'Si actif, les modules sans temps ne seront pas affichés dans le rapport.';
 $string['hits'] = 'Evénéments ';
-$string['hitslastweek'] = 'Evénéments dern. semaine';
 $string['hitslastweek'] = 'Hits dernière semaine';
 $string['id'] = 'ID';
 $string['idnumber'] = 'N° d\'identification';
@@ -156,19 +167,22 @@ $string['item'] = 'Elément';
 $string['items'] = 'Eléments ';
 $string['json'] = 'JSON';
 $string['lastaccess'] = 'Dernier accès';
+$string['lastcourseaccess'] = 'Dernier accès au cours';
+$string['lastcourseaccess_help'] = 'Date de denrier accès au cours';
 $string['lastlogin'] = 'Dernière conn.';
 $string['lastname'] = 'Nom';
 $string['layout'] = 'Mise en page';
-$string['lastcourseaccess'] = 'Dernier accès au cours';
 $string['learningtimesessioncrop'] = 'Avec les sessions hors plage valide';
 $string['learningtimesessioncrop_desc'] = 'Lorsqu\'une session sort d\'une plage validée par les contraintes du module de temps d\'apprentissage, elle peut être tronquée ou simplement marquée dans les rapports.';
 $string['libsmissing'] = 'Des librairies manquent pour utiliser cette fonctionnalité. Installez les librairies à partir de http://github.com/vfremaux/moodle-local_vflibs pour activer la génération PDF.';
-$string['licenseprovider'] = 'Fournisseur version Pro';
-$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
 $string['licensekey'] = 'Clef de license pro';
 $string['licensekey_desc'] = 'Entrez ici la clef de produit que vous avez reçu de votre distributeur.';
+$string['licenseprovider'] = 'Fournisseur version Pro';
+$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
 $string['location'] = 'Lieu ';
 $string['mark'] = 'Signaler dans les rapports (PDF)';
+$string['meandaytime'] = 'Moyenne jour';
+$string['meanweektime'] = 'Moyenne semaine';
 $string['modgrade'] = 'Score d\'activité';
 $string['modulegrade'] = 'Module d\'activité';
 $string['modulegrades'] = 'Scores des activités';
@@ -223,8 +237,8 @@ $string['profileinfotimeformat'] = '%d %B %Y';
 $string['quickgroupcompile'] = '<h3>Compilation express pour {$a} utilisateurs:</h3><p>La compilation express produit une rapport de synthèse pour le groupe courant s\'il contient moins de 50 utilisateurs. Le rapport brut est généré à la racine des fichiers du cours.</p>';
 $string['quickmonthlyreport'] = 'Rapports mensuels (PDF)';
 $string['range'] = 'Plage ';
+$string['readableduration'] = 'Durée';
 $string['real'] = 'Au réel : ';
-$string['credit'] = 'Credit: ';
 $string['recipient'] = 'Destinataire';
 $string['recipient_desc'] = 'Destinataire par défaut des documents PDF. Peut être surchargé localement par l\'utilisateur.';
 $string['replay'] = 'Rejouer le même rapport';
@@ -254,17 +268,25 @@ $string['sessionsonly'] = 'Rapports de session seulement';
 $string['sessionstart'] = 'Début de session';
 $string['showhits'] = 'Afficher les événements';
 $string['showhits_desc'] = 'Si actif, le nombre d\'événements est affiché dans les sorties CSV';
+$string['showmonthlyquickreports'] = 'Générer les rapports mensuels';
+$string['showmonthlyquickreports_desc'] = 'Si actif, les liens vers les extractions pdf "par mois" sont visibles sur le rapport de détail.';
+$string['showsessions'] = 'Voir le detail des sessions';
+$string['showsessions_desc'] = 'Si actif, le détail des sessions est accessible dans les rapports';
+$string['showitemfirstaccess'] = 'Afficher les dates de premier accès';
+$string['showitemfirstaccess_desc'] = 'Si actif, affiche les dates de premier accès à chaque item. Ces dates sont les dates réelles des historiques.';
+$string['showitemlastaccess'] = 'Afficher les dates de dernier accès';
+$string['showitemlastaccess_desc'] = 'Si actif, affiche les dates de dernier accès à chaque item. Ces dates sont les dates réelles des historiques.';
 $string['showsseconds'] = 'Afficher les secondes';
 $string['showsseconds_desc'] = 'Si actif, affiche les secondes dans les durées.';
 $string['singleexec'] = 'Exécuter une fois';
 $string['siteglobals'] = 'Site (zones hors cours)';
 $string['specialgrades'] = 'Notes spéciales ';
 $string['startdate'] = 'Date de début';
+$string['strfdate'] = '%d/%m/%Y';
+$string['strfdatetime'] = '%d/%m/%Y %H:%M:%S';
+$string['strftime'] = '%H:%M:%S';
 $string['structureitem'] = 'Elément de cours';
 $string['structuretotal'] = 'Total {$a}&nbsp;:';
-$string['strfdate'] = '%d/%m/%Y';
-$string['strftime'] = '%H:%M:%S';
-$string['strfdatetime'] = '%d/%m/%Y %H:%M:%S';
 $string['studentsign'] = 'Signature de l\'étudiant';
 $string['summarycolumns'] = 'Colonnes de sortie dans le rapport résumé.';
 $string['task'] = 'Tâche {$a}&ensp;';
@@ -277,16 +299,10 @@ $string['timeelapsed'] = 'Temps Passé';
 $string['timeelapsedcurweek'] = 'Temps de la semaine';
 $string['timegrade'] = 'Source de la note';
 $string['timegrademode'] = 'Modalité de sortie';
-$string['timegradesource'] = 'Origine de la note de temps';
-$string['timegraderanges'] = 'Plages de notation sur le temps';
 $string['timegrademodedefault'] = 'Modalité de sortie par défaut';
 $string['timegrademodedefault_desc'] = 'Valeur par défaut de la modalité de sortie de score de temps pour un premier réglage';
-$string['totalwdtime'] = 'Temps JO total';
-$string['meanweektime'] = 'Moyenne semaine';
-$string['meandaytime'] = 'Moyenne jour';
-$string['userid'] = 'UID';
-$string['bonusgrademodedefault'] = 'Modalité du bonus par défaut';
-$string['bonusgrademodedefault_desc'] = 'Valeur par défaut de la modalité du bonus pour un premier réglage';
+$string['timegraderanges'] = 'Plages de notation sur le temps';
+$string['timegradesource'] = 'Origine de la note de temps';
 $string['timegradesourcedefault'] = 'Origine de la note de temps par défaut';
 $string['timegradesourcedefault_desc'] = 'Valeur par défaut la source du score de temps pour un premier réglage';
 $string['timeperpart'] = 'Temps par partie';
@@ -297,10 +313,12 @@ $string['to'] = 'Jusqu\'à';
 $string['todate'] = 'Fin de période';
 $string['tonow'] = 'Jusqu\'à aujourd\'hui';
 $string['toobig'] = '<p>La sélection d\'utilisateurs est trop grande pour pouvoir être traitée en compilation express. Nous vous conseillons de programmer cette compilation à un moment qui n\'affectera pas vos utilisateurs.<br/>Pour mettre en place cette tâche, réglez d\'abord les paramètres du rapport dans le formulaire ci-dessus, puis configurez les paramètres de tâche dans le formulaire de tâche, en définissant la date, le répertoire de sortie (relativemen aux fichiers de ce cours).</p><p>Vous pouvez aussi rendre une tâche répétitive en programmant un intervalle de réptition (en minutes).</p>';
+$string['total'] = 'Total';
 $string['totalduration'] = 'Durée totale par séquence';
 $string['totalsessions'] = 'Temps en session total';
 $string['totalsessiontime'] = 'Temps total en session';
 $string['totalsitetime'] = 'Présence totale sur le site';
+$string['totalwdtime'] = 'Temps JO total';
 $string['trainingreports'] = 'Rapports de Formation';
 $string['trainingsessions'] = 'Rapports de session';
 $string['trainingsessions_report_advancement'] = 'Rapport d&#145;avancement';
@@ -310,31 +328,33 @@ $string['trainingsessionsreport'] = 'Rapports de session de formation';
 $string['trainingsessionsscores'] = 'Intégration des scores dans les rapports';
 $string['unvisited'] = 'Non visité';
 $string['updatefromaccountstart'] = 'A partir du premier accès';
-$string['updatefromenrolstart'] = 'A partir de la date d\'inscription';
 $string['updatefromcoursestart'] = 'A partir du début de la formation';
+$string['updatefromenrolstart'] = 'A partir de la date d\'inscription';
 $string['uploadglobals'] = 'Téléchargements';
 $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
 $string['userdetail'] = 'Détail du participant';
+$string['userid'] = 'UID';
 $string['userlist'] = 'Une ligne par participant';
 $string['usersheets'] = 'Un rapport (feuilles) par participant';
 $string['usersummary'] = 'Résumé du participant';
 $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
 <<<<<<< HEAD
+<<<<<<< HEAD
 $string['workingsessions'] = 'Sessions de travail&nbsp;';
 =======
 $string['workingsessions'] = 'Sessions de travail ';
 >>>>>>> MOODLE_37_STABLE
-$string['workingdays'] = 'Jours ouvrés (alternants)';
-$string['xls'] = 'XLS';
-$string['xlsexportlocale'] = 'Locale d\'export XLS&nbsp;';
-$string['xlsadditions'] = 'Fonctions additionnelles Excel';
+=======
 $string['workday'] = 'Jour ouvré';
+>>>>>>> MOODLE_37_STABLE
+$string['workingdays'] = 'Jours ouvrés (alternants)';
+$string['workingsessions'] = 'Sessions de travail ';
 $string['workweek'] = 'Semaine';
-$string['readableduration'] = 'Durée';
-$string['firstsessiontime'] = 'Première session';
-$string['courses'] = 'Cours traversés';
+$string['xls'] = 'XLS';
+$string['xlsadditions'] = 'Fonctions additionnelles Excel';
+$string['xlsexportlocale'] = 'Locale d\'export XLS&nbsp;';
 
 $string['calculatedcolumns'] = 'Colonnes calculées (Sortie Excel)';
 $string['xlsformula'] = 'Formule (Excel)';
@@ -409,7 +429,7 @@ $string['activitytime_help'] = 'Ce temps comptabilise les temps passés dans les
     http://github.com/vfremaux/moodle-mod_learningtimecheck.git), les
     temps forfaitisés associés aux activités plutot que les temps mesurés sur les traces.';
 
-$string['coursetotaltime_help'] = '
+$string['elapsed_help'] = '
 <p>Le temp total du cours compte les temps passés dans les activités, dans les structures générales du cours, ainsi que
 des temps annexes à la session du cours (acheminement vers le cours, passage dans des écrans utilisateur, etc.).</p>
 ';
@@ -472,7 +492,7 @@ Le temps cours étendu comptabilise les temps strictement passés dans le contex
 ou d\'autres opérations de l\'utlisateur sur les pages générales du site auxquelles il peut avoir accès pendant sa session de travail,
 le tout réduit à la dernière semaine écoulée.';
 
-$string['extother_help'] = '
+$string['extotherelapsed_help'] = '
 <p>Temps passés en dehors du cours, mais rattachables aux sessions de travail sur ce cours. Ils sont habituellement affectés à des pages du
 contexte de l\'utilisateur ou à des espaces généraux du site..</p>';
 

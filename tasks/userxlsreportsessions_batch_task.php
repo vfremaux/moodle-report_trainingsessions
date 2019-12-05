@@ -37,6 +37,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/lib/excellib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // The user id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\XlsRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -50,10 +52,10 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
     die ('Invalid user ID');
 }
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course, $userid);
+$rt->back_office_access($course, $userid);
 
 $PAGE->set_context($context);
 
@@ -70,12 +72,12 @@ if (!$workbook) {
 ob_end_clean();
 $workbook->send($filename);
 
-$xlsformats = report_trainingsessions_xls_formats($workbook);
-$startrow = report_trainingsessions_count_header_rows($course->id);
+$xlsformats = $renderer->xls_formats($workbook);
+$startrow = $renderer->count_header_rows($course->id);
 
-$worksheet = report_trainingsessions_init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
+$worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
 
-report_trainingsessions_print_usersessions($worksheet, $userid, $startrow, $input->from, $input->to, $id, $xlsformats);
+$renderer->print_usersessions($worksheet, $userid, $startrow, $input->from, $input->to, $id, $xlsformats);
 
 // Sending HTTP headers.
 ob_end_clean();

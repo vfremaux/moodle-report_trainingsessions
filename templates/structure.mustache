@@ -25,19 +25,26 @@
 >>>>>>> MOODLE_37_STABLE
         </td>
 
+        {{#showitemfirstaccess}}
         <td class="userreport-col1">
             <b>{{#str}}firstaccess, report_trainingsessions{{/str}}</b>
         </td>
+        {{/showitemfirstaccess}}
 
+        {{#showitemlastaccess}}
         <td class="userreport-col2">
             <b>{{#str}}lastaccess, report_trainingsessions{{/str}}</b>
         </td>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+        {{/showitemlastaccess}}
+>>>>>>> MOODLE_37_STABLE
 
 >>>>>>> MOODLE_37_STABLE
         <td class="userreport-col3">
-            <b>{{#str}}duration, report_trainingsessions{{/str}} {{#isadmin}} ({{#str}}hits, report_trainingsessions{{/str}}){{/isadmin}}</b>
+            <b>{{#str}}duration, report_trainingsessions{{/str}} {{#showhits}} ({{#str}}hits, report_trainingsessions{{/str}}){{/showhits}}</b>
         </td>
     </tr>
 </table>
@@ -58,6 +65,7 @@
             {{{indent}}} {{{debuginfo}}} {{name}}
         </td>
 
+        {{#showitemfirstaccess}}
         <td class="sessionitem rangedate userreport-col1">
 <<<<<<< HEAD
             {{{firstaccess}}}
@@ -72,13 +80,20 @@
 =======
             {{^issection}}{{{firstaccess}}}{{/issection}}
         </td>
+        {{/showitemfirstaccess}}
 
+        {{#showitemlastaccess}}
         <td class="sessionitem rangedate  userreport-col2">
             {{^issection}}{{{lastaccess}}}{{/issection}}
         </td>
+        {{/showitemlastaccess}}
 
         <td class="reportvalue rangedate userreport-col3" align="right" {{#real}}title="{{#str}}real, report_trainingsessions{{/str}}: {{real}}"{{/real}}{{#credit}}title="{{#str}}credit, report_trainingsessions{{/str}}: {{credit}}"{{/credit}}>
+<<<<<<< HEAD
             {{{source}}} {{{elapsed}}} {{#isadmin}} {{events}} {{/isadmin}}
+>>>>>>> MOODLE_37_STABLE
+=======
+            {{{source}}} {{{elapsed}}} {{#showhits}} {{events}} {{/showhits}}
 >>>>>>> MOODLE_37_STABLE
         </td>
     </tr>

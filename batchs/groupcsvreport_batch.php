@@ -35,6 +35,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 $maxbatchduration = 4 * HOURSECS;
 
+$rt = \report\trainingsessions\trainingsessions::instance();
 $id = required_param('id', PARAM_INT); // The course id.
 $from = optional_param('from', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
 $to = optional_param('to', -1, PARAM_INT); // Alternate way of saying from when for XML generation.
@@ -66,7 +67,7 @@ $context = context_course::instance($course->id);
 
 // Security.
 
-report_trainingsessions_back_office_access($course);
+$rt->back_office_access($course);
 
 // Calculate start time. Defaults ranges to all course range.
 
@@ -81,7 +82,7 @@ if ($to == -1) {
 }
 
 // Compute target groups.
-$groups = report_trainingsessions_compute_groups($id, $groupid, $range);
+$groups = $rt->compute_groups($id, $groupid, $range);
 
 $timesession = time();
 $sessionday = date('Ymd', $timesession);
@@ -103,7 +104,7 @@ foreach ($groups as $group) {
         $targetusers = $group->target;
 
         // Filters teachers out.
-        report_trainingsessions_filter_unwanted_users($targetusers, $course);
+        $rt->filter_unwanted_users($targetusers, $course);
 
         if (!empty($targetusers)) {
 
@@ -122,7 +123,7 @@ foreach ($groups as $group) {
                 $filerec->filepath = "/{$outputdir}/{$sessionday}/";
                 $filerec->filename = "ts_course_{$course->shortname}_user_{$user->username}_{$reporttype}_".$filenametimesession.".csv";
 
-                report_trainingsessions_process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
+                $rt->process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
             }
         } else {
             mtrace('no more compilable users in this group: '.$group->name);
@@ -138,6 +139,6 @@ foreach ($groups as $group) {
         $filerec->filepath = "/{$outputdir}/{$sessionday}/";
         $filerec->filename = "ts_course_{$course->shortname}_group_{$group->name}_{$reporttype}_".$filenametimesession.".csv";
 
-        report_trainingsessions_process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
+        $rt->process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec, $reportscope);
     }
 }

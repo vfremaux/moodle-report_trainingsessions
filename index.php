@@ -48,7 +48,7 @@ $PAGE->set_heading(get_string($view, 'report_trainingsessions'));
 $PAGE->set_title(get_string($view, 'report_trainingsessions'));
 $PAGE->navbar->add(get_string($view, 'report_trainingsessions'));
 
-$renderer = $PAGE->get_renderer('report_trainingsessions');
+$rtrenderer = $PAGE->get_renderer('report_trainingsessions');
 
 $strreports = get_string('reports');
 $strcourseoverview = get_string('trainingsessions', 'report_trainingsessions');

@@ -33,6 +33,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php'
 
 $id = required_param('id', PARAM_INT); // The course id.
 $groupid = required_param('groupid', PARAM_INT); // Group id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -42,10 +44,10 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course);
+$rt->back_office_access($course);
 
 $PAGE->set_context($context);
 
@@ -62,32 +64,39 @@ if ($groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Print result.
 
 $csvbuffer = '';
-report_trainingsessions_print_global_header($csvbuffer);
+$renderer->print_global_header($csvbuffer);
 
 if (!empty($targetusers)) {
     // generate CSV.
 
+    $cols = $rt->get_summary_cols();
+    $dataformats = $rt->get_summary_cols('format');
+
     foreach ($targetusers as $auser) {
+
+        /*
+         * Current course context must be explicted when calling to aggregates as we are in a batch and
+         * not an interactive session.
+         */
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
-        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS);
+        $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
+        $weekaggregate = use_stats_aggregate_logs($logs, $input->from, $input->from - WEEKSECS, '', false, $course);
 
-        $cols = report_trainingsessions_get_summary_cols();
-        $dataformats = report_trainingsessions_get_summary_cols('format');
-        report_trainingsessions_print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer, $dataformats);
+        // Processes graded columns internally. No need to invoke grades at task level.
+        $renderer->print_global_raw($course->id, $cols, $auser, $aggregate, $weekaggregate, $csvbuffer, $dataformats);
     }
 
 }
 
 // Sending HTTP headers.
-ob_end_clean();
+ ob_end_clean();
 header("Pragma: no-cache");
 header("Expires: 0");
 header("Cache-Control: no-cache, must-revalidate");

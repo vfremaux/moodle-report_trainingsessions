@@ -96,7 +96,7 @@ if ($ADMIN->fulltree) {
     $label = get_string('summarycolumns', 'report_trainingsessions');
     $desc = get_string('summarycolumns_desc', 'report_trainingsessions');
     $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#groups,a\n#lastlogin,t\n#firstaccess,t\nlastcourseaccess,t\n";
-    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\nelapsed,d\n#extelapsed,d\nextother,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
+    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\nelapsedoutofstructure,d\nelapsed,d\n#extelapsed,d\nextotherelapsed,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
     $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherlastweek,d\n#hitslastweek,n\n#exthitslastweek,n\nworkingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
@@ -146,7 +146,7 @@ if ($ADMIN->fulltree) {
     $desc = get_string('xlsexportlocale_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configtext($key, $label, $desc , ''));
 
-    $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
+    $options = array(TR_GRADE_SOURCE_COURSE => get_string('elapsed', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
                      TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
     $key = 'report_trainingsessions/timegradesourcedefault';
@@ -224,6 +224,26 @@ if ($ADMIN->fulltree) {
     $key = 'report_trainingsessions/showhits';
     $label = get_string('showhits', 'report_trainingsessions');
     $desc = get_string('showhits_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showsessions';
+    $label = get_string('showsessions', 'report_trainingsessions');
+    $desc = get_string('showsessions_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showitemfirstaccess';
+    $label = get_string('showitemfirstaccess', 'report_trainingsessions');
+    $desc = get_string('showitemfirstaccess_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showitemlastaccess';
+    $label = get_string('showitemlastaccess', 'report_trainingsessions');
+    $desc = get_string('showitemlastaccess_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
+    $key = 'report_trainingsessions/showmonthlyquickreports';
+    $label = get_string('showmonthlyquickreports', 'report_trainingsessions');
+    $desc = get_string('showmonthlyquickreports_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
     $key = 'report_trainingsessions/pdfreportheader';

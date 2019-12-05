@@ -23,10 +23,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 class Task_Form extends moodleform {
 
     public function definition() {
+
+        $rt = \report\trainingsessions\trainingsessions::instance();
 
         $mform = $this->_form;
 
@@ -100,6 +103,7 @@ class Task_Form extends moodleform {
         // Which data to export and how to build the report.
         $scopeoptions = array(
             'currentcourse' => get_string('currentcourse', 'report_trainingsessions'),
+//            'wholecourse' => get_string('wholecourse', 'report_trainingsessions'),
             'allcourses' => get_string('allcourses', 'report_trainingsessions'),
         );
 
@@ -107,7 +111,7 @@ class Task_Form extends moodleform {
         $mform->addHelpButton('reportscope', 'reportscope', 'report_trainingsessions');
 
         // What file format (file renderer) to use.
-        $options = report_trainingsessions_get_batch_formats();
+        $options = $rt->get_batch_formats();
         $mform->addElement('select', 'reportformat', get_string('reportformat', 'report_trainingsessions'), $options);
 
         // In which directory to store results.
@@ -120,7 +124,7 @@ class Task_Form extends moodleform {
         $mform->addHelpButton('batchdate', 'batchdate', 'report_trainingsessions');
 
         // Do the report needs to be rerun later?
-        $options = report_trainingsessions_get_batch_replays();
+        $options = $rt->get_batch_replays();
         $mform->addElement('select', 'replay', get_string('replay', 'report_trainingsessions'), $options);
 
         // If rerun, in what delay?

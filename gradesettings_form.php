@@ -36,7 +36,8 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
     public function definition() {
         global $COURSE, $OUTPUT;
 
-        $this->linkablemodules = report_trainingsessions_get_linkable_modules($COURSE->id);
+        $rt = \report\trainingsessions\trainingsessions::instance();
+        $this->linkablemodules = $rt->get_linkable_modules($COURSE->id);
 
         $config = get_config('report_trainingsessions');
 
@@ -105,7 +106,7 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
 
             $mform->addElement('html', $OUTPUT->box_end());
 
-            $options = array(TR_GRADE_SOURCE_COURSE => get_string('coursetotaltime', 'report_trainingsessions'),
+            $options = array(TR_GRADE_SOURCE_COURSE => get_string('elapsed', 'report_trainingsessions'),
                              TR_GRADE_SOURCE_COURSE_EXT => get_string('extelapsed', 'report_trainingsessions'),
                              TR_GRADE_SOURCE_ACTIVITIES => get_string('activitytime', 'report_trainingsessions'));
             $mform->addElement('select', 'timegradesource', get_string('timesource', 'report_trainingsessions'), $options);
@@ -175,9 +176,10 @@ class TrainingsessionsGradeSettingsForm extends moodleform {
          * which case they will be in the form already.
          */
         $moduleids = array();
+        $rt = \report\trainingsessions\trainingsessions::instance();
 
         if (empty($fdata)) {
-            if ($linkedmodules = report_trainingsessions_get_graded_modules($COURSE->id)) {
+            if ($linkedmodules = $rt->get_graded_modules($COURSE->id)) {
                 foreach ($linkedmodules as $cidx => $cmid) {
                     if ($cmid > 0) {
                         $moduleids[$cidx] = $cmid;

@@ -30,6 +30,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php'
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // User id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -39,11 +41,11 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 
 // Security
-report_trainingsessions_back_office_access($course, $userid);
+$rt->back_office_access($course, $userid);
 
 $PAGE->set_context($context);
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 $user = $DB->get_record('user', array('id' => $userid));
 
@@ -51,8 +53,8 @@ $user = $DB->get_record('user', array('id' => $userid));
 if (!empty($user)) {
 
     $csvbuffer = '';
-    report_trainingsessions_print_session_header($csvbuffer);
-    $y = report_trainingsessions_print_usersessions($csvbuffer, $userid, $course, $input->from, $input->to, $id);
+    $renderer->print_session_header($csvbuffer);
+    $y = $renderer->print_usersessions($csvbuffer, $userid, $course, $input->from, $input->to, $id);
 
 }
 

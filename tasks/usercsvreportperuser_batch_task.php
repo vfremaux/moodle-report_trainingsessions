@@ -36,6 +36,8 @@ require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // User id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -45,14 +47,14 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course, $userid);
+$rt->back_office_access($course, $userid);
 
 $PAGE->set_context($context);
 
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = $rt->get_course_structure($course->id, $items);
 
 // TODO : secure groupid access depending on proper capabilities.
 
@@ -70,9 +72,9 @@ if ($auser) {
     $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
 
     $csvbuffer = '';
-    report_trainingsessions_print_userinfo($csvbuffer, $auser);
-    report_trainingsessions_print_header($csvbuffer);
-    report_trainingsessions_print_course_structure($csvbuffer, $coursestructure, $aggregate);
+    $renderer->print_userinfo($csvbuffer, $auser);
+    $renderer->print_header($csvbuffer);
+    $renderer->print_course_structure($csvbuffer, $coursestructure, $aggregate);
 
     // Sending HTTP headers.
     ob_end_clean();

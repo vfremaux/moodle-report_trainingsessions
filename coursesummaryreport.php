@@ -29,6 +29,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
+$rt = \report\trainingsessions\trainingsessions::instance();
+
 // Parameters.
 $selform = new SelectorForm($id, 'course');
 if (!$data = $selform->get_data()) {
@@ -54,7 +56,7 @@ if (!has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
 }
 $config = get_config('report_trainingsessions');
 
-report_trainingsessions_process_bounds($data, $course);
+$rt->process_bounds($data, $course);
 
 // Compute target group.
 
@@ -89,40 +91,40 @@ if ($data->groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Note: targetusers shoud default to array() if empty. Emptyness is considered later.
 
 // Setup column list.
-$namedcols = report_trainingsessions_get_summary_cols();
 $durationcols = array('activitytime',
                       'equlearningtime',
                       'elapsed',
                       'extelapsed',
                       'extelapsedlastweek',
-                      'extother',
+                      'extotherelapsed',
                       'extotherlastweek',
                       'coursetime',
                       'elapsedlastweek',
                       'extelapsedlastweek');
 $datecols = array('lastlogin',
+                  'firstcourseaccess',
                   'lastcourseaccess',
                   'firstaccess');
 $rightaligncols = array('workingsessions');
 
 // Get base data from moodle and bake it into a local format.
 $courseid = $course->id;
-$coursestructure = report_trainingsessions_get_course_structure($courseid, $items);
+$coursestructure = $rt->get_course_structure($courseid, $items);
 $coursename = $course->fullname;
 
 // Initialize summary cols.
-$colskeys = report_trainingsessions_get_summary_cols();
-$colstitles = report_trainingsessions_get_summary_cols('title');
-$colsformats = report_trainingsessions_get_summary_cols('format');
+$colskeys = $rt->get_summary_cols();
+$colstitles = $rt->get_summary_cols('title');
+$colsformats = $rt->get_summary_cols('format');
 
 // Add potential additional grading cols.
 $pregradekeysnum = count($colskeys); //  Controls
-report_trainingsessions_add_graded_columns($colskeys, $colstitles, $colsformats);
+$rt->add_graded_columns($colskeys, $colstitles, $colsformats);
 $postgradekeysnum = count($colskeys); //  Controls
 
 $summarizedusers = array();
@@ -139,14 +141,14 @@ foreach ($targetusers as $user) {
 
     $elapsed = 0 + @$aggregate['coursetotal'][$course->id]->elapsed;
 
-    $colsdata = report_trainingsessions_map_summary_cols($colskeys, $user, $aggregate, $weekaggregate, $courseid);
+    $colsdata = $rt->map_summary_cols($colskeys, $user, $aggregate, $weekaggregate, $courseid);
     $pregradecolsnum = count($colsdata); //  Controls
     if ($pregradekeysnum != $pregradecolsnum) {
         throw(new moodle_exception("Not same number of columns (1). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
     }
 
     // Fetch and add eventual additional score columns.
-    report_trainingsessions_add_graded_data($colsdata, $user->id, $aggregate);
+    $rt->add_graded_data($colsdata, $user->id, $aggregate);
     $postgradecolsnum = count($colsdata); //  Controls
     if ($postgradekeysnum != $postgradecolsnum) {
         throw(new moodle_exception("Not same number of columns (2). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
@@ -161,7 +163,7 @@ foreach ($targetusers as $user) {
 
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
-echo $renderer->tabs($course, $view, $data->from, $data->to);
+echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->box_start('block');
@@ -185,9 +187,11 @@ $template->to = userdate($data->to);
 if (!empty($summarizedusers)) {
     // Add a table header row.
 
-    foreach ($colstitles as $title) {
+    for ($i = 0; $i < count($colstitles); $i++) {
+        $title = $colstitles[$i];
         $coltpl = new StdClass;
         $coltpl->title = $title;
+        $coltpl->key = $colskeys[$i];
         $template->colstitles[] = $coltpl;
     }
 
@@ -205,10 +209,10 @@ if (!empty($summarizedusers)) {
             $fieldtpl->col = $col;
             if (in_array($fieldname, $durationcols)) {
                 $fieldtpl->class = 'report-col-right';
-                $fieldtpl->value = report_trainingsessions_format_time($field, $durationformat);
+                $fieldtpl->value = $rt->format_time($field, $durationformat);
             } else if (in_array($fieldname, $datecols)) {
                 $fieldtpl->class = 'report-col-right';
-                $fieldtpl->value = report_trainingsessions_format_time($field, 'html');
+                $fieldtpl->value = $rt->format_time($field, get_string('profileinfotimeformat', 'report_trainingsessions'));
             } else if (in_array($fieldname, $rightaligncols)) {
                 $fieldtpl->class = 'report-col-right';
                 $fieldtpl->value = $field;

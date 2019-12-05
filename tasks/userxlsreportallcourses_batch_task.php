@@ -39,6 +39,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/lib/excellib.php');
 $id = required_param('id', PARAM_INT); // The course id (context for user targets).
 $userid = required_param('userid', PARAM_INT); // User id.
 $filename = optional_param('outputname', '', PARAM_FILE);
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\XlsRenderer($rt);
 
 if (empty($filename)) {
     // TODO : this is a quick fix. Should see if report_trainingsessions_batch_input is usable here.
@@ -58,11 +60,11 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
     die ('Invalid user ID');
 }
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
 
-report_trainingsessions_back_office_access($course, $userid);
+$rt->back_office_access($course, $userid);
 
 $PAGE->set_context($context);
 
@@ -89,15 +91,15 @@ if (!$workbook) {
 ob_end_clean();
 $workbook->send($filename);
 
-$xlsformats = report_trainingsessions_xls_formats($workbook);
+$xlsformats = $renderer->xls_formats($workbook);
 
 // Define variables.
-$startrow = report_trainingsessions_count_header_rows($course->id);
-$worksheet = report_trainingsessions_init_worksheet($user->id, $startrow, $xlsformats, $workbook);
+$startrow = $renderer->count_header_rows($course->id);
+$worksheet = $renderer->init_worksheet($user->id, $startrow, $xlsformats, $workbook);
+$cols = $rt->get_summary_cols();
+$renderer->print_header_xls($worksheet, $user->id, 0, $input, $cols, $xlsformats);
 
-report_trainingsessions_print_header_xls($worksheet, $user->id, 0, $input, $xlsformats);
-
-$y = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
+$y = $renderer->print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
 
 // Sending HTTP headers.
 ob_end_clean();

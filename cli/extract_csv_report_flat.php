@@ -82,7 +82,7 @@ Options:
 -P, --outputpath  the path where to output. Defaults in moodledata/temp/trainingsessions/<date_of_day>
 
 Example:
-\$sudo -u www-data /usr/bin/php blocks/vmoodle/cli/bulkcreatenodes.php
+\$sudo -u www-data /usr/bin/php report/trainingsessions/cli/extract_csv_report_flat.php
 "; // TODO: localize - to be translated later when everything is finished.
 
     echo $help;
@@ -140,11 +140,14 @@ if ($userid) {
 
 if (!empty($options['launch'])) {
 
+    $rt = \report\trainingsessions\trainingsessions::instance();
+    $renderer = new \report\trainingsessions\trainingsessions\XlsRenderer($rt);
+
     $filename = 'allcourses_sessions_report_'.date('d-M-Y', time()).'.csv';
     echo "Opening output file as $filename\n";
     if ($file = fopen($options['outputpath'].'/'.$filename, 'w+')) {
 
-        report_trainingsessions_print_courses_line_header_csv($strhead);
+        $renderer->print_courses_line_header_csv($strhead);
         fputs($file, $strhead);
 
         foreach ($processedusers as $userid) {
@@ -159,7 +162,7 @@ if (!empty($options['launch'])) {
 
             // Sending HTTP headers.
             $str = '';
-            report_trainingsessions_print_courses_line_csv($str, $aggregate, $user);
+            $renderer->print_courses_line_csv($str, $aggregate, $user);
 
             fputs($file, $str);
         }

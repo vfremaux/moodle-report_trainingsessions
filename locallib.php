@@ -546,6 +546,9 @@ class trainingsessions {
 
                 return strftime('%Y-%m-%d %H:%M (%a)', $timevalue);
 
+            } else if ($mode == 'xlst') {
+                // For excel time format we need have a fractional day value.
+                return 25569 + $timevalue / DAYSECS;
             } else if ($mode == 'xlsd') {
 
                 // Print with seconds.

@@ -36,6 +36,6 @@ function report_trainingsessions_ext_get_ticket() {
     global $CFG;
 
     include_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
-    $rt = new report\trainingsessions\trainingsessions;
-    return $st->back_office_get_ticket();
+    $rt = report\trainingsessions\trainingsessions::instance();
+    return $rt->back_office_get_ticket();
 }

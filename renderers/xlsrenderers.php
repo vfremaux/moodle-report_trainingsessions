@@ -110,8 +110,10 @@ class XlsRenderer {
         $fgcolorbdy = null;
 
         // Numeric format constants.
-        $timefmt = '[h]:mm:ss';
-        $datefmt = 'aaaa/mm/dd hh:mm';
+        // $timefmt = '[h]:mm:ss';
+        // $datefmt = 'aaaa/mm/dd hh:mm';
+        $timefmt = get_string('exceltimefmt', 'report_trainingsessions');
+        $datefmt = get_string('exceldatefmt', 'report_trainingsessions');
 
         // Weight constants.
         $notbold = null;
@@ -903,9 +905,11 @@ class XlsRenderer {
 
             if ($dataformats[$i] == 't') {
                 if ($data[$i]) {
-                    $celldata = $this->rt->format_time($data[$i], 'xlst');
+                    // $celldata = $this->rt->format_time($data[$i], 'xlst');
+                    $celldata = $data[$i];
+                    // Keetp Unix timesqtamp with write_date.
                     if ($celldata !== null && $celldata !== '') {
-                        $worksheet->write_time($row, $i, $celldata, $xlsformats['t']);
+                        $worksheet->write_date($row, $i, $celldata, $xlsformats['t']);
                     }
                     continue;
                 } else {

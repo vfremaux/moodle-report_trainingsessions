@@ -10,19 +10,11 @@
 
 {{#withtitle}}
 <h2>{{#str}}instructure, report_trainingsessions{{/str}}</h2>
-<<<<<<< HEAD
-{{/withtitle}}
-=======
->>>>>>> MOODLE_37_STABLE
 
 <table width="100%" id="structure-table">
     <tr valign="top">
         <td class="userreport-col0">
-<<<<<<< HEAD
-            <b>{{#str}}structureitem, report_trainingsessions{{/str}}</b>
-=======
             <!-- b>{{#str}}structureitem, report_trainingsessions{{/str}}</b -->
->>>>>>> MOODLE_37_STABLE
         </td>
 
         {{#showitemfirstaccess}}
@@ -35,49 +27,25 @@
         <td class="userreport-col2">
             <b>{{#str}}lastaccess, report_trainingsessions{{/str}}</b>
         </td>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
         {{/showitemlastaccess}}
->>>>>>> MOODLE_37_STABLE
 
->>>>>>> MOODLE_37_STABLE
         <td class="userreport-col3">
             <b>{{#str}}duration, report_trainingsessions{{/str}} {{#showhits}} ({{#str}}hits, report_trainingsessions{{/str}}){{/showhits}}</b>
         </td>
     </tr>
 </table>
-<<<<<<< HEAD
-=======
 {{/withtitle}}
->>>>>>> MOODLE_37_STABLE
 
 {{#structures}}
 {{#hasbody}}
 <table class="sessionreport level{{level}}">
     <tr class="sessionlevel{{level}} userreport-col0" valign="top">
-<<<<<<< HEAD
-        <td class="sessionitem item" width="55%">
-=======
         <td class="sessionitem item" width="55%" data-cmid="{{id}}">
->>>>>>> MOODLE_37_STABLE
             {{{indent}}} {{{debuginfo}}} {{name}}
         </td>
 
         {{#showitemfirstaccess}}
         <td class="sessionitem rangedate userreport-col1">
-<<<<<<< HEAD
-            {{{firstaccess}}}
-        </td>
-
-        <td class="sessionitem rangedate  userreport-col2">
-            {{{lastaccess}}}
-        </td>
-
-        <td class="reportvalue rangedate userreport-col3" align="right">
-            {{{source}}} {{{elapsed}}} {{#isadmin}} ({{events}}){{/isadmin}}
-=======
             {{^issection}}{{{firstaccess}}}{{/issection}}
         </td>
         {{/showitemfirstaccess}}
@@ -89,12 +57,7 @@
         {{/showitemlastaccess}}
 
         <td class="reportvalue rangedate userreport-col3" align="right" {{#real}}title="{{#str}}real, report_trainingsessions{{/str}}: {{real}}"{{/real}}{{#credit}}title="{{#str}}credit, report_trainingsessions{{/str}}: {{credit}}"{{/credit}}>
-<<<<<<< HEAD
-            {{{source}}} {{{elapsed}}} {{#isadmin}} {{events}} {{/isadmin}}
->>>>>>> MOODLE_37_STABLE
-=======
             {{{source}}} {{{elapsed}}} {{#showhits}} {{events}} {{/showhits}}
->>>>>>> MOODLE_37_STABLE
         </td>
     </tr>
 </table>

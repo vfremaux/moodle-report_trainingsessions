@@ -178,17 +178,10 @@ function relocate_header_files() {
 
     foreach ($fileareas as $filearea) {
         $goodparams = array('component' => 'report_trainingsessions', 'filearea' => $filearea);
-<<<<<<< HEAD
-        $goodrecs = $DB->get_records('files', $params);
-
-        $badparams = array('component' => 'core', 'filearea' => $filearea);
-        $badrecs = $DB->get_records('files', $params);
-=======
         $goodrecs = $DB->get_records('files', $goodparams);
 
         $badparams = array('component' => 'core', 'filearea' => $filearea);
         $badrecs = $DB->get_records('files', $badparams);
->>>>>>> MOODLE_37_STABLE
 
         if (empty($goodrecs) && !empty($badrecs)) {
             $sql = "
@@ -204,11 +197,7 @@ function relocate_header_files() {
         }
 
         // Clean old area whenever.
-<<<<<<< HEAD
-        $fs->clear_area_files($systemcontext->id, 'core', $filearea);
-=======
         $systemcontext = context_system::instance();
         $fs->delete_area_files($systemcontext->id, 'core', $filearea);
->>>>>>> MOODLE_37_STABLE
     }
 }

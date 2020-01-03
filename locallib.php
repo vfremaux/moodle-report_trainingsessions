@@ -349,29 +349,11 @@ class trainingsessions {
         if (!isset($visitedpages)) {
             $visitedpages = array();
         }
-<<<<<<< HEAD
-        $structure[] = $element;
-<<<<<<< HEAD
-=======
-        /*
-        $params = array('courseid' => $COURSE->id, 'format' => $COURSE->format, 'name' => 'numsections');
-        $maxsections = $DB->get_field('course_format_options', 'value', $params);
-        if ($sectioncount == $maxsections) {
-            // Do not go further, even if more sections are in database.
-            break;
-        }
-        */
->>>>>>> MOODLE_37_STABLE
-        $sectioncount++;
-    }
-}
-=======
 
         if (in_array($page->id, $visitedpages)) {
             return;
         }
         $visitedpages[] = $page->id;
->>>>>>> MOODLE_37_STABLE
 
         $structure = array();
 

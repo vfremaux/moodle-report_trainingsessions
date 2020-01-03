@@ -101,15 +101,7 @@ $string['enablelearningtimecheckcoupling_desc'] = 'Si coché, les rapports de se
 $string['enddate'] = 'Date de fin';
 $string['enroldate'] = 'Inscription dans le cours';
 $string['enterprisesign'] = 'Signature de l\'entreprise';
-<<<<<<< HEAD
-$string['equlearningtime'] = 'Temps équivalent de formation&nbsp;:&ensp;';
-=======
 $string['equlearningtime'] = 'Temps équivalent de formation : ';
-<<<<<<< HEAD
->>>>>>> MOODLE_37_STABLE
-$string['errornoabsolutepath'] = 'Le chemin doit être relatif';
-=======
->>>>>>> MOODLE_37_STABLE
 $string['errorcontinuousscale'] = 'Vous ne pouvez pas utiliser de barème en mode continu.';
 $string['errorcoursetoolarge'] = 'Le cours a trop de participants. Choix forcé d\'un groupe';
 $string['errordiscretenoranges'] = 'Vous devez définir des plages de note lorsque vous utilisez une modalité "discrète".';
@@ -342,15 +334,7 @@ $string['usersheets'] = 'Un rapport (feuilles) par participant';
 $string['usersummary'] = 'Résumé du participant';
 $string['visiteditems'] = 'Items visités.';
 $string['weekstartdate'] = 'Semaine du';
-<<<<<<< HEAD
-<<<<<<< HEAD
-$string['workingsessions'] = 'Sessions de travail&nbsp;';
-=======
-$string['workingsessions'] = 'Sessions de travail ';
->>>>>>> MOODLE_37_STABLE
-=======
 $string['workday'] = 'Jour ouvré';
->>>>>>> MOODLE_37_STABLE
 $string['workingdays'] = 'Jours ouvrés (alternants)';
 $string['workingsessions'] = 'Sessions de travail ';
 $string['workweek'] = 'Semaine';

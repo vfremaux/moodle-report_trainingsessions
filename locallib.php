@@ -1716,7 +1716,7 @@ class trainingsessions {
      * @return array or hash table
      */
     public function map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0, $associative = false) {
-        global $COURSE, $DB;
+        global $COURSE, $DB, $CFG;
 
         if ($courseid == 0) {
             $courseid = $COURSE->id;
@@ -1780,6 +1780,51 @@ class trainingsessions {
             'uploadtime' => @$aggregate['upload'][0]->upload->elapsed
         );
 
+        if (is_dir($CFG->dirroot.'/mod/learningtimecheck')) {
+            // Is LTC installed ?
+            include_once($CFG->dirroot.'/mod/learningtimecheck/xlib.php');
+
+            if (learningtimecheck_course_has_ltc_tracking($courseid)) {
+                // All items.
+                $coursemarks = learningtimecheck_get_course_marks($courseid, $user->id, false);
+                $all = 0;
+                $checks = 0;
+                foreach ($coursemarks as $itemid => $checked) {
+                    $all++;
+                    if ($checked) {
+                        $checks++;
+                    }
+                }
+                if ($all > 0) {
+                    $ratio = sprintf('%.1f', $checks / $all * 100);
+                } else {
+                    $ratio = 0;
+                }
+                $colsources['ltcprogressinitems'] = $ratio;
+                $colsources['ltcitems'] = $all;
+                $colsources['ltcdone'] = $checks;
+
+                // Only mandatory items.
+                $coursemarks = learningtimecheck_get_course_marks($courseid, $user->id, true);
+                $all = 0;
+                $checks = 0;
+                foreach ($coursemarks as $cmid => $checked) {
+                    $all++;
+                    if ($checked) {
+                        $checks++;
+                    }
+                }
+                if ($all > 0) {
+                    $ratio = sprintf('%.1f', $checks / $all * 100);
+                } else {
+                    $ratio = 0;
+                }
+                $colsources['ltcprogressinmandatoryitems'] = $ratio;
+                $colsources['ltcmandatoryitems'] = $all;
+                $colsources['ltcmandatorydone'] = $checks;
+            }
+        }
+
         $data = array();
         $colkeys = array_keys($colsources);
         foreach ($cols as $colkey) {
@@ -1813,6 +1858,16 @@ class trainingsessions {
             $data['coursetime'] = 0 + @$aggregate['course'][$courseid]->elapsed;
             $data['othertime'] = 0 + @$t[0]->elapsed;
             $data['sessions'] = 0 + @$colsources['sessions'];
+
+            // If LTC enabled, add LTC items data to assoc so we can use them in progressbar.
+            if (in_array('ltcprogressinmandatoryitems', $cols)) {
+                $data['ltcmandatoryitems'] = $colsources['ltcmandatoryitems'];
+                $data['ltcmandatorydone'] = $colsources['ltcmandatorydone'];
+            }
+            if (in_array('ltcprogressinitems', $cols)) {
+                $data['ltcitems'] = $colsources['ltcitems'];
+                $data['ltcdone'] = $colsources['ltcdone'];
+            }
         }
 
         return $data;
@@ -2066,5 +2121,31 @@ class trainingsessions {
         }
 
         return $cols;
+    }
+
+    public static function updatefirst(&$first, $input) {
+        if (is_null($input)) {
+            return;
+        }
+        if (is_null($first)) {
+            $first = $input;
+            return;
+        }
+        if ($first > $input) {
+            $first = $input;
+        }
+    }
+
+    public static function updatelast(&$last, $input) {
+        if (is_null($input)) {
+            return;
+        }
+        if (is_null($last)) {
+            $last = $input;
+            return;
+        }
+        if ($last < $input) {
+            $last = $input;
+        }
     }
 }

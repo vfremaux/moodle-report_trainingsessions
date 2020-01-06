@@ -88,7 +88,7 @@ $headdata = (object) $rt->map_summary_cols($cols, $user, $aggregate, $weekaggreg
 $rt->add_graded_columns($cols, $unusedtitles);
 $rt->add_graded_data($headdata, $data->userid, $aggregate);
 
-$str = $renderer->print_html($coursestructure, $aggregate, $dataobject, $done);
+$str = $renderer->print_html($coursestructure, $aggregate, $done);
 $headdata->done = $done;
 $headdata->items = $items;
 echo $renderer->print_header_html($user, $course, $headdata, $cols);

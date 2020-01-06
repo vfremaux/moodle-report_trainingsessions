@@ -231,6 +231,11 @@ if ($ADMIN->fulltree) {
     $desc = get_string('showsessions_desc', 'report_trainingsessions');
     $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
 
+    $key = 'report_trainingsessions/showsectionsonly';
+    $label = get_string('showsectionsonly', 'report_trainingsessions');
+    $desc = get_string('showsectionsonly_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
+
     $key = 'report_trainingsessions/showitemfirstaccess';
     $label = get_string('showitemfirstaccess', 'report_trainingsessions');
     $desc = get_string('showitemfirstaccess_desc', 'report_trainingsessions');

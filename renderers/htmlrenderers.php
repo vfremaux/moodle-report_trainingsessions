@@ -137,12 +137,13 @@ class HtmlRenderer {
      *
      * @param object $structure a course structure object.
      * @param objectref $aggregate an object with all the time samples inside.
-     * @param objectref &$dataobject an object refeence for collecting overall calculated time and events.
+     * @param objectref &$dataobject an object reference for collecting overall calculated time and events.
      * @param integerref &$done a give back integer counting the "done" items.
      * @param string $indent indent string for the current level
      * @param int $level the current nesting level
+     * @return a printable template.
      */
-    public function print_html($structure, &$aggregate, &$dataobject, &$done, $indent = '', $level = 0) {
+    public function print_html($structure, &$aggregate, &$done, $indent = '', $level = 0) {
         global $OUTPUT;
         static $titled = false;
 
@@ -169,7 +170,7 @@ class HtmlRenderer {
         $template->showitemfirstaccess = $config->showitemfirstaccess;
         $template->showitemlastaccess = $config->showitemlastaccess;
 
-        if (empty($structure)) {
+        if (empty($structure) && empty($config->showsectionsonly)) {
             $template->hasstructure = false;
             return $OUTPUT->render_from_template('report_trainingsessions/structure', $template);
         }
@@ -185,67 +186,83 @@ class HtmlRenderer {
 
         $template->indent = str_repeat('&nbsp;&nbsp;', $level);
 
-        // Initiates a blank dataobject.
-        if (!isset($dataobject) || is_null($dataobject)) {
-            $dataobject = new StdClass;
-            $dataobject->elapsed = 0;
-            $dataobject->events = 0;
-        }
+        $template->elapsed = 0;
+        $template->events = 0;
+        $template->firstaccess = null;
+        $template->lastaccess = null;
 
         if (is_array($structure)) {
             // If an array of elements produce successively each output and collect aggregates.
             $template->hassubs = true;
             foreach ($structure as $element) {
                 if (isset($element->instance) && empty($element->instance->visible)) {
-                    // Non visible items should not be displayed.
+                    // Non visible items should not be displayed nor calculated.
                     continue;
                 }
-                $subdataobject = null;
-                $template->structures[] = $this->print_html($element, $aggregate, $subdataobject, $done, $indent, $level + 1);
-                $dataobject->elapsed += $subdataobject->elapsed;
-                $dataobject->events += (0 + @$subdataobject->events);
+                $subtemplate = $this->print_html($element, $aggregate, $done, $indent, $level + 1);
+                if ($subtemplate) {
+                    $template->elapsed += $subtemplate->elapsed;
+                    $template->events += (0 + @$subtemplate->events);
+                    // echo "Getting from subs in structural element ";
+                    // print_object($subtemplate);
+                    trainingsessions::updatefirst($template->firstaccess, $subtemplate->firstaccess);
+                    trainingsessions::updatelast($template->lastaccess, $subtemplate->lastaccess);
+                    $template->structures[] = $subtemplate;
+                }
+            }
+
+            // If array results empty, returns nothing.
+            if (empty($template->structures)) {
+                return null;
             }
         } else {
+            // We are a real element, or structure.
             $template->id = $structure->id;
             $template->hasbody = true;
+
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {
                 // Non visible items should not be displayed.
                 // Name is not empty. It is a significant module (non structural).
                 $template->type = $structure->type;
                 $template->issection = false;
+
                 if ($structure->type == 'section') {
                     $template->issection = true;
                 }
+
                 if (!empty($structure->name)) {
                     if (debugging()) {
                         $template->debuginfo = '['.$structure->type.'] ';
                     }
                     $template->name = shorten_text(strip_tags(format_string($structure->name)), 85);
-                    if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                        $fa = 0 + (@$aggregate[$structure->type][$structure->id]->firstaccess);
-                        if ($fa) {
-                            $template->firstaccess = date('Y/m/d H:i', $fa);
-                        } else {
-                            $template->firstaccess = '--';
+
+                    $dataobject = new StdClass;
+                    $dataobject->firstaccess = null;
+                    $dataobject->lastaccess = null;
+                    $dataobject->elapsed = 0;
+                    $dataobject->events = 0;
+
+                    if (!empty($structure->subs)) {
+                        $subtemplate = $this->print_html($structure->subs, $aggregate, $done, $indent, $level + 1);
+                        if ($subtemplate) {
+                            $template->structures[] = $subtemplate;
+                            $dataobject = $subtemplate;
+                            $template->hassubs = true;
+                            // echo "Getting from subs in structural element (element)";
+                            // print_object($subtemplate);
+                            trainingsessions::updatefirst($template->firstaccess, @$dataobject->firstaccess);
+                            trainingsessions::updatelast($template->lastaccess, @$dataobject->lastaccess);
                         }
                     }
-                    if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                        $la = 0 + (@$aggregate[$structure->type][$structure->id]->lastaccess);
-                        if ($la) {
-                            $template->lastaccess = date('Y/m/d H:i', $la);
-                        } else {
-                            $template->lastaccess = '--';
-                        }
-                    }
+
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                         $done++;
                         $dataobject = $aggregate[$structure->type][$structure->id];
+                        // May not have access date depending on structure type. (aka sections)
                     }
-                    if (!empty($structure->subs)) {
-                        $template->hassubs = true;
-                        $subdataobject = null;
-                        $template->structures[] = $this->print_html($structure->subs, $aggregate, $subdataobject, $done, $indent, $level + 1);
-                    }
+
+                    trainingsessions::updatefirst($template->firstaccess, @$dataobject->firstaccess);
+                    trainingsessions::updatelast($template->lastaccess, @$dataobject->lastaccess);
 
                     if (!in_array($structure->type, $ignoremodulelist)) {
                         if (!empty($dataobject->timesource) && $dataobject->timesource == 'credit' && $dataobject->elapsed) {
@@ -254,34 +271,64 @@ class HtmlRenderer {
                         if (!empty($dataobject->timesource) && $dataobject->timesource == 'declared' && $dataobject->elapsed) {
                             $template->source = get_string('declaredtime', 'block_use_stats');
                         }
-                        $template->elapsed = $this->rt->format_time($dataobject->elapsed, $durationformat);
+                        $template->elapsedstr = $this->rt->format_time($dataobject->elapsed, $durationformat);
                         if (!empty($dataobject->real)) {
-                            $template->real = $this->rt->format_time($dataobject->real, $durationformat);
+                            $template->realstr = $this->rt->format_time($dataobject->real, $durationformat);
                         } else if (!empty($dataobject->credit)) {
-                            $template->credit = $this->rt->format_time($dataobject->credit, $durationformat);
-                        }
-                        if (is_siteadmin()) {
-                            $template->events = ' ('.(0 + @$dataobject->events).')';
+                            $template->creditstr = $this->rt->format_time($dataobject->credit, $durationformat);
                         }
                     } else {
                         $template->source = get_string('ignored', 'block_use_stats');
                     }
 
                 } else {
-                    // It is only a structural module that should not impact on level.
+                    // It is only a structural module that should not impact on display, but may have on calculated stats.
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
                         $dataobject = $aggregate[$structure->type][$structure->id];
+                        // count stats directly attached to this object level.
+                        $template->elapsed = $dataobject->elapsed;
+                        $template->events = $dataobject->events;
+                        trainingsessions::updatefirst($template->firstaccess, $dataobject->firstaccess);
+                        trainingsessions::updatelast($template->lastaccess, $dataobject->lastaccess);
                     }
                     if (!empty($structure->subs)) {
-                        $template->hassubs = true;
-                        $subdataobject = null;
-                        $template->structures[] = $this->print_html($structure->subs, $aggregate, $subdataobject, $done, $indent, $level + 1);
-                        $dataobject->elapsed += $subdataobject->elapsed;
-                        $dataobject->events += $subdataobject->events;
+                        // Print for sub array.
+                        $subtemplate = $this->print_html($structure->subs, $aggregate, $done, $indent, $level + 1);
+                        if ($subtemplate) {
+                            $template->hassubs = true;
+                            $template->elapsed += $subtemplate->elapsed;
+                            $template->events += $subtemplate->events;
+                            // echo "Getting from subs in non structural element ";
+                            // print_object($subtemplate);
+                            trainingsessions::updatefirst($template->firstaccess, $subtemplate->firstaccess);
+                            trainingsessions::updatelast($template->lastaccess, $subtemplate->lastaccess);
+                            $template->structures[] = $subtemplate;
+                        }
                     }
                 }
             }
         }
+
+        // Post format textual expressions.
+        if ($template->firstaccess) {
+            $template->firstaccessstr = date('Y/m/d H:i', $template->firstaccess);
+        } else {
+            $template->firstaccessstr = '--';
+        }
+
+        if ($template->lastaccess) {
+            $template->lastaccessstr = date('Y/m/d H:i', $template->lastaccess);
+        } else {
+            $template->lastaccessstr = '--';
+        }
+
+        if (is_siteadmin()) {
+            $template->eventsstr = ' ('.(0 + @$template->events).')';
+        }
+
+        // echo "Level Finished : $level\n";
+        // print_object($template);
+
         if ($level == 0) {
             return $OUTPUT->render_from_template('report_trainingsessions/structure', $template);
         }
@@ -360,10 +407,23 @@ class HtmlRenderer {
         if ($withcompletion) {
             $template->withcompletion = true;
             // Print completion bar.
-            $template->completionbar = $this->print_progressionbar(0 + @$data->items, 0 + @$data->done, 500);
+            if (!array_key_exists('ltcprogressinitems', $data) && !array_key_exists('ltcprogressinmandatoryitems', $data)) {
+                $template->completionbar = $this->print_progressionbar(0 + @$data->items, 0 + @$data->done, 500);
+            } else {
+                $bars = '';
+                if (array_key_exists('ltcprogressinitems', $data)) {
+                    $bars .= '<div class="all-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500).' '.get_string('ltc', 'learningtimecheck').'</div>';
+                }
+                if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
+                    $bars .= '<div class="mandatory-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500).' '.get_string('mandatories', 'learningtimecheck').'</div>';
+                }
+                $template->completionbar = $bars;
+            }
         }
 
         $this->add_time_totalizers($data, $cols, $template, $durationformat);
+
+        $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
 
         // Print additional grades.
         if (!empty($gradecols)) {

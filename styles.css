@@ -167,14 +167,16 @@ table#trainingsession-userinfo > tbody > tr > td {
 }
 
 #report-trainingsessions-totalizers,
-#report-trainingsessions-times {
+#report-trainingsessions-times,
+#report-trainingsessions-grades {
     display: flex;
     flex-wrap: wrap;
     justify-content: start;
 }
 
 #report-trainingsessions-totalizers .time-sample,
-#report-trainingsessions-times .time-sample {
+#report-trainingsessions-times .time-sample,
+#report-trainingsessions-grades .grade-sample {
     border: 1px solid #9383c0;
     border-radius: 5px;
     min-width: 20%;
@@ -183,16 +185,26 @@ table#trainingsession-userinfo > tbody > tr > td {
 }
 
 #report-trainingsessions-totalizers .time-sample .sample-name,
-#report-trainingsessions-times .time-sample .sample-name {
-    background-color: #9383c0;
+#report-trainingsessions-times .time-sample .sample-name,
+#report-trainingsessions-grades .grade-sample .sample-name {
     color: #fff;
     font-weight: bolder;
     padding: 2px 5px;
     margin-bottom: 3px;
 }
 
+#report-trainingsessions-totalizers .time-sample .sample-name,
+#report-trainingsessions-times .time-sample .sample-name {
+    background-color: #9383c0;
+}
+
+#report-trainingsessions-grades .grade-sample .sample-name {
+    background-color: #CD2568;
+}
+
 #report-trainingsessions-totalizers .time-sample .sample-value,
-#report-trainingsessions-times .time-sample .sample-value {
+#report-trainingsessions-times .time-sample .sample-value,
+#report-trainingsessions-grades .grade-sample .sample-value {
     color: #000;
     padding: 2px 5px;
 }

@@ -413,7 +413,7 @@ class HtmlRenderer {
                 $bars = '';
                 if (array_key_exists('ltcprogressinitems', $data)) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
-                    $progress .= .' '.get_string('ltc', 'learningtimecheck');
+                    $progress .= ' '.get_string('ltc', 'learningtimecheck');
                     $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
                 if (array_key_exists('ltcprogressinmandatoryitems', $data)) {

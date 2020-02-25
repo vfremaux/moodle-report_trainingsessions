@@ -186,7 +186,6 @@ class CsvRenderer {
      * @return void. $rawstr is appended by reference.
      */
     public function print_row(&$colsdata, &$rawstr) {
-        global $COURSE, $DB;
 
         $config = get_config('report_trainingsessions');
 

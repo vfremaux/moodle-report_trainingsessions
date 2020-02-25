@@ -79,18 +79,14 @@
         <tr>
             <td>{{#str}}grades{{/str}}</td>
             <td>
-                <table width="100%">
-                    <tr>
-                        {{#grades}}
-                        <td class="attribute">{{head}}</td>
-                        {{/grades}}
-                    </tr>
-                    <tr>
-                        {{#grades}}
-                        <td class="attribute">{{value}}</td>
-                        {{/grades}}
-                    </tr>
-                </table>
+                <div id="report-trainingsessions-grades">
+                    {{#grades}}
+                    <div class="grade-sample">
+                    <div class="sample-name">{{label}}</div>
+                    <div class="sample-value">{{value}}</div>
+                    </div>
+                    {{/grades}}
+                </div>
             </td>
         </tr>
         {{/hasgrades}}

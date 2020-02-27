@@ -1,54 +1,54 @@
 table,
 table * td {
-   border-collapse:separate;
-   padding:0px;
-   spacing:0px;
+    border-collapse: separate;
+    padding: 0;
+    border-spacing: 0;
 }
 
 .sessionlevel1 > td {
-   border: solid 1px #888888;
-   font-size:1.2em;
+    border: solid 1px #888888;
+    font-size: 1.2em;
 }
 
 .sessionlevel2 > td {
-   border-bottom: solid 1px #EEEEEE;
-   font-size:1.1em;
+    border-bottom: solid 1px #EEEEEE;
+    font-size: 1.1em;
 }
 
 .sessionlevel3 > td {
-   font-size:1em;
+    font-size: 1em;
 }
 
 .sessionlevel4 > td {
-   font-size:0.9em;
+    font-size: 0.9em;
 }
 
-.donebar{
-    background-color : #579F4A;
+.donebar {
+    background-color: #579F4a;
     height:18px;
 }
 
-.remainingbar{
-    background-color: #4B41A9;
+.remainingbar {
+    background-color: #4b41a9;
     height: 18px;
 }
 
-.completionbar{
+.completionbar {
     margin-top: 5px;
 }
 
-.reportdetails{
+.reportdetails {
     font-size: 0.85em;
 }
 
 .trainingreport.subs,
-.sessionreport{
+.sessionreport {
     margin-bottom: 15px;
     width: 100%;
 }
 
-.sessionitem.rangedate{
-    border:1px solid  #a0a0a0;
+.sessionitem.rangedate {
+    border: 1px solid #a0a0a0;
     font-size: 0.9em;
 }
 
@@ -71,7 +71,7 @@ table * td {
     text-align: right;
 }
 
-.trainingsessions-buttons-wrapper{
+.trainingsessions-buttons-wrapper {
     display: table-row;
 }
 
@@ -81,7 +81,7 @@ table * td {
 }
 
 .trainingsessions-inline-buttons form {
-    margin-bottom:2px;
+    margin-bottom: 2px;
 }
 
 .trainingsessions-inline-buttons form,
@@ -101,7 +101,7 @@ table * td {
 }
 
 .trainingsessions-green {
-    background-color:#c4fbac !important;
+    background-color: #c4fbac;
 }
 
 .trainingsessions-inline * {
@@ -110,7 +110,7 @@ table * td {
 
 .trainingsessions-fieldset {
     -moz-border-radius: 8px;
-    border: 1px solid #CDCDCD;
+    border: 1px solid #ccc;
     border-radius: 8px;
     padding: 5px;
     margin-bottom: 15px;
@@ -199,7 +199,7 @@ table#trainingsession-userinfo > tbody > tr > td {
 }
 
 #report-trainingsessions-grades .grade-sample .sample-name {
-    background-color: #CD2568;
+    background-color: #cd2568;
 }
 
 #report-trainingsessions-totalizers .time-sample .sample-value,
@@ -238,7 +238,7 @@ table#trainingsession-userinfo > tbody > tr > td {
     border-radius: 2px;
 }
 
-.bigicon{
-    width:64px;
-    height:64px;
+.bigicon {
+    width: 64px;
+    height: 64px;
 }

@@ -48,8 +48,8 @@ class MoodleExcelWorksheetTS extends MoodleExcelWorksheet {
      * @param mixed   $format The XF format for the cell
      */
     public function write_time($row, $col, $duration, $format = null) {
-        $this->worksheet->setCellValueByColumnAndRow($col, $row+1, $duration);
-        $this->worksheet->getStyleByColumnAndRow($col, $row+1)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);
+        $this->worksheet->setCellValueByColumnAndRow($col, $row + 1, $duration);
+        $this->worksheet->getStyleByColumnAndRow($col, $row + 1)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);
         $this->apply_format($row, $col, $format);
     }
 }

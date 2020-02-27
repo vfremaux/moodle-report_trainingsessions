@@ -171,7 +171,7 @@ table#trainingsession-userinfo > tbody > tr > td {
 #report-trainingsessions-grades {
     display: flex;
     flex-wrap: wrap;
-    justify-content: start;
+    justify-content: flex-start;
 }
 
 #report-trainingsessions-totalizers .time-sample,

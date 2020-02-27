@@ -486,7 +486,7 @@ class HtmlRenderer {
             $totalizertpl->elapsed = $this->rt->format_time(0 + @$data->$c, $durationformat);
             $h = str_replace('elapsed', 'hits', $c);
             $h = str_replace('time', 'hits', $h);  // Alternative if not an "elapsed" column.
-            $totalizertpl->hits = 0 + $data->$h;
+            $totalizertpl->hits = 0 + @$data->$h;
 
             $template->totalizers[] = $totalizertpl;
         }

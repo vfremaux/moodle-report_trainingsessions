@@ -342,7 +342,7 @@ class HtmlRenderer {
      */
     public function print_header_html($user, $course, $data, $cols, $short = false, $withcompletion = true,
                                                        $withnooutofstructure = false) {
-        global $DB, $OUTPUT;
+        global $OUTPUT;
 
         $config = get_config('report_trainingsessions');
 
@@ -412,10 +412,14 @@ class HtmlRenderer {
             } else {
                 $bars = '';
                 if (array_key_exists('ltcprogressinitems', $data)) {
-                    $bars .= '<div class="all-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500).' '.get_string('ltc', 'learningtimecheck').'</div>';
+                    $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
+                    $progress .= ' '.get_string('ltc', 'learningtimecheck');
+                    $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
                 if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
-                    $bars .= '<div class="mandatory-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500).' '.get_string('mandatories', 'learningtimecheck').'</div>';
+                    $progress = $this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500);
+                    $progress .= ' '.get_string('mandatories', 'learningtimecheck');
+                    $bars .= '<div class="mandatory-items" style="height:50px">'.$progress.'</div>';
                 }
                 $template->completionbar = $bars;
             }
@@ -749,7 +753,7 @@ class HtmlRenderer {
     }
 
     public function print_progressionbar($items, $done, $width) {
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
 
         $template = new StdClass;
 

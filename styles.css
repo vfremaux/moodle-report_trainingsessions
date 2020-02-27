@@ -6,12 +6,12 @@ table * td {
 }
 
 .sessionlevel1 > td {
-    border: solid 1px #888888;
+    border: solid 1px #888;
     font-size: 1.2em;
 }
 
 .sessionlevel2 > td {
-    border-bottom: solid 1px #EEEEEE;
+    border-bottom: solid 1px #eee;
     font-size: 1.1em;
 }
 
@@ -24,8 +24,8 @@ table * td {
 }
 
 .donebar {
-    background-color: #579F4a;
-    height:18px;
+    background-color: #579f4a;
+    height: 18px;
 }
 
 .remainingbar {
@@ -105,7 +105,7 @@ table * td {
 }
 
 .trainingsessions-inline * {
-    display: inline
+    display: inline;
 }
 
 .trainingsessions-fieldset {

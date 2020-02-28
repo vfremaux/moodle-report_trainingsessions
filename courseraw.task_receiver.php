@@ -67,7 +67,7 @@ if ($tdata = $form->get_data()) {
     $endmonth = $tdata->endmonth;
     $endyear = $tdata->endyear;
     $task->timeto = mktime(0, 0, 0, $endmonth, $endday, $endyear);
-    $task->timeto += DAYSECS - 1;
+    $task->timeto += DAYSECS -1;
 
     $task->replay = 0 + @$tdata->replay;
     $task->replaydelay = $tdata->replaydelay;

@@ -123,9 +123,9 @@ $colstitles = $rt->get_summary_cols('title');
 $colsformats = $rt->get_summary_cols('format');
 
 // Add potential additional grading cols.
-$pregradekeysnum = count($colskeys); //  Controls
+$pregradekeysnum = count($colskeys); // Controls
 $rt->add_graded_columns($colskeys, $colstitles, $colsformats);
-$postgradekeysnum = count($colskeys); //  Controls
+$postgradekeysnum = count($colskeys); // Controls
 
 $summarizedusers = array();
 foreach ($targetusers as $user) {
@@ -142,16 +142,20 @@ foreach ($targetusers as $user) {
     $elapsed = 0 + @$aggregate['coursetotal'][$course->id]->elapsed;
 
     $colsdata = $rt->map_summary_cols($colskeys, $user, $aggregate, $weekaggregate, $courseid);
-    $pregradecolsnum = count($colsdata); //  Controls
+    $pregradecolsnum = count($colsdata); // Controls
     if ($pregradekeysnum != $pregradecolsnum) {
-        throw(new moodle_exception("Not same number of columns (1). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
+        $msg = "Not same number of columns (1). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata);
+        $msg .= ' This may be due to a misnamed column name in global settings of the report';
+        throw new moodle_exception($msg);
     }
 
     // Fetch and add eventual additional score columns.
     $rt->add_graded_data($colsdata, $user->id, $aggregate);
-    $postgradecolsnum = count($colsdata); //  Controls
+    $postgradecolsnum = count($colsdata); // Controls
     if ($postgradekeysnum != $postgradecolsnum) {
-        throw(new moodle_exception("Not same number of columns (2). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata)));
+        $msg = "Not same number of columns (2). " . implode(',', $colskeys)." vs. ".implode(',', $colsdata);
+        $msg .= ' This may be due to a misnamed column name in global settings of the report';
+        throw new moodle_exception($msg);
     }
 
     // Assemble keys and data.

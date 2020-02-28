@@ -210,6 +210,11 @@ class HtmlRenderer {
                     $template->structures[] = $subtemplate;
                 }
             }
+
+            // If array results empty, returns nothing.
+            if (empty($template->structures)) {
+                return null;
+            }
         } else {
             // We are a real element, or structure.
             $template->id = $structure->id;
@@ -238,14 +243,16 @@ class HtmlRenderer {
                     $dataobject->events = 0;
 
                     if (!empty($structure->subs)) {
-                        $template->hassubs = true;
                         $subtemplate = $this->print_html($structure->subs, $aggregate, $done, $indent, $level + 1);
-                        $template->structures[] = $subtemplate;
-                        $dataobject = $subtemplate;
-                        // echo "Getting from subs in structural element (element)";
-                        // print_object($subtemplate);
-                        trainingsessions::updatefirst($template->firstaccess, @$dataobject->firstaccess);
-                        trainingsessions::updatelast($template->lastaccess, @$dataobject->lastaccess);
+                        if ($subtemplate) {
+                            $template->structures[] = $subtemplate;
+                            $dataobject = $subtemplate;
+                            $template->hassubs = true;
+                            // echo "Getting from subs in structural element (element)";
+                            // print_object($subtemplate);
+                            trainingsessions::updatefirst($template->firstaccess, @$dataobject->firstaccess);
+                            trainingsessions::updatelast($template->lastaccess, @$dataobject->lastaccess);
+                        }
                     }
 
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -286,15 +293,17 @@ class HtmlRenderer {
                     }
                     if (!empty($structure->subs)) {
                         // Print for sub array.
-                        $template->hassubs = true;
                         $subtemplate = $this->print_html($structure->subs, $aggregate, $done, $indent, $level + 1);
-                        $template->elapsed += $subtemplate->elapsed;
-                        $template->events += $subtemplate->events;
-                        // echo "Getting from subs in non structural element ";
-                        // print_object($subtemplate);
-                        trainingsessions::updatefirst($template->firstaccess, $subtemplate->firstaccess);
-                        trainingsessions::updatelast($template->lastaccess, $subtemplate->lastaccess);
-                        $template->structures[] = $subtemplate;
+                        if ($subtemplate) {
+                            $template->hassubs = true;
+                            $template->elapsed += $subtemplate->elapsed;
+                            $template->events += $subtemplate->events;
+                            // echo "Getting from subs in non structural element ";
+                            // print_object($subtemplate);
+                            trainingsessions::updatefirst($template->firstaccess, $subtemplate->firstaccess);
+                            trainingsessions::updatelast($template->lastaccess, $subtemplate->lastaccess);
+                            $template->structures[] = $subtemplate;
+                        }
                     }
                 }
             }
@@ -317,7 +326,7 @@ class HtmlRenderer {
             $template->eventsstr = ' ('.(0 + @$template->events).')';
         }
 
-        // echo "Level : $level\n";
+        // echo "Level Finished : $level\n";
         // print_object($template);
 
         if ($level == 0) {
@@ -333,7 +342,7 @@ class HtmlRenderer {
      */
     public function print_header_html($user, $course, $data, $cols, $short = false, $withcompletion = true,
                                                        $withnooutofstructure = false) {
-        global $DB, $OUTPUT;
+        global $OUTPUT;
 
         $config = get_config('report_trainingsessions');
 
@@ -403,16 +412,22 @@ class HtmlRenderer {
             } else {
                 $bars = '';
                 if (array_key_exists('ltcprogressinitems', $data)) {
-                    $bars .= '<div class="all-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500).' '.get_string('ltc', 'learningtimecheck').'</div>';
+                    $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
+                    $progress .= ' '.get_string('ltc', 'learningtimecheck');
+                    $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
                 if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
-                    $bars .= '<div class="mandatory-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500).' '.get_string('mandatories', 'learningtimecheck').'</div>';
+                    $progress = $this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500);
+                    $progress .= ' '.get_string('mandatories', 'learningtimecheck');
+                    $bars .= '<div class="mandatory-items" style="height:50px">'.$progress.'</div>';
                 }
                 $template->completionbar = $bars;
             }
         }
 
         $this->add_time_totalizers($data, $cols, $template, $durationformat);
+
+        $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
 
         // Print additional grades.
         if (!empty($gradecols)) {
@@ -471,7 +486,7 @@ class HtmlRenderer {
             $totalizertpl->elapsed = $this->rt->format_time(0 + @$data->$c, $durationformat);
             $h = str_replace('elapsed', 'hits', $c);
             $h = str_replace('time', 'hits', $h);  // Alternative if not an "elapsed" column.
-            $totalizertpl->hits = 0 + $data->$h;
+            $totalizertpl->hits = 0 + @$data->$h;
 
             $template->totalizers[] = $totalizertpl;
         }
@@ -738,7 +753,7 @@ class HtmlRenderer {
     }
 
     public function print_progressionbar($items, $done, $width) {
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
 
         $template = new StdClass;
 

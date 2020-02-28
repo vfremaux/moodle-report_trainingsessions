@@ -34,6 +34,8 @@ $tsconfig = get_config('report_trainingsessions');
 $rt = \report\trainingsessions\trainingsessions::instance();
 $renderer = new \report\trainingsessions\HtmlRenderer($rt);
 
+raise_memory_limit(MEMORY_EXTRA);
+
 // Selector form.
 
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
@@ -84,13 +86,16 @@ $user = $DB->get_record('user', array('id' => $data->userid));
 
 $coursestructure = $rt->get_course_structure($course->id, $items);
 $cols = $rt->get_summary_cols('keys');
-$headdata = (object) $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
+$headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
 $rt->add_graded_columns($cols, $unusedtitles);
-$rt->add_graded_data($headdata, $data->userid, $aggregate);
+$rt->add_graded_data($gradedata, $data->userid, $aggregate);
+$headdata = (object) $headdata;
+$headdata->gradecols = $gradedata;
 
 $str = $renderer->print_html($coursestructure, $aggregate, $done);
 $headdata->done = $done;
 $headdata->items = $items;
+
 echo $renderer->print_header_html($user, $course, $headdata, $cols);
 echo $str;
 

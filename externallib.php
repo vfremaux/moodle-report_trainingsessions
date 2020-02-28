@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die;
 class report_trainingsessions_external {
 
     public static function validate_report_parameters($configparamdefs, $inputs) {
+        global $DB, $CFG;
 
         $status = self::validate_parameters($configparamdefs, $inputs);
 

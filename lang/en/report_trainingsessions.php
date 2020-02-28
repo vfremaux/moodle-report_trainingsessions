@@ -25,12 +25,12 @@
 // Privacy.
 $string['privacy:metadata'] = "The Trainingsessions Report does not store any data belonging to users";
 
-$string['trainingsessions:iscompiled'] = 'Is compiled in reports';
-$string['trainingsessions:view'] = 'Can view training session report';
-$string['trainingsessions:viewother'] = 'Can view training session reports from other users';
-$string['trainingsessions:downloadreports'] = 'Can download report documents';
-$string['trainingsessions:batch'] = 'Can batch reports';
-$string['trainingsessions:usegrading'] = 'Can setup grading output';
+$string['trainingsessions:iscompiled'] = 'Is compiled in reports'; // @DYNAKEY
+$string['trainingsessions:view'] = 'Can view training session report'; // @DYNAKEY
+$string['trainingsessions:viewother'] = 'Can view training session reports from other users'; // @DYNAKEY
+$string['trainingsessions:downloadreports'] = 'Can download report documents'; // @DYNAKEY
+$string['trainingsessions:batch'] = 'Can batch reports'; // @DYNAKEY
+$string['trainingsessions:usegrading'] = 'Can setup grading output'; // @DYNAKEY
 
 $string['accountstart'] = 'User account creation date';
 $string['activitytime'] = 'Time in activities';
@@ -39,21 +39,20 @@ $string['addmodulelabel'] = 'Add activity module';
 $string['addmoduletitle'] = 'Add an activity module you want to add grade in report';
 $string['addtimebonus'] = 'time bonus on overal grade';
 $string['addtimegrade'] = 'Time grade';
-$string['advancement'] = 'Advancement';
 $string['allcourses'] = 'All courses';
 $string['allgroups'] = 'All groups';
-$string['authoritysign'] = 'Education Authority';
 $string['availableactivities'] = 'Available activities';
 $string['batchdate'] = 'Task date ';
-$string['batchreports_task'] = 'Batch reports';
+$string['batchreports_task'] = 'Batch reports'; // @DYNAKEY
 $string['bgcolor'] = 'Background color';
 $string['binary'] = 'Binary output';
 $string['bonusgrademode'] = 'Time bonus grade mode';
 $string['bonusgrademodedefault'] = 'Bonus grade mode default';
 $string['bonusgrademodedefault_desc'] = 'Default value for the bonus grade mode when first setup in a course';
-$string['checklistadvice'] = 'Special side completion effects';
+$string['calculated'] = 'Calculated';
+$string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
+$string['checklistadvice'] = 'Special side completion effects'; // @DYNAKEY
 $string['chooseagroup'] = 'Choose a group';
-$string['chooseaninstitution'] = 'Choose an institution';
 $string['colors'] = 'Colors';
 $string['columnname'] = 'Column name: ';
 $string['connections'] = 'Connections';
@@ -79,8 +78,10 @@ $string['csvoutputtoiso'] = 'Iso CSV Output';
 $string['currentcourse'] = 'Current course';
 $string['dates'] = 'Key dates';
 $string['debugmode'] = 'Debug mode on';
+$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultstartdate'] = 'Default start date';
 $string['defaultstartdate_desc'] = 'Default start date';
+$string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['disablesuspendedstudents'] = 'Ignore suspended students';
@@ -88,10 +89,10 @@ $string['discrete'] = 'Discrete output';
 $string['discreteforcenumber'] = 'Force numeric on discrete';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
-$string['elapsed'] = 'Total course time';
-$string['elapsedinitem'] = 'Elapsed time';
+$string['elapsed'] = 'Total course time'; // @DYNAKEY
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
-$string['elapsedlastweek'] = 'Last week time';
+$string['elapsedinitem'] = 'Elapsed time';
+$string['elapsedlastweek'] = 'Last week time'; // @DYNAKEY
 $string['email'] = 'Email';
 $string['emulatecommunity'] = 'Emulate community version';
 $string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. This might loose features !';
@@ -110,16 +111,16 @@ $string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
 $string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
 $string['errornoabsolutepath'] = 'Path must be relative';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
-$string['extelapsed'] = 'Total time (extended)';
-$string['extelapsedlastweek'] = 'Last week time (extended)';
-$string['exthits'] = 'Hits (extended)';
-$string['exthitslastweek'] = 'Hits last week (extended)';
-$string['extotherelapsed'] = 'Extra out of course time';
-$string['extotherlastweek'] = 'Extra time (last week)';
-$string['extrauserinfo'] = 'Additional user info in reports';
-$string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
 $string['exceldatefmt'] = 'yyyy/mm/dd hh:mm';
 $string['exceltimefmt'] = '[h]:mm:ss';
+$string['extelapsed'] = 'Total time (extended)'; // @DYNAKEY
+$string['extelapsedlastweek'] = 'Last week time (extended)'; // @DYNAKEY
+$string['exthits'] = 'Hits (extended)'; // @DYNAKEY
+$string['exthitslastweek'] = 'Hits last week (extended)'; // @DYNAKEY
+$string['extotherelapsed'] = 'Extra out of course time'; // @DYNAKEY
+$string['extotherlastweek'] = 'Extra time (last week)'; // @DYNAKEY
+$string['extrauserinfo'] = 'Additional user info in reports';
+$string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
 $string['fail'] = 'FAIL';
 $string['filetimesuffixformat'] = 'Ymd_His';
 $string['firstaccess'] = 'First access';
@@ -129,6 +130,7 @@ $string['firstcourseaccess_help'] = 'First time course has been accessed';
 $string['firstenrolldate'] = 'First enroll';
 $string['firstname'] = 'First Name';
 $string['firstsessiontime'] = 'First session';
+$string['formulalabel'] = 'Column label';
 $string['from'] = 'From';
 $string['generatecsv'] = 'Generate as CSV';
 $string['generatepdf'] = 'Generate as PDF';
@@ -173,6 +175,7 @@ $string['licensekey'] = 'Pro license key';
 $string['licensekey_desc'] = 'Input here the product license key you got from your provider';
 $string['licenseprovider'] = 'Pro License provider';
 $string['licenseprovider_desc'] = 'Input here your provider key';
+$string['lineaggregators'] = 'Line aggregators';
 $string['location'] = 'Location';
 $string['ltcprogressinitems'] = 'LTC Progress (% items)';
 $string['ltcprogressinmandatoryitems'] = 'LTC Progress (% mandatories)';
@@ -193,10 +196,10 @@ $string['nothing'] = 'No users to compile';
 $string['now'] = 'Now !';
 $string['onefulluserpersheet'] = 'One full user information per sheet';
 $string['oneuserperrow'] = 'One user summary information per row in a single sheet';
-$string['othertime'] = 'Other time';
+$string['othertime'] = 'Other time'; // @DYNAKEY
 $string['out'] = 'Out time';
 $string['outofgroup'] = 'No group';
-$string['outofstructure'] = 'Other course use time';
+$string['elapsedoutofstructure'] = 'Other course use time'; // @DYNAKEY
 $string['output:finalcoursegrade'] = 'Final grade';
 $string['output:rawcoursegrade'] = 'Raw course grade';
 $string['output:timebonus'] = 'Time bonus';
@@ -267,12 +270,12 @@ $string['showitemlastaccess'] = 'Show items last access date';
 $string['showitemlastaccess_desc'] = 'If set, the real date of last access to the item (log based) is displayed in reports';
 $string['showmonthlyquickreports'] = 'Show monthly quick reports';
 $string['showmonthlyquickreports_desc'] = 'If set, detail user report show monthly partial reports';
+$string['showsectionsonly'] = 'show sections only';
+$string['showsectionsonly_desc'] = 'If enabled, items details are not shown on report. Only the lowest aggreegation level over items.';
 $string['showsessions'] = 'Show sessions detail';
 $string['showsessions_desc'] = 'If set, the session details will be accessible in reports';
 $string['showsseconds'] = 'Show seconds';
 $string['showsseconds_desc'] = 'Show seconds in duration expression if enabled';
-$string['showsectionsonly'] = 'show sections only';
-$string['showsectionsonly_desc'] = 'If enabled, items details are not shown on report. Only the lowest aggreegation level over items.';
 $string['singleexec'] = 'Single run';
 $string['siteglobals'] = 'Site (non course sections)';
 $string['specialgrades'] = 'Special grades';
@@ -340,14 +343,7 @@ $string['workweek'] = 'Week';
 $string['xls'] = 'XLS';
 $string['xlsadditions'] = 'XLS Additions';
 $string['xlsexportlocale'] = 'XLS Export Locale';
-
-$string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
 $string['xlsformula'] = 'Formula (Excel expression)';
-$string['formulalabel'] = 'Column label';
-$string['lineaggregators'] = 'Line aggregators';
-$string['calculated'] = 'Calculated';
-$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
-$string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
 $string['xlssumformula'] = 'XLS Sum Formula';
 
@@ -492,6 +488,9 @@ and improvement effort.</p>
 $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
 material and some time spent in general site screens the user has access to.';
+
+$string['elapsedoutofstructure_help'] = '
+Time spent in the course scope, but not assignable to any "structural element" of the course (section, page, module).';
 
 $string['extelapsedlastweek_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course

@@ -1447,7 +1447,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_formats() {
-        global $CFG;
         static $options;
 
         if (!isset($options)) {
@@ -1476,7 +1475,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_supported_formats_layouts() {
-
 
         if (report_trainingsessions_supports_feature('format/xls')) {
             $layoutconstraints['onefulluserpersheet'][] = 'xls';
@@ -1520,7 +1518,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_replays() {
-        global $CFG;
         static $options;
 
         if (!isset($options)) {

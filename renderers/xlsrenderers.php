@@ -265,7 +265,7 @@ class XlsRenderer {
      * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
      */
     public function print_header_xls(&$worksheet, $userid, $courseid, &$data, $cols, $xlsformats) {
-        global $CFG, $DB;
+        global $DB;
 
         $config = get_config('report_trainingsessions');
         $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
@@ -487,7 +487,6 @@ class XlsRenderer {
     }
 
     public function count_header_rows($courseid) {
-        global $CFG, $DB;
 
         $config = get_config('report_trainingsessions');
 
@@ -662,7 +661,7 @@ class XlsRenderer {
                 if (!empty($structure->subs)) {
                     $res = $this->print_xls($worksheet, $structure->subs, $aggregate, $done,
                                                              $row, $xlsformats, $level);
-                     if ($res) {
+                    if ($res) {
                         $dataobject->elapsed += $res->elapsed;
                         $dataobject->events += $res->events;
                         $dataobject->firstaccess = $res->firstaccess;
@@ -800,7 +799,7 @@ class XlsRenderer {
      * @param object $aggregate aggregated logs to explore.
      */
     public function print_allcourses_xls(&$worksheet, &$aggregate, $row, &$xlsformats) {
-        global $CFG, $COURSE, $DB;
+        global $DB;
 
         $config = get_config('report_trainingsessions');
 

@@ -135,7 +135,6 @@ class CsvRenderer {
      * @return void. $rawstr is appended by reference.
      */
     public function print_global_raw($courseid, &$cols, &$user, &$aggregate, &$weekaggregate, &$rawstr, $dataformats) {
-        global $COURSE, $DB;
 
         $config = get_config('report_trainingsessions');
         $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
@@ -186,7 +185,6 @@ class CsvRenderer {
      * @return void. $rawstr is appended by reference.
      */
     public function print_row(&$colsdata, &$rawstr) {
-        global $COURSE, $DB;
 
         $config = get_config('report_trainingsessions');
 

@@ -46,18 +46,18 @@
 
         {{#showitemfirstaccess}}
         <td class="sessionitem rangedate userreport-col1">
-            {{^issection}}{{{firstaccess}}}{{/issection}}
+            {{{firstaccessstr}}}
         </td>
         {{/showitemfirstaccess}}
 
         {{#showitemlastaccess}}
         <td class="sessionitem rangedate  userreport-col2">
-            {{^issection}}{{{lastaccess}}}{{/issection}}
+            {{{lastaccessstr}}}
         </td>
         {{/showitemlastaccess}}
 
-        <td class="reportvalue rangedate userreport-col3" align="right" {{#real}}title="{{#str}}real, report_trainingsessions{{/str}}: {{real}}"{{/real}}{{#credit}}title="{{#str}}credit, report_trainingsessions{{/str}}: {{credit}}"{{/credit}}>
-            {{{source}}} {{{elapsed}}} {{#showhits}} {{events}} {{/showhits}}
+        <td class="reportvalue rangedate userreport-col3" align="right" {{#real}}title="{{#str}}real, report_trainingsessions{{/str}}: {{realstr}}"{{/real}}{{#credit}}title="{{#str}}credit, report_trainingsessions{{/str}}: {{creditstr}}"{{/credit}}>
+            {{{source}}} {{{elapsedstr}}} {{#showhits}} {{eventsstr}} {{/showhits}}
         </td>
     </tr>
 </table>

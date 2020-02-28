@@ -127,7 +127,7 @@ if (!empty($targetusers)) {
     $select = " courseid = ? AND moduleid = ".TR_LINEAGGREGATORS;
     $params = array($COURSE->id);
     if ($summaryrec = $DB->get_record_select('report_trainingsessions', $select, $params)) {
-        $renderer > print_sumline_xls($worksheet, $dataformats, $summaryrec->label, $minrow, $maxrow - 1, $xlsformats);
+        $renderer->print_sumline_xls($worksheet, $dataformats, $summaryrec->label, $minrow, $maxrow - 1, $xlsformats);
     }
 
     $workbook->close();

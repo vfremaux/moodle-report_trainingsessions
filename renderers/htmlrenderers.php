@@ -273,8 +273,10 @@ class HtmlRenderer {
                         }
                         $template->elapsedstr = $this->rt->format_time($dataobject->elapsed, $durationformat);
                         if (!empty($dataobject->real)) {
+                            $template->real = true;
                             $template->realstr = $this->rt->format_time($dataobject->real, $durationformat);
                         } else if (!empty($dataobject->credit)) {
+                            $template->credit = true;
                             $template->creditstr = $this->rt->format_time($dataobject->credit, $durationformat);
                         }
                     } else {

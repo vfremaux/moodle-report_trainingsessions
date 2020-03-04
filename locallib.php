@@ -1729,20 +1729,18 @@ class trainingsessions {
         }
 
         // Fix missing coursefirstaccess time.
-        $firstaccessrec = $DB->get_field('report_trainingsessions_fa', 'timeaccessed', ['userid' => $user->id, 'courseid' => $courseid]);
-        if (!is_numeric($firstaccessrec)) {
+        $firstaccessrec = $DB->get_record('report_trainingsessions_fa', ['userid' => $user->id, 'courseid' => $courseid]);
+        if (!$firstaccessrec) {
             // Get first log.
             $firstcourseaccessrecs = $DB->get_records('logstore_standard_log', ['userid' => $user->id, 'courseid' => $courseid], 'timecreated', 'id,timecreated', 0, 1);
-            $farec = new StdClass;
-            $farec->userid = $user->id;
-            $farec->courseid = $courseid;
+            $firstaccessrec = new StdClass;
+            $firstaccessrec->userid = $user->id;
+            $firstaccessrec->courseid = $courseid;
             if ($firstcourseaccessrecs) {
                 $firstcourseaccessrec = array_shift($firstcourseaccessrecs);
-                $farec->timeaccessed = $firstcourseaccessrec->timecreated;
-            } else {
-                $farec->timeaccessed = 0;
+                $firstaccessrec->timeaccessed = $firstcourseaccessrec->timecreated;
+                $DB->insert_record('report_trainingsessions_fa', $firstaccessrec);
             }
-            $DB->insert_record('report_trainingsessions_fa', $farec);
         }
 
         $colsources = array(
@@ -1755,7 +1753,7 @@ class trainingsessions {
             'department' => $user->department,
             'lastlogin' => ($user->currentlogin > $user->lastlogin) ? $user->currentlogin : $user->lastlogin,
             'lastcourseaccess' => $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $user->id, 'courseid' => $courseid]),
-            'firstcourseaccess' => $DB->get_field('report_trainingsessions_fa', 'timeaccessed', ['userid' => $user->id, 'courseid' => $courseid]),
+            'firstcourseaccess' => $firstaccessrec->timeaccessed,
             'firstaccess' => $user->firstaccess,
             'groups' => self::get_user_groups($user->id, $courseid),
             'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,

@@ -71,7 +71,7 @@ if ($usconfig->enrolmentfilter && has_capability('report/trainingsessions:viewot
 }
 
 // Get data.
-
+use_stats_fix_last_course_access($data->userid, $course->id);
 $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
 $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);

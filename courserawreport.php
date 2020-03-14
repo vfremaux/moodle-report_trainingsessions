@@ -136,6 +136,7 @@ if (!empty($targetusers)) {
         echo get_string('quickgroupcompile', 'report_trainingsessions', count($targetusers));
 
         foreach ($targetusers as $u) {
+            use_stats_fix_last_course_access($u->id, $course->id);
             $logs = use_stats_extract_logs($from, $to, $u->id, $course->id);
             $aggregate[$u->id] = use_stats_aggregate_logs($logs, $from, $to);
 

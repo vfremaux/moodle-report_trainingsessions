@@ -432,10 +432,10 @@ class HtmlRenderer {
         $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
 
         // Print additional grades.
-        if (!empty($gradecols)) {
+        if (!empty($data->gradecols)) {
             $i = 0;
             $template->hasgrades = true;
-            foreach ($gradecols as $gc) {
+            foreach ($data->gradecols as $gc) {
                 $gradetpl = new Stdclass;
                 $gradetpl->label = $gradetitles[$i];
                 $gradetpl->value = sprintf('%0.2f', $data->gradecols[$i]);

@@ -396,7 +396,7 @@ class trainingsessions {
                     $source = @$blockinstance->config->text;
 
                     // If there is no subcontent, do not consider this bloc in reports.
-                    if ($element->subs = page_get_structure_in_content($source, $itemcount)) {
+                    if ($element->subs = $this->page_get_structure_in_content($source, $itemcount)) {
                         $structure[] = $element;
                     }
                 } else {
@@ -438,7 +438,7 @@ class trainingsessions {
                 $pageelement->type = 'page';
                 $pageelement->name = format_string($child->nametwo);
 
-                $pageelement->subs = page_get_structure_from_page($child, $itemcount);
+                $pageelement->subs = $this->page_get_structure_from_page($child, $itemcount);
                 $structure[] = $pageelement;
             }
         }
@@ -473,7 +473,7 @@ class trainingsessions {
                     $element = new StdClass;
                     $element->type = 'pagemenu';
                     $element->plugin = 'mod';
-                    $element->subs = page_get_structure_from_page($page, $itemcount);
+                    $element->subs = $this->page_get_structure_from_page($page, $itemcount);
                     $structure[] = $element;
                     $visitedpages[] = $matches[2];
                 }
@@ -1447,6 +1447,7 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_formats() {
+
         static $options;
 
         if (!isset($options)) {
@@ -1518,6 +1519,7 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_replays() {
+
         static $options;
 
         if (!isset($options)) {
@@ -1761,6 +1763,7 @@ class trainingsessions {
             'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'othertime' => 0 + @$t[0]->elapsed,
+            'otherelasped' => 0 + @$t[0]->elapsed,
             'elapsed' => 0 + @$t[$courseid]->elapsed,
             'elapsedoutofstructure' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed,
             'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,

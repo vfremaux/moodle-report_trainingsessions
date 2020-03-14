@@ -95,10 +95,14 @@ if ($ADMIN->fulltree) {
     $key = 'report_trainingsessions/summarycolumns';
     $label = get_string('summarycolumns', 'report_trainingsessions');
     $desc = get_string('summarycolumns_desc', 'report_trainingsessions');
-    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#groups,a\n#lastlogin,t\n#firstaccess,t\nlastcourseaccess,t\n";
-    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\nelapsedoutofstructure,d\nelapsed,d\n#extelapsed,d\nextotherelapsed,d\n#items,n\n";
-    $default .= "#hits,n\n#exthits,n\n#visiteditems,n\n#elapsedlastweek,d\n#extelapsedlastweek,d\n";
-    $default .= "#extotherlastweek,d\n#hitslastweek,n\n#exthitslastweek,n\nworkingsessions,n";
+    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#groups,a\n#lastlogin,t\n";
+    $default .= "#firstaccess,t\nlastcourseaccess,t\n";
+    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\n#uploadtime,d\n";
+    $default .= "elapsedoutofstructure,d\nelapsed,d\n#extelapsed,d\nextotherelapsed,d\n";
+    $default .= "#items,n\n#hits,n\n#exthits,n\n#extotherhits,n\n#visiteditems,n\n";
+    $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherelapsedlastweek,d\n";
+    $default .= "#hitslastweek,n\n#exthitslastweek,n\n";
+    $default .= "workingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
     $fieldoptions = $DB->get_records_menu('user_info_field', array(), 'id', 'id,name');

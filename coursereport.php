@@ -137,6 +137,8 @@ $rt->add_graded_columns($cols, $unusedtitles);
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
 
+        use_stats_fix_last_course_access($auser->id, $course->id);
+
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
         $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
@@ -146,7 +148,8 @@ if (!empty($targetusers)) {
         }
 
         $headdata = (object) $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true);
-        $rt->add_graded_data($headdata, $auser->id, $aggregate);
+        $headdata->gradecols = [];
+        $rt->add_graded_data($headdata->gradecols, $auser->id, $aggregate);
 
         $headdata->done = 0;
         $headdata->items = $items;

@@ -31,8 +31,8 @@ $plugin->requires  = 2018112800; // Requires this Moodle version.
 $plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = '3.6.0 (build 2019112200)';
-$plugin->dependencies = array('block_use_stats' => '2018032400', 'auth_ticket' => '2012060400');
+$plugin->dependencies = array('block_use_stats' => '2020031300', 'auth_ticket' => '2012060400');
 
 // Non moodle attributes.
-$plugin->codeincrement = '3.6.0015';
+$plugin->codeincrement = '3.6.0016';
 $plugin->privacy = 'dualrelease';

@@ -403,6 +403,12 @@ class trainingsessions {
                     // Is a module.
                     $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
                     $module = $DB->get_record('modules', array('id' => $cm->module));
+                    if (empty($module)) {
+                        if (debugging(DEBUG_DEVELOPER)) {
+                            echo $OUTPUT->notification("Missing module type of id {$cm->module} for course module $pi->cmid ");
+                        }
+                        continue;
+                    }
 
                     switch ($module->name) {
                         case 'customlabel':
@@ -1447,7 +1453,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_formats() {
-
         static $options;
 
         if (!isset($options)) {
@@ -1519,7 +1524,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_replays() {
-
         static $options;
 
         if (!isset($options)) {
@@ -1763,7 +1767,7 @@ class trainingsessions {
             'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'othertime' => 0 + @$t[0]->elapsed,
-            'otherelasped' => 0 + @$t[0]->elapsed,
+            'otherelapsed' => 0 + @$t[0]->elapsed,
             'elapsed' => 0 + @$t[$courseid]->elapsed,
             'elapsedoutofstructure' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed,
             'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
@@ -1904,6 +1908,14 @@ class trainingsessions {
     public function process_bounds(&$data, &$course) {
         global $DB;
 
+        // Fix fromstart from _POST in some weird cases.
+        if (empty($data->fromstart)) {
+            $data->fromstart = $_POST['fromstart'];
+            if (empty($data->fromstart)) {
+                $data->fromstart = $tsconfig->defaultstartdate;
+            }
+        }
+
         $changed = false;
         // Calculate start time.
         if (!empty($data->fromstart) && ($data->fromstart == 'course' || $data->fromstart === 1)) {
@@ -1960,9 +1972,9 @@ class trainingsessions {
         }
 
         if ($changed) {
-            $_POST['from']['day'] = date('d', $data->from);
-            $_POST['from']['month'] = date('m', $data->from);
-            $_POST['from']['year'] = date('!y', $data->from);
+            $data->startday = $_POST['from']['day'] = date('d', $data->from);
+            $data->startmonth = $_POST['from']['month'] = date('m', $data->from);
+            $data->startyear = $_POST['from']['year'] = date('Y', $data->from);
         }
 
         if (($data->to == -1) || @$data->tonow) {
@@ -2145,5 +2157,27 @@ class trainingsessions {
         if ($last < $input) {
             $last = $input;
         }
+    }
+
+    public function get_nonempty_groups($courseid) {
+        global $DB;
+
+        $sql = "
+            SELECT
+                g.id,
+                g.name,
+                COUNT(*) as members
+            FROM
+                {groups} g,
+                {groups_members} gm
+            WHERE
+                gm.groupid = g.id AND
+                g.courseid = ?
+            GROUP BY
+                g.id
+        ";
+
+        $nonemptygroups = $DB->get_records_sql($sql, [$courseid]);
+        return $nonemptygroups;
     }
 }

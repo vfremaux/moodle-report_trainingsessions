@@ -89,11 +89,11 @@ $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps total dans le cours '; // @DYNAKEY
 $string['elapsedadvice'] = 'Les durées affichées de vos sessions de travail peuvent différer légèrement des mesures du cours affichées ci-dessus. Ces sessions peuvent en effet calculer des temps que vous avez passé pendant la même session de connexion, mais dans d\'autres volumes de cours où vous êtes inscrit.';
+$string['elapsedoutofstructure'] = 'Temps passé hors structure du cours';
+$string['elapsedoutofstructure_help'] = 'Temps passé en dehors des structures du cours (section ou pages) mais toujours dans le périmètre du cours';
 $string['elapsedinitem'] = 'Temps passé';
 $string['elapsedlastweek'] = 'Temps passé dern. semaine'; // @DYNAKEY
 $string['email'] = 'Mail';
-$string['emulatecommunity'] = 'Emuler la version communautaire';
-$string['emulatecommunity_desc'] = 'Si elle est activée, cette option force le composant à fonctionner en version communautaire. Certaines fonctionnalités ne seront plus disponibles.';
 $string['enablecoursescore'] = 'Ajouter la note globale de cours';
 $string['enablelearningtimecheckcoupling'] = 'Activer le couplage LTC';
 $string['enablelearningtimecheckcoupling_desc'] = 'Si coché, les rapports de session utiliseront les paramètres (périodes ouvrées) du rapport de temps d\'apprentissage pour qualifier les sessions.';
@@ -102,7 +102,8 @@ $string['enroldate'] = 'Inscription dans le cours';
 $string['enterprisesign'] = 'Signature de l\'entreprise';
 $string['equlearningtime'] = 'Temps équivalent de formation : ';
 $string['errorcontinuousscale'] = 'Vous ne pouvez pas utiliser de barème en mode continu.';
-$string['errorcoursetoolarge'] = 'Le cours a trop de participants. Choix forcé d\'un groupe';
+$string['errorcoursetoolarge'] = 'Le cours a trop de participants (> 50). Choix forcé d\'un groupe';
+$string['errorgrouptoolarge'] = 'Le groupe a trop de participants (50 max). Considérez réduire la taille des groupes pour permettre une compilation sans impact sur les performances.';
 $string['errordiscretenoranges'] = 'Vous devez définir des plages de note lorsque vous utilisez une modalité "discrète".';
 $string['errornoabsolutepath'] = 'Le chemin doit être relatif';
 $string['errornotingroup'] = 'Vous n\'avez pas accès à tous les groupes et n\'êtes membre d\'aucun groupe.';
@@ -169,10 +170,6 @@ $string['layout'] = 'Mise en page';
 $string['learningtimesessioncrop'] = 'Avec les sessions hors plage valide';
 $string['learningtimesessioncrop_desc'] = 'Lorsqu\'une session sort d\'une plage validée par les contraintes du module de temps d\'apprentissage, elle peut être tronquée ou simplement marquée dans les rapports.';
 $string['libsmissing'] = 'Des librairies manquent pour utiliser cette fonctionnalité. Installez les librairies à partir de http://github.com/vfremaux/moodle-local_vflibs pour activer la génération PDF.';
-$string['licensekey'] = 'Clef de license pro';
-$string['licensekey_desc'] = 'Entrez ici la clef de produit que vous avez reçu de votre distributeur.';
-$string['licenseprovider'] = 'Fournisseur version Pro';
-$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
 $string['lineaggregators'] = 'Aggrégateurs de ligne';
 $string['location'] = 'Lieu ';
 $string['ltcprogressinitems'] = 'Prog. du contrat pédag. (% items)';
@@ -191,6 +188,7 @@ $string['nopermissiontoview'] = 'Vous n\'avez pas les permissions nécessaires d
 $string['nosessions'] = 'Aucune session disponible';
 $string['nostructure'] = 'Pas de structure mesurable identifiée';
 $string['nothing'] = 'Aucun utilisateur à compiler';
+$string['nousers'] = 'Pas d\'inscrits';
 $string['now'] = 'Maintenant !';
 $string['onefulluserpersheet'] = 'Un participant (complet) par feuille';
 $string['oneuserperrow'] = 'Un participant (résumé) par ligne dans une feuille unique';
@@ -231,7 +229,7 @@ $string['printlocation_desc'] = 'Le lieu de formation à imprimer sur les rappor
 $string['printsessiontotal'] = 'Afficher le total des temps de session';
 $string['printsessiontotal_desc'] = 'Vous pouvez masquer le temps total de session affiché dans le rapport de sessions en décochant cette case.';
 $string['profileinfotimeformat'] = '%d %B %Y';
-$string['quickgroupcompile'] = '<h3>Compilation express pour {$a} utilisateurs:</h3><p>La compilation express produit une rapport de synthèse pour le groupe courant s\'il contient moins de 50 utilisateurs. Le rapport brut est généré à la racine des fichiers du cours.</p>';
+$string['quickgroupcompile'] = '<h3>Compilation express pour {$a} utilisateurs:</h3><p>La compilation express produit une rapport de synthèse pour le groupe courant s\'il contient moins de 50 utilisateurs. Le rapport brut est généré dans le répertoire "/quick" de la zone de fichiers de rapports.</p>';
 $string['quickmonthlyreport'] = 'Rapports mensuels (PDF)';
 $string['range'] = 'Plage ';
 $string['readableduration'] = 'Durée';
@@ -507,3 +505,5 @@ sur la même mangue que la langue d\'usage de moodle. Laisser vide pour utiliser
 locale, par exemple: en_EN.UTF-8';
 
 $string['hasdisabledenrolmentsrestriction'] = 'Les inscriptions inactives sont ignorées par le rapport.';
+
+include(__DIR__.'/pro_additional_strings.php');

@@ -42,10 +42,12 @@ require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 $selform = new SelectorForm($id, 'user');
 if (!$data = $selform->get_data()) {
     $data = new StdClass;
-    $data->from = optional_param('from', -1, PARAM_NUMBER);
-    $data->to = optional_param('to', -1, PARAM_NUMBER);
-    $data->userid = optional_param('userid', $USER->id, PARAM_INT);
-    $data->fromstart = optional_param('fromstart', @$tsconfig->defaultstartdate, PARAM_TEXT);
+    $data->from = optional_param('from', $course->startdate, PARAM_NUMBER);
+    $data->to = optional_param('to', time(), PARAM_NUMBER);
+    $firstcompiledusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.*', 'u.lastname, u.firstname', 0, 1);
+    $user = array_shift($firstcompiledusers);
+    $data->userid = $user->id;
+    $data->fromstart = optional_param('fromstart', $tsconfig->defaultstartdate, PARAM_TEXT);
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
 }
 
@@ -80,7 +82,9 @@ if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
 
-$user = $DB->get_record('user', array('id' => $data->userid));
+if (!isset($user)) {
+    $user = $DB->get_record('user', array('id' => $data->userid));
+}
 
 // Get course structure.
 

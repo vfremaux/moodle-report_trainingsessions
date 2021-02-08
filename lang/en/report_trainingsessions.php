@@ -221,7 +221,6 @@ $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
-$string['plugindist'] = 'Plugin distribution';
 $string['pluginname'] = 'Training Sessions';
 $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';

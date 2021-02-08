@@ -217,7 +217,11 @@ class HtmlRenderer {
             }
         } else {
             // We are a real element, or structure.
+<<<<<<< HEAD
             $template->id = $structure->id;
+=======
+            $template->id = @$structure->id;
+>>>>>>> MOODLE_39_STABLE
             $template->hasbody = true;
 
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {

@@ -403,6 +403,15 @@ class trainingsessions {
                     // Is a module.
                     $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
                     $module = $DB->get_record('modules', array('id' => $cm->module));
+<<<<<<< HEAD
+=======
+                    if (empty($module)) {
+                        if (debugging(DEBUG_DEVELOPER)) {
+                            echo $OUTPUT->notification("Missing module type of id {$cm->module} for course module $pi->cmid ");
+                        }
+                        continue;
+                    }
+>>>>>>> MOODLE_39_STABLE
 
                     switch ($module->name) {
                         case 'customlabel':
@@ -623,6 +632,7 @@ class trainingsessions {
         $select = "courseid = ? AND moduleid != 0";
         return $DB->get_records_select_menu('report_trainingsessions', $select, array($courseid), 'sortorder', 'id, moduleid');
     }
+<<<<<<< HEAD
 
     /**
      * Get all graded modules into the course excluing those already linked to report and
@@ -634,6 +644,19 @@ class trainingsessions {
     public function get_linkable_modules($courseid) {
         $modinfo = get_fast_modinfo($courseid);
 
+=======
+
+    /**
+     * Get all graded modules into the course excluing those already linked to report and
+     * module types that are not gradable.
+     *
+     * @param int $courseid
+     * @return array of linkable cmid/cmname pairs for a select
+     */
+    public function get_linkable_modules($courseid) {
+        $modinfo = get_fast_modinfo($courseid);
+
+>>>>>>> MOODLE_39_STABLE
         $cms = $modinfo->get_cms();
         $linkables = array(0 => get_string('disabled', 'report_trainingsessions'));
         foreach ($cms as $cminfo) {
@@ -716,6 +739,7 @@ class trainingsessions {
                         } else {
                             $formats[] = 'n.2';
                         }
+<<<<<<< HEAD
                     }
                 } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
                     $columns[] = 'rawcoursegrade';
@@ -728,11 +752,18 @@ class trainingsessions {
 
                     $columns[] = 'timebonus';
                     $titles[] = get_string('output:timebonus', 'report_trainingsessions');
+=======
+                    }
+                } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
+                    $columns[] = 'rawcoursegrade';
+                    $titles[] = get_string('output:rawcoursegrade', 'report_trainingsessions');
+>>>>>>> MOODLE_39_STABLE
                     if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
                         $formats[] = $xlsgradeformat;
                     } else {
                         $formats[] = 'n.2';
                     }
+<<<<<<< HEAD
                 }
             }
         }
@@ -748,10 +779,21 @@ class trainingsessions {
                 $formats[] = $xlsgradeformat;
             } else {
                 $formats[] = 'n.2';
+=======
+
+                    $columns[] = 'timebonus';
+                    $titles[] = get_string('output:timebonus', 'report_trainingsessions');
+                    if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                        $formats[] = $xlsgradeformat;
+                    } else {
+                        $formats[] = 'n.2';
+                    }
+                }
+>>>>>>> MOODLE_39_STABLE
             }
         }
-    }
 
+<<<<<<< HEAD
     /**
      * Fetch scores and aggregate them to results.
      *
@@ -814,6 +856,121 @@ class trainingsessions {
                 array_push($columns, sprintf('%.2f', $grade));
             } else {
                 array_push($columns, '');
+=======
+        // Add course grade if required.
+        $params = array('courseid' => $COURSE->id, 'moduleid' => 0);
+        if ($graderec = $DB->get_record('report_trainingsessions', $params)) {
+            $label = get_string('output:finalcoursegrade', 'report_trainingsessions');
+            $courselabel = (empty($graderec->label)) ? $label : $graderec->label;
+            $titles[] = $courselabel;
+            $columns[] = 'finalcoursegrade';
+            if ($xlsgradeformat = get_config('report_trainingsessions', 'gradexlsformat')) {
+                $formats[] = $xlsgradeformat;
+            } else {
+                $formats[] = 'n.2';
+            }
+        }
+    }
+
+    /**
+     * Fetch scores and aggregate them to results.
+     *
+     * @param arrayref &$columns a reference to the array of report values. Grades will be appended here.
+     * @param int $userid the user
+     * @param arrayref &$aggregate a reference to the array of time aggregate.
+     * @return void
+     */
+    public function add_graded_data(&$columns, $userid, &$aggregate) {
+        global $DB, $COURSE;
+
+        if (is_null($columns)) {
+            $columns = array();
+        }
+
+        $select = " courseid = ? AND moduleid > 0 ";
+        $params = array($COURSE->id);
+        if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+            foreach ($graderecs as $rec) {
+                $modulegrade = $this->get_module_grade($rec->moduleid, $userid);
+                // Push in array.
+                if ($modulegrade) {
+                    array_push($columns, sprintf('%.2f', $modulegrade));
+                } else {
+                    array_push($columns, '');
+                }
+>>>>>>> MOODLE_39_STABLE
+            }
+        }
+
+<<<<<<< HEAD
+    /**
+     * Add extra column headers from grade settings and feeds given arrays.
+     *
+     * @param arrayref &$columns a reference to the array of column headings.
+     * @param arrayref &$titles a reference to the array of column titles (printable column names).
+     * @param arrayref &$formats a reference to the array of data formats.
+     * @return void
+     */
+    public function add_calculated_columns(&$columns, &$titles, &$formats = null) {
+        global $DB, $COURSE;
+
+        $coursemodinfo = get_fast_modinfo($COURSE->id);
+
+        if (is_null($columns)) {
+            $columns = array();
+        }
+
+        if (is_null($titles)) {
+            $titles = array();
+        }
+
+        if (is_null($formats)) {
+            $formats = array();
+        }
+
+        $select = " courseid = ? AND moduleid <= -8 ";
+        $params = array($COURSE->id);
+        if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+            foreach ($formulasrecs as $rec) {
+                // Push in array.
+                array_push($columns, $rec->label);
+                array_push($titles, $rec->label);
+                array_push($formats, 'f');
+=======
+        // Add special grades.
+        $bonus = 0;
+        $select = " courseid = ? AND moduleid < 0 ";
+        $params = array($COURSE->id);
+        if ($graderecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'sortorder')) {
+            foreach ($graderecs as $rec) {
+                if ($rec->moduleid == TR_TIMEGRADE_GRADE) {
+                    $timegrade = $this->compute_timegrade($rec, $aggregate);
+                    array_push($columns, $timegrade);
+                } else if ($rec->moduleid == TR_TIMEGRADE_BONUS) {
+                    // First add raw course grade.
+                    $coursegrade = $this->get_course_grade($rec->courseid, $userid);
+                    array_push($columns, sprintf('%.2f', $coursegrade->grade));
+
+                    // Add bonus columns.
+                    $bonus = 0 + $this->compute_timegrade($rec, $aggregate);
+                    array_push($columns, $bonus);
+                }
+            }
+        }
+
+        // Add course grade if required.
+        $params = array('courseid' => $COURSE->id, 'moduleid' => 0);
+        if ($graderec = $DB->get_record('report_trainingsessions', $params)) {
+            // Retain the coursegrade for adding at the full end of array.
+            $grade = 0;
+            if ($coursegrade = $this->get_course_grade($graderec->courseid, $userid)) {
+                $grade = min($coursegrade->maxgrade, $coursegrade->grade + $bonus);
+            }
+            if ($grade) {
+                array_push($columns, sprintf('%.2f', $grade));
+            } else {
+                array_push($columns, '');
+>>>>>>> MOODLE_39_STABLE
             }
         }
     }
@@ -822,6 +979,205 @@ class trainingsessions {
      * Add extra column headers from grade settings and feeds given arrays.
      *
      * @param arrayref &$columns a reference to the array of column headings.
+<<<<<<< HEAD
+     * @param arrayref &$formats a reference to the array of data formats.
+     * @return void
+     */
+    public function add_calculated_data(&$columns) {
+        global $DB, $COURSE;
+
+        if (is_null($columns)) {
+            $columns = array();
+        }
+
+        $select = " courseid = ? AND moduleid <= -8 ";
+        $params = array($COURSE->id);
+        if ($formulasrecs = $DB->get_records_select('report_trainingsessions', $select, $params, 'moduleid ASC')) {
+            $formatadds = array();
+            foreach ($formulasrecs as $rec) {
+                // Push in array the formula text Note it stored in the "ranges" columns.
+                array_push($columns, $rec->ranges);
+            }
+        }
+    }
+
+    /**
+     * Computes additional grades depending on time spent
+     *
+     * @param objectref &$graderec a grading item description
+     * @param arrayref &$aggregate a full filled time aggregation result.
+     * @return a grade value text formatted
+     */
+    public function compute_timegrade(&$graderec, &$aggregate) {
+
+        $config = get_config('report_trainingsessions');
+
+        $ranges = (array) json_decode($graderec->ranges);
+
+        if (empty($ranges['ranges'])) {
+            return sprintf('%.2f', 0);
+        }
+
+        switch (@$ranges['timesource']) {
+            case TR_GRADE_SOURCE_COURSE:
+                $coursetime = 0 + @$aggregate['coursetotal'][$graderec->courseid]->elapsed;
+                break;
+
+            case TR_GRADE_SOURCE_ACTIVITIES:
+                $coursetime = 0 + @$aggregate['activities'][$graderec->courseid]->elapsed;
+                break;
+
+            case TR_GRADE_SOURCE_COURSE_EXT:
+                $c = @$aggregate['coursetotal'][$graderec->courseid]->elapsed;
+                $o = @$aggregate['coursetotal'][0]->elapsed;
+                $s = @$aggregate['coursetotal'][SITEID]->elapsed;
+                $coursetime = 0 + $c + $o + $s;
+                break;
+        }
+
+        // Determine base grade.
+        if ($graderec->grade > 0) {
+            // Using direct grading.
+            $basegrade = $graderec->grade;
+        } else if ($graderec->grade < 0) {
+            // Using a moodle scale.
+            // @TODO : better deal with scale if multiple items scale. Grade submitted should be scaled to the max item number.
+            $scale = grade_scale::fetch(array('id' => -$graderec->grade));
+        } else {
+            return  sprintf('%.2f', 0);
+        }
+
+        switch ($graderec->moduleid) {
+            case TR_TIMEGRADE_BONUS:
+                $mode = $ranges['bonusmode'];
+                break;
+
+            case TR_TIMEGRADE_GRADE:
+            default:
+                $mode = $ranges['timemode'];
+                break;
+        }
+
+        switch ($mode) {
+            case TR_GRADE_MODE_BINARY:
+                $timethreshold = array_shift($ranges['ranges']);
+                if ($graderec->grade > 0) {
+                    if ($coursetime > $timethreshold * MINSECS) {
+                        $fraction = 1;
+                    } else {
+                        $fraction = 0;
+                    }
+                } else if ($graderec->grade < 0) {
+                    if ($coursetime >= $timethreshold * MINSECS) {
+                        // Points the second item precisely
+                        if (!empty($config->discreteforcenumber)) {
+                            return 1;
+                        }
+                        return $scale->get_nearest_item(2);
+                    } else {
+                        if (!empty($config->discreteforcenumber)) {
+                            return 0;
+                        }
+                        return $scale->get_nearest_item(0);
+                    }
+                }
+                break;
+
+            case TR_GRADE_MODE_DISCRETE:
+                // Search matching range (last lower).
+                $i = 0;
+
+                while (isset($ranges['ranges'][$i]) && ($coursetime > ($ranges['ranges'][$i] * MINSECS))) {
+                    $i++;
+                }
+
+                // Compute grade using points or scales.
+                if ($graderec->grade > 0) {
+
+                    $fraction = $i / count($ranges['ranges']);
+                    $basegrade = $graderec->grade;
+                } else if ($graderec->grade < 0) {
+                    return $scale->get_nearest_item($i + 1);
+                }
+                break;
+
+            case TR_GRADE_MODE_CONTINUOUS:
+                if ($graderec->grade > 0) {
+                    $timethreshold = array_shift($ranges['ranges']) * MINSECS;
+                    $fraction = $coursetime / $timethreshold;
+                    $fraction = min($fraction, 1); // Ceil to 1.
+                    $basegrade = $graderec->grade;
+                } else if ($graderec->grade < 0) {
+                    // Not supported at this time.
+                    assert(false);
+                }
+                break;
+        }
+
+        return sprintf('%.2f', $fraction * $basegrade);
+    }
+
+    /**
+     * Gets the final course grade in gradebook.
+     *
+     * @param int $courseid
+     * @param int $userid
+     * @return int the grade, or empty value
+     */
+    public function get_course_grade($courseid, $userid) {
+        global $DB;
+
+        $sql = "
+            SELECT
+                g.finalgrade as grade,
+                g.rawgrademax as maxgrade
+            FROM
+                {grade_items} gi,
+                {grade_grades} g
+            WHERE
+                g.userid = ? AND
+                gi.itemtype = 'course' AND
+                gi.courseid = ? AND
+                g.itemid = gi.id
+        ";
+        if (!$result = $DB->get_record_sql($sql, array($userid, $courseid))) {
+            $result = new StdClass();
+            $result->grade = '';
+            $result->maxgrade = '';
+        }
+
+        return $result;
+    }
+
+    /**
+     * Gets a final grade for a specific course module if exists
+     *
+     * @param int $moduleid the course module ID
+     * @param int $userid
+     * @return the grade or empty value.
+     */
+    public function get_module_grade($moduleid, $userid) {
+        global $DB, $COURSE;
+
+        $modinfo = get_fast_modinfo($COURSE->id);
+        $cm = $modinfo->get_cm($moduleid);
+
+        $sql = "
+            SELECT
+                g.finalgrade as grade
+            FROM
+                {grade_items} gi,
+                {grade_grades} g
+            WHERE
+                g.userid = ? AND
+                gi.itemtype = 'mod' AND
+                gi.itemmodule = ? AND
+                gi.iteminstance = ? AND
+                g.itemid = gi.id
+        ";
+        $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->instance));
+
+=======
      * @param arrayref &$titles a reference to the array of column titles (printable column names).
      * @param arrayref &$formats a reference to the array of data formats.
      * @return void
@@ -1056,6 +1412,7 @@ class trainingsessions {
         ";
         $result = $DB->get_record_sql($sql, array($userid, $cm->modname, $cm->instance));
 
+>>>>>>> MOODLE_39_STABLE
         if ($result) {
             return $result->grade;
         }
@@ -1090,6 +1447,7 @@ class trainingsessions {
             }
         }
     }
+<<<<<<< HEAD
 
     /**
      * A wrapper function to the auth_ticket component. Gets a valid ticket to authentify an
@@ -1102,6 +1460,20 @@ class trainingsessions {
     public function back_office_get_ticket() {
         global $CFG, $USER;
 
+=======
+
+    /**
+     * A wrapper function to the auth_ticket component. Gets a valid ticket to authentify an
+     * internal CURL call to a batch or a task.
+     *
+     * @global type $CFG
+     * @global type $USER
+     * @return type
+     */
+    public function back_office_get_ticket() {
+        global $CFG, $USER;
+
+>>>>>>> MOODLE_39_STABLE
         if (file_exists($CFG->dirroot.'/auth/ticket/lib.php')) {
             include_once($CFG->dirroot.'/auth/ticket/lib.php');
             return ticket_generate($USER, 'trainingsessions_generator', me(), 'des');
@@ -1228,6 +1600,7 @@ class trainingsessions {
             mtrace('Calling : '.$uri.'?'.$rq."<br/>\n");
             mtrace('direct link : <a href="'.$uri.'?'.$rq."\">Generate direct single doc</a><br/>\n");
         }
+<<<<<<< HEAD
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1271,6 +1644,51 @@ class trainingsessions {
             }
         }
 
+=======
+
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+
+        $raw = curl_exec($ch);
+
+        // Check for curl errors.
+        $curlerrno = curl_errno($ch);
+        if ($curlerrno != 0) {
+            debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno");
+        }
+
+        // Check HTTP error code.
+        $info = curl_getinfo($ch);
+        if (!empty($info['http_code']) &&
+                ($info['http_code'] != 200) &&
+                        ($info['http_code'] != 303)) {
+            debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code']);
+        } else {
+            if (!is_null($filerec)) {
+                // Feed pdf result in file storage.
+                $oldfile = $fs->get_file($filerec->contextid, $filerec->component, $filerec->filearea, $filerec->itemid,
+                                         $filerec->filepath, $filerec->filename);
+                if ($oldfile) {
+                    // Clean old file before.
+                    $oldfile->delete();
+                }
+                $newfile = $fs->create_file_from_string($filerec, $raw);
+
+                $createdurl = moodle_url::make_pluginfile_url($filerec->contextid, $filerec->component, $filerec->filearea,
+                                                              $filerec->itemid, $filerec->filepath, $filerec->filename);
+                mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+            } else {
+                return $raw;
+            }
+        }
+
+>>>>>>> MOODLE_39_STABLE
         curl_close($ch);
     }
 
@@ -1428,6 +1846,7 @@ class trainingsessions {
             $daygap = $endofday - $daytimestart;
             $startstamp = $daysess->sessionend;
             $sessions[] = $daysess;
+<<<<<<< HEAD
         }
 
         // We now need to keep the last segment.
@@ -1488,6 +1907,67 @@ class trainingsessions {
             $layoutconstraints['oneuserperrow'][] = 'json';
         }
 
+=======
+        }
+
+        // We now need to keep the last segment.
+        if ($startstamp < $session->sessionend) {
+            $daysess = new stdClass();
+            $daysess->sessionstart = $startstamp;
+            $daysess->sessionend = $session->sessionend;
+            $daysess->courses = $session->courses;
+            $daysess->elapsed = $session->sessionend - $daysess->sessionstart;
+            $sessions[] = $daysess;
+        }
+
+        return $sessions;
+    }
+
+    /**
+     * Gives the available format options.
+     */
+    public function get_batch_formats() {
+        static $options;
+
+        if (!isset($options)) {
+            $options = array();
+            if (report_trainingsessions_supports_feature('format/csv')) {
+                $options['csv'] = get_string('csv', 'report_trainingsessions');
+            }
+
+            if (report_trainingsessions_supports_feature('format/xls')) {
+                $options['xls'] = get_string('xls', 'report_trainingsessions');
+            }
+
+            if (report_trainingsessions_supports_feature('format/pdf')) {
+                $options['pdf'] = get_string('pdf', 'report_trainingsessions');
+            }
+
+            if (report_trainingsessions_supports_feature('format/json')) {
+                $options['json'] = get_string('json', 'report_trainingsessions');
+            }
+        }
+
+        return $options;
+    }
+
+    /**
+     * Gives the available format options.
+     */
+    public function get_batch_supported_formats_layouts() {
+
+        if (report_trainingsessions_supports_feature('format/xls')) {
+            $layoutconstraints['onefulluserpersheet'][] = 'xls';
+            $layoutconstraints['oneuserperrow'][] = 'xls';
+            $layoutcontraints['sessionsonly'][] = 'xls';
+        }
+
+        if (report_trainingsessions_supports_feature('format/json')) {
+            $layoutconstraints['onefulluserpersheet'][] = 'json';
+            $layoutconstraints['oneuserperrow'][] = 'json';
+        }
+
+>>>>>>> MOODLE_39_STABLE
         if (report_trainingsessions_supports_feature('format/csv')) {
             $layoutconstraints['oneuserperrow'][] = 'csv';
             $layoutcontraints['sessionsonly'][] = 'csv';
@@ -1511,6 +1991,7 @@ class trainingsessions {
                 $layoutcontraints['workingdays'][] = 'csv';
             }
         }
+<<<<<<< HEAD
 
         return $layoutcontraints;
     }
@@ -1520,6 +2001,16 @@ class trainingsessions {
      */
     public function get_batch_replays() {
 
+=======
+
+        return $layoutcontraints;
+    }
+
+    /**
+     * Gives the available format options.
+     */
+    public function get_batch_replays() {
+>>>>>>> MOODLE_39_STABLE
         static $options;
 
         if (!isset($options)) {
@@ -1763,7 +2254,11 @@ class trainingsessions {
             'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'othertime' => 0 + @$t[0]->elapsed,
+<<<<<<< HEAD
             'otherelasped' => 0 + @$t[0]->elapsed,
+=======
+            'otherelapsed' => 0 + @$t[0]->elapsed,
+>>>>>>> MOODLE_39_STABLE
             'elapsed' => 0 + @$t[$courseid]->elapsed,
             'elapsedoutofstructure' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed,
             'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
@@ -1904,6 +2399,17 @@ class trainingsessions {
     public function process_bounds(&$data, &$course) {
         global $DB;
 
+<<<<<<< HEAD
+=======
+        // Fix fromstart from _POST in some weird cases.
+        if (empty($data->fromstart)) {
+            $data->fromstart = $_POST['fromstart'];
+            if (empty($data->fromstart)) {
+                $data->fromstart = $tsconfig->defaultstartdate;
+            }
+        }
+
+>>>>>>> MOODLE_39_STABLE
         $changed = false;
         // Calculate start time.
         if (!empty($data->fromstart) && ($data->fromstart == 'course' || $data->fromstart === 1)) {
@@ -1960,9 +2466,15 @@ class trainingsessions {
         }
 
         if ($changed) {
+<<<<<<< HEAD
             $_POST['from']['day'] = date('d', $data->from);
             $_POST['from']['month'] = date('m', $data->from);
             $_POST['from']['year'] = date('!y', $data->from);
+=======
+            $data->startday = $_POST['from']['day'] = date('d', $data->from);
+            $data->startmonth = $_POST['from']['month'] = date('m', $data->from);
+            $data->startyear = $_POST['from']['year'] = date('Y', $data->from);
+>>>>>>> MOODLE_39_STABLE
         }
 
         if (($data->to == -1) || @$data->tonow) {
@@ -2057,6 +2569,7 @@ class trainingsessions {
                 $structure->events = $dataobject->events;
             }
         }
+<<<<<<< HEAD
 
         // Returns acumulated aggregates.
         return $dataobject;
@@ -2103,6 +2616,54 @@ class trainingsessions {
             $cols[9] = 'a';
         }
 
+=======
+
+        // Returns acumulated aggregates.
+        return $dataobject;
+    }
+
+    public function get_workingdays_cols($what = '') {
+        $cols = array();
+        $cols[0] = 'userid';
+        $cols[1] = 'username';
+        $cols[2] = 'fullname';
+        $cols[3] = 'workday';
+        $cols[4] = 'workweek';
+        $cols[5] = 'sessions';
+        $cols[6] = 'duration';
+        $cols[7] = 'readableduration';
+        $cols[8] = 'firstsessiontime';
+        $cols[9] = 'courses';
+
+        if ($what == 'title') {
+            $cols = array();
+            $cols[0] = get_string('userid', 'report_trainingsessions');
+            $cols[1] = get_string('username');
+            $cols[2] = get_string('fullname');
+            $cols[3] = get_string('workday', 'report_trainingsessions');
+            $cols[4] = get_string('workweek', 'report_trainingsessions');
+            $cols[5] = get_string('sessions', 'report_trainingsessions');
+            $cols[6] = get_string('duration', 'report_trainingsessions');
+            $cols[7] = get_string('readableduration', 'report_trainingsessions');
+            $cols[8] = get_string('firstsessiontime', 'report_trainingsessions');
+            $cols[9] = get_string('courses', 'report_trainingsessions');
+        }
+
+        if ($what == 'format') {
+            $cols = array();
+            $cols[0] = 'n';
+            $cols[1] = 'a';
+            $cols[2] = 'a';
+            $cols[3] = 't';
+            $cols[4] = 'n';
+            $cols[5] = 'n';
+            $cols[6] = 'd';
+            $cols[7] = 'a';
+            $cols[8] = 't';
+            $cols[9] = 'a';
+        }
+
+>>>>>>> MOODLE_39_STABLE
         if ($what == 'studentwdstatsformat') {
             $cols = array();
             $cols[0] = 'a';
@@ -2146,4 +2707,29 @@ class trainingsessions {
             $last = $input;
         }
     }
+<<<<<<< HEAD
+=======
+
+    public function get_nonempty_groups($courseid) {
+        global $DB;
+
+        $sql = "
+            SELECT
+                g.id,
+                g.name,
+                COUNT(*) as members
+            FROM
+                {groups} g,
+                {groups_members} gm
+            WHERE
+                gm.groupid = g.id AND
+                g.courseid = ?
+            GROUP BY
+                g.id
+        ";
+
+        $nonemptygroups = $DB->get_records_sql($sql, [$courseid]);
+        return $nonemptygroups;
+    }
+>>>>>>> MOODLE_39_STABLE
 }

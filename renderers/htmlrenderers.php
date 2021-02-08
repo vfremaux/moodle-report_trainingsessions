@@ -217,7 +217,7 @@ class HtmlRenderer {
             }
         } else {
             // We are a real element, or structure.
-            $template->id = $structure->id;
+            $template->id = @$structure->id;
             $template->hasbody = true;
 
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {
@@ -273,8 +273,10 @@ class HtmlRenderer {
                         }
                         $template->elapsedstr = $this->rt->format_time($dataobject->elapsed, $durationformat);
                         if (!empty($dataobject->real)) {
+                            $template->real = true;
                             $template->realstr = $this->rt->format_time($dataobject->real, $durationformat);
                         } else if (!empty($dataobject->credit)) {
+                            $template->credit = true;
                             $template->creditstr = $this->rt->format_time($dataobject->credit, $durationformat);
                         }
                     } else {
@@ -430,10 +432,10 @@ class HtmlRenderer {
         $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
 
         // Print additional grades.
-        if (!empty($gradecols)) {
+        if (!empty($data->gradecols)) {
             $i = 0;
             $template->hasgrades = true;
-            foreach ($gradecols as $gc) {
+            foreach ($data->gradecols as $gc) {
                 $gradetpl = new Stdclass;
                 $gradetpl->label = $gradetitles[$i];
                 $gradetpl->value = sprintf('%0.2f', $data->gradecols[$i]);

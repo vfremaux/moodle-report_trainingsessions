@@ -85,6 +85,7 @@ $selformform = new SelectorForm($id, 'courseraw');
 
 $context = context_course::instance($id);
 $config = get_config('report_trainingsessions');
+$message = '';
 
 // Compute target group.
 
@@ -92,21 +93,16 @@ if (!empty($selform->groupid)) {
     $targetusers = groups_get_members($selform->groupid);
     $groupname = $DB->get_field('groups', 'name', array('id' => $selform->groupid));
 } else {
-    $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
-
-    $hasgroups = $DB->count_records('groups', array('courseid' => $id));
-
-    if ($hasgroups && count($targetusers) > 50 || !has_capability('moodle/site:accessallgroups', $context)) {
-        // In that case we need force groupid to some value.
-        $selform->groupid = groups_get_course_group($COURSE);
-        $groupname = $DB->get_field('groups', 'name', array('id' => $selform->groupid));
-        $targetusers = groups_get_members($selform->groupid);
-
-        if (count($targetusers) > 50) {
-            $OUTPUT->notification(get_string('errorcoursetoolarge', 'report_trainingsessions'));
+    if (!has_capability('moodle/site:accessallgroups', $context)) {
+        $groups = groups_get_my_groups($COURSE);
+        if (!empty($groups)) {
+            $mygroupkeys = array_keys($groups);
+            $selform->groupid = array_shift($mygroupkeys);
+            $targetusers = get_enrolled_users($context, '', $selform->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         }
     } else {
         // We can compile for all course.
+        $targetusers = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         $selform->groupid = 0;
         $groupname = '';
     }
@@ -121,6 +117,8 @@ echo $OUTPUT->container_start();
 echo $rtrenderer->tabs($course, $view, $from, $to);
 echo $OUTPUT->container_end();
 
+echo $message;
+
 echo $OUTPUT->box_start('block');
 $selformform->set_data($selform);
 $selformform->display();
@@ -129,13 +127,14 @@ echo $OUTPUT->box_end();
 // Quick compile an XLS report if not too many users.
 if (!empty($targetusers)) {
 
-    if (count($targetusers) < 50) {
+    if (count($targetusers) <= 50) {
         include_once($CFG->dirroot.'/report/trainingsessions/renderers/csvrenderers.php');
         $csvrenderer = new \report\trainingsessions\CsvRenderer($rt);
         // This is a quick immediate compilation for small groups.
         echo get_string('quickgroupcompile', 'report_trainingsessions', count($targetusers));
 
         foreach ($targetusers as $u) {
+            use_stats_fix_last_course_access($u->id, $course->id);
             $logs = use_stats_extract_logs($from, $to, $u->id, $course->id);
             $aggregate[$u->id] = use_stats_aggregate_logs($logs, $from, $to);
 
@@ -160,18 +159,18 @@ if (!empty($targetusers)) {
         $fileinfo = array(
             'contextid' => $context->id, // ID of context (course context).
             'component' => 'report_trainingsessions',     // Usually = table name.
-            'filearea' => 'rawreports',     // Usually = table name.
+            'filearea' => 'reports',     // Usually = table name.
             'itemid' => $COURSE->id,               // Usually = ID of row in table.
-            'filepath' => '/',           // Any path beginning and ending in /.
+            'filepath' => '/quick/',           // Any path beginning and ending in /.
             'filename' => "raw_{$timestamp}.csv"); // Any filename.
 
         // Create file containing text.
-        $fs->delete_area_files($context->id, 'report_trainingsessions', 'rawreports', $COURSE->id);
+        $fs->delete_area_files($context->id, 'report_trainingsessions', 'reports', $COURSE->id);
         $fs->create_file_from_string($fileinfo, $rawstr);
 
         $strupload = get_string('uploadresult', 'report_trainingsessions');
-        $fileurl = moodle_url::make_pluginfile_url($context->id, 'report_trainingsessions', 'rawreports', $fileinfo['itemid'],
-                                                   '/', 'raw_'.$timestamp.'.csv');
+        $fileurl = moodle_url::make_pluginfile_url($context->id, 'report_trainingsessions', 'reports', $fileinfo['itemid'],
+                                                   '/quick/', 'raw_'.$timestamp.'.csv');
         $pix = $OUTPUT->pix_icon('f/spreadsheet', '');
         echo '<p><br/>'.$strupload.': <a href="'.$fileurl.'">'.$pix.'</a></p>';
 

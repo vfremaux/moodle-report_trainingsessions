@@ -40,7 +40,7 @@ class SelectorForm extends moodleform {
     }
 
     public function definition() {
-        global $USER;
+        global $USER, $DB;
 
         $config = get_config('report_trainingsessions');
 
@@ -61,9 +61,17 @@ class SelectorForm extends moodleform {
         $row = array();
         $row2 = array();
 
+        // Check and record first real user creation time in config if not set. User table is usually
+        // smaller than logs. We scan the 20 first users.
+        if (!isset($config->firstusetime)) {
+            $firstusertime = $DB->get_field_select('user', 'MIN(timecreated)', 'id <= 20');
+            set_config('firstusetime', $firstusertime, 'report_trainingsessions');
+            $config->firstusetime = $firstusertime;
+        }
+
         $dateparms = array(
-            'startyear' => 2008,
-            'stopyear'  => 2020,
+            'startyear' => $config->firstusetime,
+            'stopyear'  => date('Y') + 1,
             'timezone'  => 99,
             'applydst'  => true,
             'optional'  => false
@@ -85,38 +93,42 @@ class SelectorForm extends moodleform {
                 $users = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
                 $useroptions = array();
 
-                foreach ($users as $user) {
-                    if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) {
-                        continue;
-                    }
-
-                    if (!empty($config->disablesuspendedstudents) && $user->suspended) {
-                        continue;
-                    }
-
-                    if (!$allgroupaccess) {
-                        $keep = false;
-                        foreach ($mygroups as $g) { // Is the user in my groups ?
-                            if (groups_is_member($g->id, $user->id)) {
-                                $keep = true;
-                            }
-                        }
-                        if (!$keep) {
+                if (!empty($users)) {
+                    foreach ($users as $user) {
+                        if (!has_capability('report/trainingsessions:iscompiled', $context, $user->id, false)) {
                             continue;
                         }
+    
+                        if (!empty($config->disablesuspendedstudents) && $user->suspended) {
+                            continue;
+                        }
+    
+                        if (!$allgroupaccess) {
+                            $keep = false;
+                            foreach ($mygroups as $g) { // Is the user in my groups ?
+                                if (groups_is_member($g->id, $user->id)) {
+                                    $keep = true;
+                                }
+                            }
+                            if (!$keep) {
+                                continue;
+                            }
+                        }
+    
+                        $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
+                        if (!array_key_exists($USER->id, $useroptions)) {
+                            /*
+                             * In some case, you may also want to see your data even if NOT
+                             * primarily concerned with reports.
+                             */
+                            $useroptions[$USER->id] = fullname($USER);
+                        }
                     }
-
-                    $useroptions[$user->id] = $user->lastname.' '.$user->firstname;
-                    if (!array_key_exists($USER->id, $useroptions)) {
-                        /*
-                         * In some case, you may also want to see your data even if NOT
-                         * primarily concerned with reports.
-                         */
-                        $useroptions[$USER->id] = fullname($USER);
-                    }
+                    $titles[] = get_string('user');
+                    $row[] = & $mform->createElement('select', 'userid', '', $useroptions);
+                } else {
+                    $row[] = & $mform->createElement('static', 'userid', get_string('nousers', 'report_trainingsessions'));
                 }
-                $titles[] = get_string('user');
-                $row[] = & $mform->createElement('select', 'userid', '', $useroptions);
             } else {
                 $mform->addElement('hidden', 'userid', $USER->id);
                 $mform->setType('userid', PARAM_INT);
@@ -130,7 +142,8 @@ class SelectorForm extends moodleform {
             }
             foreach ($groups as $g) {
                 if ($allgroupaccess || groups_is_member($g->id, $USER->id)) {
-                    $groupoptions[$g->id] = $g->name;
+                    $gm = $DB->count_records('groups_members', ['groupid' => $g->id]);
+                    $groupoptions[$g->id] = format_string($g->name). ' ('.$gm.')';
                 }
             }
             $titles[] = get_string('group');

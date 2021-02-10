@@ -19,19 +19,20 @@ cache:
     - $HOME/.npm
 
 php:
- - 7.3
+ - 7.2
 
 env:
   global:
     - MOODLE_BRANCH=MOODLE_38_STABLE
+    - PLUGINS_BRANCH=MOODLE_38_WORKING
   matrix:
     - DB=mariadb
     - DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9
-  - nvm use 8.9
+  - nvm install 14.0
+  - nvm use 14.0
   - cd ../..
   - composer create-project -n --no-dev moodlerooms/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"

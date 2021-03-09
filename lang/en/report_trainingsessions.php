@@ -91,11 +91,11 @@ $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total course time'; // @DYNAKEY
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
+$string['elapsedoutofstructure'] = 'Total elapsed time out of the structure of the course';
+$string['elapsedoutofstructure_help'] = 'time spent in course scope but not assignable to any structure element (section or page)';
 $string['elapsedinitem'] = 'Elapsed time';
 $string['elapsedlastweek'] = 'Last week time'; // @DYNAKEY
 $string['email'] = 'Email';
-$string['emulatecommunity'] = 'Emulate community version';
-$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. This might loose features !';
 $string['enablecoursescore'] = 'Enable course score';
 $string['enablelearningtimecheckcoupling'] = 'Enable LTC coupling';
 $string['enablelearningtimecheckcoupling_desc'] = 'If enabled, the session reports will use the working days filtering of the Learning Time Check Report';
@@ -107,7 +107,8 @@ $string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
 $string['errorbadviewid'] = 'non existing report view';
 $string['errorcontinuousscale'] = 'You cannot use scales as grade source in continuous mode';
 $string['errorcoursestructurefirstpage'] = 'Course structure error: failed getting first page';
-$string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
+$string['errorcoursetoolarge'] = 'Course is too large (50 max). Choosing a group';
+$string['errorgrouptoolarge'] = 'Group is too large (50 max). Consider having smaller groups to compile results.';
 $string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
 $string['errornoabsolutepath'] = 'Path must be relative';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
@@ -171,10 +172,6 @@ $string['layout'] = 'Document layout';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
 $string['learningtimesessioncrop_desc'] = 'When coupling with learningtimecheck, out of valid range sessions could be croped, or kept and only marked into reports';
 $string['libsmissing'] = 'This feature has been disabled as libs are missing. Install libs from http://github.com/vfremaux/moodle-local_vflibs to get PDF generation enabled.';
-$string['licensekey'] = 'Pro license key';
-$string['licensekey_desc'] = 'Input here the product license key you got from your provider';
-$string['licenseprovider'] = 'Pro License provider';
-$string['licenseprovider_desc'] = 'Input here your provider key';
 $string['lineaggregators'] = 'Line aggregators';
 $string['location'] = 'Location';
 $string['ltcprogressinitems'] = 'LTC Progress (% items)';
@@ -193,6 +190,7 @@ $string['nopermissiontoview'] = 'You have not enough permissions in this course 
 $string['nosessions'] = 'No measurable session data';
 $string['nostructure'] = 'No measurable course structure detected';
 $string['nothing'] = 'No users to compile';
+$string['nousers'] = 'No users here';
 $string['now'] = 'Now !';
 $string['onefulluserpersheet'] = 'One full user information per sheet';
 $string['oneuserperrow'] = 'One user summary information per row in a single sheet';
@@ -223,7 +221,6 @@ $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
-$string['plugindist'] = 'Plugin distribution';
 $string['pluginname'] = 'Training Sessions';
 $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
@@ -351,7 +348,7 @@ $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header p
 none given, the first page header will be used again.';
 
 $string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
-50 users, directly in the root directory of your course files.</p>';
+50 users, directly in the "/quick" directory of the reports filearea.</p>';
 
 $string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
@@ -524,3 +521,5 @@ $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and g√©n√
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
 
 $string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';
+
+include(__DIR__.'/pro_additional_strings.php');

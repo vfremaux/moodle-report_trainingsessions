@@ -217,7 +217,7 @@ class HtmlRenderer {
             }
         } else {
             // We are a real element, or structure.
-            $template->id = $structure->id;
+            $template->id = @$structure->id;
             $template->hasbody = true;
 
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {

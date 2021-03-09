@@ -107,11 +107,13 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
  * implementation path where to fetch resources.
  * @param string $feature a feature key to be tested.
  */
-function report_trainingsessions_supports_feature($feature) {
+function report_trainingsessions_supports_feature($feature = null, $getsupported = null) {
     global $CFG;
     static $supports;
 
-    $config = get_config('report_trainingsessions');
+    if (!during_initial_install()) {
+        $config = get_config('report_trainingsessions');
+    }
 
     if (!isset($supports)) {
         $supports = array(
@@ -133,6 +135,10 @@ function report_trainingsessions_supports_feature($feature) {
         ));
     }
 
+	if ($getsupported) {
+		return $supports;
+	}
+
     // Check existance of the 'pro' dir in plugin.
     if (is_dir(__DIR__.'/pro')) {
         if ($feature == 'emulate/community') {
@@ -145,6 +151,11 @@ function report_trainingsessions_supports_feature($feature) {
         }
     } else {
         $versionkey = 'community';
+    }
+
+    if (empty($feature)) {
+        // Just return version.
+        return $versionkey;
     }
 
     list($feat, $subfeat) = explode('/', $feature);

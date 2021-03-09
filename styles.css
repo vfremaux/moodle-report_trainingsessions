@@ -1,0 +1,244 @@
+table,
+table * td {
+    border-collapse: separate;
+    padding: 0;
+    border-spacing: 0;
+}
+
+.sessionlevel1 > td {
+    border: solid 1px #888;
+    font-size: 1.2em;
+}
+
+.sessionlevel2 > td {
+    border-bottom: solid 1px #eee;
+    font-size: 1.1em;
+}
+
+.sessionlevel3 > td {
+    font-size: 1em;
+}
+
+.sessionlevel4 > td {
+    font-size: 0.9em;
+}
+
+.donebar {
+    background-color: #579f4a;
+    height: 18px;
+}
+
+.remainingbar {
+    background-color: #4b41a9;
+    height: 18px;
+}
+
+.completionbar {
+    margin-top: 5px;
+}
+
+.reportdetails {
+    font-size: 0.85em;
+}
+
+.trainingreport.subs,
+.sessionreport {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.sessionitem.rangedate {
+    border: 1px solid #a0a0a0;
+    font-size: 0.9em;
+}
+
+.report-trainingsession.userinfobox {
+    background-color: white;
+    border-radius: 10px;
+    border: 1px #d0d0d0 solid;
+    font-size: 1.2em;
+    margin: 10px;
+    padding: 10px;
+    text-align: left;
+    width: 98%;
+}
+
+.report-trainingsession.userinfobox .completionbar {
+    margin: 10px 0;
+}
+
+.report-trainingsessions.session-duration {
+    text-align: right;
+}
+
+.trainingsessions-buttons-wrapper {
+    display: table-row;
+}
+
+.trainingsessions-inline-buttons {
+    display: table-cell;
+    height: 18px;
+}
+
+.trainingsessions-inline-buttons form {
+    margin-bottom: 2px;
+}
+
+.trainingsessions-inline-buttons form,
+.trainingsessions-inline-buttons form * {
+    display: inline;
+    margin: 0;
+}
+
+.month-placeholder {
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: 1px #e0e0e0 solid;
+    display: table-cell;
+    height: 18px;
+    margin: 0 5px;
+    width: 60px;
+}
+
+.trainingsessions-green {
+    background-color: #c4fbac;
+}
+
+.trainingsessions-inline * {
+    display: inline;
+}
+
+.trainingsessions-fieldset {
+    -moz-border-radius: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 5px;
+    margin-bottom: 15px;
+}
+
+.table-row {
+    display: table-row;
+}
+
+.table-cell {
+    display: table-cell;
+}
+
+#report-trainingsessions-totalisers {
+    line-height: 2.0em;
+}
+
+.report-col-right {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.userreport-col0 {
+    width: 55%;
+}
+
+.userreport-col1 {
+    width: 15%;
+    text-align: center;
+}
+
+.userreport-col2 {
+    width: 15%;
+    text-align: center;
+}
+
+.userreport-col3 {
+    width: 15%;
+    text-align: right;
+}
+
+.trainingsessions-main-total {
+    font-size: 1.3em;
+}
+
+.coursesummary-period div {
+    margin-right: 10px;
+}
+
+table#trainingsession-userinfo > tbody > tr > th,
+table#trainingsession-userinfo > tbody > tr > td {
+    padding: 4px;
+    border-bottom: 1px #f0f0f0 solid;
+}
+
+#report-trainingsessions-totalizers,
+#report-trainingsessions-times,
+#report-trainingsessions-grades {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+#report-trainingsessions-totalizers .time-sample,
+#report-trainingsessions-times .time-sample,
+#report-trainingsessions-grades .grade-sample {
+    border: 1px solid #9383c0;
+    border-radius: 5px;
+    min-width: 20%;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#report-trainingsessions-totalizers .time-sample .sample-name,
+#report-trainingsessions-times .time-sample .sample-name,
+#report-trainingsessions-grades .grade-sample .sample-name {
+    color: #fff;
+    font-weight: bolder;
+    padding: 2px 5px;
+    margin-bottom: 3px;
+}
+
+#report-trainingsessions-totalizers .time-sample .sample-name,
+#report-trainingsessions-times .time-sample .sample-name {
+    background-color: #9383c0;
+}
+
+#report-trainingsessions-grades .grade-sample .sample-name {
+    background-color: #cd2568;
+}
+
+#report-trainingsessions-totalizers .time-sample .sample-value,
+#report-trainingsessions-times .time-sample .sample-value,
+#report-trainingsessions-grades .grade-sample .sample-value {
+    color: #000;
+    padding: 2px 5px;
+}
+
+.report-trainingsessions-progress-outer {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    width: 300px;
+    background-color: transparent;
+    height: 16px;
+    float: left;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 2px 2px 3px #ccc;
+    border-radius: 5px;
+}
+
+.report-trainingsessions-progress-inner {
+    background-color: #229b15;
+    height: 100%;
+    width: 100%;
+    background-repeat: repeat-x;
+    background-position: top;
+    z-index: 10;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: 0 0 4px #229b15;
+    border-radius: 2px;
+}
+
+.bigicon {
+    width: 64px;
+    height: 64px;
+}

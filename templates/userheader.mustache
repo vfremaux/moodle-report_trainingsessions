@@ -1,0 +1,134 @@
+
+
+
+<!-- report_trainingsessions/userheader -->
+<center>
+<div class="report-trainingsession userinfobox">
+
+    <h1>{{{userpicture}}} {{{fullname}}}</h1>
+    {{#hasdetails}}
+    <p><a href="{{{detailurl}}}">{{#str}}seedetails, report_trainingsessions{{/str}}</a></p>
+    {{/hasdetails}}
+
+    <table width="100%" id="trainingsession-userinfo">
+        {{#hasgroups}}
+        <tr>
+            <td class="attribute-label" width="25%">{{#str}}groups{{/str}}</td>
+            <td class="attribute-value">{{{groupnames}}}</td>
+        </tr>
+        {{/hasgroups}}
+
+        {{#idnumber}}
+        <tr>
+            <td class="attribute-label" width="25%">{{#str}}idnumber{{/str}}</td>
+            <td class="attribute-value">{{idnumber}}</td>
+        </tr>
+        {{/idnumber}}
+
+        {{#institution}}
+        <tr>
+            <td class="attribute-label" width="25%">{{#str}}institution{{/str}}</td>
+            <td class="attribute-value">{{institution}}</td>
+        </tr>
+        {{/institution}}
+
+        {{#department}}
+        <tr>
+            <td class="attribute-label" width="25%">{{#str}}department{{/str}}</td>
+            <td class="attribute-value">{{department}}</td>
+        </tr>
+        {{/department}}
+
+        {{#roles}}
+        <tr>
+            <td class="attribute-label" width="25%">{{#str}}roles{{/str}}</td>
+            <td class="attribute-value">{{roles}}</td>
+        </tr>
+        {{/roles}}
+
+        {{#withcompletion}}
+        <tr>
+            <td>
+            </td>
+            <td>
+                {{{completionbar}}}
+            </td>
+        </tr>
+        {{/withcompletion}}
+
+        {{^short}}
+        <tr>
+            <td>
+                {{#str}}timespent, report_trainingsessions{{/str}}
+            </td>
+            <td>
+                <div id="report-trainingsessions-totalizers">
+
+                    {{#totalizers}}
+                    <div class="time-sample" id="sample-{{key}}">
+                        <div class="sample-name">{{name}} {{{help}}}</div>
+                        <div class="sample-value">{{elapsed}} {{#showhits}}/ {{hits}}{{/showhits}}</div>
+                    </div>
+                    {{/totalizers}}
+
+                </div>
+            </td>
+        </tr>
+
+        {{#hasgrades}}
+        <tr>
+            <td>{{#str}}grades{{/str}}</td>
+            <td>
+                <div id="report-trainingsessions-grades">
+                    {{#grades}}
+                    <div class="grade-sample">
+                    <div class="sample-name">{{label}}</div>
+                    <div class="sample-value">{{value}}</div>
+                    </div>
+                    {{/grades}}
+                </div>
+            </td>
+        </tr>
+        {{/hasgrades}}
+
+        {{#hastimes}}
+        <tr>
+            <td>
+                {{#str}}dates, report_trainingsessions{{/str}}
+            </td>
+            <td>
+                <div id="report-trainingsessions-times">
+
+                    {{#times}}
+                    <div class="time-sample" id="sample-{{key}}">
+                        <div class="sample-name">{{name}} {{{help}}}</div>
+                        <div class="sample-value">{{elapsed}} {{#showhits}}/ {{hits}}{{/showhits}}</div>
+                    </div>
+                    {{/times}}
+
+                </div>
+            </td>
+        </tr>
+        {{/hastimes}}
+
+        {{/short}}
+
+        {{#workingsessions}}
+        <tr>
+            <td class="attribute-label">{{#str}}workingsessions, report_trainingsessions{{/str}} {{{workingsessionshelp}}}</td>
+            <td class="attribute-value">{{{sessions}}}</td>
+        </tr>
+        {{#checklistadvice}}
+        <tr>
+            <td>
+            </td>
+            <td class="attribute-comment">
+            {{{checklistadvice}}}
+            </td>
+        </tr>
+        {{/checklistadvice}}
+        {{/workingsessions}}
+    </table>
+
+</div>
+<!-- /report_trainingsessions/userheader -->

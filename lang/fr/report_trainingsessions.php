@@ -220,7 +220,6 @@ $string['pdfreportinnerheader'] = 'Image pour en-tête interne PDF';
 $string['pdfreportinnerheader_desc'] = 'Permet de fournir une image à utiliser comme en-tête du document PDF pour les pages suivantes (880px de large x jusqu\'à 150px de haut). Si aucune n\'est fournie, l\'image de première en-tête est utilisée par défaut pour toutes les pages.';
 $string['periodshift'] = 'Rejouer en période glissante';
 $string['periodshiftto'] = 'Rejouer et décaler la fin de période uniquement';
-$string['plugindist'] = 'Distribution du plugin';
 $string['pluginname'] = 'Sessions de formation';
 $string['printidnumber'] = 'Afficher le numéro d\'identification';
 $string['printidnumber_desc'] = 'si coché, ajoute le numéro d\'identification au rapports.';

@@ -1742,9 +1742,10 @@ class trainingsessions {
             $firstaccessrec = new StdClass;
             $firstaccessrec->userid = $user->id;
             $firstaccessrec->courseid = $courseid;
+            $firstaccessrec->timeaccessed = 0;
             if ($firstcourseaccessrecs) {
                 $firstcourseaccessrec = array_shift($firstcourseaccessrecs);
-                $firstaccessrec->timeaccessed = $firstcourseaccessrec->timecreated;
+                $firstaccessrec->timeaccessed += @$firstcourseaccessrec->timecreated; // Maybe never accessed.
                 $DB->insert_record('report_trainingsessions_fa', $firstaccessrec);
             }
         }
@@ -1906,11 +1907,13 @@ class trainingsessions {
      * @param array $data
      */
     public function process_bounds(&$data, &$course) {
-        global $DB;
+        global $DB, $COURSE;
+
+        $tsconfig = get_config('report_trainingsessions');
 
         // Fix fromstart from _POST in some weird cases.
         if (empty($data->fromstart)) {
-            $data->fromstart = $_POST['fromstart'];
+            $data->fromstart = empty($_POST['fromstart']) ? $COURSE->startdate : $_POST['fromstart'];
             if (empty($data->fromstart)) {
                 $data->fromstart = $tsconfig->defaultstartdate;
             }

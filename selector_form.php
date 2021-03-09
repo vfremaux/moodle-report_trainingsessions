@@ -40,7 +40,7 @@ class SelectorForm extends moodleform {
     }
 
     public function definition() {
-        global $USER;
+        global $USER, $DB;
 
         $config = get_config('report_trainingsessions');
 
@@ -61,9 +61,17 @@ class SelectorForm extends moodleform {
         $row = array();
         $row2 = array();
 
+        // Check and record first real user creation time in config if not set. User table is usually
+        // smaller than logs. We scan the 20 first users.
+        if (!isset($config->firstusetime)) {
+            $firstusertime = $DB->get_field_select('user', 'MIN(timecreated)', 'id <= 20');
+            set_config('firstusetime', $firstusertime, 'report_trainingsessions');
+            $config->firstusetime = $firstusertime;
+        }
+
         $dateparms = array(
-            'startyear' => 2008,
-            'stopyear'  => 2025,
+            'startyear' => $config->firstusetime,
+            'stopyear'  => date('Y') + 1,
             'timezone'  => 99,
             'applydst'  => true,
             'optional'  => false

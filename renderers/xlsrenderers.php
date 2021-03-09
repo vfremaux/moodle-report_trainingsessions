@@ -30,7 +30,7 @@ namespace report\trainingsessions;
 use \StdClass;
 use \Exception;
 use \context_course;
-use \PHPExcel_Style_NumberFormat;
+use \PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -134,7 +134,7 @@ class XlsRenderer {
         // Number formats.
         $xlsformats['n'] = $this->build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);
         $xlsformats['n.1'] = $this->build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, '0.0');
-        $xlsformats['n.2'] = $this->build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);
+        $xlsformats['n.2'] = $this->build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy, NumberFormat::FORMAT_NUMBER_00);
 
         // Formula formatting (same as numbers).
         $xlsformats['f'] = $this->build_xls_format($workbook, $sizebdy, $notbold, $colorbdy, $fgcolorbdy);

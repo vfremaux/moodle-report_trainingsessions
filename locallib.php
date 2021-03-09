@@ -2180,4 +2180,39 @@ class trainingsessions {
         $nonemptygroups = $DB->get_records_sql($sql, [$courseid]);
         return $nonemptygroups;
     }
+
+    /**
+     * Deletes all report files older than the configured value in all database.
+     */
+    public function cleanup_old_reports() {
+        global $DB;
+
+        $config = get_config('report_trainingsessions');
+
+        $fs = get_file_storage();
+
+        // Get all files that match this filearea and older than horizon.
+        $params = [
+            'component' => 'report_trainingsessions',
+            'filearea' => 'reports',
+            'horizon' => time() - $config->deleteolderthan
+        ];
+
+        // Select all real files older than.
+        $select = "
+            component = :component AND
+            filearea = :filearea AND
+            timecreated < :horizon
+            filename <> ''
+        ";
+        $olderfiles = $DB->get_records_select('files', $select, $params);
+
+        if (!empty($olderfiles)) {
+            foreach ($olderfiles as $f) {
+                $storedfile = $fs->get_file_by_id($f->id);
+                $storedfile->delete();
+            }
+        }
+
+    }
 }

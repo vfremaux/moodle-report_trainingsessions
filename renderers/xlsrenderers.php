@@ -314,36 +314,23 @@ class XlsRenderer {
         $timeformat = get_string('profileinfotimeformat', 'report_trainingsessions');
 
         // Add some custom info from profile.
-        if (!empty($config->extrauserinfo1)) {
-            $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->extrauserinfo1)).':';
-            $fieldtype = $DB->get_field('user_info_field', 'datatype', array('id' => $config->extrauserinfo1));
-            $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->extrauserinfo1));
-            $worksheet->write_string($row, 0, $fieldname.' :', $xlsformats['b']);
-            if ($fieldtype == 'datetime') {
-                // Possible alternatives : write in real date cell or in text.
-                // $worksheet->write_date($row, 1, $info);
+        for ($i = 1; $i <= 2; $i++) {
+            $fieldkey = 'extrauserinfo'.$i;
+            if (!empty($config->$fieldkey)) {
+                $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->$fieldkey)).':';
+                $fieldtype = $DB->get_field('user_info_field', 'datatype', array('id' => $config->$fieldkey));
+                $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->$fieldkey));
+                $worksheet->write_string($row, 0, $fieldname.' :', $xlsformats['b']);
+                if ($fieldtype == 'datetime') {
+                    // Possible alternatives : write in real date cell or in text.
+                    // $worksheet->write_date($row, 1, $info);
 
-                $info = strftime($timeformat, $info);
-                $worksheet->write_string($row, 1, $info);
-            } else {
-                $worksheet->write_string($row, 1, $info);
-            }
-            $row++;
-        }
-
-        if (!empty($config->extrauserinfo2)) {
-            $fieldname = $DB->get_field('user_info_field', 'name', array('id' => $config->extrauserinfo2)).':';
-            $fieldtype = $DB->get_field('user_info_field', 'datatype', array('id' => $config->extrauserinfo2));
-            $info = $DB->get_field('user_info_data', 'data', array('userid' => $user->id, 'fieldid' => $config->extrauserinfo2));
-            $worksheet->write_string($row, 0, $fieldname.' :', $xlsformats['b']);
-            if ($fieldtype == 'datetime') {
-                // Possible alternatives : write in real date cell or in text.
-                // $worksheet->write_date($row, 1, $info);
-
-                $info = strftime($timeformat, $info);
-                $worksheet->write_string($row, 1, $info);
-            } else {
-                $worksheet->write_string($row, 1, $info);
+                    $info = strftime($timeformat, $info);
+                    $worksheet->write_string($row, 1, $info);
+                } else {
+                    $worksheet->write_string($row, 1, $info);
+                }
+                $row++;
             }
             $row++;
         }

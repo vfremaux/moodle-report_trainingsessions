@@ -82,6 +82,8 @@ $string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultstartdate'] = 'Default start date';
 $string['defaultstartdate_desc'] = 'Default start date';
 $string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
+$string['deleteolderthan'] = 'Older than';
+$string['deleteolderthan_desc'] = 'Delete files older than this value';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['disablesuspendedstudents'] = 'Ignore suspended students';
@@ -148,6 +150,8 @@ $string['head3application'] = 'Head 3 coors are used on end of table sumarizer, 
 $string['headsection'] = 'Heading section';
 $string['hideemptymodules'] = 'Hide empty modules';
 $string['hideemptymodules_desc'] = 'Is enabled, empty modules (no time spent) will not be printed into reports.';
+$string['hidedeletedmodules'] = 'Hide modules being deleted';
+$string['hidedeletedmodules_desc'] = 'Is enabled, modules with deletion in progress marked will not be printed into reports.';
 $string['hits'] = 'Hits';
 $string['hitslastweek'] = 'Hits last week';
 $string['id'] = 'ID';
@@ -319,6 +323,7 @@ $string['trainingsessions_report_connections'] = 'Connection Report';
 $string['trainingsessions_report_institutions'] = 'Institution Report';
 $string['trainingsessionsreport'] = 'Training Session Reports';
 $string['trainingsessionsscores'] = 'Score addition to reports';
+$string['trainingsessionsdeletionmark'] = 'Deletion in progress';
 $string['unvisited'] = 'Unvisited';
 $string['updatefromaccountstart'] = 'Get from user first access';
 $string['updatefromcoursestart'] = 'Get from course start';
@@ -343,6 +348,7 @@ $string['xlsexportlocale'] = 'XLS Export Locale';
 $string['xlsformula'] = 'Formula (Excel expression)';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
 $string['xlssumformula'] = 'XLS Sum Formula';
+$string['cleanoldreports_task'] = 'Removing old reports';
 
 $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If
 none given, the first page header will be used again.';

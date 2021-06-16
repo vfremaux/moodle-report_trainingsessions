@@ -39,6 +39,15 @@
         </tr>
         {{/department}}
 
+        {{#hasprofilefields}}
+        {{#profilefields}}
+        <tr>
+            <td class="attribute-label" width="25%">{{{fieldname}}}</td>
+            <td class="attribute-value">{{{fieldvalue}}}</td>
+        </tr>
+        {{/profilefields}}
+        {{/hasprofilefields}}
+
         {{#roles}}
         <tr>
             <td class="attribute-label" width="25%">{{#str}}roles{{/str}}</td>

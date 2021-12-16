@@ -1939,9 +1939,20 @@ class trainingsessions {
 
         // Fix fromstart from _POST in some weird cases.
         if (empty($data->fromstart)) {
-            $data->fromstart = empty($_POST['fromstart']) ? $COURSE->startdate : $_POST['fromstart'];
+            $data->fromstart = @$_POST['fromstart'];
             if (empty($data->fromstart)) {
-                $data->fromstart = $tsconfig->defaultstartdate;
+                switch ($tsconfig->defaultstartdate) {
+                    case 'course' : {
+                        $data->fromstart = $course->timestart;
+                        break;
+                    }
+
+                    case 'enrol' : {
+                        // TODO : get first enrol.
+                        $data->fromstart = $firstenrol->timestart;
+                        break;
+                    }
+                }
             }
         }
 

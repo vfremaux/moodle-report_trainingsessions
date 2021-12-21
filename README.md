@@ -69,3 +69,8 @@ Community standard concerns:
 =============================
 
 Allow suspended students to be removed from reports with a setting.
+
+2010070900 - X.X.0017
+=============================
+
+Redrawes course report options and logics. Allow full course batch programming.

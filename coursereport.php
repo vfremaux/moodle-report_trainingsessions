@@ -30,8 +30,11 @@ ob_start();
 require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
+require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\HtmlRenderer($rt);
 
 // Calculate start time.
 
@@ -52,12 +55,12 @@ $config = get_config('report_trainingsessions');
 
 // Calculate start time.
 
-report_trainingsessions_process_bounds($data, $course);
+$rt->process_bounds($data, $course);
 
 if ($data->output == 'html') {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
-    echo $renderer->tabs($course, $view, $data->from, $data->to);
+    echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
     echo $OUTPUT->container_end();
 
     echo $OUTPUT->box_start('block');
@@ -107,7 +110,7 @@ if ($data->groupid) {
             $targetusers = get_enrolled_users($context, '', $data->groupid, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);
         } else {
             // DO NOT COMPILE.
-            echo $OUTPUT->notification('coursetoolargenotice', 'report_trainingsessions');
+            echo $OUTPUT->notification(get_string('coursetoolargenotice', 'report_trainingsessions'));
             echo $OUTPUT->footer($course);
             die;
         }
@@ -115,19 +118,26 @@ if ($data->groupid) {
 }
 
 // Filter out non compiling users.
-report_trainingsessions_filter_unwanted_users($targetusers, $course);
+$rt->filter_unwanted_users($targetusers, $course);
 
 // Get course structure.
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = $rt->get_course_structure($course->id, $items);
 
 // Print result.
 
-require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+if ($config->disablesuspendedenrolments && has_capability('report/trainingsessions:viewother', $context)) {
+    echo $OUTPUT->notification(get_string('hasdisabledenrolmentsrestriction', 'report_trainingsessions'));
+}
 
 echo '<link rel="stylesheet" href="reports.css" type="text/css" />';
 
+$cols = $rt->get_summary_cols('keys');
+$rt->add_graded_columns($cols, $unusedtitles);
+
 if (!empty($targetusers)) {
     foreach ($targetusers as $auser) {
+
+        use_stats_fix_last_course_access($auser->id, $course->id);
 
         $logusers = $auser->id;
         $logs = use_stats_extract_logs($data->from, $data->to, $auser->id, $course);
@@ -137,32 +147,18 @@ if (!empty($targetusers)) {
             $aggregate['sessions'] = array();
         }
 
-        $data->items = $items;
+        $headdata = (object) $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true);
+        $headdata->gradecols = [];
+        $rt->add_graded_data($headdata->gradecols, $auser->id, $aggregate);
 
-        $data->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
-        $data->activityevents = @$aggregate['activities'][$course->id]->events;
-        $data->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
-        $data->otherevents = @$aggregate['other'][$course->id]->events;
-        $data->done = 0;
+        $headdata->done = 0;
+        $headdata->items = $items;
 
         if (!empty($aggregate)) {
 
-            $data->course = new StdClass();
-            $data->course->elapsed = 0;
-            $data->course->events = 0;
-
-            if (!empty($aggregate['course'])) {
-                $data->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-                $data->course->events = 0 + @$aggregate['course'][$course->id]->events;
-            }
-
             // Calculate everything.
-
-            $data->elapsed = $data->activityelapsed + $data->otherelapsed + $data->course->elapsed;
-            $data->events = $data->activityevents + $data->otherevents + $data->course->events;
-
-            $sesscount = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], $course->id);
-            $data->sessions = (!empty($aggregate['sessions'])) ? $sesscount : 0;
+            $sesscount = $rt->count_sessions_in_course($aggregate['sessions'], $course->id);
+            $headdata->sessions = (!empty($aggregate['sessions'])) ? $sesscount : 0;
 
             foreach (array_keys($aggregate) as $module) {
                 /*
@@ -172,17 +168,19 @@ if (!empty($targetusers)) {
                 if (preg_match('/course|user|upload|sessions|system|activities|other/', $module)) {
                     continue;
                 }
-                $data->done += count($aggregate[$module]);
+                $headdata->done += count($aggregate[$module]);
             }
         } else {
-            $data->sessions = 0;
+            $headdata->sessions = 0;
         }
-        if ($data->done > $items) {
-            $data->done = $items;
+        if ($headdata->done > $items) {
+            $headdata->done = $items;
         }
 
-        $data->linktousersheet = 1;
-        echo report_trainingsessions_print_header_html($auser->id, $course->id, $data, true);
+        $headdata->linktousersheet = 1;
+        $headdata->from = $data->from;
+        $headdata->to = $data->to;
+        echo $renderer->print_header_html($auser, $course, $headdata, $cols, true /* short */);
     }
 } else {
     echo $OUTPUT->notification(get_string('nothing', 'report_trainingsessions'));
@@ -196,21 +194,15 @@ $options['output'] = 'xls'; // Ask for XLS.
 $options['asxls'] = 'xls'; // Force XLS for index.php.
 $options['view'] = 'course'; // Force course view.
 
-echo '<br/><center>';
-
-echo '<div class="report-buttons">';
-echo '<div class="table-row">';
-echo '<div class="tr-summary table-cell">';
+$template = new StdClass;
 $params = array('id' => $course->id,
                 'from' => $data->from,
                 'to' => $data->to,
                 'timesession' => time(),
                 'groupid' => $data->groupid);
 $csvurl = new moodle_url('/report/trainingsessions/tasks/groupcsvreportonerow_batch_task.php', $params);
-echo $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
-echo '</div>';
+$template->generatecsvbutton = $OUTPUT->single_button($csvurl, get_string('generatecsv', 'report_trainingsessions'), 'get');
 
-echo '<div class="tr-detailed table-cell">';
 $params = array('id' => $course->id,
                 'view' => 'course',
                 'groupid' => $data->groupid,
@@ -218,7 +210,7 @@ $params = array('id' => $course->id,
                 'to' => $data->to,
                 'output' => 'xls');
 $url = new moodle_url('/report/trainingsessions/tasks/groupxlsreportperuser_batch_task.php', $params);
-echo $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
+$template->generatexlsbutton = $OUTPUT->single_button($url, get_string('generatexls', 'report_trainingsessions'), 'get');
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
     $params = array('id' => $course->id,
@@ -227,11 +219,7 @@ if (report_trainingsessions_supports_feature('format/pdf')) {
                     'from' => $data->from,
                     'to' => $data->to);
     $url = new moodle_url('/report/trainingsessions/pro/tasks/grouppdfreportperuser_batch_task.php', $params);
-    echo $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'get');
+    $template->generatepdfbutton = $OUTPUT->single_button($url, get_string('generatepdf', 'report_trainingsessions'), 'get');
 }
-echo '</div>';
-echo '</div>';
-echo '</div>';
 
-echo '</center>';
-echo '<br/>';
+echo $OUTPUT->render_from_template('report_trainingsessions/coursereportbuttons', $template);

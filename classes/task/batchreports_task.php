@@ -46,8 +46,10 @@ class batchreports_task extends \core\task\scheduled_task {
      */
     public function execute() {
 
+        $rt = \report\trainingsessions\trainingsessions::instance();
+
         // Requires community or pro version if available.
-        $distrib = \report_trainingsessions_plugin_require('/report/trainingsessions/cronlib.php');
+        $distrib = $rt->plugin_require('/report/trainingsessions/cronlib.php');
 
         if ($distrib == 'pro') {
             \report_trainingsessions_pro_crontask();

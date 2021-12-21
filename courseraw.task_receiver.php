@@ -48,17 +48,6 @@ $PAGE->set_heading('pluginname', 'report_trainingsessions');
 
 if ($tdata = $form->get_data()) {
 
-    $maxtaskid = 0;
-    if (!empty($CFG->trainingreporttasks)) {
-        $tasks = unserialize($CFG->trainingreporttasks);
-        if (!empty($tasks)) {
-            foreach ($tasks as $tid => $t) {
-                $maxtaskid = max($maxtaskid, $tid);
-            }
-        }
-    }
-    $maxtaskid++;
-
     $task = new StdClass;
     $task->id = $tdata->taskid;
     $task->courseid = $id;
@@ -68,24 +57,32 @@ if ($tdata = $form->get_data()) {
     $task->reportlayout = $tdata->reportlayout;
     $task->reportscope = $tdata->reportscope;
     $task->reportformat = $tdata->reportformat;
-    $task->startday = $tdata->startday;
-    $task->startmonth = $tdata->startmonth;
-    $task->startyear = $tdata->startyear;
-    $task->endday = $tdata->endday;
-    $task->endmonth = $tdata->endmonth;
-    $task->endyear = $tdata->endyear;
+
+    $startday = $tdata->startday;
+    $startmonth = $tdata->startmonth;
+    $startyear = $tdata->startyear;
+    $task->timefrom = mktime(0, 0, 0, $startmonth, $startday, $startyear);
+
+    $endday = $tdata->endday;
+    $endmonth = $tdata->endmonth;
+    $endyear = $tdata->endyear;
+    $task->timeto = mktime(0, 0, 0, $endmonth, $endday, $endyear);
+    $task->timeto += DAYSECS - 1;
+
     $task->replay = 0 + @$tdata->replay;
     $task->replaydelay = $tdata->replaydelay;
     $task->groupid = $tdata->groupid;
-    $maxtaskid++;
 
-    if (!isset($tasks)) {
-        $tasks = array();
+    if (!empty($task->id)) {
+        $oldrec = $DB->get_record('report_trainingsessions_btc', ['id' => $task->id]);
+        $task->id = $oldrec->id;
+        $DB->update_record('report_trainingsessions_btc', $task);
+    } else {
+        $DB->insert_record('report_trainingsessions_btc', $task);
     }
-    $tasks[$task->id] = $task;
-    set_config('trainingreporttasks', serialize($tasks));
+
     echo $OUTPUT->header();
-    echo $OUTPUT->notification(get_string('taskrecorded', 'report_trainingsessions'));
+    echo $OUTPUT->notification(get_string('taskrecorded', 'report_trainingsessions'), 'success');
     $params = array('id' => $id, 'view' => 'courseraw', 'groupid' => $tdata->groupid);
     echo $OUTPUT->continue_button(new moodle_url('/report/trainingsessions/index.php', $params));
     echo $OUTPUT->footer();

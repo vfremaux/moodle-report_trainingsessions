@@ -35,6 +35,9 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 
+$rt = \report\trainingsessions\trainingsessions::instance();
+$tsconfig = get_config('report_trainingsessions');
+
 $id = required_param('id', PARAM_INT); // The course id.
 
 // Calculate start time.
@@ -59,13 +62,14 @@ if (!$canseeothers) {
 } else {
     $userid = $data->userid;
 }
+$user = $DB->get_record('user', array('id' => $userid));
 
-report_trainingsessions_process_bounds($data, $course);
+$rt->process_bounds($data, $course);
 
 if ($data->output == 'html') {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
-    echo $renderer->tabs($course, $view, $data->from, $data->to);
+    echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
     echo $OUTPUT->container_end();
 
     echo $OUTPUT->box_start('block');
@@ -86,16 +90,17 @@ if (empty($aggregate['sessions'])) {
 }
 
 // Print result.
+$cols = $rt->get_summary_cols('cols');
 
 if ($data->output == 'html') {
     // Time period form.
 
     include_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
+    $renderer = new \report\trainingsessions\HtmlRenderer($rt);
 
     echo '<br/>';
 
-    $str = '';
-    $dataobject = report_trainingsessions_print_allcourses_html($str, $aggregate);
+    $str = $renderer->print_allcourses_html($aggregate, $dataobject);
 
     $dataobject->activityelapsed = @$aggregate['activities'][$COURSE->id]->elapsed;
     $dataobject->activityevents = @$aggregate['activities'][$COURSE->id]->events;
@@ -118,7 +123,7 @@ if ($data->output == 'html') {
 
     $dataobject->sessions = 0;
     if (!empty($aggregate['sessions'])) {
-        $dataobject->sessions = report_trainingsessions_count_sessions_in_course($aggregate['sessions'], 0);
+        $dataobject->sessions = $rt->count_sessions_in_course($aggregate['sessions'], 0);
     }
 
     if (array_key_exists('upload', $aggregate)) {
@@ -128,13 +133,14 @@ if ($data->output == 'html') {
         $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
     }
 
-    report_trainingsessions_print_header_html($userid, $course->id, $dataobject, true, false, false);
+    $dataobject->gradecols = []; // Must be empty array in allcourses.
+
+    $renderer->print_header_html($user, $course, $dataobject, $cols, true, false, false);
 
     echo $OUTPUT->heading(get_string('incourses', 'report_trainingsessions'));
     echo $str;
 
-    report_trainingsessions_print_session_list($str2, @$aggregate['sessions'], 0, $userid);
-    echo $str2;
+    echo $renderer->print_session_list(@$aggregate['sessions'], 0, $userid);
 
     $params = array('id' => $course->id,
                     'userid' => $userid,
@@ -157,6 +163,7 @@ if ($data->output == 'html') {
 } else {
 
     require_once($CFG->dirroot.'/report/trainingsessions/renderers/xlsrenderers.php');
+    $renderer = new \report\trainingsessions\XlsRenderer($rt);
 
     require_once($CFG->libdir.'/excellib.class.php');
 
@@ -169,17 +176,19 @@ if ($data->output == 'html') {
     $workbook->send($filename);
 
     // Preparing some formats.
-    $xlsformats = report_trainingsessions_xls_formats($workbook);
+    $xlsformats = $renderer->xls_formats($workbook);
     $startrow = 15;
-    $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xlsformats, $workbook, 'allcourses');
-    $overall = report_trainingsessions_print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
+    $worksheet = $renderer->init_worksheet($userid, $startrow, $xlsformats, $workbook, 'allcourses');
+    $overall = $renderer->print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
     $data->elapsed = $overall->elapsed;
     $data->events = $overall->events;
-    report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+    $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
 
-    $worksheet = report_trainingsessions_init_worksheet($userid, $startrow, $xlsformats, $workbook, 'sessions');
-    report_trainingsessions_print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xlsformats);
-    report_trainingsessions_print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+    if (!empty($tsconfig->showsessions)) {
+        $worksheet = $renderer->init_worksheet($userid, $startrow, $xlsformats, $workbook, 'sessions');
+        $renderer->print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xlsformats);
+        $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+    }
 
     $workbook->close();
 }

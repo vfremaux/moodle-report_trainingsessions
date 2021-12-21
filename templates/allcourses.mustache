@@ -1,0 +1,58 @@
+
+
+<!-- report_trainingsessions/allcourses -->
+
+{{#hasoutput}}
+<h2>{{#str}}site{{/str}}</h2>
+
+<table width="100%">
+    <tr>
+        <td class="attribute-label" width="25%">
+            {{#str}}elapsed, report_trainingsessions{{/str}}
+        </td>
+
+        <td class="attribute-value">
+            {{siteelapsed}} {{#isadmin}} ({{siteevents}}) {{/isadmin}}
+        </td>
+    </tr>
+</table>
+
+{{#categories}}
+<h2>{{categoryname}}</h2>
+
+<table class="generaltable" width="100%">
+    <tr class="header">
+        <td class="header c0" width="70%">
+            <b>{{#str}}course{{/str}}</b>
+        </td>
+
+        <td class="header c1" width="30%">
+            <b>
+                {{#str}}elapsed, report_trainingsessions{{/str}}
+                {{#isadmin}} ({{#str}}hits, report_trainingsessions{{/str}}){{/isadmin}}
+            </b>
+        </td>
+    </tr>
+
+    {{#catlines}}
+    <tr valign="top">
+        <td>{{coursename}}</td>
+        <td>
+        {{#canview}}
+            {{{elapsed}}} {{#isadmin}} ({{events}}){{/isadmin}}
+        {{/canview}}
+        {{^canview}}
+            {{#str}}nopermissiontoview, report_trainingsessions{{/str}}
+        {{/canview}}
+        </td>
+    </tr>
+    {{/catlines}}
+
+</table>
+{{/categories}}
+{{/hasoutput}}
+
+{{^hasoutput}}
+    {{{nodatanotification}}}
+{{/hasoutput}}
+<!-- /report_trainingsessions/allcourses -->

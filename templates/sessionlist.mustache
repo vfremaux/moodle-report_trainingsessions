@@ -1,0 +1,76 @@
+
+
+
+<!-- report_trainingsessions/sessionlist -->
+<div id="trainingsessions-session-list">
+
+{{{heading}}}
+
+{{^hassessions}}
+{{{nosessionstr}}}
+{{/hassessions}}
+
+{{#hassessions}}
+<br/>
+<p>{{#str}}elapsedadvice, report_trainingsessions{{/str}}</p>
+
+<table width="70%" id="session-table">
+    <tr valign="top">
+        <td width="33%">
+            <b>{{#str}}sessionstart, report_trainingsessions{{/str}}</b>
+        </td>
+
+        <td width="33%">
+            <b>{{#str}}sessionend, report_trainingsessions{{/str}}</b>
+        </td>
+
+        <td width="33%" class="report-trainingsessions session-duration">
+            <b>{{#str}}duration, report_trainingsessions{{/str}}</b>
+        </td>
+    </tr>
+
+    {{#sessions}}
+    <tr valign="top">
+        <td {{{startstyle}}}>{{sessionstartdate}}</td>
+        <td {{{endstyle}}}>{{sessionenddate}}</td>
+        <td class="report-trainingsessions session-duration" {{{checkstyle}}}>{{elps}}</td>
+    </tr>
+    {{/sessions}}
+
+    {{#printtotal}}
+    <tr valign="top">
+        <td>
+            <b>{{#str}}totalsessions, report_trainingsessions{{/str}}} {{{totalsessionstimehelpicon}}}</b>
+        </td>
+        <td>
+            {{truesessions}} {{#str}}contiguoussessions, report_trainingsessions{{/str}}
+        </td>
+        <td>{{totalelapsed}}</td>
+    </tr>
+    {{/printtotal}}
+
+    {{#haslearningtimecheckdata}}
+    <tr valign="top">
+        <td>
+            <b>{{#str}}in, report_trainingsessions{{/str}} {{{ltcinhelpicon}}}</b>
+        </td>
+        <td></td>
+        <td>
+            {{induration}}
+        </td>
+    </tr>
+
+    <tr valign="top">
+        <td>
+            <b>{{#str}}out, report_trainingsessions{{/str}} {{{ltcouthelpicon}}}</b>
+        </td>
+        <td></td>
+        <td style="color:#ff0000">
+            {{outduration}}
+        </td>
+    </tr>
+    {{/haslearningtimecheckdata}}
+
+</table>
+{{/hassessions}}
+<!-- /report_trainingsessions/sessionlist -->

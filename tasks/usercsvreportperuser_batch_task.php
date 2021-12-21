@@ -36,6 +36,8 @@ require_once($CFG->libdir.'/excellib.class.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // User id.
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\CsvRenderer($rt);
 
 ini_set('memory_limit', '512M');
 
@@ -45,18 +47,20 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 
-$input = report_trainingsessions_batch_input($course);
+$input = $rt->batch_input($course);
 
 // Security.
-report_trainingsessions_back_office_access($course, $userid);
+$rt->back_office_access($course, $userid);
 
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+$PAGE->set_context($context);
+
+$coursestructure = $rt->get_course_structure($course->id, $items);
 
 // TODO : secure groupid access depending on proper capabilities.
 
 // Generate XLS.
 
-$filename = "trainingsessions_user_{$userid}_report_".$input->filenametimesession.".csv";
+$filename = "ts_user_{$userid}_report_".$input->filenametimesession.".csv";
 
 $auser = $DB->get_record('user', array('id' => $userid));
 
@@ -68,20 +72,21 @@ if ($auser) {
     $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
 
     $csvbuffer = '';
-    report_trainingsessions_print_userinfo($csvbuffer, $auser);
-    report_trainingsessions_print_header($csvbuffer);
-    report_trainingsessions_print_course_structure($csvbuffer, $coursestructure, $aggregate);
+    $renderer->print_userinfo($csvbuffer, $auser);
+    $renderer->print_periodinfo($csvbuffer, $input);
+    $renderer->print_header($csvbuffer);
+    $renderer->print_course_structure($csvbuffer, $coursestructure, $aggregate);
 
     // Sending HTTP headers.
     ob_end_clean();
 
     // Output CSV-specific headers.
-    header("Pragma: public");
+    header("Pragma: no-cache");
     header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Cache-Control: private", false);
-    header("Content-Type: application/octet-stream");
-    header("Content-Disposition: attachment filename=\"$filename\";" );
-    header("Content-Transfer-Encoding: binary");
+    header("Cache-Control: no-cache, must-revalidate");
+    header("Content-Type: application/csv");
+    header("Content-Disposition: inline; filename=\"$filename\";");
+    header("Content-Transfer-Encoding: text");
+    header("Content-Length: ".strlen($csvbuffer));
     echo $csvbuffer;
 }

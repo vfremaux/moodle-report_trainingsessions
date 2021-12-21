@@ -30,24 +30,38 @@ require_once($CFG->dirroot.'/blocks/use_stats/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/renderers/htmlrenderers.php');
 
+$tsconfig = get_config('report_trainingsessions');
+$rt = \report\trainingsessions\trainingsessions::instance();
+$renderer = new \report\trainingsessions\HtmlRenderer($rt);
+
+raise_memory_limit(MEMORY_EXTRA);
+
 // Selector form.
 
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 $selform = new SelectorForm($id, 'user');
 if (!$data = $selform->get_data()) {
     $data = new StdClass;
-    $data->from = optional_param('from', -1, PARAM_NUMBER);
-    $data->to = optional_param('to', -1, PARAM_NUMBER);
-    $data->userid = optional_param('userid', $USER->id, PARAM_INT);
-    $data->fromstart = optional_param('fromstart', 0, PARAM_BOOL);
+    $data->from = optional_param('from', $course->startdate, PARAM_NUMBER);
+    $data->to = optional_param('to', time(), PARAM_NUMBER);
+    if (has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
+        $firstcompiledusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.*', 'u.lastname, u.firstname', 0, 1);
+        $user = array_shift($firstcompiledusers);
+        $data->userid = $user->id;
+    } else {
+        $data->userid = $USER->id;
+    }
+    $data->fromstart = optional_param('fromstart', $tsconfig->defaultstartdate, PARAM_TEXT);
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
 }
 
-report_trainingsessions_process_bounds($data, $course);
+$rt->process_bounds($data, $course);
+// Need renew the form if process bounds have changed something.
+$selform = new SelectorForm($id, 'user');
 
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
-echo $renderer->tabs($course, $view, $data->from, $data->to);
+echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->box_start('block');
@@ -57,9 +71,13 @@ echo $OUTPUT->box_end();
 
 echo get_string('from', 'report_trainingsessions')." : ".userdate($data->from);
 echo ' '.get_string('to', 'report_trainingsessions')." : ".userdate($data->to);
+$usconfig = get_config('block_use_stats');
+if ($usconfig->enrolmentfilter && has_capability('report/trainingsessions:viewother', $context)) {
+    echo $OUTPUT->notification(get_string('warningusestateenrolfilter', 'block_use_stats'));
+}
 
 // Get data.
-
+use_stats_fix_last_course_access($data->userid, $course->id);
 $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
 $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
@@ -68,70 +86,32 @@ if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
 
+if (!isset($user)) {
+    $user = $DB->get_record('user', array('id' => $data->userid));
+}
+
 // Get course structure.
 
-$coursestructure = report_trainingsessions_get_course_structure($course->id, $items);
+$coursestructure = $rt->get_course_structure($course->id, $items);
+$cols = $rt->get_summary_cols('keys');
+$headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
+$rt->add_graded_columns($cols, $unusedtitles);
+$rt->add_graded_data($gradedata, $data->userid, $aggregate);
+$headdata = (object) $headdata;
+$headdata->gradecols = $gradedata;
 
-// Time period form.
+$str = $renderer->print_html($coursestructure, $aggregate, $done);
+$headdata->done = $done;
+$headdata->items = $items;
 
-$str = '';
-$dataobject = report_trainingsessions_print_html($str, $coursestructure, $aggregate, $done);
-if (empty($dataobject)) {
-    $dataobject = new stdClass();
-}
-$dataobject->items = $items;
-$dataobject->done = $done;
-
-if ($dataobject->done > $items) {
-    $dataobject->done = $items;
-}
-
-// In-activity.
-
-$dataobject->activityelapsed = @$aggregate['activities'][$course->id]->elapsed;
-$dataobject->activityevents = @$aggregate['activities'][$course->id]->events;
-$dataobject->otherelapsed = @$aggregate['other'][$course->id]->elapsed;
-$dataobject->otherevents = @$aggregate['other'][$course->id]->events;
-
-$dataobject->course = new StdClass;
-
-// Calculate in-course-out-activities.
-
-$dataobject->course->elapsed = 0;
-$dataobject->course->events = 0;
-
-if (!empty($aggregate['course'])) {
-    $dataobject->course->elapsed = 0 + @$aggregate['course'][$course->id]->elapsed;
-    $dataobject->course->events = 0 + @$aggregate['course'][$course->id]->events;
-}
-
-// Calculate everything.
-
-$dataobject->elapsed = $dataobject->activityelapsed + $dataobject->course->elapsed;
-$dataobject->extelapsed = $dataobject->activityelapsed + $dataobject->otherelapsed + $dataobject->course->elapsed;
-$dataobject->events = $dataobject->activityevents + $dataobject->otherevents + $dataobject->course->events;
-
-if (array_key_exists('upload', $aggregate)) {
-    $dataobject->elapsed += @$aggregate['upload'][0]->elapsed;
-    $dataobject->upload = new StdClass;
-    $dataobject->upload->elapsed = 0 + @$aggregate['upload'][0]->elapsed;
-    $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
-}
-
-// Get additional grade columns and add to passed dataobject for header.
-report_trainingsessions_add_graded_data($gradecols, $data->userid, $aggregate);
-
-$user = $DB->get_record('user', array('id' => $data->userid));
-$cols = report_trainingsessions_get_summary_cols();
-$headdata = report_trainingsessions_map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
-$headdata['gradecols'] = $gradecols;
-echo report_trainingsessions_print_header_html($data->userid, $course->id, (object)$headdata);
-
-report_trainingsessions_print_session_list($str, $aggregate['sessions'], $course->id, $data->userid);
-
+echo $renderer->print_header_html($user, $course, $headdata, $cols);
 echo $str;
 
-echo $renderer->xls_userexport_button($data);
+if (!empty($tsconfig->showsessions)) {
+    echo $renderer->print_session_list($aggregate['sessions'], $course->id, $data->userid);
+}
+
+echo $rtrenderer->xls_userexport_button($data);
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
     include_once($CFG->dirroot.'/report/trainingsessions/pro/renderer.php');

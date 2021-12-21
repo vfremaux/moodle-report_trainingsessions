@@ -1,0 +1,38 @@
+
+<!-- report_trainingsessions/course_summary -->
+
+<div class="coursesummary-period" style="display:flex">
+    <div>{{#str}}from, report_trainingsessions{{/str}}: </div>
+    <div>{{from}}</div>
+    <div> {{#str}}to, report_trainingsessions{{/str}}: </div>
+    <div>{{to}}</div>
+</div>
+<br/>
+<table class="coursesummary" width="100%">
+    <tr>
+        <th style="width:20px"></th>
+
+        {{#colstitles}}
+         <th data-column="{{key}}">{{{title}}}</th>
+        {{/colstitles}}
+
+    </tr>
+
+    {{#userdata}}
+    <tr class="r{{line}}">
+        <td>{{line}}</td>
+        {{#fields}}
+        <td class="{{class}} c{{col}}">{{{value}}}</td>
+        {{/fields}}
+
+    </tr>
+    {{/userdata}}
+
+</table>
+<br/>
+
+<center>
+    {{{generatecsvbutton}}} {{{generatexlsbutton}}}
+</center>
+<br/>
+<!-- /report_trainingsessions/course_summary -->

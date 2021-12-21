@@ -1,0 +1,77 @@
+
+
+
+<!-- report_trainingsessions/structure -->
+{{^hasstructure}}
+{{#str}}nostructure, report_trainingsessions{{/str}}
+{{/hasstructure}}
+
+{{#hasstructure}}
+
+{{#withtitle}}
+<h2>{{#str}}instructure, report_trainingsessions{{/str}}</h2>
+
+<table width="100%" id="structure-table">
+    <tr valign="top">
+        <td class="userreport-col0">
+            <!-- b>{{#str}}structureitem, report_trainingsessions{{/str}}</b -->
+        </td>
+
+        {{#showitemfirstaccess}}
+        <td class="userreport-col1">
+            <b>{{#str}}firstaccess, report_trainingsessions{{/str}}</b>
+        </td>
+        {{/showitemfirstaccess}}
+
+        {{#showitemlastaccess}}
+        <td class="userreport-col2">
+            <b>{{#str}}lastaccess, report_trainingsessions{{/str}}</b>
+        </td>
+        {{/showitemlastaccess}}
+
+        <td class="userreport-col3">
+            <b>{{#str}}duration, report_trainingsessions{{/str}} {{#showhits}} ({{#str}}hits, report_trainingsessions{{/str}}){{/showhits}}</b>
+        </td>
+    </tr>
+</table>
+{{/withtitle}}
+
+{{#structures}}
+{{#hasbody}}
+<table class="sessionreport level{{level}}">
+    <tr class="sessionlevel{{level}} userreport-col0" valign="top">
+        <td class="sessionitem item" width="55%" data-cmid="{{id}}">
+            {{{indent}}} {{{debuginfo}}} {{name}}
+        </td>
+
+        {{#showitemfirstaccess}}
+        <td class="sessionitem rangedate userreport-col1">
+            {{{firstaccessstr}}}
+        </td>
+        {{/showitemfirstaccess}}
+
+        {{#showitemlastaccess}}
+        <td class="sessionitem rangedate  userreport-col2">
+            {{{lastaccessstr}}}
+        </td>
+        {{/showitemlastaccess}}
+
+        <td class="reportvalue rangedate userreport-col3" align="right" {{#real}}title="{{#str}}real, report_trainingsessions{{/str}}: {{realstr}}"{{/real}}{{#credit}}title="{{#str}}credit, report_trainingsessions{{/str}}: {{creditstr}}"{{/credit}}>
+            {{{source}}} {{{elapsedstr}}} {{#showhits}} {{eventsstr}} {{/showhits}}
+        </td>
+    </tr>
+</table>
+{{/hasbody}}
+{{#hassubs}}
+<div class="trainingreport subs">
+    {{#structures}}
+    {{> report_trainingsessions/structure }}
+    {{/structures}}
+</div>
+{{/hassubs}}
+
+{{/structures}}
+
+{{/hasstructure}}
+
+<!-- /report_trainingsessions/structure -->

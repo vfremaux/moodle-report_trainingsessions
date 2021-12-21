@@ -345,7 +345,7 @@ class XlsRenderer {
         $worksheet->write_string($row, 1, strftime($datetimefmt, $data->from));
         $row++;
         $worksheet->write_string($row, 0, get_string('to').' :', $xlsformats['b']);
-        $worksheet->write_string($row, 1, strftime($datetimefmt, time()));
+        $worksheet->write_string($row, 1, strftime($datetimefmt, $data->to));
         $row++;
 
         if ($courseid) {

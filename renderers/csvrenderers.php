@@ -34,6 +34,14 @@ class CsvRenderer {
         $this->rt = $rt;
     }
 
+    public function print_periodinfo(&$csvbuffer, $input) {
+        $str = '#'."\n";
+        $str .= '# from: '.$this->rt->format_time(0 + $input->from, 'html')."\n";
+        $str .= '# to: '.$this->rt->format_time(0 + $input->to, 'html')."\n";
+
+        $csvbuffer .= $str;
+    }
+
     public function print_userinfo(&$csvbuffer, $user) {
 
         $config = get_config('report_trainingsessions');

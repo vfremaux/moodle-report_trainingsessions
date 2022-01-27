@@ -312,18 +312,15 @@ if ($ADMIN->fulltree) {
         $default = get_string('defaultsumformula', 'report_trainingsessions');
         $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
     }
-
-    if (report_trainingsessions_supports_feature('emulate/community')) {
-        // This will accept any.
-        $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_trainingsessions'), ''));
-
-        $key = 'report_trainingsessions/emulatecommunity';
-        $label = get_string('emulatecommunity', 'report_trainingsessions');
-        $desc = get_string('emulatecommunity_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
-    } else {
-        $label = get_string('plugindist', 'report_trainingsessions');
-        $desc = get_string('plugindist_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
-    }
 }
+
+if (report_trainingsessions_supports_feature('emulate/community') == 'pro') {
+    include_once($CFG->dirroot.'/report/trainingsessions/pro/prolib.php');
+    $promanager = report_trainingsessions\pro_manager::instance();
+    $promanager->add_settings($ADMIN, $settings);
+} else {
+    $label = get_string('plugindist', 'report_trainingsessions');
+    $desc = get_string('plugindist_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
+}
+

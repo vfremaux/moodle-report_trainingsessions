@@ -107,7 +107,7 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
  * implementation path where to fetch resources.
  * @param string $feature a feature key to be tested.
  */
-function report_trainingsessions_supports_feature($feature = null, $getsupported = null) {
+function report_trainingsessions_supports_feature($feature = null, $getsupported = false) {
     global $CFG;
     static $supports;
 

@@ -344,7 +344,7 @@ class HtmlRenderer {
      */
     public function print_header_html($user, $course, $data, $cols, $short = false, $withcompletion = true,
                                                        $withnooutofstructure = false) {
-        global $OUTPUT;
+        global $OUTPUT, $DB, $USER;
 
         $config = get_config('report_trainingsessions');
 
@@ -359,6 +359,10 @@ class HtmlRenderer {
         $template = new StdClass;
         $template->short = $short;
         $template->showhits = $config->showhits;
+
+        if (empty($user)) {
+            $user = $USER;
+        }
 
         $template->userpicture = $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
         $template->fullname = fullname($user);
@@ -456,6 +460,21 @@ class HtmlRenderer {
 
             if ((@$data->sessions) == 0 && (@$completedwidth > 0)) {
                 $template->checklistadvice = $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+            }
+        }
+
+        // Add extra profile fields to output
+        $template->hasprofilefields = 0;
+        for ($i = 1; $i <= 2; $i++) {
+            $fieldkey = 'extrauserinfo'.$i;
+            if (!empty($config->$fieldkey)) {
+                $template->hasprofilefields = 1;
+                $fieldtpl = new StdClass;
+                $field = $DB->get_record('user_info_field', ['id' => $config->$fieldkey]);
+                $fieldtpl->fieldname = $field->name;
+                $data = $DB->get_field('user_info_data', 'data', ['userid' => $user->id, 'fieldid' => $field->id]);
+                $fieldtpl->fieldvalue = $data;
+                $template->profilefields[] = $fieldtpl;
             }
         }
 

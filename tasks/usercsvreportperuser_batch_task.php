@@ -73,6 +73,7 @@ if ($auser) {
 
     $csvbuffer = '';
     $renderer->print_userinfo($csvbuffer, $auser);
+    $renderer->print_periodinfo($csvbuffer, $input);
     $renderer->print_header($csvbuffer);
     $renderer->print_course_structure($csvbuffer, $coursestructure, $aggregate);
 

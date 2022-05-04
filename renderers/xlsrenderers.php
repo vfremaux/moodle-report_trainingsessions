@@ -789,6 +789,7 @@ class XlsRenderer {
         global $DB;
 
         $config = get_config('report_trainingsessions');
+        $catids = [];
 
         $output = array();
         $courses = array();

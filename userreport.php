@@ -46,8 +46,13 @@ if (!$data = $selform->get_data()) {
     $data->to = optional_param('to', time(), PARAM_NUMBER);
     if (has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
         $firstcompiledusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.*', 'u.lastname, u.firstname', 0, 1);
-        $user = array_shift($firstcompiledusers);
-        $data->userid = $user->id;
+        if (!empty($firstcompiledusers)) {
+            $user = array_shift($firstcompiledusers);
+            $data->userid = $user->id;
+        } else {
+            // No users in the course. Use "me".
+            $data->userid = $USER->id;
+        }
     } else {
         $data->userid = $USER->id;
     }

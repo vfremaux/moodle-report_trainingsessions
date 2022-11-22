@@ -133,6 +133,8 @@ if ($data->output == 'html') {
         $dataobject->upload->events = 0 + @$aggregate['upload'][0]->events;
     }
 
+    $dataobject->gradecols = []; // Must be empty array in allcourses.
+
     $renderer->print_header_html($user, $course, $dataobject, $cols, true, false, false);
 
     echo $OUTPUT->heading(get_string('incourses', 'report_trainingsessions'));

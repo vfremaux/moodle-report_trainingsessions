@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: true
 
 addons:
   firefox: "47.0.1"
@@ -23,22 +23,23 @@ php:
 
 env:
   global:
-    - MOODLE_BRANCH=MOODLE_37_STABLE
+    - MOODLE_BRANCH=MOODLE_39_STABLE
+    - PLUGINS_BRANCH=MOODLE_39_WORKING
   matrix:
     - DB=mariadb
     - DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9
-  - nvm use 8.9
+  - nvm install 14.0
+  - nvm use 14.0
   - cd ../..
-  - composer create-project -n --no-dev moodlerooms/moodle-plugin-ci ci ^2
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
-  - moodle-plugin-ci add-plugin --branch $MOODLE_BRANCH vfremaux/moodle-block_use_stats
-  - moodle-plugin-ci add-plugin --branch $MOODLE_BRANCH vfremaux/moodle-auth_ticket
+  - moodle-plugin-ci add-plugin --branch $PLUGINS_BRANCH vfremaux/moodle-block_use_stats
+  - moodle-plugin-ci add-plugin --branch $PLUGINS_BRANCH vfremaux/moodle-auth_ticket
   - moodle-plugin-ci install
 
 script:
@@ -48,8 +49,8 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache
-#  - moodle-plugin-ci phpdoc
+#  - moodle-plugin-ci mustache
   - moodle-plugin-ci grunt
-  - moodle-plugin-ci phpunit
+#  - moodle-plugin-ci phpdoc
+#  - moodle-plugin-ci phpunit
 #  - moodle-plugin-ci behat

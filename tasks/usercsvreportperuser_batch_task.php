@@ -69,10 +69,11 @@ if ($auser) {
 
     $logusers = $auser->id;
     $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-    $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
+    $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
 
     $csvbuffer = '';
     $renderer->print_userinfo($csvbuffer, $auser);
+    $renderer->print_periodinfo($csvbuffer, $input);
     $renderer->print_header($csvbuffer);
     $renderer->print_course_structure($csvbuffer, $coursestructure, $aggregate);
 

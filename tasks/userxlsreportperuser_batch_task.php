@@ -91,9 +91,13 @@ $weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->
 
 $coursestructure = $rt->get_course_structure($course->id, $items);
 $cols = $rt->get_summary_cols();
-$headdata = (object) $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true /* associative */);
+$headdata = $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true /* associative */);
 $rt->add_graded_columns($cols, $titles);
-$rt->add_graded_data($headdata, $auser->id, $aggregate);
+$rt->add_graded_data($gradedata, $auser->id, $aggregate);
+$headdata = (object) $headdata;
+$headdata->gradecols = $gradedata;
+$headdata->from = $input->from;
+$headdata->to = $input->to;
 
 $renderer->print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xlsformats);
 $headdata->done = $done;

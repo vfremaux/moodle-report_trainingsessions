@@ -210,9 +210,14 @@ class HtmlRenderer {
                     $template->structures[] = $subtemplate;
                 }
             }
+
+            // If array results empty, returns nothing.
+            if (empty($template->structures)) {
+                return null;
+            }
         } else {
             // We are a real element, or structure.
-            $template->id = $structure->id;
+            $template->id = @$structure->id;
             $template->hasbody = true;
 
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {
@@ -238,14 +243,16 @@ class HtmlRenderer {
                     $dataobject->events = 0;
 
                     if (!empty($structure->subs)) {
-                        $template->hassubs = true;
                         $subtemplate = $this->print_html($structure->subs, $aggregate, $done, $indent, $level + 1);
-                        $template->structures[] = $subtemplate;
-                        $dataobject = $subtemplate;
-                        // echo "Getting from subs in structural element (element)";
-                        // print_object($subtemplate);
-                        trainingsessions::updatefirst($template->firstaccess, @$dataobject->firstaccess);
-                        trainingsessions::updatelast($template->lastaccess, @$dataobject->lastaccess);
+                        if ($subtemplate) {
+                            $template->structures[] = $subtemplate;
+                            $dataobject = $subtemplate;
+                            $template->hassubs = true;
+                            // echo "Getting from subs in structural element (element)";
+                            // print_object($subtemplate);
+                            trainingsessions::updatefirst($template->firstaccess, @$dataobject->firstaccess);
+                            trainingsessions::updatelast($template->lastaccess, @$dataobject->lastaccess);
+                        }
                     }
 
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
@@ -266,8 +273,10 @@ class HtmlRenderer {
                         }
                         $template->elapsedstr = $this->rt->format_time($dataobject->elapsed, $durationformat);
                         if (!empty($dataobject->real)) {
+                            $template->real = true;
                             $template->realstr = $this->rt->format_time($dataobject->real, $durationformat);
                         } else if (!empty($dataobject->credit)) {
+                            $template->credit = true;
                             $template->creditstr = $this->rt->format_time($dataobject->credit, $durationformat);
                         }
                     } else {
@@ -286,15 +295,17 @@ class HtmlRenderer {
                     }
                     if (!empty($structure->subs)) {
                         // Print for sub array.
-                        $template->hassubs = true;
                         $subtemplate = $this->print_html($structure->subs, $aggregate, $done, $indent, $level + 1);
-                        $template->elapsed += $subtemplate->elapsed;
-                        $template->events += $subtemplate->events;
-                        // echo "Getting from subs in non structural element ";
-                        // print_object($subtemplate);
-                        trainingsessions::updatefirst($template->firstaccess, $subtemplate->firstaccess);
-                        trainingsessions::updatelast($template->lastaccess, $subtemplate->lastaccess);
-                        $template->structures[] = $subtemplate;
+                        if ($subtemplate) {
+                            $template->hassubs = true;
+                            $template->elapsed += $subtemplate->elapsed;
+                            $template->events += $subtemplate->events;
+                            // echo "Getting from subs in non structural element ";
+                            // print_object($subtemplate);
+                            trainingsessions::updatefirst($template->firstaccess, $subtemplate->firstaccess);
+                            trainingsessions::updatelast($template->lastaccess, $subtemplate->lastaccess);
+                            $template->structures[] = $subtemplate;
+                        }
                     }
                 }
             }
@@ -317,7 +328,7 @@ class HtmlRenderer {
             $template->eventsstr = ' ('.(0 + @$template->events).')';
         }
 
-        // echo "Level : $level\n";
+        // echo "Level Finished : $level\n";
         // print_object($template);
 
         if ($level == 0) {
@@ -333,7 +344,7 @@ class HtmlRenderer {
      */
     public function print_header_html($user, $course, $data, $cols, $short = false, $withcompletion = true,
                                                        $withnooutofstructure = false) {
-        global $DB, $OUTPUT;
+        global $OUTPUT, $DB, $USER;
 
         $config = get_config('report_trainingsessions');
 
@@ -348,6 +359,10 @@ class HtmlRenderer {
         $template = new StdClass;
         $template->short = $short;
         $template->showhits = $config->showhits;
+
+        if (empty($user)) {
+            $user = $USER;
+        }
 
         $template->userpicture = $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
         $template->fullname = fullname($user);
@@ -403,10 +418,14 @@ class HtmlRenderer {
             } else {
                 $bars = '';
                 if (array_key_exists('ltcprogressinitems', $data)) {
-                    $bars .= '<div class="all-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500).' '.get_string('ltc', 'learningtimecheck').'</div>';
+                    $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
+                    $progress .= ' '.get_string('ltc', 'learningtimecheck');
+                    $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
                 if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
-                    $bars .= '<div class="mandatory-items" style="height:50px">'.$this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500).' '.get_string('mandatories', 'learningtimecheck').'</div>';
+                    $progress = $this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500);
+                    $progress .= ' '.get_string('mandatories', 'learningtimecheck');
+                    $bars .= '<div class="mandatory-items" style="height:50px">'.$progress.'</div>';
                 }
                 $template->completionbar = $bars;
             }
@@ -414,11 +433,13 @@ class HtmlRenderer {
 
         $this->add_time_totalizers($data, $cols, $template, $durationformat);
 
+        $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
+
         // Print additional grades.
-        if (!empty($gradecols)) {
+        if (!empty($data->gradecols)) {
             $i = 0;
             $template->hasgrades = true;
-            foreach ($gradecols as $gc) {
+            foreach ($data->gradecols as $gc) {
                 $gradetpl = new Stdclass;
                 $gradetpl->label = $gradetitles[$i];
                 $gradetpl->value = sprintf('%0.2f', $data->gradecols[$i]);
@@ -439,6 +460,26 @@ class HtmlRenderer {
 
             if ((@$data->sessions) == 0 && (@$completedwidth > 0)) {
                 $template->checklistadvice = $OUTPUT->help_icon('checklistadvice', 'report_trainingsessions');
+            }
+        }
+
+        // Add extra profile fields to output.
+        $template->hasprofilefields = 0;
+        for ($i = 1; $i <= 2; $i++) {
+            $fieldkey = 'extrauserinfo'.$i;
+            if (!empty($config->$fieldkey)) {
+                $template->hasprofilefields = 1;
+                $fieldtpl = new StdClass;
+                $field = $DB->get_record('user_info_field', ['id' => $config->$fieldkey]);
+                $fieldtpl->fieldname = $field->name;
+                $data = $DB->get_field('user_info_data', 'data', ['userid' => $user->id, 'fieldid' => $field->id]);
+                $fieldtpl->fieldvalue = $data;
+                if ($field->datatype == 'datetime') {
+                    $fieldtpl->fieldvalue = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
+                } else {
+                    $fieldtpl->fieldvalue = $data;
+                }
+                $template->profilefields[] = $fieldtpl;
             }
         }
 
@@ -471,7 +512,7 @@ class HtmlRenderer {
             $totalizertpl->elapsed = $this->rt->format_time(0 + @$data->$c, $durationformat);
             $h = str_replace('elapsed', 'hits', $c);
             $h = str_replace('time', 'hits', $h);  // Alternative if not an "elapsed" column.
-            $totalizertpl->hits = 0 + $data->$h;
+            $totalizertpl->hits = 0 + @$data->$h;
 
             $template->totalizers[] = $totalizertpl;
         }
@@ -738,7 +779,7 @@ class HtmlRenderer {
     }
 
     public function print_progressionbar($items, $done, $width) {
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
 
         $template = new StdClass;
 

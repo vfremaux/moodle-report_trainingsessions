@@ -396,13 +396,19 @@ class trainingsessions {
                     $source = @$blockinstance->config->text;
 
                     // If there is no subcontent, do not consider this bloc in reports.
-                    if ($element->subs = page_get_structure_in_content($source, $itemcount)) {
+                    if ($element->subs = $this->page_get_structure_in_content($source, $itemcount)) {
                         $structure[] = $element;
                     }
                 } else {
                     // Is a module.
                     $cm = $DB->get_record('course_modules', array('id' => $pi->cmid));
                     $module = $DB->get_record('modules', array('id' => $cm->module));
+                    if (empty($module)) {
+                        if (debugging(DEBUG_DEVELOPER)) {
+                            echo $OUTPUT->notification("Missing module type of id {$cm->module} for course module $pi->cmid ");
+                        }
+                        continue;
+                    }
 
                     switch ($module->name) {
                         case 'customlabel':
@@ -438,7 +444,7 @@ class trainingsessions {
                 $pageelement->type = 'page';
                 $pageelement->name = format_string($child->nametwo);
 
-                $pageelement->subs = page_get_structure_from_page($child, $itemcount);
+                $pageelement->subs = $this->page_get_structure_from_page($child, $itemcount);
                 $structure[] = $pageelement;
             }
         }
@@ -473,7 +479,7 @@ class trainingsessions {
                     $element = new StdClass;
                     $element->type = 'pagemenu';
                     $element->plugin = 'mod';
-                    $element->subs = page_get_structure_from_page($page, $itemcount);
+                    $element->subs = $this->page_get_structure_from_page($page, $itemcount);
                     $structure[] = $element;
                     $visitedpages[] = $matches[2];
                 }
@@ -535,10 +541,19 @@ class trainingsessions {
                 $mins = $mins % 60;
 
                 if ($hours > 0) {
-                    return "{$hours}h {$mins}min {$secs}s";
+                    if ($secs) {
+                        return "{$hours}h {$mins}min {$secs}s";
+                    }
+                    if ($mins) {
+                        return "{$hours}h {$mins}min";
+                    }
+                    return "{$hours}h";
                 }
                 if ($mins > 0) {
-                    return "{$mins}min {$secs}s";
+                    if ($secs) {
+                        return "{$mins}min {$secs}s";
+                    }
+                    return "{$mins}min";
                 }
                 return "{$secs}s";
 
@@ -1447,7 +1462,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_formats() {
-        global $CFG;
         static $options;
 
         if (!isset($options)) {
@@ -1476,7 +1490,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_supported_formats_layouts() {
-
 
         if (report_trainingsessions_supports_feature('format/xls')) {
             $layoutconstraints['onefulluserpersheet'][] = 'xls';
@@ -1520,7 +1533,6 @@ class trainingsessions {
      * Gives the available format options.
      */
     public function get_batch_replays() {
-        global $CFG;
         static $options;
 
         if (!isset($options)) {
@@ -1663,9 +1675,10 @@ class trainingsessions {
      * - 'format' returns expected format for column
      */
     public function get_summary_cols($what = 'keys') {
+        global $DB;
 
-        $config = get_config('report_trainingsessions', 'summarycolumns');
-        $cols = explode("\n", $config);
+        $config = get_config('report_trainingsessions');
+        $cols = explode("\n", $config->summarycolumns);
 
         $corekeys = array('idnumber', 'lastname', 'firstname', 'institution', 'department', 'firstaccess');
 
@@ -1686,7 +1699,13 @@ class trainingsessions {
             }
 
             if ($what == 'title') {
-                if (in_array($c, $corekeys)) {
+                if (in_array($key, ['extrauserinfo1', 'extrauserinfo2'])) {
+                    // special processing. these are customized fields to fetch as extrauserinfo1 or extrauserinfo2.
+                    $field = $DB->get_record('user_info_field', ['id' => $config->$key]);
+                    $result[] = $field->name;
+                }
+
+                if (in_array($key, $corekeys)) {
                     // Core keys get column name in core strings.
                     $result[] = preg_replace('/&nbsp;$/', '', get_string($key));
                 } else {
@@ -1718,6 +1737,8 @@ class trainingsessions {
     public function map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0, $associative = false) {
         global $COURSE, $DB, $CFG;
 
+        $config = get_config('report_trainingsessions');
+
         if ($courseid == 0) {
             $courseid = $COURSE->id;
         }
@@ -1732,20 +1753,18 @@ class trainingsessions {
         }
 
         // Fix missing coursefirstaccess time.
-        $firstaccessrec = $DB->get_field('report_trainingsessions_fa', 'timeaccessed', ['userid' => $user->id, 'courseid' => $courseid]);
-        if (!is_numeric($firstaccessrec)) {
+        $firstaccessrec = $DB->get_record('report_trainingsessions_fa', ['userid' => $user->id, 'courseid' => $courseid]);
+        if (!$firstaccessrec) {
             // Get first log.
             $firstcourseaccessrecs = $DB->get_records('logstore_standard_log', ['userid' => $user->id, 'courseid' => $courseid], 'timecreated', 'id,timecreated', 0, 1);
-            $farec = new StdClass;
-            $farec->userid = $user->id;
-            $farec->courseid = $courseid;
             if ($firstcourseaccessrecs) {
+                $firstaccessrec = new StdClass;
+                $firstaccessrec->userid = $user->id;
+                $firstaccessrec->courseid = $courseid;
                 $firstcourseaccessrec = array_shift($firstcourseaccessrecs);
-                $farec->timeaccessed = $firstcourseaccessrec->timecreated;
-            } else {
-                $farec->timeaccessed = 0;
+                $firstaccessrec->timeaccessed = $firstcourseaccessrec->timecreated;
+                $DB->insert_record('report_trainingsessions_fa', $firstaccessrec);
             }
-            $DB->insert_record('report_trainingsessions_fa', $farec);
         }
 
         $colsources = array(
@@ -1758,7 +1777,7 @@ class trainingsessions {
             'department' => $user->department,
             'lastlogin' => ($user->currentlogin > $user->lastlogin) ? $user->currentlogin : $user->lastlogin,
             'lastcourseaccess' => $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $user->id, 'courseid' => $courseid]),
-            'firstcourseaccess' => $DB->get_field('report_trainingsessions_fa', 'timeaccessed', ['userid' => $user->id, 'courseid' => $courseid]),
+            'firstcourseaccess' => ($firstaccessrec) ? $firstaccessrec->timeaccessed : '',
             'firstaccess' => $user->firstaccess,
             'groups' => self::get_user_groups($user->id, $courseid),
             'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
@@ -1766,6 +1785,7 @@ class trainingsessions {
             'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'othertime' => 0 + @$t[0]->elapsed,
+            'otherelapsed' => 0 + @$t[0]->elapsed,
             'elapsed' => 0 + @$t[$courseid]->elapsed,
             'elapsedoutofstructure' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed,
             'extelapsed' => 0 + @$t[$courseid]->elapsed + @$t[0]->elapsed + @$t[SITEID]->elapsed,
@@ -1779,6 +1799,24 @@ class trainingsessions {
             'workingsessions' => $sessions,
             'uploadtime' => @$aggregate['upload'][0]->upload->elapsed
         );
+
+        for ($i = 1; $i <= 2; $i++) {
+            $fieldkey = 'extrauserinfo'.$i;
+            if (!empty($config->$fieldkey)) {
+                $field = $DB->get_record('user_info_field', ['id' => $config->$fieldkey]);
+                $data = $DB->get_field('user_info_data', 'data', ['fieldid' => $config->$fieldkey, 'userid' => $user->id]);
+                $colsources[$fieldkey] = '';
+                if ($field->datatype == 'datetime') {
+                    if ($data) {
+                        $colsources[$fieldkey] = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
+                    }
+                } else {
+                    if ($data) {
+                        $colsources[$fieldkey] = $data;
+                    }
+                }
+            }
+        }
 
         if (is_dir($CFG->dirroot.'/mod/learningtimecheck')) {
             // Is LTC installed ?
@@ -1904,7 +1942,28 @@ class trainingsessions {
      * @param array $data
      */
     public function process_bounds(&$data, &$course) {
-        global $DB;
+        global $DB, $COURSE;
+
+        $tsconfig = get_config('report_trainingsessions');
+
+        // Fix fromstart from _POST in some weird cases.
+        if (empty($data->fromstart)) {
+            $data->fromstart = @$_POST['fromstart'];
+            if (empty($data->fromstart)) {
+                switch ($tsconfig->defaultstartdate) {
+                    case 'course' : {
+                        $data->fromstart = $course->timestart;
+                        break;
+                    }
+
+                    case 'enrol' : {
+                        // TODO : get first enrol.
+                        $data->fromstart = $firstenrol->timestart;
+                        break;
+                    }
+                }
+            }
+        }
 
         $changed = false;
         // Calculate start time.
@@ -1912,7 +1971,8 @@ class trainingsessions {
             $data->from = $course->startdate;
             $changed = true;
         } else if (!empty($data->fromstart) && ($data->fromstart == 'account')) {
-            $data->from = $course->startdate;
+            $accountdate = $DB->get_field('user', 'firstaccess', ['id' => $data->userid]);
+            $data->from = max($course->startdate, $accountdate);
             $changed = true;
         } else if (!empty($data->fromstart) && (trim($data->fromstart) == 'enrol')) {
 
@@ -1962,9 +2022,9 @@ class trainingsessions {
         }
 
         if ($changed) {
-            $_POST['from']['day'] = date('d', $data->from);
-            $_POST['from']['month'] = date('m', $data->from);
-            $_POST['from']['year'] = date('!y', $data->from);
+            $data->startday = $_POST['from']['day'] = date('d', $data->from);
+            $data->startmonth = $_POST['from']['month'] = date('m', $data->from);
+            $data->startyear = $_POST['from']['year'] = date('Y', $data->from);
         }
 
         if (($data->to == -1) || @$data->tonow) {
@@ -2147,5 +2207,62 @@ class trainingsessions {
         if ($last < $input) {
             $last = $input;
         }
+    }
+
+    public function get_nonempty_groups($courseid) {
+        global $DB;
+
+        $sql = "
+            SELECT
+                g.id,
+                g.name,
+                COUNT(*) as members
+            FROM
+                {groups} g,
+                {groups_members} gm
+            WHERE
+                gm.groupid = g.id AND
+                g.courseid = ?
+            GROUP BY
+                g.id
+        ";
+
+        $nonemptygroups = $DB->get_records_sql($sql, [$courseid]);
+        return $nonemptygroups;
+    }
+
+    /**
+     * Deletes all report files older than the configured value in all database.
+     */
+    public function cleanup_old_reports() {
+        global $DB;
+
+        $config = get_config('report_trainingsessions');
+
+        $fs = get_file_storage();
+
+        // Get all files that match this filearea and older than horizon.
+        $params = [
+            'component' => 'report_trainingsessions',
+            'filearea' => 'reports',
+            'horizon' => time() - $config->deleteolderthan
+        ];
+
+        // Select all real files older than.
+        $select = "
+            component = :component AND
+            filearea = :filearea AND
+            timecreated < :horizon
+            filename <> ''
+        ";
+        $olderfiles = $DB->get_records_select('files', $select, $params);
+
+        if (!empty($olderfiles)) {
+            foreach ($olderfiles as $f) {
+                $storedfile = $fs->get_file_by_id($f->id);
+                $storedfile->delete();
+            }
+        }
+
     }
 }

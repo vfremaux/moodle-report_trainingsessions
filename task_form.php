@@ -103,7 +103,7 @@ class Task_Form extends moodleform {
         // Which data to export and how to build the report.
         $scopeoptions = array(
             'currentcourse' => get_string('currentcourse', 'report_trainingsessions'),
-//            'wholecourse' => get_string('wholecourse', 'report_trainingsessions'),
+            // 'wholecourse' => get_string('wholecourse', 'report_trainingsessions'),
             'allcourses' => get_string('allcourses', 'report_trainingsessions'),
         );
 

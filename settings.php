@@ -95,9 +95,14 @@ if ($ADMIN->fulltree) {
     $key = 'report_trainingsessions/summarycolumns';
     $label = get_string('summarycolumns', 'report_trainingsessions');
     $desc = get_string('summarycolumns_desc', 'report_trainingsessions');
-    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#groups,a\n#lastlogin,t\n#firstaccess,t\nlastcourseaccess,t\n";
-    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\nelapsedoutofstructure,d\nelapsed,d\n#extelapsed,d\nextotherelapsed,d\n#items,n\n#hits,n\n#exthits,n\n#visiteditems,n\n";
-    $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherlastweek,d\n#hitslastweek,n\n#exthitslastweek,n\nworkingsessions,n";
+    $default = "id,n\nidnumber,a\nfirstname,a\nlastname,a\nemail,a\n#institution,a\n#department,a\n#groups,a\n#lastlogin,t\n";
+    $default .= "#firstaccess,t\nlastcourseaccess,t\n";
+    $default .= "activitytime,d\n#othertime,d\n#coursetime,d\n#uploadtime,d\n";
+    $default .= "elapsedoutofstructure,d\nelapsed,d\n#extelapsed,d\nextotherelapsed,d\n";
+    $default .= "#items,n\n#hits,n\n#exthits,n\n#extotherhits,n\n#visiteditems,n\n";
+    $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherelapsedlastweek,d\n";
+    $default .= "#hitslastweek,n\n#exthitslastweek,n\n";
+    $default .= "workingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
     $fieldoptions = $DB->get_records_menu('user_info_field', array(), 'id', 'id,name');
@@ -307,18 +312,15 @@ if ($ADMIN->fulltree) {
         $default = get_string('defaultsumformula', 'report_trainingsessions');
         $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
     }
-
-    if (report_trainingsessions_supports_feature('emulate/community')) {
-        // This will accept any.
-        $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_trainingsessions'), ''));
-
-        $key = 'report_trainingsessions/emulatecommunity';
-        $label = get_string('emulatecommunity', 'report_trainingsessions');
-        $desc = get_string('emulatecommunity_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
-    } else {
-        $label = get_string('plugindist', 'report_trainingsessions');
-        $desc = get_string('plugindist_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
-    }
 }
+
+if (report_trainingsessions_supports_feature('emulate/community') == 'pro') {
+    include_once($CFG->dirroot.'/report/trainingsessions/pro/prolib.php');
+    $promanager = report_trainingsessions\pro_manager::instance();
+    $promanager->add_settings($ADMIN, $settings);
+} else {
+    $label = get_string('plugindist', 'report_trainingsessions');
+    $desc = get_string('plugindist_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
+}
+

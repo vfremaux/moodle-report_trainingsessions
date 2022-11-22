@@ -34,16 +34,29 @@ $tsconfig = get_config('report_trainingsessions');
 $rt = \report\trainingsessions\trainingsessions::instance();
 $renderer = new \report\trainingsessions\HtmlRenderer($rt);
 
+raise_memory_limit(MEMORY_EXTRA);
+
 // Selector form.
 
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
 $selform = new SelectorForm($id, 'user');
 if (!$data = $selform->get_data()) {
     $data = new StdClass;
-    $data->from = optional_param('from', -1, PARAM_NUMBER);
-    $data->to = optional_param('to', -1, PARAM_NUMBER);
-    $data->userid = optional_param('userid', $USER->id, PARAM_INT);
-    $data->fromstart = optional_param('fromstart', @$tsconfig->defaultstartdate, PARAM_TEXT);
+    $data->from = optional_param('from', $course->startdate, PARAM_NUMBER);
+    $data->to = optional_param('to', time(), PARAM_NUMBER);
+    if (has_capability('report/trainingsessions:viewother', $context, $USER->id)) {
+        $firstcompiledusers = get_users_by_capability($context, 'report/trainingsessions:iscompiled', 'u.*', 'u.lastname, u.firstname', 0, 1);
+        if (!empty($firstcompiledusers)) {
+            $user = array_shift($firstcompiledusers);
+            $data->userid = $user->id;
+        } else {
+            // No users in the course. Use "me".
+            $data->userid = $USER->id;
+        }
+    } else {
+        $data->userid = $USER->id;
+    }
+    $data->fromstart = optional_param('fromstart', $tsconfig->defaultstartdate, PARAM_TEXT);
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
 }
 
@@ -69,7 +82,7 @@ if ($usconfig->enrolmentfilter && has_capability('report/trainingsessions:viewot
 }
 
 // Get data.
-
+use_stats_fix_last_course_access($data->userid, $course->id);
 $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
 $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
@@ -78,19 +91,24 @@ if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
 
-$user = $DB->get_record('user', array('id' => $data->userid));
+if (!isset($user)) {
+    $user = $DB->get_record('user', array('id' => $data->userid));
+}
 
 // Get course structure.
 
 $coursestructure = $rt->get_course_structure($course->id, $items);
 $cols = $rt->get_summary_cols('keys');
-$headdata = (object) $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
+$headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
 $rt->add_graded_columns($cols, $unusedtitles);
-$rt->add_graded_data($headdata, $data->userid, $aggregate);
+$rt->add_graded_data($gradedata, $data->userid, $aggregate);
+$headdata = (object) $headdata;
+$headdata->gradecols = $gradedata;
 
 $str = $renderer->print_html($coursestructure, $aggregate, $done);
 $headdata->done = $done;
 $headdata->items = $items;
+
 echo $renderer->print_header_html($user, $course, $headdata, $cols);
 echo $str;
 

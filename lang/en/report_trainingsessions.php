@@ -25,12 +25,12 @@
 // Privacy.
 $string['privacy:metadata'] = "The Trainingsessions Report does not store any data belonging to users";
 
-$string['trainingsessions:iscompiled'] = 'Is compiled in reports';
-$string['trainingsessions:view'] = 'Can view training session report';
-$string['trainingsessions:viewother'] = 'Can view training session reports from other users';
-$string['trainingsessions:downloadreports'] = 'Can download report documents';
-$string['trainingsessions:batch'] = 'Can batch reports';
-$string['trainingsessions:usegrading'] = 'Can setup grading output';
+$string['trainingsessions:iscompiled'] = 'Is compiled in reports'; // @DYNAKEY
+$string['trainingsessions:view'] = 'Can view training session report'; // @DYNAKEY
+$string['trainingsessions:viewother'] = 'Can view training session reports from other users'; // @DYNAKEY
+$string['trainingsessions:downloadreports'] = 'Can download report documents'; // @DYNAKEY
+$string['trainingsessions:batch'] = 'Can batch reports'; // @DYNAKEY
+$string['trainingsessions:usegrading'] = 'Can setup grading output'; // @DYNAKEY
 
 $string['accountstart'] = 'User account creation date';
 $string['activitytime'] = 'Time in activities';
@@ -39,21 +39,20 @@ $string['addmodulelabel'] = 'Add activity module';
 $string['addmoduletitle'] = 'Add an activity module you want to add grade in report';
 $string['addtimebonus'] = 'time bonus on overal grade';
 $string['addtimegrade'] = 'Time grade';
-$string['advancement'] = 'Advancement';
 $string['allcourses'] = 'All courses';
 $string['allgroups'] = 'All groups';
-$string['authoritysign'] = 'Education Authority';
 $string['availableactivities'] = 'Available activities';
 $string['batchdate'] = 'Task date ';
-$string['batchreports_task'] = 'Batch reports';
+$string['batchreports_task'] = 'Batch reports'; // @DYNAKEY
 $string['bgcolor'] = 'Background color';
 $string['binary'] = 'Binary output';
 $string['bonusgrademode'] = 'Time bonus grade mode';
 $string['bonusgrademodedefault'] = 'Bonus grade mode default';
 $string['bonusgrademodedefault_desc'] = 'Default value for the bonus grade mode when first setup in a course';
-$string['checklistadvice'] = 'Special side completion effects';
+$string['calculated'] = 'Calculated';
+$string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
+$string['checklistadvice'] = 'Special side completion effects'; // @DYNAKEY
 $string['chooseagroup'] = 'Choose a group';
-$string['chooseaninstitution'] = 'Choose an institution';
 $string['colors'] = 'Colors';
 $string['columnname'] = 'Column name: ';
 $string['connections'] = 'Connections';
@@ -79,8 +78,12 @@ $string['csvoutputtoiso'] = 'Iso CSV Output';
 $string['currentcourse'] = 'Current course';
 $string['dates'] = 'Key dates';
 $string['debugmode'] = 'Debug mode on';
+$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
 $string['defaultstartdate'] = 'Default start date';
 $string['defaultstartdate_desc'] = 'Default start date';
+$string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
+$string['deleteolderthan'] = 'Older than';
+$string['deleteolderthan_desc'] = 'Delete files older than this value';
 $string['disabled'] = '|--------- disabled -----------|';
 $string['disablesuspendedenrolments'] = 'Ignore suspended enrolments';
 $string['disablesuspendedstudents'] = 'Ignore suspended students';
@@ -88,13 +91,13 @@ $string['discrete'] = 'Discrete output';
 $string['discreteforcenumber'] = 'Force numeric on discrete';
 $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
-$string['elapsed'] = 'Total course time';
-$string['elapsedinitem'] = 'Elapsed time';
+$string['elapsed'] = 'Total course time'; // @DYNAKEY
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
-$string['elapsedlastweek'] = 'Last week time';
+$string['elapsedoutofstructure'] = 'Total elapsed time out of the structure of the course';
+$string['elapsedoutofstructure_help'] = 'time spent in course scope but not assignable to any structure element (section or page)';
+$string['elapsedinitem'] = 'Elapsed time';
+$string['elapsedlastweek'] = 'Last week time'; // @DYNAKEY
 $string['email'] = 'Email';
-$string['emulatecommunity'] = 'Emulate community version';
-$string['emulatecommunity_desc'] = 'If enabled, the plugin will behave as the public community version. This might loose features !';
 $string['enablecoursescore'] = 'Enable course score';
 $string['enablelearningtimecheckcoupling'] = 'Enable LTC coupling';
 $string['enablelearningtimecheckcoupling_desc'] = 'If enabled, the session reports will use the working days filtering of the Learning Time Check Report';
@@ -106,20 +109,22 @@ $string['errorbadcoursestructure'] = 'Course structure error : bad id {$a}';
 $string['errorbadviewid'] = 'non existing report view';
 $string['errorcontinuousscale'] = 'You cannot use scales as grade source in continuous mode';
 $string['errorcoursestructurefirstpage'] = 'Course structure error: failed getting first page';
-$string['errorcoursetoolarge'] = 'Course is too large. Choosing a group';
+$string['errorcoursetoolarge'] = 'Course is too large (50 max). Choosing a group';
+$string['errorgrouptoolarge'] = 'Group is too large (50 max). Consider having smaller groups to compile results.';
 $string['errordiscretenoranges'] = 'You must define ranges when using discrete mode';
 $string['errornoabsolutepath'] = 'Path must be relative';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
-$string['extelapsed'] = 'Total time (extended)';
-$string['extelapsedlastweek'] = 'Last week time (extended)';
-$string['exthits'] = 'Hits (extended)';
-$string['exthitslastweek'] = 'Hits last week (extended)';
-$string['extotherelapsed'] = 'Extra out of course time';
-$string['extotherlastweek'] = 'Extra time (last week)';
-$string['extrauserinfo'] = 'Additional user info in reports';
-$string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
 $string['exceldatefmt'] = 'yyyy/mm/dd hh:mm';
 $string['exceltimefmt'] = '[h]:mm:ss';
+$string['htmldatefmt'] = '%Y-%m-%d';
+$string['extelapsed'] = 'Total time (extended)'; // @DYNAKEY
+$string['extelapsedlastweek'] = 'Last week time (extended)'; // @DYNAKEY
+$string['exthits'] = 'Hits (extended)'; // @DYNAKEY
+$string['exthitslastweek'] = 'Hits last week (extended)'; // @DYNAKEY
+$string['extotherelapsed'] = 'Extra out of course time'; // @DYNAKEY
+$string['extotherlastweek'] = 'Extra time (last week)'; // @DYNAKEY
+$string['extrauserinfo'] = 'Additional user info in reports';
+$string['extrauserinfo_desc'] = 'You can optionnaly add user field data to the user info part';
 $string['fail'] = 'FAIL';
 $string['filetimesuffixformat'] = 'Ymd_His';
 $string['firstaccess'] = 'First access';
@@ -129,6 +134,7 @@ $string['firstcourseaccess_help'] = 'First time course has been accessed';
 $string['firstenrolldate'] = 'First enroll';
 $string['firstname'] = 'First Name';
 $string['firstsessiontime'] = 'First session';
+$string['formulalabel'] = 'Column label';
 $string['from'] = 'From';
 $string['generatecsv'] = 'Generate as CSV';
 $string['generatepdf'] = 'Generate as PDF';
@@ -145,6 +151,8 @@ $string['head3application'] = 'Head 3 coors are used on end of table sumarizer, 
 $string['headsection'] = 'Heading section';
 $string['hideemptymodules'] = 'Hide empty modules';
 $string['hideemptymodules_desc'] = 'Is enabled, empty modules (no time spent) will not be printed into reports.';
+$string['hidedeletedmodules'] = 'Hide modules being deleted';
+$string['hidedeletedmodules_desc'] = 'Is enabled, modules with deletion in progress marked will not be printed into reports.';
 $string['hits'] = 'Hits';
 $string['hitslastweek'] = 'Hits last week';
 $string['id'] = 'ID';
@@ -169,10 +177,7 @@ $string['layout'] = 'Document layout';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
 $string['learningtimesessioncrop_desc'] = 'When coupling with learningtimecheck, out of valid range sessions could be croped, or kept and only marked into reports';
 $string['libsmissing'] = 'This feature has been disabled as libs are missing. Install libs from http://github.com/vfremaux/moodle-local_vflibs to get PDF generation enabled.';
-$string['licensekey'] = 'Pro license key';
-$string['licensekey_desc'] = 'Input here the product license key you got from your provider';
-$string['licenseprovider'] = 'Pro License provider';
-$string['licenseprovider_desc'] = 'Input here your provider key';
+$string['lineaggregators'] = 'Line aggregators';
 $string['location'] = 'Location';
 $string['ltcprogressinitems'] = 'LTC Progress (% items)';
 $string['ltcprogressinmandatoryitems'] = 'LTC Progress (% mandatories)';
@@ -190,13 +195,14 @@ $string['nopermissiontoview'] = 'You have not enough permissions in this course 
 $string['nosessions'] = 'No measurable session data';
 $string['nostructure'] = 'No measurable course structure detected';
 $string['nothing'] = 'No users to compile';
+$string['nousers'] = 'No users here';
 $string['now'] = 'Now !';
 $string['onefulluserpersheet'] = 'One full user information per sheet';
 $string['oneuserperrow'] = 'One user summary information per row in a single sheet';
-$string['othertime'] = 'Other time';
+$string['othertime'] = 'Other time'; // @DYNAKEY
 $string['out'] = 'Out time';
 $string['outofgroup'] = 'No group';
-$string['outofstructure'] = 'Other course use time';
+$string['elapsedoutofstructure'] = 'Other course use time'; // @DYNAKEY
 $string['output:finalcoursegrade'] = 'Final grade';
 $string['output:rawcoursegrade'] = 'Raw course grade';
 $string['output:timebonus'] = 'Time bonus';
@@ -220,7 +226,6 @@ $string['pdfreportheader_desc'] = 'Provide a JPG image for the top header part (
 $string['pdfreportinnerheader'] = 'PDF report inner header image';
 $string['periodshift'] = 'Shift period';
 $string['periodshiftto'] = 'Shift "to" date only';
-$string['plugindist'] = 'Plugin distribution';
 $string['pluginname'] = 'Training Sessions';
 $string['printidnumber'] = 'Print ID Number';
 $string['printidnumber_desc'] = 'If checked, adds IDNumber to reports';
@@ -267,12 +272,12 @@ $string['showitemlastaccess'] = 'Show items last access date';
 $string['showitemlastaccess_desc'] = 'If set, the real date of last access to the item (log based) is displayed in reports';
 $string['showmonthlyquickreports'] = 'Show monthly quick reports';
 $string['showmonthlyquickreports_desc'] = 'If set, detail user report show monthly partial reports';
+$string['showsectionsonly'] = 'show sections only';
+$string['showsectionsonly_desc'] = 'If enabled, items details are not shown on report. Only the lowest aggreegation level over items.';
 $string['showsessions'] = 'Show sessions detail';
 $string['showsessions_desc'] = 'If set, the session details will be accessible in reports';
 $string['showsseconds'] = 'Show seconds';
 $string['showsseconds_desc'] = 'Show seconds in duration expression if enabled';
-$string['showsectionsonly'] = 'show sections only';
-$string['showsectionsonly_desc'] = 'If enabled, items details are not shown on report. Only the lowest aggreegation level over items.';
 $string['singleexec'] = 'Single run';
 $string['siteglobals'] = 'Site (non course sections)';
 $string['specialgrades'] = 'Special grades';
@@ -319,7 +324,9 @@ $string['trainingsessions_report_connections'] = 'Connection Report';
 $string['trainingsessions_report_institutions'] = 'Institution Report';
 $string['trainingsessionsreport'] = 'Training Session Reports';
 $string['trainingsessionsscores'] = 'Score addition to reports';
+$string['trainingsessionsdeletionmark'] = 'Deletion in progress';
 $string['unvisited'] = 'Unvisited';
+$string['updatefromcustomdate'] = 'Get from custom date (above)';
 $string['updatefromaccountstart'] = 'Get from user first access';
 $string['updatefromcoursestart'] = 'Get from course start';
 $string['updatefromenrolstart'] = 'Get from user\'s enrol date';
@@ -340,22 +347,16 @@ $string['workweek'] = 'Week';
 $string['xls'] = 'XLS';
 $string['xlsadditions'] = 'XLS Additions';
 $string['xlsexportlocale'] = 'XLS Export Locale';
-
-$string['calculatedcolumns'] = 'Calculated columns (XLS Only)';
 $string['xlsformula'] = 'Formula (Excel expression)';
-$string['formulalabel'] = 'Column label';
-$string['lineaggregators'] = 'Line aggregators';
-$string['calculated'] = 'Calculated';
-$string['defaultmeanformula'] = '=AVERAGE({col}{minrow}:{col}{maxrow})';
-$string['defaultsumformula'] = '=SUM({col}{minrow}:{col}{maxrow})';
 $string['xlsmeanformula'] = 'XLS Mean Formula';
 $string['xlssumformula'] = 'XLS Sum Formula';
+$string['cleanoldreports_task'] = 'Removing old reports';
 
 $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header part in inner pages (880px large x up to 150px height). If
 none given, the first page header will be used again.';
 
 $string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
-50 users, directly in the root directory of your course files.</p>';
+50 users, directly in the "/quick" directory of the reports filearea.</p>';
 
 $string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
@@ -493,6 +494,9 @@ $string['extelapsed_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
 material and some time spent in general site screens the user has access to.';
 
+$string['elapsedoutofstructure_help'] = '
+Time spent in the course scope, but not assignable to any "structural element" of the course (section, page, module).';
+
 $string['extelapsedlastweek_help'] = '
 The extended course time calculates the time strictly spent in the course context, plus time spent to get down to the course
 material and some time spent in general site screens the user has access to limited to the last week timerange.';
@@ -525,3 +529,5 @@ $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and g√©n√
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
 
 $string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';
+
+include(__DIR__.'/pro_additional_strings.php');

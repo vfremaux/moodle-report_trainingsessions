@@ -14,7 +14,7 @@
         {{#hasgroups}}
         <tr>
             <td class="attribute-label" width="25%">{{#str}}groups{{/str}}</td>
-            <td class="attribute-value">{{groupnames}}</td>
+            <td class="attribute-value">{{{groupnames}}}</td>
         </tr>
         {{/hasgroups}}
 
@@ -38,6 +38,15 @@
             <td class="attribute-value">{{department}}</td>
         </tr>
         {{/department}}
+
+        {{#hasprofilefields}}
+        {{#profilefields}}
+        <tr>
+            <td class="attribute-label" width="25%">{{{fieldname}}}</td>
+            <td class="attribute-value">{{{fieldvalue}}}</td>
+        </tr>
+        {{/profilefields}}
+        {{/hasprofilefields}}
 
         {{#roles}}
         <tr>
@@ -79,18 +88,14 @@
         <tr>
             <td>{{#str}}grades{{/str}}</td>
             <td>
-                <table width="100%">
-                    <tr>
-                        {{#grades}}
-                        <td class="attribute">{{head}}</td>
-                        {{/grades}}
-                    </tr>
-                    <tr>
-                        {{#grades}}
-                        <td class="attribute">{{value}}</td>
-                        {{/grades}}
-                    </tr>
-                </table>
+                <div id="report-trainingsessions-grades">
+                    {{#grades}}
+                    <div class="grade-sample">
+                    <div class="sample-name">{{label}}</div>
+                    <div class="sample-value">{{value}}</div>
+                    </div>
+                    {{/grades}}
+                </div>
             </td>
         </tr>
         {{/hasgrades}}

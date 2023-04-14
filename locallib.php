@@ -1805,16 +1805,7 @@ class trainingsessions {
             if (!empty($config->$fieldkey)) {
                 $field = $DB->get_record('user_info_field', ['id' => $config->$fieldkey]);
                 $data = $DB->get_field('user_info_data', 'data', ['fieldid' => $config->$fieldkey, 'userid' => $user->id]);
-                $colsources[$fieldkey] = '';
-                if ($field->datatype == 'datetime') {
-                    if ($data) {
-                        $colsources[$fieldkey] = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
-                    }
-                } else {
-                    if ($data) {
-                        $colsources[$fieldkey] = $data;
-                    }
-                }
+                $colsources[$fieldkey] = $data;
             }
         }
 
@@ -1971,8 +1962,7 @@ class trainingsessions {
             $data->from = $course->startdate;
             $changed = true;
         } else if (!empty($data->fromstart) && ($data->fromstart == 'account')) {
-            $accountdate = $DB->get_field('user', 'firstaccess', ['id' => $data->userid]);
-            $data->from = max($course->startdate, $accountdate);
+            $data->from = $course->startdate;
             $changed = true;
         } else if (!empty($data->fromstart) && (trim($data->fromstart) == 'enrol')) {
 

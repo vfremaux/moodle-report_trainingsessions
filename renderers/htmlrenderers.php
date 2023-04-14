@@ -463,7 +463,7 @@ class HtmlRenderer {
             }
         }
 
-        // Add extra profile fields to output.
+        // Add extra profile fields to output
         $template->hasprofilefields = 0;
         for ($i = 1; $i <= 2; $i++) {
             $fieldkey = 'extrauserinfo'.$i;
@@ -474,11 +474,6 @@ class HtmlRenderer {
                 $fieldtpl->fieldname = $field->name;
                 $data = $DB->get_field('user_info_data', 'data', ['userid' => $user->id, 'fieldid' => $field->id]);
                 $fieldtpl->fieldvalue = $data;
-                if ($field->datatype == 'datetime') {
-                    $fieldtpl->fieldvalue = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
-                } else {
-                    $fieldtpl->fieldvalue = $data;
-                }
                 $template->profilefields[] = $fieldtpl;
             }
         }

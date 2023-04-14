@@ -70,7 +70,7 @@ class SelectorForm extends moodleform {
         }
 
         $dateparms = array(
-            'startyear' => date('Y', $config->firstusetime),
+            'startyear' => $config->firstusetime,
             'stopyear'  => date('Y') + 1,
             'timezone'  => 99,
             'applydst'  => true,

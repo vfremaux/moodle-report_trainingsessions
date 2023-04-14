@@ -195,6 +195,7 @@ class HtmlRenderer {
             // If an array of elements produce successively each output and collect aggregates.
             $template->hassubs = true;
             foreach ($structure as $element) {
+                $template->visible = !empty($element->instance->visible) || !empty($element->visible);
                 if (isset($element->instance) && empty($element->instance->visible)) {
                     // Non visible items should not be displayed nor calculated.
                     continue;
@@ -220,6 +221,7 @@ class HtmlRenderer {
             $template->id = @$structure->id;
             $template->hasbody = true;
 
+            $template->visible = !empty($structure->instance->visible) || !empty($structure->visible);
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {
                 // Non visible items should not be displayed.
                 // Name is not empty. It is a significant module (non structural).
@@ -463,7 +465,7 @@ class HtmlRenderer {
             }
         }
 
-        // Add extra profile fields to output
+        // Add extra profile fields to output.
         $template->hasprofilefields = 0;
         for ($i = 1; $i <= 2; $i++) {
             $fieldkey = 'extrauserinfo'.$i;
@@ -474,6 +476,11 @@ class HtmlRenderer {
                 $fieldtpl->fieldname = $field->name;
                 $data = $DB->get_field('user_info_data', 'data', ['userid' => $user->id, 'fieldid' => $field->id]);
                 $fieldtpl->fieldvalue = $data;
+                if ($field->datatype == 'datetime') {
+                    $fieldtpl->fieldvalue = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
+                } else {
+                    $fieldtpl->fieldvalue = $data;
+                }
                 $template->profilefields[] = $fieldtpl;
             }
         }
@@ -566,7 +573,7 @@ class HtmlRenderer {
             // Filter sessions that are not in the required course.
             foreach ($sessions as $sessid => $session) {
                 if (!empty($session->courses)) {
-                    if (!array_key_exists($courseid, $session->courses)) {
+                    if (!in_array($courseid, $session->courses)) {
                         // Omit all sessions not visiting this course.
                         unset($sessions[$sessid]);
                     }

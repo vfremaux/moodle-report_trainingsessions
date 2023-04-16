@@ -115,6 +115,7 @@ class trainingsessions {
                 $pageelement->type = 'page';
                 $pageelement->plugintype = 'page';
                 $pageelement->name = format_string($page->nametwo);
+                $pageelement->visible = ($page->display > FORMAT_PAGE_DISP_HIDDEN);
 
                 $pageelement->subs = $this->page_get_structure_from_page($page, $itemcount);
                 $structure[] = $pageelement;
@@ -437,12 +438,15 @@ class trainingsessions {
         if (!empty($page->childs)) {
             foreach ($page->childs as $key => $child) {
                 if (!($child->display > FORMAT_PAGE_DISP_HIDDEN)) {
+                	// Need rethink about passed activities in
+                	// post-hidden pages
                     continue;
                 }
 
                 $pageelement = new StdClass;
                 $pageelement->type = 'page';
                 $pageelement->name = format_string($child->nametwo);
+                $pageelement->visible = ($child->display > FORMAT_PAGE_DISP_HIDDEN);
 
                 $pageelement->subs = $this->page_get_structure_from_page($child, $itemcount);
                 $structure[] = $pageelement;
@@ -1190,7 +1194,7 @@ class trainingsessions {
                 }
 
                 if ($courseid) {
-                    if (in_array($courseid, array_keys($s->courses))) {
+                    if (in_array($courseid, $s->courses)) {
                         $count++;
                     }
                 } else {
@@ -1774,6 +1778,7 @@ class trainingsessions {
             'lastname' => $user->lastname,
             'email' => $user->email,
             'institution' => $user->institution,
+            'city' => $user->city,
             'department' => $user->department,
             'lastlogin' => ($user->currentlogin > $user->lastlogin) ? $user->currentlogin : $user->lastlogin,
             'lastcourseaccess' => $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $user->id, 'courseid' => $courseid]),
@@ -1939,7 +1944,8 @@ class trainingsessions {
 
     /**
      * Processes the range boundaries returning from form.
-     * @param array $data
+     * @param array $data coming from request.
+     * @param array $course
      */
     public function process_bounds(&$data, &$course) {
         global $DB, $COURSE;
@@ -1952,13 +1958,38 @@ class trainingsessions {
             if (empty($data->fromstart)) {
                 switch ($tsconfig->defaultstartdate) {
                     case 'course' : {
-                        $data->fromstart = $course->timestart;
+                        $data->fromstart = $course->startdate;
                         break;
                     }
 
                     case 'enrol' : {
                         // TODO : get first enrol.
-                        $data->fromstart = $firstenrol->timestart;
+                        if (!empty($data->userid)) {
+                            $sql = "
+                                SELECT
+                                    ue.*
+                                FROM
+                                    {user_enrolments} ue,
+                                    {enrol} e
+                                WHERE
+                                    ue.status = 0 AND
+                                    e.status = 0 AND
+                                    ue.enrolid = e.id AND
+                                    e.courseid = ? AND
+                                    ue.userid = ? AND
+                                    (ue.timestart IS NULL OR ue.timestart <= ?) AND
+                                    (ue.timeend IS NULL OR ue.timeend >= ?)
+                                ORDER BY
+                                    ue.timestart
+                            ";
+                            if ($firstenrol = $DB->get_record_sql($sql, [$course->id, $data->userid, time(), time()])) {
+                                $data->fromstart = $firstenrol->timestart;
+                            }
+                        }
+                        if (empty($data->fromstart)) {
+                            // default value.
+                            $data->fromstart = $course->startdate;
+                        }
                         break;
                     }
                 }

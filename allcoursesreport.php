@@ -154,7 +154,10 @@ if ($data->output == 'html') {
     if (report_trainingsessions_supports_feature('format/pdf')) {
         include_once($CFG->dirroot.'/report/trainingsessions/pro/renderer.php');
         $rendererext = new \report_trainingsessions\output\pro_renderer($PAGE, '');
-        echo $rendererext->user_session_reports_buttons($data->userid, 'allcourses');
+        if (!empty($config->showmonthlyquickreports)) {
+            echo '<br/>';
+            echo $rendererext->user_session_reports_buttons($data->userid, 'allcourses');
+        }
     }
 
     echo '</center>';
@@ -178,16 +181,26 @@ if ($data->output == 'html') {
     // Preparing some formats.
     $xlsformats = $renderer->xls_formats($workbook);
     $startrow = 15;
+
+    $cols = $rt->get_summary_cols();
+    $headdata = $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true /* associative */);
+    $rt->add_graded_columns($cols, $titles);
+    $rt->add_graded_data($gradedata, $auser->id, $aggregate);
+    $headdata = (object) $headdata;
+    $headdata->gradecols = $gradedata;
+    $headdata->from = $input->from;
+    $headdata->to = $input->to;
+
     $worksheet = $renderer->init_worksheet($userid, $startrow, $xlsformats, $workbook, 'allcourses');
     $overall = $renderer->print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
-    $data->elapsed = $overall->elapsed;
-    $data->events = $overall->events;
-    $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+    $headdata->elapsed = $overall->elapsed;
+    $headdata->events = $overall->events;
+    $renderer->print_header_xls($worksheet, $userid, 0, $headdata, $cols, $xlsformats);
 
     if (!empty($tsconfig->showsessions)) {
         $worksheet = $renderer->init_worksheet($userid, $startrow, $xlsformats, $workbook, 'sessions');
         $renderer->print_sessions_xls($worksheet, 15, @$aggregate['sessions'], null, $xlsformats);
-        $renderer->print_header_xls($worksheet, $userid, $course->id, $data, $xlsformats);
+        $renderer->print_header_xls($worksheet, $userid, 0, $headdata, $cols, $xlsformats);
     }
 
     $workbook->close();

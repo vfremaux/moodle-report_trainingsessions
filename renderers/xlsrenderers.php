@@ -167,7 +167,6 @@ class XlsRenderer {
      * @param int $startrow
      * @param array $xlsformats
      * @param object $workbook
-     * @param string $purpose to select the column names to setup
      * @return the initialized worksheet.
      */
     public function init_worksheet($userid, $startrow, &$xlsformats, &$workbook, $purpose = 'usertimes') {
@@ -207,19 +206,17 @@ class XlsRenderer {
             $worksheet->set_column(5, 5, 16);
         } else if ($purpose == 'allcourses') {
             $worksheet->set_column(0, 0, 50);
-            $worksheet->set_column(1, 1, 40);
-            $worksheet->set_column(2, 2, 30);
-            $worksheet->set_column(3, 3, 25);
-            $worksheet->set_column(4, 4, 25);
-            $worksheet->set_column(5, 5, 4);
+            $worksheet->set_column(1, 1, 50);
+            $worksheet->set_column(2, 2, 12);
+            $worksheet->set_column(3, 3, 4);
         } else {
             $worksheet->set_column(0, 0, 30);
             $worksheet->set_column(1, 1, 30);
             $worksheet->set_column(2, 2, 20);
             $worksheet->set_column(3, 3, 10);
-            $worksheet->set_column(4, 4, 12);
-            $worksheet->set_column(5, 5, 4);
         }
+        $worksheet->set_column(4, 4, 12);
+        $worksheet->set_column(5, 5, 4);
         $worksheet->set_column(6, 6, 12);
         $worksheet->set_column(7, 7, 4);
         $worksheet->set_column(8, 8, 12);
@@ -229,7 +226,7 @@ class XlsRenderer {
         $worksheet->set_column(12, 12, 12);
         $worksheet->set_column(13, 13, 4);
 
-        if ($purpose == 'usertimes') {
+        if ($purpose == 'usertimes' || $purpose == 'allcourses') {
             $worksheet->set_row($startrow - 1, 12, $xlsformats['TT']);
             $i = 1;
             $worksheet->write_string($startrow - 1, $i, get_string('item', 'report_trainingsessions'), $xlsformats['TT']);
@@ -248,7 +245,7 @@ class XlsRenderer {
                 $worksheet->write_string($startrow - 1, $i, get_string('lastaccess', 'report_trainingsessions'), $xlsformats['TT']);
                 $i++;
             }
-        } else if ($purpose == 'sessions') {
+        } else {
             $worksheet->write_string($startrow - 1, 0, get_string('sessionstart', 'report_trainingsessions'), $xlsformats['TT']);
             $worksheet->write_string($startrow - 1, 1, get_string('sessionend', 'report_trainingsessions'), $xlsformats['TT']);
             $worksheet->write_string($startrow - 1, 2, get_string('duration', 'report_trainingsessions'), $xlsformats['TT']);
@@ -273,60 +270,41 @@ class XlsRenderer {
         $config = get_config('report_trainingsessions');
         $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
 
-        $gradecols = [];
-        $gradetitles = [];
-        $gradeformats = [];
+        $gradecols = array();
+        $gradetitles = array();
+        $gradeformats = array();
+        $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
+
+        $user = $DB->get_record('user', array('id' => $userid));
         if ($courseid) {
-            // Only for single course reports.
-            $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
+            $course = $DB->get_record('course', array('id' => $courseid));
         }
 
         $row = 0;
-
-        // Print base header user info.
-        $user = $DB->get_record('user', array('id' => $userid));
-        if ($courseid > 0) {
-            $course = $DB->get_record('course', array('id' => $courseid));
-        }
 
         $worksheet->set_row(0, 40, $xlsformats['T']);
         $worksheet->write_string($row, 0, get_string('sessionreports', 'report_trainingsessions'), $xlsformats['T']);
         $worksheet->merge_cells($row, 0, 0, 12);
         $row++;
-
         $worksheet->write_string($row, 0, get_string('user').' :', $xlsformats['b']);
         $worksheet->write_string($row, 1, fullname($user));
         $row++;
-
-        if (in_array('idnumber', $cols)) {
-            $worksheet->write_string($row, 0, get_string('idnumber').' :', $xlsformats['b']);
-            $worksheet->write_string($row, 1, $user->idnumber);
-            $row++;
-        }
-
-        if (in_array('email', $cols)) {
-            $worksheet->write_string($row, 0, get_string('email').' :', $xlsformats['b']);
-            $worksheet->write_string($row, 1, $user->email);
-            $row++;
-        }
-
-        if (in_array('city', $cols)) {
-            $worksheet->write_string($row, 0, get_string('city').' :', $xlsformats['b']);
-            $worksheet->write_string($row, 1, $user->city);
-            $row++;
-        }
-
-        if (in_array('institution', $cols)) {
-            $worksheet->write_string($row, 0, get_string('institution').' :', $xlsformats['b']);
-            $worksheet->write_string($row, 1, $user->institution);
-            $row++;
-        }
-
+        $worksheet->write_string($row, 0, get_string('idnumber').' :', $xlsformats['b']);
+        $worksheet->write_string($row, 1, $user->idnumber);
+        $row++;
+        $worksheet->write_string($row, 0, get_string('email').' :', $xlsformats['b']);
+        $worksheet->write_string($row, 1, $user->email);
+        $row++;
+        $worksheet->write_string($row, 0, get_string('city').' :', $xlsformats['b']);
+        $worksheet->write_string($row, 1, $user->city);
+        $row++;
+        $worksheet->write_string($row, 0, get_string('institution').' :', $xlsformats['b']);
+        $worksheet->write_string($row, 1, $user->institution);
+        $row++;
         $label = get_string('reportdate', 'report_trainingsessions');
         $worksheet->write_string($row, 0, $label.' :', $xlsformats['b']);
         $worksheet->write_string($row, 1, strftime($datetimefmt, time()));
         $row++;
-
         if (!empty($config->printlocation)) {
             $label = get_string('location', 'report_trainingsessions').':';
             $worksheet->write_string($row, 0, $label.' :', $xlsformats['b']);
@@ -352,11 +330,12 @@ class XlsRenderer {
                 } else {
                     $worksheet->write_string($row, 1, $info);
                 }
+                $row++;
             }
             $row++;
         }
 
-        if ($courseid > 0) {
+        if ($courseid) {
             $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
             $worksheet->write_string($row, 1, format_string($course->fullname));
             $row++;
@@ -365,15 +344,14 @@ class XlsRenderer {
         $worksheet->write_string($row, 0, get_string('from').' :', $xlsformats['b']);
         $worksheet->write_string($row, 1, strftime($datetimefmt, $data->from));
         $row++;
-
         $worksheet->write_string($row, 0, get_string('to').' :', $xlsformats['b']);
         $worksheet->write_string($row, 1, strftime($datetimefmt, $data->to));
         $row++;
 
-        // Print group and roles, when in single course.
-        if ($courseid > 0) {
+        if ($courseid) {
             $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
+            // Print group status.
             $worksheet->write_string($row, 0, get_string('groups').' :', $xlsformats['b']);
             $str = '';
             if (!empty($usergroups)) {
@@ -386,6 +364,7 @@ class XlsRenderer {
                 }
                 $str = implode(', ', $groupnames);
             }
+
             $worksheet->write_string($row, 1, $str);
             $row++;
 
@@ -397,15 +376,12 @@ class XlsRenderer {
                 $rolenames[] = $role->shortname;
             }
             $worksheet->write_string($row, 1, strip_tags(implode(",", $rolenames)));
+
             $row++;
         }
 
-        // One blank line.
-        $row++;
-
         // Print completion bar.
         if (!array_key_exists('ltcprogressinitems', $data) && !array_key_exists('ltcprogressinmandatoryitems', $data)) {
-            // Never using LTC marking. Just use TS data and logs to mark items.
             if (empty($data->items)) {
                 $completed = 0;
             } else {
@@ -421,7 +397,6 @@ class XlsRenderer {
             $worksheet->write_string($row, 1, $celldata);
 
         } else {
-            // We are using LTC strategy to mark pedagogic assets.
             if (array_key_exists('ltcprogressinitems', $data)) {
                 $cellstr = get_string('done', 'report_trainingsessions').' '.get_string('ltc', 'learningtimecheck');
                 $worksheet->write_string($row, 0, $cellstr, $xlsformats['b']);
@@ -448,14 +423,10 @@ class XlsRenderer {
                 $completedpc = sprintf('%.1f', $completed * 100);
                 $celldata .= (0 + @$data->ltcmandatoryitems).' ('.$completedpc.' %)';
                 $worksheet->write_string($row, 1, $celldata);
-                $row++;
             }
         }
 
-        // One blank line.
-        $row++;
-
-        $timecols = array('firstcourseaccess', 'lastcourseaccess', 'firstaccess', 'lastlogin');
+        $timecols = array('firstcourseaccess', 'lastcourseaccess');
         $durationcols = array('elapsed', 'extelapsed', 'extotherelapsed',
                           'activitytime', 'coursetime', 'othertime', 'uploadtime',
                           'elapsedoutofstructure', 'elapsedlastweek', 'extelapsedlastweek', 'extotherelapsedlastweek');
@@ -463,58 +434,45 @@ class XlsRenderer {
         foreach ($cols as $c) {
 
             if (!in_array($c, $timecols) && !in_array($c, $durationcols)) {
-                // Skip if not qualified in time format.
-                continue;
-            }
-
-            if ((strpos($c, 'course') !== false) && $courseid == 0) {
-                // Skip course specific info when we are in all courses report.
                 continue;
             }
 
             $c = trim($c);
 
+            $row++;
             $worksheet->write_string($row, 0, get_string($c, 'report_trainingsessions').' :', $xlsformats['b']);
             if (in_array($c, $timecols)) {
-                // Is a time
-                $value = strftime($datetimefmt, 0 + @$data->$c);
-                // $value = $this->rt->format_time((0 + @$data->$c), 'xlst');
-                $worksheet->write_time($row, 1, $value, $xlsformats['a']);
+                $elapsed = $this->rt->format_time((0 + @$data->$c), 'xlst');
+                $worksheet->write_time($row, 1, $elapsed, $xlsformats['t']);
             } else {
-                // Is a duration
-                $value = $this->rt->format_time((0 + @$data->$c), 'xlsd');
-                $worksheet->write_time($row, 1, $value, $xlsformats['a']);
+                $elapsed = $this->rt->format_time((0 + @$data->$c), 'xlsd');
+                $worksheet->write_time($row, 1, $elapsed, $xlsformats['a']);
             }
 
             $h = str_replace('elapsed', 'hits', $c);
             $h = str_replace('time', 'hits', $h);  // Alternative if not an "elapsed" column.
 
             if (!empty($config->showhits)) {
+                // $row++;
+                // $worksheet->write_string($row, 0, get_string('hits', 'report_trainingsessions').' :', $xlsformats['b']);
                 $worksheet->write_number($row, 2, (0 + @$data->$h), $xlsformats['n']);
             }
-            $row++;
         }
 
-        // Print additional grades. (only when in single course)
+        // Print additional grades.
         if (!empty($gradecols)) {
             $i = 0;
             foreach ($gradecols as $gc) {
+                $row++;
                 $worksheet->write_string($row, 0, $gradetitles[$i].' :', $xlsformats['b']);
                 $worksheet->write_number($row, 1, sprintf('%0.2f', $data->gradecols[$i]), $xlsformats['n']);
                 $i++;
-                $row++;
             }
         }
-
-        $row++;
 
         return $row;
     }
 
-    /**
-     * Counts the number of variable header rows before detailled results can be printed.
-     * @param int $courseid
-     */
     public function count_header_rows($courseid) {
 
         $config = get_config('report_trainingsessions');
@@ -524,7 +482,11 @@ class XlsRenderer {
         $row = 12;
 
         if ($courseid) {
-            $row += 3;
+            $row++;
+        }
+
+        if ($courseid) {
+            $row += 2;
         }
 
         if (in_array('elapsed', $cols)) {
@@ -552,6 +514,9 @@ class XlsRenderer {
             $row++;
         }
         if (in_array('otherelapsed', $cols)) {
+            $row++;
+        }
+        if (!empty($config->showhits)) {
             $row++;
         }
 
@@ -740,7 +705,7 @@ class XlsRenderer {
         if (!empty($sessions)) {
             foreach ($sessions as $session) {
 
-                if ($courseid && (empty($session->courses) || !in_array($courseid, $session->courses))) {
+                if ($courseid && (empty($session->courses) || !array_key_exists($courseid, $session->courses))) {
                     // Omit all sessions not visiting this course.
                     continue;
                 }
@@ -864,43 +829,33 @@ class XlsRenderer {
 
         if (!empty($output)) {
 
-            $siteelapsedstr = get_string('siteelapsed', 'report_trainingsessions');
             $elapsedstr = get_string('elapsed', 'report_trainingsessions');
             $hitsstr = get_string('hits', 'report_trainingsessions');
             $coursestr = get_string('course');
-            $firstaccessstr = get_string('firstaccess', 'report_trainingsessions');
-            $lastaccessstr = get_string('lastaccess', 'report_trainingsessions');
 
             if (isset($output[0])) {
                 $worksheet->write_string($row, 0, get_string('site'), $xlsformats['TT']);
-                $worksheet->write_string($row, 0, $siteelapsedstr, $xlsformats['a']);
+                $row++;
+                $worksheet->write_string($row, 0, $elapsedstr, $xlsformats['a']);
                 $elapsed = $this->rt->format_time($output[0][SITEID]->elapsed, 'xlsd');
                 $worksheet->write_time($row, 1, $elapsed, $xlsformats['d']);
-                $j = 2;
-                if (!empty($config->showhits)) {
-                    $worksheet->write_number($row, $j++, $output[0][SITEID]->events, $xlsformats['n']);
-                }
-                $worksheet->write_date($row, $j++, $output[0][SITEID]->firstaccess, $xlsformats['t']);
-                $worksheet->write_date($row, $j++, $output[0][SITEID]->lastaccess, $xlsformats['t']);
                 $row++;
+                if (!empty($config->showhits)) {
+                    $worksheet->write_string($row, 0, $hitsstr, $xlsformats['a']);
+                    $worksheet->write_number($row, 1, $output[0][SITEID]->events, $xlsformats['n']);
+                    $row++;
+                }
             }
 
             foreach ($output as $catid => $catdata) {
-                // Foreach category : print category name
                 if ($catid == 0) {
                     continue;
                 }
-                $row++;
                 $worksheet->write_string($row, 0, $coursecats[$catid]->name, $xlsformats['TT']);
                 $row++;
                 $worksheet->write_string($row, 0, $coursestr, $xlsformats['TT']);
                 $worksheet->write_string($row, 1, $elapsedstr, $xlsformats['TT']);
-                $j = 2;
-                if (!empty($config->showhits)) {
-                    $worksheet->write_string($row, $j++, $hitsstr, $xlsformats['TT']);
-                }
-                $worksheet->write_string($row, $j++, $firstaccessstr, $xlsformats['TT']);
-                $worksheet->write_string($row, $j++, $lastaccessstr, $xlsformats['TT']);
+                $worksheet->write_string($row, 2, $hitsstr, $xlsformats['TT']);
                 $row++;
 
                 foreach ($catdata as $cid => $cdata) {
@@ -909,12 +864,9 @@ class XlsRenderer {
                         $worksheet->write_string($row, 0, $courses[$cid]->fullname, $xlsformats['a']);
                         $elapsed = $this->rt->format_time($cdata->elapsed, 'xlsd');
                         $worksheet->write_time($row, 1, $elapsed, $xlsformats['d']);
-                        $j = 2;
                         if (!empty($config->showhits)) {
-                            $worksheet->write_number($row, $j++, $cdata->events, $xlsformats['n']);
+                            $worksheet->write_number($row, 2, $cdata->events, $xlsformats['n']);
                         }
-                        $worksheet->write_date($row, $j++, $cdata->firstaccess, $xlsformats['t']);
-                        $worksheet->write_date($row, $j++, $cdata->lastaccess, $xlsformats['t']);
                         $row++;
                     } else {
                         $worksheet->write_string($row, 0, $courses[$cid]->fullname, $xlsformats['a']);

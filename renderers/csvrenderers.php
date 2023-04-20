@@ -97,8 +97,7 @@ class CsvRenderer {
             foreach ($structure as $element) {
                 if (isset($element->instance) && empty($element->instance->visible)) {
                     // Non visible items should not be displayed.
-                    // This needs rethinking.
-                    // continue;
+                    continue;
                 }
                 if (!empty($config->hideemptymodules) && empty($element->elapsed) && empty($element->events)) {
                     // Discard empty items.
@@ -285,7 +284,7 @@ class CsvRenderer {
         if (!empty($sessions)) {
             foreach ($sessions as $session) {
 
-                if ($courseid && !in_array($courseid, $session->courses)) {
+                if ($courseid && !array_key_exists($courseid, $session->courses)) {
                     // Omit all sessions not visiting this course.
                     continue;
                 }

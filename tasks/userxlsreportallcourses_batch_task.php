@@ -95,13 +95,9 @@ $xlsformats = $renderer->xls_formats($workbook);
 
 // Define variables.
 $startrow = $renderer->count_header_rows($course->id);
-$worksheet = $renderer->init_worksheet($user->id, $startrow, $xlsformats, $workbook, 'allcourses');
+$worksheet = $renderer->init_worksheet($user->id, $startrow, $xlsformats, $workbook);
 $cols = $rt->get_summary_cols();
-$headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true /* associative */);
-$headdata = (object) $headdata;
-$headdata->from = $input->from;
-$headdata->to = $input->to;
-$startrow = $renderer->print_header_xls($worksheet, $user->id, 0, $headdata, $cols, $xlsformats);
+$renderer->print_header_xls($worksheet, $user->id, 0, $input, $cols, $xlsformats);
 
 $y = $renderer->print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
 

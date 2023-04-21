@@ -135,9 +135,9 @@ function report_trainingsessions_supports_feature($feature = null, $getsupported
         ));
     }
 
-	if ($getsupported) {
-		return $supports;
-	}
+    if ($getsupported) {
+        return $supports;
+    }
 
     // Check existance of the 'pro' dir in plugin.
     if (is_dir(__DIR__.'/pro')) {

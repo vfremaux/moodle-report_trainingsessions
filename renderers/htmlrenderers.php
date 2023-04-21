@@ -344,7 +344,7 @@ class HtmlRenderer {
      */
     public function print_header_html($user, $course, $data, $cols, $short = false, $withcompletion = true,
                                                        $withnooutofstructure = false) {
-        global $OUTPUT, $DB;
+        global $OUTPUT, $DB, $USER;
 
         $config = get_config('report_trainingsessions');
 
@@ -359,6 +359,10 @@ class HtmlRenderer {
         $template = new StdClass;
         $template->short = $short;
         $template->showhits = $config->showhits;
+
+        if (empty($user)) {
+            $user = $USER;
+        }
 
         $template->userpicture = $OUTPUT->user_picture($user, array('size' => 32, 'courseid' => $course->id));
         $template->fullname = fullname($user);
@@ -459,7 +463,7 @@ class HtmlRenderer {
             }
         }
 
-        // Add extra profile fields to output
+        // Add extra profile fields to output.
         $template->hasprofilefields = 0;
         for ($i = 1; $i <= 2; $i++) {
             $fieldkey = 'extrauserinfo'.$i;
@@ -470,6 +474,11 @@ class HtmlRenderer {
                 $fieldtpl->fieldname = $field->name;
                 $data = $DB->get_field('user_info_data', 'data', ['userid' => $user->id, 'fieldid' => $field->id]);
                 $fieldtpl->fieldvalue = $data;
+                if ($field->datatype == 'datetime') {
+                    $fieldtpl->fieldvalue = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
+                } else {
+                    $fieldtpl->fieldvalue = $data;
+                }
                 $template->profilefields[] = $fieldtpl;
             }
         }

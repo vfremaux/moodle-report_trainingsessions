@@ -116,7 +116,7 @@ class MoodleExcelWorkbook {
             header('Pragma: no-cache');
         }
 
-        if (core_useragent::is_ie() || core_useragent::is_edge()) {
+        if (core_useragent::is_ie()) {
             $filename = rawurlencode($filename);
         } else {
             $filename = s($filename);

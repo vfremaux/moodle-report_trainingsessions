@@ -93,11 +93,8 @@ $string['done'] = 'Performed: ';
 $string['duration'] = 'Duration';
 $string['elapsed'] = 'Total course time'; // @DYNAKEY
 $string['elapsedadvice'] = 'Elapsed time can be different from session time range due to extra credit times on sessions breaks. Refer to the Use Stats block configuration.';
-<<<<<<< HEAD
-=======
 $string['elapsedoutofstructure'] = 'Total elapsed time out of the structure of the course';
 $string['elapsedoutofstructure_help'] = 'time spent in course scope but not assignable to any structure element (section or page)';
->>>>>>> MOODLE_39_STABLE
 $string['elapsedinitem'] = 'Elapsed time';
 $string['elapsedlastweek'] = 'Last week time'; // @DYNAKEY
 $string['email'] = 'Email';
@@ -119,6 +116,7 @@ $string['errornoabsolutepath'] = 'Path must be relative';
 $string['errornotingroup'] = 'You have not access to all users and do not have any group membership.';
 $string['exceldatefmt'] = 'yyyy/mm/dd hh:mm';
 $string['exceltimefmt'] = '[h]:mm:ss';
+$string['htmldatefmt'] = '%Y-%m-%d';
 $string['extelapsed'] = 'Total time (extended)'; // @DYNAKEY
 $string['extelapsedlastweek'] = 'Last week time (extended)'; // @DYNAKEY
 $string['exthits'] = 'Hits (extended)'; // @DYNAKEY
@@ -179,13 +177,6 @@ $string['layout'] = 'Document layout';
 $string['learningtimesessioncrop'] = 'Operation on out of range sessions';
 $string['learningtimesessioncrop_desc'] = 'When coupling with learningtimecheck, out of valid range sessions could be croped, or kept and only marked into reports';
 $string['libsmissing'] = 'This feature has been disabled as libs are missing. Install libs from http://github.com/vfremaux/moodle-local_vflibs to get PDF generation enabled.';
-<<<<<<< HEAD
-$string['licensekey'] = 'Pro license key';
-$string['licensekey_desc'] = 'Input here the product license key you got from your provider';
-$string['licenseprovider'] = 'Pro License provider';
-$string['licenseprovider_desc'] = 'Input here your provider key';
-=======
->>>>>>> MOODLE_39_STABLE
 $string['lineaggregators'] = 'Line aggregators';
 $string['location'] = 'Location';
 $string['ltcprogressinitems'] = 'LTC Progress (% items)';
@@ -335,6 +326,7 @@ $string['trainingsessionsreport'] = 'Training Session Reports';
 $string['trainingsessionsscores'] = 'Score addition to reports';
 $string['trainingsessionsdeletionmark'] = 'Deletion in progress';
 $string['unvisited'] = 'Unvisited';
+$string['updatefromcustomdate'] = 'Get from custom date (above)';
 $string['updatefromaccountstart'] = 'Get from user first access';
 $string['updatefromcoursestart'] = 'Get from course start';
 $string['updatefromenrolstart'] = 'Get from user\'s enrol date';
@@ -364,11 +356,7 @@ $string['pdfreportinnerheader_desc'] = 'Provide a JPG image for the top header p
 none given, the first page header will be used again.';
 
 $string['quickgroupcompile'] = '<h3>Quick Compile for {$a} users:</h3><p>Quick compilation provides a quick summary report for groups less than
-<<<<<<< HEAD
-50 users, directly in the root directory of your course files.</p>';
-=======
 50 users, directly in the "/quick" directory of the reports filearea.</p>';
->>>>>>> MOODLE_39_STABLE
 
 $string['xlsmeanformula_desc'] = 'XLS Mean Formula. Use {minrow} and {maxrow} placeholders to fix the vertical range, and {col} as current column
 identifier. A cell reference can be : ${col}$4, $Y${minrow}';
@@ -540,10 +528,6 @@ of time grade scale should be numerically interpretable.';
 $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and générating excel exports.
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
 
-<<<<<<< HEAD
-$string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';
-=======
 $string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';
 
 include(__DIR__.'/pro_additional_strings.php');
->>>>>>> MOODLE_39_STABLE

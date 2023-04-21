@@ -96,6 +96,8 @@ $rt->add_graded_columns($cols, $titles);
 $rt->add_graded_data($gradedata, $auser->id, $aggregate);
 $headdata = (object) $headdata;
 $headdata->gradecols = $gradedata;
+$headdata->from = $input->from;
+$headdata->to = $input->to;
 
 $renderer->print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xlsformats);
 $headdata->done = $done;

@@ -92,11 +92,8 @@ $string['done'] = 'Visités ';
 $string['duration'] = 'Durée';
 $string['elapsed'] = 'Temps total dans le cours '; // @DYNAKEY
 $string['elapsedadvice'] = 'Les durées affichées de vos sessions de travail peuvent différer légèrement des mesures du cours affichées ci-dessus. Ces sessions peuvent en effet calculer des temps que vous avez passé pendant la même session de connexion, mais dans d\'autres volumes de cours où vous êtes inscrit.';
-<<<<<<< HEAD
-=======
 $string['elapsedoutofstructure'] = 'Temps passé hors structure du cours';
 $string['elapsedoutofstructure_help'] = 'Temps passé en dehors des structures du cours (section ou pages) mais toujours dans le périmètre du cours';
->>>>>>> MOODLE_39_STABLE
 $string['elapsedinitem'] = 'Temps passé';
 $string['elapsedlastweek'] = 'Temps passé dern. semaine'; // @DYNAKEY
 $string['email'] = 'Mail';
@@ -116,6 +113,7 @@ $string['errornotingroup'] = 'Vous n\'avez pas accès à tous les groupes et n\'
 $string['evaluating'] = 'Evaluation';
 $string['exceldatefmt'] = 'dd/mm/yyyy hh:mm';
 $string['exceltimefmt'] = '[h]:mm:ss';
+$string['htmldatefmt'] = '%d/%m/%Y';
 $string['executing'] = 'Formation';
 $string['extelapsed'] = 'Temps passé (Etendu)'; // @DYNAKEY
 $string['extelapsedlastweek'] = 'Temps passé dern. semaine (Etendu)'; // @DYNAKEY
@@ -178,13 +176,6 @@ $string['layout'] = 'Mise en page';
 $string['learningtimesessioncrop'] = 'Avec les sessions hors plage valide';
 $string['learningtimesessioncrop_desc'] = 'Lorsqu\'une session sort d\'une plage validée par les contraintes du module de temps d\'apprentissage, elle peut être tronquée ou simplement marquée dans les rapports.';
 $string['libsmissing'] = 'Des librairies manquent pour utiliser cette fonctionnalité. Installez les librairies à partir de http://github.com/vfremaux/moodle-local_vflibs pour activer la génération PDF.';
-<<<<<<< HEAD
-$string['licensekey'] = 'Clef de license pro';
-$string['licensekey_desc'] = 'Entrez ici la clef de produit que vous avez reçu de votre distributeur.';
-$string['licenseprovider'] = 'Fournisseur version Pro';
-$string['licenseprovider_desc'] = 'Entrez la clef de votre distributeur.';
-=======
->>>>>>> MOODLE_39_STABLE
 $string['lineaggregators'] = 'Aggrégateurs de ligne';
 $string['location'] = 'Lieu ';
 $string['ltcprogressinitems'] = 'Prog. du contrat pédag. (% items)';
@@ -339,6 +330,7 @@ $string['trainingsessionsreport'] = 'Rapports de session de formation';
 $string['trainingsessionsscores'] = 'Intégration des scores dans les rapports';
 $string['trainingsessionsdeletionmark'] = 'Suppression en cours';
 $string['unvisited'] = 'Non visité';
+$string['updatefromcustomdate'] = 'A partir d\'une date quelconque (ci-dessus)';
 $string['updatefromaccountstart'] = 'A partir du premier accès';
 $string['updatefromcoursestart'] = 'A partir du début de la formation';
 $string['updatefromenrolstart'] = 'A partir de la date d\'inscription';
@@ -520,8 +512,5 @@ sur la même mangue que la langue d\'usage de moodle. Laisser vide pour utiliser
 locale, par exemple: en_EN.UTF-8';
 
 $string['hasdisabledenrolmentsrestriction'] = 'Les inscriptions inactives sont ignorées par le rapport.';
-<<<<<<< HEAD
-=======
 
 include(__DIR__.'/pro_additional_strings.php');
->>>>>>> MOODLE_39_STABLE

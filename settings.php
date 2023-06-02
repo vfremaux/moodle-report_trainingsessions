@@ -102,6 +102,7 @@ if ($ADMIN->fulltree) {
     $default .= "#items,n\n#hits,n\n#exthits,n\n#extotherhits,n\n#visiteditems,n\n";
     $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherelapsedlastweek,d\n";
     $default .= "#hitslastweek,n\n#exthitslastweek,n\n";
+    $default .= "#enrolstartdate,t\n#enrolenddate,t\n";
     $default .= "workingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 

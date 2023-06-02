@@ -526,7 +526,7 @@ class HtmlRenderer {
     public function add_times($data, $cols, &$template, $timeformat) {
         global $OUTPUT;
 
-        $timecols = array('firstaccess', 'lastlogin', 'firstcourseaccess', 'lastcourseaccess');
+        $timecols = array('firstaccess', 'lastlogin', 'firstcourseaccess', 'lastcourseaccess', 'enrolstartdate', 'enrolenddate');
 
         foreach ($cols as $c) {
 

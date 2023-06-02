@@ -202,9 +202,3 @@ function report_trainingsessions_supports_feature_logstore($instance) {
     return false;
 }
 
-/**
- * Legacy cron function.
- */
-function report_trainingsessions_cron() {
-    assert(1);
-}

@@ -455,7 +455,7 @@ class XlsRenderer {
         // One blank line.
         $row++;
 
-        $timecols = array('firstcourseaccess', 'lastcourseaccess', 'firstaccess', 'lastlogin');
+        $timecols = array('firstcourseaccess', 'lastcourseaccess', 'firstaccess', 'lastlogin', 'enrolstartdate', 'enrolenddate');
         $durationcols = array('elapsed', 'extelapsed', 'extotherelapsed',
                           'activitytime', 'coursetime', 'othertime', 'uploadtime',
                           'elapsedoutofstructure', 'elapsedlastweek', 'extelapsedlastweek', 'extotherelapsedlastweek');

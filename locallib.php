@@ -1771,12 +1771,16 @@ class trainingsessions {
             }
         }
 
+        $ed = $this->get_enrol_dates($user->id, $courseid);
+
         $colsources = array(
             'id' => $user->id,
             'idnumber' => $user->idnumber,
             'firstname' => $user->firstname,
             'lastname' => $user->lastname,
             'email' => $user->email,
+            'enrolstartdate' => $ed[0],
+            'enrolenddate' => $ed[1],
             'institution' => $user->institution,
             'city' => $user->city,
             'department' => $user->department,
@@ -1914,6 +1918,61 @@ class trainingsessions {
         }
 
         return $data;
+    }
+
+    /**
+     * Get the most plausible start date of user enrol. This is the "last (but widest) active enrol period
+     * which start is BEFORE but closer to the end range". This will eliminate future enrol periods
+     * and anterior enrol periods.
+     * Fetch of start range is recursive : the first step is to get the upper start date before the $to value, wether this period
+     * is closed or not at $to time. This is called the last (active) known period for the user before the ranges end. Next steps
+     * are "queries for extension", if another enrol period overlaps the current period.
+     * @param int $userid the user's id
+     * @param int $courseid the course's id
+     * @param int $from start of compilation range
+     * @param int $to end of compilation range
+     */
+     public function get_enrol_dates($userid, $courseid, $from = 0, $to = null) {
+        global $DB;
+
+        if (is_null($to)) {
+            $to = time();
+        }
+
+        $sql = "
+            SELECT
+                MAX(ue.timestart) as sd,
+                MIN(ue.timeend) as ed
+            FROM
+                {user_enrolments} ue,
+                {enrol} e
+            WHERE
+                e.courseid = ? AND
+                ue.userid = ? AND
+                ue.enrolid = e.id AND
+                ue.status = 0 AND
+                e.status = 0
+        ";
+
+        /*
+        $closestactiveenrol = $DB->get_records_sql($sql, [$courseid, $userid, $to]);
+
+        if (!$closestactiveenrol) {
+            $coursestartdate = $DB->get_field('course', 'startdate', ['id' => $courseid]);
+            return [$coursestartdate, 0];
+        }
+        */
+
+        $uenrols = $DB->get_record_sql($sql, [$courseid, $userid]);
+
+        return [$uenrols->sd, $uenrols->ed];
+     }
+
+    /**
+     * Extends enrol date y fetching overlappping enrol periods at start and at end.
+     */
+    protected function extend_enrol_dates($userid, $courseid, $startdate, $enddate) {
+        
     }
 
     /**

@@ -28,17 +28,8 @@ require_once($CFG->dirroot.'/report/trainingsessions/lib.php');
 require_once($CFG->dirroot.'/report/trainingsessions/locallib.php');
 
 if (!function_exists('debug_trace')) {
-    @include_once($CFG->dirroot.'/local/advancedperfs/debugtools.php');
-    if (!function_exists('debug_trace')) {
-        function debug_trace($msg, $tracelevel = 0, $label = '', $backtracelevel = 1) {
-            // Fake this function if not existing in the target moodle environment.
-            assert(1);
-        }
-        define('TRACE_ERRORS', 1); // Errors should be always traced when trace is on.
-        define('TRACE_NOTICE', 3); // Notices are important notices in normal execution.
-        define('TRACE_DEBUG', 5); // Debug are debug time notices that should be burried in debug_fine level when debug is ok.
-        define('TRACE_DATA', 8); // Data level is when requiring to see data structures content.
-        define('TRACE_DEBUG_FINE', 10); // Debug fine are control points we want to keep when code is refactored and debug needs to be reactivated.
+    function debug_trace($str) {
+        // Simulates the local/advancedperfs library.
     }
 }
 

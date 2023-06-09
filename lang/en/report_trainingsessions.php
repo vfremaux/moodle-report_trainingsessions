@@ -383,7 +383,7 @@ minutes to the desired output.</p>';
 
 $string['lineaggregators_help'] = '
 <p>Define aggregators as a list of aggregators switches starting from left most columns in the
-resulting excel sheet. Separe switches with comas or semicolumns. Leaving blank disables the
+resulting excel sheet. Separate switches with comas or semicolons. Leaving blank disables the
 aggregator line.
 </p>
 <ul>
@@ -392,7 +392,7 @@ aggregator line.
 </ul>
 
 <p>
-Example : if an excel output has 10 colums and a sum is required on column 10, than
+Example : if an excel output has 10 colums and a sum is required on column 10, then
 enter : ;;;;;;;;;s
 </p>';
 

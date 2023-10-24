@@ -115,6 +115,7 @@ class trainingsessions {
                 $pageelement->type = 'page';
                 $pageelement->plugintype = 'page';
                 $pageelement->name = format_string($page->nametwo);
+                $pageelement->visible = ($page->display > FORMAT_PAGE_DISP_HIDDEN);
 
                 $pageelement->subs = $this->page_get_structure_from_page($page, $itemcount);
                 $structure[] = $pageelement;
@@ -437,12 +438,15 @@ class trainingsessions {
         if (!empty($page->childs)) {
             foreach ($page->childs as $key => $child) {
                 if (!($child->display > FORMAT_PAGE_DISP_HIDDEN)) {
+                	// Need rethink about passed activities in
+                	// post-hidden pages
                     continue;
                 }
 
                 $pageelement = new StdClass;
                 $pageelement->type = 'page';
                 $pageelement->name = format_string($child->nametwo);
+                $pageelement->visible = ($child->display > FORMAT_PAGE_DISP_HIDDEN);
 
                 $pageelement->subs = $this->page_get_structure_from_page($child, $itemcount);
                 $structure[] = $pageelement;
@@ -1771,13 +1775,18 @@ class trainingsessions {
             }
         }
 
+        $ed = $this->get_enrol_dates($user->id, $courseid);
+
         $colsources = array(
             'id' => $user->id,
             'idnumber' => $user->idnumber,
             'firstname' => $user->firstname,
             'lastname' => $user->lastname,
             'email' => $user->email,
+            'enrolstartdate' => $ed[0],
+            'enrolenddate' => $ed[1],
             'institution' => $user->institution,
+            'city' => $user->city,
             'department' => $user->department,
             'lastlogin' => ($user->currentlogin > $user->lastlogin) ? $user->currentlogin : $user->lastlogin,
             'lastcourseaccess' => $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $user->id, 'courseid' => $courseid]),
@@ -1916,6 +1925,61 @@ class trainingsessions {
     }
 
     /**
+     * Get the most plausible start date of user enrol. This is the "last (but widest) active enrol period
+     * which start is BEFORE but closer to the end range". This will eliminate future enrol periods
+     * and anterior enrol periods.
+     * Fetch of start range is recursive : the first step is to get the upper start date before the $to value, wether this period
+     * is closed or not at $to time. This is called the last (active) known period for the user before the ranges end. Next steps
+     * are "queries for extension", if another enrol period overlaps the current period.
+     * @param int $userid the user's id
+     * @param int $courseid the course's id
+     * @param int $from start of compilation range
+     * @param int $to end of compilation range
+     */
+     public function get_enrol_dates($userid, $courseid, $from = 0, $to = null) {
+        global $DB;
+
+        if (is_null($to)) {
+            $to = time();
+        }
+
+        $sql = "
+            SELECT
+                MAX(ue.timestart) as sd,
+                MIN(ue.timeend) as ed
+            FROM
+                {user_enrolments} ue,
+                {enrol} e
+            WHERE
+                e.courseid = ? AND
+                ue.userid = ? AND
+                ue.enrolid = e.id AND
+                ue.status = 0 AND
+                e.status = 0
+        ";
+
+        /*
+        $closestactiveenrol = $DB->get_records_sql($sql, [$courseid, $userid, $to]);
+
+        if (!$closestactiveenrol) {
+            $coursestartdate = $DB->get_field('course', 'startdate', ['id' => $courseid]);
+            return [$coursestartdate, 0];
+        }
+        */
+
+        $uenrols = $DB->get_record_sql($sql, [$courseid, $userid]);
+
+        return [$uenrols->sd, $uenrols->ed];
+     }
+
+    /**
+     * Extends enrol date y fetching overlappping enrol periods at start and at end.
+     */
+    protected function extend_enrol_dates($userid, $courseid, $startdate, $enddate) {
+        
+    }
+
+    /**
      * Return list of groups of a user in a course.
      * @param int $userid
      * @param int $courseid
@@ -1943,7 +2007,8 @@ class trainingsessions {
 
     /**
      * Processes the range boundaries returning from form.
-     * @param array $data
+     * @param array $data coming from request.
+     * @param array $course
      */
     public function process_bounds(&$data, &$course) {
         global $DB, $COURSE;
@@ -1956,13 +2021,38 @@ class trainingsessions {
             if (empty($data->fromstart)) {
                 switch ($tsconfig->defaultstartdate) {
                     case 'course' : {
-                        $data->fromstart = $course->timestart;
+                        $data->fromstart = $course->startdate;
                         break;
                     }
 
                     case 'enrol' : {
                         // TODO : get first enrol.
-                        $data->fromstart = $firstenrol->timestart;
+                        if (!empty($data->userid)) {
+                            $sql = "
+                                SELECT
+                                    ue.*
+                                FROM
+                                    {user_enrolments} ue,
+                                    {enrol} e
+                                WHERE
+                                    ue.status = 0 AND
+                                    e.status = 0 AND
+                                    ue.enrolid = e.id AND
+                                    e.courseid = ? AND
+                                    ue.userid = ? AND
+                                    (ue.timestart IS NULL OR ue.timestart <= ?) AND
+                                    (ue.timeend IS NULL OR ue.timeend >= ?)
+                                ORDER BY
+                                    ue.timestart
+                            ";
+                            if ($firstenrol = $DB->get_record_sql($sql, [$course->id, $data->userid, time(), time()])) {
+                                $data->fromstart = $firstenrol->timestart;
+                            }
+                        }
+                        if (empty($data->fromstart)) {
+                            // default value.
+                            $data->fromstart = $course->startdate;
+                        }
                         break;
                     }
                 }
@@ -2268,5 +2358,71 @@ class trainingsessions {
             }
         }
 
+    }
+
+    /**
+     * Sums values of all fields with second object incoming values.
+     * Admits second values null or not set (adds 0)
+     */
+    function aggregate_objects(&$obj1, $obj2) {
+        foreach ($obj1 as $key => $value) {
+            // Manage fields specificities
+
+            if ($key == 'id') {
+                $obj1->$key .= ','.$obj2->$key;
+            }
+
+            if (in_array($key, ['firstname', 'lastname', 'email', 'idnumber'])) {
+                // Supposed to be same info.
+                continue;
+            }
+
+            if (in_array($key, ['coursestartdate', 'enrolstartdate'])) {
+                $obj1->$key = min($obj1->$key, $obj2->$key);
+                continue;
+            }
+
+            if ($key == 'courseenddate') {
+                $obj1->$key = max($obj1->$key, 0 + @$obj2->$key);
+                continue;
+            }
+
+            if (is_string($obj1->$key)) {
+                $obj1->$key .= ' '.@$obj2->$key;
+                continue;
+            }
+
+            if (is_array($obj1->$key)) {
+                if (!isset($obj2->$key)) {
+                    $obj2->$key = [];
+                }
+                $obj1->$key += $obj2->$key;
+                continue;
+            }
+
+            $obj1->$key += 0 + @$obj2->$key;
+        }
+    }
+
+    /**
+     * Probably better way to do this, more efficiant.
+     */
+    public function get_courseset($courseid) {
+        global $DB;
+
+        $config = get_config('report_trainingsessions');
+        $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
+        $courseset = [];
+        foreach ($coursesetslines as $line) {
+            $coursesetids = explode(',', $line);
+            if (in_array($courseid, $coursesetids)) {
+                foreach ($coursesetids as $cid) {
+                    $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+                }
+            }
+            return $courseset;
+        }
+
+        return null;
     }
 }

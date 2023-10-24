@@ -298,6 +298,15 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
     }
 
+    if (report_trainingsessions_supports_feature('calculation/multicourse')) {
+        $settings->add(new admin_setting_heading('grading', get_string('experimental', 'report_trainingsessions'), ''));
+
+        $key = 'report_trainingsessions/multicoursesets';
+        $label = get_string('multicoursesets', 'report_trainingsessions');
+        $desc = get_string('multicoursesets_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_configtextarea($key, $label, $desc, ''));
+    }
+
     if (report_trainingsessions_supports_feature('xls/calculated')) {
         $settings->add(new admin_setting_heading('xlsadditions', get_string('xlsadditions', 'report_trainingsessions'), ''));
 

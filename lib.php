@@ -120,7 +120,7 @@ function report_trainingsessions_supports_feature($feature = null, $getsupported
             'pro' => array(
                 'format' => array('xls', 'csv', 'pdf', 'json'),
                 'replay' => array('single', 'replay', 'shift', 'shiftto'),
-                'calculation' => array('coupling', 'specialgrades'),
+                'calculation' => array('coupling', 'specialgrades', 'multicourse'),
                 'xls' => array('calculated'),
                 'export' => array('ws')
             ),

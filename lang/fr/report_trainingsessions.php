@@ -346,6 +346,7 @@ $string['uploadglobals'] = 'Téléchargements';
 $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
 $string['userdetail'] = 'Détail du participant';
+$string['userprogramdetail'] = 'Detail du participant (programme)';
 $string['userid'] = 'UID';
 $string['userlist'] = 'Une ligne par participant';
 $string['usersheets'] = 'Un rapport (feuilles) par participant';

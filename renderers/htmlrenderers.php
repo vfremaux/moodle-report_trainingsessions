@@ -415,16 +415,16 @@ class HtmlRenderer {
         if ($withcompletion) {
             $template->withcompletion = true;
             // Print completion bar.
-            if (!array_key_exists('ltcprogressinitems', $data) && !array_key_exists('ltcprogressinmandatoryitems', $data)) {
+            if (!property_exists('ltcprogressinitems', $data) && !property_exists('ltcprogressinmandatoryitems', $data)) {
                 $template->completionbar = $this->print_progressionbar(0 + @$data->items, 0 + @$data->done, 500);
             } else {
                 $bars = '';
-                if (array_key_exists('ltcprogressinitems', $data)) {
+                if (property_exists('ltcprogressinitems', $data)) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
                     $progress .= ' '.get_string('ltc', 'learningtimecheck');
                     $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
-                if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
+                if (property_exists('ltcprogressinmandatoryitems', $data)) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500);
                     $progress .= ' '.get_string('mandatories', 'learningtimecheck');
                     $bars .= '<div class="mandatory-items" style="height:50px">'.$progress.'</div>';

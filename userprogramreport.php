@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course trainingsessions report for a single user
+ * Course trainingsessions report for a single user, but aggegating all courses in a courseset.
  *
  * @package    report_trainingsessions
  * @category   report
@@ -64,11 +64,9 @@ $rt->process_bounds($data, $course);
 // Need renew the form if process bounds have changed something.
 $selform = new SelectorForm($id, 'user');
 
-$iscourseset = !is_null($rt->get_courseset($course->id));
-
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
-echo $rtrenderer->tabs($course, $view, $data->from, $data->to, $iscourseset);
+echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->box_start('block');
@@ -91,30 +89,55 @@ if (!isset($user)) {
     $user = $DB->get_record('user', array('id' => $data->userid));
 }
 
-// Get data.
-use_stats_fix_last_course_access($data->userid, $course->id);
-$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
-$weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
+// Get courseset infos in trainingsessions condig.
+$courseset = $rt->get_courseset($course->id);
 
-// Get course structure.
-$coursestructure = $rt->get_course_structure($course->id, $items);
-$cols = $rt->get_summary_cols('keys');
-$headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
-$rt->add_graded_columns($cols, $unusedtitles);
-$rt->add_graded_data($gradedata, $data->userid, $aggregate);
-$headdata = (object) $headdata;
-$headdata->gradecols = $gradedata;
+if (is_null($courseset)) {
+    echo $OUTPUT->notification("Not a course set.");
+    return;
+}
 
-$str = $renderer->print_html($coursestructure, $aggregate, $done);
-$headdata->done = $done;
-$headdata->items = $items;
+$sessions = [];
+
+foreach ($courseset as $course) {
+
+    // Get data.
+    use_stats_fix_last_course_access($data->userid, $course->id);
+    $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
+    $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
+    $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
+
+    // Get course structure.
+    $coursestructure = $rt->get_course_structure($course->id, $items);
+    $cols = $rt->get_summary_cols('keys');
+    $courseheaddata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
+    $rt->add_graded_columns($cols, $unusedtitles);
+    $rt->add_graded_data($gradedata, $data->userid, $aggregate);
+    if (is_null($headdata)) {
+        $headdata = (object) $courseheaddata;
+        $headdata->gradecols = $gradedata;
+        $headdata->done = 0;
+        $headdata->items = 0;
+    } else {
+        $headdata = $rt->aggregate_objects($headdata, (object) $courseheaddata);
+        $headdata->gradecols = $headdata->gradecols + $gradedata; // Agregate grade columns.
+    }
+
+    $str = $renderer->print_html($coursestructure, $aggregate, $done);
+    $headdata->done = $done;
+    $headdata->items = $items;
+    if (!empty($tsconfig->showsessions)) {
+        $sessions[$course->id] = $aggregate['sessions'];
+    }
+}
 
 echo $renderer->print_header_html($user, $course, $headdata, $cols);
 echo $str;
 
 if (!empty($tsconfig->showsessions)) {
-    echo $renderer->print_session_list($aggregate['sessions'], $course->id, $data->userid);
+    foreach ($courseset as $course) {
+        echo $renderer->print_session_list($sessions[$course->id], $course->id, $data->userid);
+    }
 }
 
 echo $rtrenderer->xls_userexport_button($data);

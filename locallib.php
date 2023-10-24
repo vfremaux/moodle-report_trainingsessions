@@ -618,7 +618,7 @@ class trainingsessions {
                 ue.userid = u.id
             JOIN
                 {enrol} e
-               ON
+            ON
                    e.id = ue.enrolid
             ORDER BY
                 u.firstname ASC,
@@ -2354,5 +2354,31 @@ class trainingsessions {
             }
         }
 
+    }
+
+    /**
+     * Sums values of all fields with second object incoming values.
+     * Admits second values null or not set (adds 0)
+     */
+    function aggregate_objects(&$obj1, $obj2) {
+        foreach ($obj1 as $key => $value) {
+            $obj1->$key += 0 + @$obj2->$key;
+        }
+    }
+
+    /**
+     * Probably better way to do this, more efficiant.
+     */
+    public function get_courseset($courseid) {
+        $config = get_config('report_trainingsessions');
+        $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
+        foreach ($coursesetslines as $line) {
+            $courseset = explode(',', $line);
+            if (in_array($courseid, $courseset)) {
+                return $courseset;
+            }
+        }
+
+        return null;
     }
 }

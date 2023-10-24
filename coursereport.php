@@ -56,11 +56,12 @@ $config = get_config('report_trainingsessions');
 // Calculate start time.
 
 $rt->process_bounds($data, $course);
+$iscourseset = !is_null($rt->get_courseset($course->id));
 
 if ($data->output == 'html') {
     echo $OUTPUT->header();
     echo $OUTPUT->container_start();
-    echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
+    echo $rtrenderer->tabs($course, $view, $data->from, $data->to, $iscourseset);
     echo $OUTPUT->container_end();
 
     echo $OUTPUT->box_start('block');

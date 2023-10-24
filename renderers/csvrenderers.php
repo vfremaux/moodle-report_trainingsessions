@@ -97,7 +97,8 @@ class CsvRenderer {
             foreach ($structure as $element) {
                 if (isset($element->instance) && empty($element->instance->visible)) {
                     // Non visible items should not be displayed.
-                    continue;
+                    // This needs rethinking.
+                    // continue;
                 }
                 if (!empty($config->hideemptymodules) && empty($element->elapsed) && empty($element->events)) {
                     // Discard empty items.

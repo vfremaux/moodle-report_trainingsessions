@@ -195,6 +195,7 @@ class HtmlRenderer {
             // If an array of elements produce successively each output and collect aggregates.
             $template->hassubs = true;
             foreach ($structure as $element) {
+                $template->visible = !empty($element->instance->visible) || !empty($element->visible);
                 if (isset($element->instance) && empty($element->instance->visible)) {
                     // Non visible items should not be displayed nor calculated.
                     continue;
@@ -220,6 +221,7 @@ class HtmlRenderer {
             $template->id = @$structure->id;
             $template->hasbody = true;
 
+            $template->visible = !empty($structure->instance->visible) || !empty($structure->visible);
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {
                 // Non visible items should not be displayed.
                 // Name is not empty. It is a significant module (non structural).
@@ -413,16 +415,16 @@ class HtmlRenderer {
         if ($withcompletion) {
             $template->withcompletion = true;
             // Print completion bar.
-            if (!array_key_exists('ltcprogressinitems', $data) && !array_key_exists('ltcprogressinmandatoryitems', $data)) {
+            if (!property_exists($data, 'ltcprogressinitems' ) && !property_exists($data, 'ltcprogressinmandatoryitems')) {
                 $template->completionbar = $this->print_progressionbar(0 + @$data->items, 0 + @$data->done, 500);
             } else {
                 $bars = '';
-                if (array_key_exists('ltcprogressinitems', $data)) {
+                if (property_exists($data, 'ltcprogressinitems')) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
                     $progress .= ' '.get_string('ltc', 'learningtimecheck');
                     $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
-                if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
+                if (property_exists($data, 'ltcprogressinmandatoryitems')) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500);
                     $progress .= ' '.get_string('mandatories', 'learningtimecheck');
                     $bars .= '<div class="mandatory-items" style="height:50px">'.$progress.'</div>';
@@ -524,7 +526,7 @@ class HtmlRenderer {
     public function add_times($data, $cols, &$template, $timeformat) {
         global $OUTPUT;
 
-        $timecols = array('firstaccess', 'lastlogin', 'firstcourseaccess', 'lastcourseaccess');
+        $timecols = array('firstaccess', 'lastlogin', 'firstcourseaccess', 'lastcourseaccess', 'enrolstartdate', 'enrolenddate');
 
         foreach ($cols as $c) {
 

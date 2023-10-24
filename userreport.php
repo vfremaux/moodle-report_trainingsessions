@@ -64,9 +64,11 @@ $rt->process_bounds($data, $course);
 // Need renew the form if process bounds have changed something.
 $selform = new SelectorForm($id, 'user');
 
+$iscourseset = !is_null($rt->get_courseset($course->id));
+
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
-echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
+echo $rtrenderer->tabs($course, $view, $data->from, $data->to, $iscourseset);
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->box_start('block');
@@ -81,12 +83,6 @@ if ($usconfig->enrolmentfilter && has_capability('report/trainingsessions:viewot
     echo $OUTPUT->notification(get_string('warningusestateenrolfilter', 'block_use_stats'));
 }
 
-// Get data.
-use_stats_fix_last_course_access($data->userid, $course->id);
-$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
-$weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
-
 if (empty($aggregate['sessions'])) {
     $aggregate['sessions'] = array();
 }
@@ -95,8 +91,13 @@ if (!isset($user)) {
     $user = $DB->get_record('user', array('id' => $data->userid));
 }
 
-// Get course structure.
+// Get data.
+use_stats_fix_last_course_access($data->userid, $course->id);
+$logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
+$aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
+$weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
 
+// Get course structure.
 $coursestructure = $rt->get_course_structure($course->id, $items);
 $cols = $rt->get_summary_cols('keys');
 $headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);

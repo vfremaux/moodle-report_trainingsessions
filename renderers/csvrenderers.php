@@ -285,7 +285,7 @@ class CsvRenderer {
         if (!empty($sessions)) {
             foreach ($sessions as $session) {
 
-                if ($courseid && !in_array($courseid, $session->courses)) {
+                if ($courseid && !array_key_exists($courseid, $session->courses)) {
                     // Omit all sessions not visiting this course.
                     continue;
                 }

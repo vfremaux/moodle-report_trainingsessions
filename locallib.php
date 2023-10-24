@@ -618,7 +618,7 @@ class trainingsessions {
                 ue.userid = u.id
             JOIN
                 {enrol} e
-               ON
+            ON
                    e.id = ue.enrolid
             ORDER BY
                 u.firstname ASC,
@@ -1194,7 +1194,7 @@ class trainingsessions {
                 }
 
                 if ($courseid) {
-                    if (in_array($courseid, $s->courses)) {
+                    if (in_array($courseid, array_keys($s->courses))) {
                         $count++;
                     }
                 } else {
@@ -2354,5 +2354,71 @@ class trainingsessions {
             }
         }
 
+    }
+
+    /**
+     * Sums values of all fields with second object incoming values.
+     * Admits second values null or not set (adds 0)
+     */
+    function aggregate_objects(&$obj1, $obj2) {
+        foreach ($obj1 as $key => $value) {
+            // Manage fields specificities
+
+            if ($key == 'id') {
+                $obj1->$key .= ','.$obj2->$key;
+            }
+
+            if (in_array($key, ['firstname', 'lastname', 'email', 'idnumber'])) {
+                // Supposed to be same info.
+                continue;
+            }
+
+            if (in_array($key, ['coursestartdate', 'enrolstartdate'])) {
+                $obj1->$key = min($obj1->$key, $obj2->$key);
+                continue;
+            }
+
+            if ($key == 'courseenddate') {
+                $obj1->$key = max($obj1->$key, 0 + @$obj2->$key);
+                continue;
+            }
+
+            if (is_string($obj1->$key)) {
+                $obj1->$key .= ' '.@$obj2->$key;
+                continue;
+            }
+
+            if (is_array($obj1->$key)) {
+                if (!isset($obj2->$key)) {
+                    $obj2->$key = [];
+                }
+                $obj1->$key += $obj2->$key;
+                continue;
+            }
+
+            $obj1->$key += 0 + @$obj2->$key;
+        }
+    }
+
+    /**
+     * Probably better way to do this, more efficiant.
+     */
+    public function get_courseset($courseid) {
+        global $DB;
+
+        $config = get_config('report_trainingsessions');
+        $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
+        $courseset = [];
+        foreach ($coursesetslines as $line) {
+            $coursesetids = explode(',', $line);
+            if (in_array($courseid, $coursesetids)) {
+                foreach ($coursesetids as $cid) {
+                    $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+                }
+            }
+            return $courseset;
+        }
+
+        return null;
     }
 }

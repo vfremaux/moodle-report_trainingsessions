@@ -103,6 +103,8 @@ $renderer->print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xls
 $headdata->done = $done;
 $rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
 
+$headdata->from = $input->from;
+
 $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
 
 if (!empty($config->showsessions)) {

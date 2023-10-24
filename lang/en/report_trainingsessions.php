@@ -344,6 +344,7 @@ $string['uploadglobals'] = 'File uploads';
 $string['uploadresult'] = 'Download raw results';
 $string['user'] = 'Per participant';
 $string['userdetail'] = 'Participant detail';
+$string['userprogramdetail'] = 'User course program detail';
 $string['userid'] = 'User ID';
 $string['userlist'] = 'One row per participant';
 $string['usersheets'] = 'One sheetset per participant';

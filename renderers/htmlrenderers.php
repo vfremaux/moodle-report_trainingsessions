@@ -415,16 +415,16 @@ class HtmlRenderer {
         if ($withcompletion) {
             $template->withcompletion = true;
             // Print completion bar.
-            if (!array_key_exists('ltcprogressinitems', $data) && !array_key_exists('ltcprogressinmandatoryitems', $data)) {
+            if (!property_exists($data, 'ltcprogressinitems' ) && !property_exists($data, 'ltcprogressinmandatoryitems')) {
                 $template->completionbar = $this->print_progressionbar(0 + @$data->items, 0 + @$data->done, 500);
             } else {
                 $bars = '';
-                if (array_key_exists('ltcprogressinitems', $data)) {
+                if (property_exists($data, 'ltcprogressinitems')) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcitems, 0 + @$data->ltcdone, 500);
                     $progress .= ' '.get_string('ltc', 'learningtimecheck');
                     $bars .= '<div class="all-items" style="height:50px">'.$progress.'</div>';
                 }
-                if (array_key_exists('ltcprogressinmandatoryitems', $data)) {
+                if (property_exists($data, 'ltcprogressinmandatoryitems')) {
                     $progress = $this->print_progressionbar(0 + @$data->ltcmandatoryitems, 0 + @$data->ltcmandatorydone, 500);
                     $progress .= ' '.get_string('mandatories', 'learningtimecheck');
                     $bars .= '<div class="mandatory-items" style="height:50px">'.$progress.'</div>';
@@ -573,7 +573,7 @@ class HtmlRenderer {
             // Filter sessions that are not in the required course.
             foreach ($sessions as $sessid => $session) {
                 if (!empty($session->courses)) {
-                    if (!in_array($courseid, $session->courses)) {
+                    if (!array_key_exists($courseid, $session->courses)) {
                         // Omit all sessions not visiting this course.
                         unset($sessions[$sessid]);
                     }

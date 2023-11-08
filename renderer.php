@@ -88,7 +88,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return $str;
     }
 
-    public function xls_userexport_button($data) {
+    public function xls_userexport_button($data, $scope = 'currentcourse') {
         global $COURSE;
 
         if ($COURSE->id > SITEID) {
@@ -106,7 +106,8 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
                         'view' => 'user',
                         'userid' => $data->userid,
                         'from' => $data->from,
-                        'to' => $data->to);
+                        'to' => $data->to,
+                        'scope' => $scope);
         $xlsurl = new moodle_url('/report/trainingsessions/tasks/userxlsreportperuser_batch_task.php', $params);
         $str .= '<div class="trainingsessions-inline">';
         $str .= $this->output->single_button($xlsurl, get_string('generatexls', 'report_trainingsessions'));

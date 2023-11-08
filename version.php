@@ -35,5 +35,5 @@ $plugin->dependencies = array('block_use_stats' => '2023060500', 'auth_ticket' =
 $plugin->supported = [401, 402];
 
 // Non moodle attributes.
-$plugin->codeincrement = '4.1.0022';
+$plugin->codeincrement = '4.1.0023';
 $plugin->privacy = 'dualrelease';

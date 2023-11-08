@@ -67,7 +67,7 @@ $string['courselabel'] = 'dans la colonne&nbsp;:&ensp;';
 $string['coursename'] = 'Nom du groupe';
 $string['courseraw'] = 'Batchs';
 $string['courses'] = 'Cours traversés';
-$string['coursesessions'] = 'Sessions de travail pour ce cours (au réel plateforme)';
+$string['coursesessions'] = 'Sessions de travail pour ce cours (au réel plateforme) pour le cours : {$a}';
 $string['coursestart'] = 'Début du cours';
 $string['coursesummary'] = 'Résumé par participant';
 $string['coursetime'] = 'Temps hors activités ';
@@ -346,7 +346,7 @@ $string['uploadglobals'] = 'Téléchargements';
 $string['uploadresult'] = 'Télécharger le résultat';
 $string['user'] = 'Par participant';
 $string['userdetail'] = 'Détail du participant';
-$string['userprogramdetail'] = 'Detail du participant (programme)';
+$string['userprogramdetail'] = 'Rapport multicours';
 $string['userid'] = 'UID';
 $string['userlist'] = 'Une ligne par participant';
 $string['usersheets'] = 'Un rapport (feuilles) par participant';
@@ -521,5 +521,7 @@ sur la même mangue que la langue d\'usage de moodle. Laisser vide pour utiliser
 locale, par exemple: en_EN.UTF-8';
 
 $string['hasdisabledenrolmentsrestriction'] = 'Les inscriptions inactives sont ignorées par le rapport.';
+
+$string['gotocourse'] = '<span class="smalltext">Aller au cours</span>';
 
 include(__DIR__.'/pro_additional_strings.php');

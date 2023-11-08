@@ -140,7 +140,7 @@ if ($data->output == 'html') {
     echo $OUTPUT->heading(get_string('incourses', 'report_trainingsessions'));
     echo $str;
 
-    echo $renderer->print_session_list(@$aggregate['sessions'], 0, $userid);
+    echo $renderer->print_session_list(@$aggregate['sessions'], null, $userid);
 
     $params = array('id' => $course->id,
                     'userid' => $userid,

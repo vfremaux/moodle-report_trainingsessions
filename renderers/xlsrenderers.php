@@ -14,17 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * build an Excel Writer format object from format attributes.
- *
- * @param objectref &$workbook the current excel workbook
- * @param int $size font size
- * @param boolean $bold font weight
- * @param int $color a color index
- * @param int $fgcolor a color index
- * @param int $numfmt the index of the number format
- * @return an Excel format instance.
- */
 namespace report\trainingsessions;
 
 use \StdClass;
@@ -42,6 +31,17 @@ class XlsRenderer {
         $this->rt = $rt;
     }
 
+    /**
+     * build an Excel Writer format object from format attributes.
+     *
+     * @param objectref &$workbook the current excel workbook
+     * @param int $size font size
+     * @param boolean $bold font weight
+     * @param int $color a color index
+     * @param int $fgcolor a color index
+     * @param int $numfmt the index of the number format
+     * @return an Excel format instance.
+     */
     public function build_xls_format(&$workbook, $size, $bold, $color, $fgcolor, $numfmt = null) {
 
         $format = $workbook->add_format();
@@ -261,11 +261,13 @@ class XlsRenderer {
      * a raster for xls printing of a report structure header
      * with all the relevant data about a user.
      *
-     * @package    report_trainingsessions
-     * @category   report
-     * @author     Valery Fremaux (valery.fremaux@gmail.com)
-     * @version    moodle 2.x
-     * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+     * @param objectref &$worksheet the current worksheet
+     * @param int $userid the id of the current user to report
+     * @param mixed $courseid the course id from where report is asked for. Int if single course, Array of ids if courseset. 0 if all courses.
+     * @param arrayref &$data report data
+     * @param array $cols report column definition
+     * @param array $xlsformats formats to use
+     * @return the reached row as integer.
      */
     public function print_header_xls(&$worksheet, $userid, $courseid, &$data, $cols, $xlsformats) {
         global $DB;
@@ -276,7 +278,7 @@ class XlsRenderer {
         $gradecols = [];
         $gradetitles = [];
         $gradeformats = [];
-        if ($courseid) {
+        if (!is_array($courseid) && $courseid > 0) {
             // Only for single course reports.
             $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
         }
@@ -356,10 +358,23 @@ class XlsRenderer {
             $row++;
         }
 
-        if ($courseid > 0) {
+        if (!is_array($courseid) && $courseid > 0) {
+            debug_trace("Writing course line");
             $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
             $worksheet->write_string($row, 1, format_string($course->fullname));
             $row++;
+        } else if (is_array($courseid)) {
+            debug_trace("Writing courseset line");
+            // We are in a courseset.
+            $worksheet->write_string($row, 0, get_string('courseset', 'report_trainingsessions').' :', $xlsformats['b']);
+            $names = [];
+            foreach ($courseid as $cid) {
+                $names[] = format_string($DB->get_field('course', 'fullname', ['id' => $cid]));
+            }
+            $worksheet->write_string($row, 1, implode(', ', $names));
+            $row++;
+        } else {
+            debug_trace("Writing nothing (all courses)");
         }
 
         $worksheet->write_string($row, 0, get_string('from').' :', $xlsformats['b']);
@@ -371,7 +386,7 @@ class XlsRenderer {
         $row++;
 
         // Print group and roles, when in single course.
-        if ($courseid > 0) {
+        if (!is_array($courseid) && $courseid > 0) {
             $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
             $worksheet->write_string($row, 0, get_string('groups').' :', $xlsformats['b']);
@@ -467,8 +482,8 @@ class XlsRenderer {
                 continue;
             }
 
-            if ((strpos($c, 'course') !== false) && $courseid == 0) {
-                // Skip course specific info when we are in all courses report.
+            if ((strpos($c, 'course') !== false) && (is_array($courseid) || $courseid == 0)) {
+                // Skip course specific info when we are in all courses report, or courseset.
                 continue;
             }
 
@@ -514,6 +529,7 @@ class XlsRenderer {
     /**
      * Counts the number of variable header rows before detailled results can be printed.
      * @param int $courseid
+     * @return the reached row.
      */
     public function count_header_rows($courseid) {
 
@@ -567,10 +583,30 @@ class XlsRenderer {
     }
 
     /**
-     * a raster for xls printing of a report structure.
-     *
+     * a raster for xls printing of a course caption.
+     * @param objectref &$worksheet the current XLS worksheet.
+     * @param objectref &$course the current course
+     * @param intref &$row the actual row where printing next info. Updated to reached row after execution.
+     * @param &$xlsformats array of xls prepared formats.
+     * @return void.
      */
-    public function print_xls(&$worksheet, &$structure, &$aggregate, &$done, &$row, &$xlsformats, $level = 1) {
+    public function print_xls_coursehead(&$worksheet, &$course, &$row, &$xlsformats) {
+        $row++;
+        $worksheet->write_string($row, 0, $course->shortname, $xlsformats['TT']);
+        $worksheet->write_string($row, 1, format_string($course->fullname), $xlsformats['TT']);
+        $row++;
+    }
+
+    /**
+     * a raster for xls printing of a report structure.
+     * @param objectref &$worksheet the current XLS worksheet.
+     * @param objectref &$structure a course structure to print
+     * @param objectref &$aggregate an aggregation array where to find all stats.
+     * @param intref &$row the actual row where printing next info. Updated to reached row after execution.
+     * @param arrayref &$xlsformats array of xls prepared formats.
+     * @param int $level the current nesting structure level.
+     */
+    public function print_xls(&$worksheet, &$structure, &$aggregate, &$row, &$xlsformats, $level = 1) {
 
         $config = get_config('report_trainingsessions');
 
@@ -580,15 +616,6 @@ class XlsRenderer {
             return;
         }
 
-        // Makes a blank dataobject.
-        if (!isset($dataobject)) {
-            $dataobject = new StdClass;
-            $dataobject->elapsed = 0;
-            $dataobject->events = 0;
-            $dataobject->firstaccess = null;
-            $dataobject->lastaccess = null;
-        }
-
         if (is_array($structure)) {
             // Recurse in sub structures.
             foreach ($structure as $element) {
@@ -596,13 +623,7 @@ class XlsRenderer {
                     // Non visible items should not be displayed.
                     continue;
                 }
-                $res = $this->print_xls($worksheet, $element, $aggregate, $done, $row, $xlsformats, $level);
-                if ($res) {
-                    $dataobject->elapsed += $res->elapsed;
-                    $dataobject->events += $res->events;
-                    trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
-                    trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
-                }
+                $this->print_xls($worksheet, $element, $aggregate, $row, $xlsformats, $level);
             }
         } else {
             // Prints a single row.
@@ -613,7 +634,8 @@ class XlsRenderer {
             }
 
             // Non visible items should not be displayed.
-            if (!empty($structure->name) && empty($config->showsectionsonly) || (!empty($config->showsectionsonly) && !empty($structure->subs))) {
+            if (!empty($structure->name) && empty($config->showsectionsonly)
+                    || (!empty($config->showsectionsonly) && !empty($structure->subs))) {
 
                 // Write element name.
                 $col = 1;
@@ -622,81 +644,60 @@ class XlsRenderer {
                 $worksheet->write_string($row, $col, $str, $format);
                 $col++;
 
-                if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                    $done++;
-                    $dataobject = $aggregate[$structure->type][$structure->id];
-                }
-
                 // Saves the current row for post writing aggregates.
                 $thisrow = $row;
                 $row++;
                 if (!empty($structure->subs)) {
-                    $res = $this->print_xls($worksheet, $structure->subs, $aggregate, $done,
-                                                             $row, $xlsformats, $level + 1);
-                    if ($res) {
-                        $dataobject->elapsed = $res->elapsed;
-                        $dataobject->events = $res->events;
-                        $dataobject->firstaccess = $res->firstaccess;
-                        $dataobject->lastaccess = $res->lastaccess;
-                    }
+                    $this->print_xls($worksheet, $structure->subs, $aggregate, $row, $xlsformats, $level + 1);
                 }
 
                 // Elapsed. Duration
-                $convertedelapsed = $this->rt->format_time($dataobject->elapsed, 'xlsd');
+                $convertedelapsed = $this->rt->format_time($structure->elapsed, 'xlsd');
                 $worksheet->write_time($thisrow, $col, $convertedelapsed, $xlsformats['a']);
                 $col++;
 
                 if (!empty($config->showhits)) {
-                    $worksheet->write_number($thisrow, $col, $dataobject->events, $xlsformats['n']);
+                    $worksheet->write_number($thisrow, $col, $structure->events, $xlsformats['n']);
                     $col++;
                 }
 
                 // Firstaccess.
                 if (!empty($config->showitemfirstaccess)) {
-                    $fa = @$aggregate[$structure->type][$structure->id]->firstaccess;
-                    if (!empty($fa)) {
+                    if (!empty($structure->firstaccess)) {
                         // $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
                         $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
-                        $worksheet->write_string($thisrow, $col, strftime($datetimefmt, $fa), $xlsformats['a']);
+                        $worksheet->write_string($thisrow, $col, strftime($datetimefmt, $structure->firstaccess), $xlsformats['a']);
                         $col++;
-                        // Update superstructure fa.
-                        trainingsessions::updatefirst($dataobject->firstaccess, $fa);
                     }
                 }
 
                 // lastaccess.
                 if (!empty($config->showitemlastaccess)) {
-                    $la = @$aggregate[$structure->type][$structure->id]->lastaccess;
-                    if (!empty($la)) {
+                    if (!empty($structure->lastaccess)) {
                         // $worksheet->write_date($thisrow, 0, (float)$fa, $xlsformats['t']);
                         $datetimefmt = get_string('strfdatetime', 'report_trainingsessions');
-                        $worksheet->write_string($thisrow, $col, strftime($datetimefmt, $la), $xlsformats['a']);
+                        $worksheet->write_string($thisrow, $col, strftime($datetimefmt, $structure->lastaccess), $xlsformats['a']);
                         $col++;
-                        trainingsessions::updatelast($dataobject->lastaccess, $la);
                     }
                 }
             } else {
                 // It is only a structural module that should not impact on level.
-                if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                    $dataobject = $aggregate[$structure->type][$structure->id];
-                }
                 if (!empty($structure->subs)) {
-                    $res = $this->print_xls($worksheet, $structure->subs, $aggregate, $done,
-                                                             $row, $xlsformats, $level);
-                    if ($res) {
-                        $dataobject->elapsed += $res->elapsed;
-                        $dataobject->events += $res->events;
-                        $dataobject->firstaccess = $res->firstaccess;
-                        $dataobject->lastaccess = $res->lastaccess;
-                    }
+                    $this->print_xls($worksheet, $structure->subs, $aggregate, $row, $xlsformats, $level);
                 }
             }
         }
-        return $dataobject;
     }
 
     /**
      * Public wrapper for unified API.
+     * @param objectref &$worksheet the current XLS worksheet.
+     * @param objectref $userid the current user id
+     * @param int $row the row where to start printing.
+     * @param int $from starting report date.
+     * @param int $to endgin report date..
+     * @param objectref &$$course the current course.
+     * @param arrayref &$xlsformats array of xls prepared formats.
      */
     public function print_usersessions(&$worksheet, $userid, $row, $from, $to, &$course, &$xlsformats) {
 
@@ -711,12 +712,13 @@ class XlsRenderer {
      * Print session table in an initialied worksheet
      *
      * @param object $worksheet
-     * @param int $row
+     * @param int $row the starting row. Will be updated to reached row after execution.
      * @param array $sessions
-     * @param object $course
-     * @param object $xlsformats
+     * @param mixed $courseorid the current course or course id.
+     * @param objectref &$xlsformats an array of prepared formats.
+     * @param int $userid the currently reported userid.
      */
-    public function print_sessions_xls(&$worksheet, $row, $sessions, $courseorid, &$xlsformats, $userid = 0) {
+    public function print_sessions_xls(&$worksheet, &$row, $sessions, $courseorid, &$xlsformats, $userid = 0) {
         global $CFG;
 
         if (is_object($courseorid)) {
@@ -817,8 +819,10 @@ class XlsRenderer {
     /**
      * a raster for Excel printing of a report structure.
      *
-     * @param ref $worksheet a buffer for accumulating output
-     * @param object $aggregate aggregated logs to explore.
+     * @param objectref &$worksheet a buffer for accumulating output
+     * @param objectref &$aggregate aggregated logs to explore.
+     * @param int $row the starting row where to print in worksheet
+     * @param arrayref &$xlsformats array of xls prepared formats.
      */
     public function print_allcourses_xls(&$worksheet, &$aggregate, $row, &$xlsformats) {
         global $DB;
@@ -931,11 +935,11 @@ class XlsRenderer {
     /**
      * prints a raw data row in the worksheet
      *
-     * @param object $worksheet
-     * @param array $data
-     * @param array $dataformats
+     * @param objectref &$worksheet the current worksheet
+     * @param array $data The actual values of stats
+     * @param array $dataformats related formats to use with stats data
      * @param int $row
-     * @param array $xlsformats predefined set of formats
+     * @param arrayref &$xlsformats predefined set of formats
      */
     public function print_rawline_xls(&$worksheet, $data, $dataformats, $row, &$xlsformats) {
 
@@ -1004,17 +1008,18 @@ class XlsRenderer {
 
             $worksheet->write_string($row, $i, $celldata, $xlsformats[$dataformats[$i]]);
         }
-        return ++$row;
+        return ++$row; // increment before returning.
     }
 
     /**
      * prints a data row with column aggregators in the worksheet
      *
-     * @param object $worksheet
-     * @param array $dataformats
-     * @param array $sumline
-     * @param int $row
-     * @param array $xlsformats predefined set of formats
+     * @param objectref $worksheet the current worksheet
+     * @param arrayref $dataformats the array of used formats by sumline data.
+     * @param array $sumline the stats data to print
+     * @param int $minrow
+     * @param int $maxrow
+     * @param arrayref &$xlsformats predefined set of formats
      */
     public function print_sumline_xls(&$worksheet, &$dataformats, $sumline, $minrow, $maxrow, &$xlsformats) {
 

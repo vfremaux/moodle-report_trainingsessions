@@ -51,6 +51,15 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $context = context_course::instance($course->id);
 $PAGE->set_context($context);
 
+if ($reportscope == 'currentcourse') {
+    $reportcourses[] = $course;
+    $filename = "ts_course_{$course->shortname}_user_{$userid}_report_".$input->filenametimesession.'.xls';
+} else if ($reportscope == 'courseset') {
+    $reportcourses = $rt->get_courseset($course->id);
+    $courseidstr = implode('_', array_keys($courseset));
+    $filename = "ts_courseset_{$courseidstr}_user_{$userid}_report_".$input->filenametimesession.'.xls';
+}
+
 if (!$user = $DB->get_record('user', array('id' => $userid))) {
     // Do NOT print_error here as we are a document writer.
     die ('Invalid user ID');
@@ -64,8 +73,6 @@ $rt->back_office_access($course, $userid);
 $PAGE->set_context($context);
 
 // Generate XLS.
-
-$filename = "ts_course_{$course->shortname}_user_{$userid}_report_".$input->filenametimesession.'.xls';
 
 $workbook = new MoodleExcelWorkbookTS("-");
 if (!$workbook) {
@@ -85,31 +92,70 @@ $row = $startrow;
 $worksheet = $renderer->init_worksheet($auser->id, $row, $xlsformats, $workbook);
 
 $logusers = $auser->id;
-$logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $course->id);
-$aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $course);
-$weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to, '', false, $course);
+$sessions = [];
 
-$coursestructure = $rt->get_course_structure($course->id, $items);
-$cols = $rt->get_summary_cols();
-$headdata = $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $course->id, true /* associative */);
-$rt->add_graded_columns($cols, $titles);
-$rt->add_graded_data($gradedata, $auser->id, $aggregate);
-$headdata = (object) $headdata;
-$headdata->gradecols = $gradedata;
-$headdata->from = $input->from;
-$headdata->to = $input->to;
+foreach ($reportcourses as $c) {
 
-$renderer->print_xls($worksheet, $coursestructure, $aggregate, $done, $row, $xlsformats);
-$headdata->done = $done;
-$rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
+    $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $c->id);
+    $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $c);
+    $weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to, '', false, $c);
 
-$renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+    $coursestructure = $rt->get_course_structure($c->id, $items);
+    $cols = $rt->get_summary_cols();
+    $courseheaddata = $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $c->id, true /* associative */);
+    $rt->add_graded_columns($cols, $titles);
+    $rt->add_graded_data($gradedata, $auser->id, $aggregate);
+    $rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
+
+    if (!isset($headdata)) {
+        $headdata = (object) $courseheaddata;
+        $headdata->gradecols = $gradedata;
+        $headdata->from = $input->from;
+        $headdata->to = $input->to;
+    } else {
+        $rt->aggregate_objects($headdata, (object) $courseheaddata);
+    }
+
+    if ($reportscope == 'courseset') {
+        $renderer->print_xls_coursehead($worksheet, $c, $row, $xlsformats);
+    }
+    $renderer->print_xls($worksheet, $coursestructure, $aggregate, $row, $xlsformats);
+    $headdata->done = $done;
+
+    if (!empty($config->showsessions)) {
+        if (!empty($aggregate['sessions'])) {
+            $sessions[$c->id] = $aggregate['sessions'];
+        } else {
+            $sessions[$c->id] = [];
+        }
+    }
+}
+
+if (count($reportcourses) == 1) {
+    // single course case.
+    $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+} else {
+    // Course set case.
+    debug_trace("course set report for ");
+    debug_trace(array_keys($reportcourses));
+    $renderer->print_header_xls($worksheet, $auser->id, array_keys($reportcourses), $headdata, $cols, $xlsformats);
+}
 
 if (!empty($config->showsessions)) {
-    if (!empty($aggregate['sessions'])) {
-        $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions');
-        $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
-        $renderer->print_sessions_xls($worksheet, $startrow, $aggregate['sessions'], $course, $xlsformats);
+    foreach ($reportcourses as $c) {
+        $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions_'.$c->id);
+
+        if (count($reportcourses) == 1) {
+            // single course case.
+            $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+        } else {
+            // Course set case.
+            debug_trace("course set report for ");
+            debug_trace(array_keys($reportcourses));
+            $renderer->print_header_xls($worksheet, $auser->id, array_keys($reportcourses), $headdata, $cols, $xlsformats);
+        }
+
+        $renderer->print_sessions_xls($worksheet, $startrow, $sessions[$c->id], $c, $xlsformats);
     }
 }
 

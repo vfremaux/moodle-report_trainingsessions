@@ -39,7 +39,7 @@ raise_memory_limit(MEMORY_EXTRA);
 // Selector form.
 
 require_once($CFG->dirroot.'/report/trainingsessions/selector_form.php');
-$selform = new SelectorForm($id, 'user');
+$selform = new SelectorForm($id, 'userprogram');
 if (!$data = $selform->get_data()) {
     $data = new StdClass;
     $data->from = optional_param('from', $course->startdate, PARAM_NUMBER);
@@ -60,13 +60,15 @@ if (!$data = $selform->get_data()) {
     $data->tonow = optional_param('tonow', 0, PARAM_BOOL);
 }
 
+$iscourseset = !is_null($rt->get_courseset($course->id));
+
 $rt->process_bounds($data, $course);
 // Need renew the form if process bounds have changed something.
-$selform = new SelectorForm($id, 'user');
+$selform = new SelectorForm($id, 'userprogram');
 
 echo $OUTPUT->header();
 echo $OUTPUT->container_start();
-echo $rtrenderer->tabs($course, $view, $data->from, $data->to);
+echo $rtrenderer->tabs($course, $view, $data->from, $data->to, $iscourseset);
 echo $OUTPUT->container_end();
 
 echo $OUTPUT->box_start('block');
@@ -98,32 +100,37 @@ if (is_null($courseset)) {
 }
 
 $sessions = [];
+$str = '';
 
 foreach ($courseset as $course) {
 
     // Get data.
     use_stats_fix_last_course_access($data->userid, $course->id);
     $logs = use_stats_extract_logs($data->from, $data->to, $data->userid, $course->id);
-    $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
-    $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
+    $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to, '', false, $course);
+    $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to, '', false, $course);
 
     // Get course structure.
-    $coursestructure = $rt->get_course_structure($course->id, $items);
+    $coursestructure = $rt->get_course_structure($course->id, $items); // provides item count.
     $cols = $rt->get_summary_cols('keys');
     $courseheaddata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
     $rt->add_graded_columns($cols, $unusedtitles);
     $rt->add_graded_data($gradedata, $data->userid, $aggregate);
-    if (is_null($headdata)) {
+    $rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
+    if (!isset($headdata)) {
         $headdata = (object) $courseheaddata;
         $headdata->gradecols = $gradedata;
         $headdata->done = 0;
         $headdata->items = 0;
     } else {
-        $headdata = $rt->aggregate_objects($headdata, (object) $courseheaddata);
-        $headdata->gradecols = $headdata->gradecols + $gradedata; // Agregate grade columns.
+        $rt->aggregate_objects($headdata, (object) $courseheaddata);
     }
 
-    $str = $renderer->print_html($coursestructure, $aggregate, $done);
+    $courseurl = new moodle_url('/course/view.php', ['id' => $course->id]);
+    $str .= '<H2>'.format_string($course->fullname).' - ID: '.$course->id;
+    $str .= ' <a target="_blank" href="'.$courseurl.'">'.get_string('gotocourse', 'report_trainingsessions');
+    $str .= '</a></H2>';
+    $str .= $renderer->print_html($coursestructure, $aggregate);
     $headdata->done = $done;
     $headdata->items = $items;
     if (!empty($tsconfig->showsessions)) {
@@ -136,16 +143,16 @@ echo $str;
 
 if (!empty($tsconfig->showsessions)) {
     foreach ($courseset as $course) {
-        echo $renderer->print_session_list($sessions[$course->id], $course->id, $data->userid);
+        echo $renderer->print_session_list($sessions[$course->id], $course, $data->userid);
     }
 }
 
-echo $rtrenderer->xls_userexport_button($data);
+echo $rtrenderer->xls_userexport_button($data, 'courseset');
 
 if (report_trainingsessions_supports_feature('format/pdf')) {
     include_once($CFG->dirroot.'/report/trainingsessions/pro/renderer.php');
     $rendererext = new \report_trainingsessions\output\pro_renderer($PAGE, '');
-    echo $rendererext->pdf_userexport_buttons($data);
+    echo $rendererext->pdf_userexport_buttons($data, 'courseset');
 }
 
 echo '<br/>';

@@ -68,6 +68,7 @@ $string['coursename'] = 'Group name';
 $string['courseraw'] = 'Batchs';
 $string['courses'] = 'Courses';
 $string['courseset'] = 'Course set';
+$string['experimental'] = 'Experimental';
 $string['coursesessions'] = 'Working sessions in course (real guessed times) for course : {$a}';
 $string['coursestart'] = 'Course start date';
 $string['coursesummary'] = 'Per participant summary';

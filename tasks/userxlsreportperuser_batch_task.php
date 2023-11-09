@@ -38,7 +38,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/lib/excellib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // The group id.
-$reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // Only currentcourse is consistant.
+$reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // currentcourse or courseset.
 $rt = \report\trainingsessions\trainingsessions::instance();
 $renderer = new \report\trainingsessions\XlsRenderer($rt);
 $config = get_config('report_trainingsessions');
@@ -50,13 +50,14 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 $PAGE->set_context($context);
+$input = $rt->batch_input($course);
 
 if ($reportscope == 'currentcourse') {
     $reportcourses[] = $course;
     $filename = "ts_course_{$course->shortname}_user_{$userid}_report_".$input->filenametimesession.'.xls';
 } else if ($reportscope == 'courseset') {
     $reportcourses = $rt->get_courseset($course->id);
-    $courseidstr = implode('_', array_keys($courseset));
+    $courseidstr = implode('_', array_keys($reportcourses));
     $filename = "ts_courseset_{$courseidstr}_user_{$userid}_report_".$input->filenametimesession.'.xls';
 }
 
@@ -64,8 +65,6 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
     // Do NOT print_error here as we are a document writer.
     die ('Invalid user ID');
 }
-
-$input = $rt->batch_input($course);
 
 // Security.
 $rt->back_office_access($course, $userid);

@@ -2392,7 +2392,7 @@ class trainingsessions {
                 continue;
             }
 
-            if ($key == 'courseenddate') {
+            if (in_array($key, ['courseenddate', 'enrolenddate'])) {
                 $obj1->$key = max($obj1->$key, 0 + @$obj2->$key);
                 continue;
             }
@@ -2420,7 +2420,7 @@ class trainingsessions {
     public function get_courseset($courseid) {
         global $DB;
 
-        if report_trainingsessions_supports_feature('calculation/multicourse') {
+        if (report_trainingsessions_supports_feature('calculation/multicourse')) {
 
             $config = get_config('report_trainingsessions');
             $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);

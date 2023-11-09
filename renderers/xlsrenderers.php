@@ -287,7 +287,7 @@ class XlsRenderer {
 
         // Print base header user info.
         $user = $DB->get_record('user', array('id' => $userid));
-        if ($courseid > 0) {
+        if (!is_array($courseid) && $courseid > 0) {
             $course = $DB->get_record('course', array('id' => $courseid));
         }
 

@@ -66,6 +66,7 @@ $string['coursegrade'] = 'Score (cours)';
 $string['courselabel'] = 'dans la colonne&nbsp;:&ensp;';
 $string['coursename'] = 'Nom du groupe';
 $string['courseraw'] = 'Batchs';
+$string['courseset'] = 'Programme';
 $string['courses'] = 'Cours traversés';
 $string['coursesessions'] = 'Sessions de travail pour ce cours (au réel plateforme) pour le cours : {$a}';
 $string['coursestart'] = 'Début du cours';

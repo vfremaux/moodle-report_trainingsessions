@@ -182,11 +182,6 @@ class HtmlRenderer {
 
         $template->indent = str_repeat('&nbsp;&nbsp;', $level);
 
-        $template->elapsed = $structure->elapsed;
-        $template->events = $structure->events;
-        $template->firstaccess = $structure->firstaccess;
-        $template->lastaccess = $structure->firstaccess;
-
         if (is_array($structure)) {
             // If an array of elements produce successively each output and collect aggregates.
             $template->hassubs = true;
@@ -210,6 +205,10 @@ class HtmlRenderer {
             // We are a real element, or structure.
             $template->id = @$structure->id;
             $template->hasbody = true;
+            $template->elapsed = $structure->elapsed;
+            $template->events = $structure->events;
+            $template->firstaccess = $structure->firstaccess;
+            $template->lastaccess = $structure->firstaccess;
 
             $template->visible = !empty($structure->instance->visible) || !empty($structure->visible);
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {
@@ -239,7 +238,7 @@ class HtmlRenderer {
                     }
 
                     if (!in_array($structure->type, $ignoremodulelist)) {
-                        $dataobject = $aggregate[$structure->type][$structure->id];
+                        $dataobject = @$aggregate[$structure->type][$structure->id];
                         if (!empty($dataobject->timesource) && $dataobject->timesource == 'credit' && $dataobject->elapsed) {
                             $template->source = get_string('credittime', 'block_use_stats');
                         }

@@ -263,7 +263,7 @@ class XlsRenderer {
      *
      * @param objectref &$worksheet the current worksheet
      * @param int $userid the id of the current user to report
-     * @param int $courseid the course id from where report is asked for
+     * @param mixed $courseid the course id from where report is asked for. Int if single course, Array of ids if courseset. 0 if all courses.
      * @param arrayref &$data report data
      * @param array $cols report column definition
      * @param array $xlsformats formats to use
@@ -278,7 +278,7 @@ class XlsRenderer {
         $gradecols = [];
         $gradetitles = [];
         $gradeformats = [];
-        if ($courseid) {
+        if (!is_array($courseid) && $courseid > 0) {
             // Only for single course reports.
             $this->rt->add_graded_columns($gradecols, $gradetitles, $gradeformats);
         }
@@ -287,7 +287,7 @@ class XlsRenderer {
 
         // Print base header user info.
         $user = $DB->get_record('user', array('id' => $userid));
-        if ($courseid > 0) {
+        if (!is_array($courseid) && $courseid > 0) {
             $course = $DB->get_record('course', array('id' => $courseid));
         }
 
@@ -358,10 +358,23 @@ class XlsRenderer {
             $row++;
         }
 
-        if ($courseid > 0) {
+        if (!is_array($courseid) && $courseid > 0) {
+            debug_trace("Writing course line");
             $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
             $worksheet->write_string($row, 1, format_string($course->fullname));
             $row++;
+        } else if (is_array($courseid)) {
+            debug_trace("Writing courseset line");
+            // We are in a courseset.
+            $worksheet->write_string($row, 0, get_string('courseset', 'report_trainingsessions').' :', $xlsformats['b']);
+            $names = [];
+            foreach ($courseid as $cid) {
+                $names[] = format_string($DB->get_field('course', 'fullname', ['id' => $cid]));
+            }
+            $worksheet->write_string($row, 1, implode(', ', $names));
+            $row++;
+        } else {
+            debug_trace("Writing nothing (all courses)");
         }
 
         $worksheet->write_string($row, 0, get_string('from').' :', $xlsformats['b']);
@@ -373,7 +386,7 @@ class XlsRenderer {
         $row++;
 
         // Print group and roles, when in single course.
-        if ($courseid > 0) {
+        if (!is_array($courseid) && $courseid > 0) {
             $usergroups = groups_get_all_groups($courseid, $userid, 0, 'g.id, g.name');
 
             $worksheet->write_string($row, 0, get_string('groups').' :', $xlsformats['b']);
@@ -469,8 +482,8 @@ class XlsRenderer {
                 continue;
             }
 
-            if ((strpos($c, 'course') !== false) && $courseid == 0) {
-                // Skip course specific info when we are in all courses report.
+            if ((strpos($c, 'course') !== false) && (is_array($courseid) || $courseid == 0)) {
+                // Skip course specific info when we are in all courses report, or courseset.
                 continue;
             }
 
@@ -577,10 +590,10 @@ class XlsRenderer {
      * @param &$xlsformats array of xls prepared formats.
      * @return void.
      */
-    public function print_xls_courseheader(&$worksheet, &$course, &$row, &$xlsformats) {
+    public function print_xls_coursehead(&$worksheet, &$course, &$row, &$xlsformats) {
         $row++;
-        $worksheet->write_string($row, 1, $c->shortname, $xlsformats['TT']);
-        $worksheet->write_string($row, 2, format_string($c->fullname), $xlsformats['TT']);
+        $worksheet->write_string($row, 0, $course->shortname, $xlsformats['TT']);
+        $worksheet->write_string($row, 1, format_string($course->fullname), $xlsformats['TT']);
         $row++;
     }
 

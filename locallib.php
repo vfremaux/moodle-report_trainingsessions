@@ -2396,7 +2396,7 @@ class trainingsessions {
                 continue;
             }
 
-            if ($key == 'courseenddate') {
+            if (in_array($key, ['courseenddate', 'enrolenddate'])) {
                 $obj1->$key = max($obj1->$key, 0 + @$obj2->$key);
                 continue;
             }
@@ -2424,17 +2424,20 @@ class trainingsessions {
     public function get_courseset($courseid) {
         global $DB;
 
-        $config = get_config('report_trainingsessions');
-        $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
-        $courseset = [];
-        foreach ($coursesetslines as $line) {
-            $coursesetids = explode(',', $line);
-            if (in_array($courseid, $coursesetids)) {
-                foreach ($coursesetids as $cid) {
-                    $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+        if (report_trainingsessions_supports_feature('calculation/multicourse')) {
+
+            $config = get_config('report_trainingsessions');
+            $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
+            $courseset = [];
+            foreach ($coursesetslines as $line) {
+                $coursesetids = explode(',', $line);
+                if (in_array($courseid, $coursesetids)) {
+                    foreach ($coursesetids as $cid) {
+                        $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+                    }
+                    return $courseset;
                 }
             }
-            return $courseset;
         }
 
         return null;

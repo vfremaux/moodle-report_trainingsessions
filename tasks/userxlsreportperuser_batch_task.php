@@ -38,7 +38,7 @@ require_once($CFG->dirroot.'/report/trainingsessions/lib/excellib.php');
 
 $id = required_param('id', PARAM_INT); // The course id.
 $userid = required_param('userid', PARAM_INT); // The group id.
-$reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // Only currentcourse is consistant.
+$reportscope = optional_param('scope', 'currentcourse', PARAM_TEXT); // currentcourse or courseset.
 $rt = \report\trainingsessions\trainingsessions::instance();
 $renderer = new \report\trainingsessions\XlsRenderer($rt);
 $config = get_config('report_trainingsessions');
@@ -50,13 +50,14 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 $context = context_course::instance($course->id);
 $PAGE->set_context($context);
+$input = $rt->batch_input($course);
 
 if ($reportscope == 'currentcourse') {
     $reportcourses[] = $course;
     $filename = "ts_course_{$course->shortname}_user_{$userid}_report_".$input->filenametimesession.'.xls';
 } else if ($reportscope == 'courseset') {
     $reportcourses = $rt->get_courseset($course->id);
-    $courseidstr = implode('_', array_keys($courseset));
+    $courseidstr = implode('_', array_keys($reportcourses));
     $filename = "ts_courseset_{$courseidstr}_user_{$userid}_report_".$input->filenametimesession.'.xls';
 }
 
@@ -64,8 +65,6 @@ if (!$user = $DB->get_record('user', array('id' => $userid))) {
     // Do NOT print_error here as we are a document writer.
     die ('Invalid user ID');
 }
-
-$input = $rt->batch_input($course);
 
 // Security.
 $rt->back_office_access($course, $userid);
@@ -116,7 +115,9 @@ foreach ($reportcourses as $c) {
         $rt->aggregate_objects($headdata, (object) $courseheaddata);
     }
 
-    $renderer->print_xls_coursehead($worksheet, $c, $row, $xlsformats);
+    if ($reportscope == 'courseset') {
+        $renderer->print_xls_coursehead($worksheet, $c, $row, $xlsformats);
+    }
     $renderer->print_xls($worksheet, $coursestructure, $aggregate, $row, $xlsformats);
     $headdata->done = $done;
 
@@ -129,12 +130,30 @@ foreach ($reportcourses as $c) {
     }
 }
 
-$renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+if (count($reportcourses) == 1) {
+    // single course case.
+    $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+} else {
+    // Course set case.
+    debug_trace("course set report for ");
+    debug_trace(array_keys($reportcourses));
+    $renderer->print_header_xls($worksheet, $auser->id, array_keys($reportcourses), $headdata, $cols, $xlsformats);
+}
 
 if (!empty($config->showsessions)) {
-    foreach($reportcourses as $c) {
+    foreach ($reportcourses as $c) {
         $worksheet = $renderer->init_worksheet($auser->id, $startrow, $xlsformats, $workbook, 'sessions_'.$c->id);
-        $renderer->print_header_xls($worksheet, $auser->id, $c->id, $headdata, $cols, $xlsformats);
+
+        if (count($reportcourses) == 1) {
+            // single course case.
+            $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
+        } else {
+            // Course set case.
+            debug_trace("course set report for ");
+            debug_trace(array_keys($reportcourses));
+            $renderer->print_header_xls($worksheet, $auser->id, array_keys($reportcourses), $headdata, $cols, $xlsformats);
+        }
+
         $renderer->print_sessions_xls($worksheet, $startrow, $sessions[$c->id], $c, $xlsformats);
     }
 }

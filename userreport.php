@@ -103,10 +103,11 @@ $cols = $rt->get_summary_cols('keys');
 $headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
 $rt->add_graded_columns($cols, $unusedtitles);
 $rt->add_graded_data($gradedata, $data->userid, $aggregate);
+$rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
 $headdata = (object) $headdata;
 $headdata->gradecols = $gradedata;
 
-$str = $renderer->print_html($coursestructure, $aggregate, $done);
+$str = $renderer->print_html($coursestructure, $aggregate);
 $headdata->done = $done;
 $headdata->items = $items;
 
@@ -114,7 +115,7 @@ echo $renderer->print_header_html($user, $course, $headdata, $cols);
 echo $str;
 
 if (!empty($tsconfig->showsessions)) {
-    echo $renderer->print_session_list($aggregate['sessions'], $course->id, $data->userid);
+    echo $renderer->print_session_list($aggregate['sessions'], $course, $data->userid);
 }
 
 echo $rtrenderer->xls_userexport_button($data);

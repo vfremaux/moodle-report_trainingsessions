@@ -14,6 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * build an Excel Writer format object from format attributes.
+ *
+ * @param objectref &$workbook the current excel workbook
+ * @param int $size font size
+ * @param boolean $bold font weight
+ * @param int $color a color index
+ * @param int $fgcolor a color index
+ * @param int $numfmt the index of the number format
+ * @return an Excel format instance.
+ */
 namespace report\trainingsessions;
 
 use \StdClass;

@@ -102,6 +102,7 @@ if ($ADMIN->fulltree) {
     $default .= "#items,n\n#hits,n\n#exthits,n\n#extotherhits,n\n#visiteditems,n\n";
     $default .= "#elapsedlastweek,d\n#extelapsedlastweek,d\n#extotherelapsedlastweek,d\n";
     $default .= "#hitslastweek,n\n#exthitslastweek,n\n";
+    $default .= "#enrolstartdate,t\n#enrolenddate,t\n";
     $default .= "workingsessions,n";
     $settings->add(new admin_setting_configtextarea($key, $label, $desc, $default));
 
@@ -297,6 +298,15 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configselect($key, $label, $desc, 'mark', $cropoptions));
     }
 
+    if (report_trainingsessions_supports_feature('calculation/multicourse')) {
+        $settings->add(new admin_setting_heading('grading', get_string('experimental', 'report_trainingsessions'), ''));
+
+        $key = 'report_trainingsessions/multicoursesets';
+        $label = get_string('multicoursesets', 'report_trainingsessions');
+        $desc = get_string('multicoursesets_desc', 'report_trainingsessions');
+        $settings->add(new admin_setting_configtextarea($key, $label, $desc, ''));
+    }
+
     if (report_trainingsessions_supports_feature('xls/calculated')) {
         $settings->add(new admin_setting_heading('xlsadditions', get_string('xlsadditions', 'report_trainingsessions'), ''));
 
@@ -312,18 +322,15 @@ if ($ADMIN->fulltree) {
         $default = get_string('defaultsumformula', 'report_trainingsessions');
         $settings->add(new admin_setting_configtext($key, $label, $desc, $default));
     }
-
-    if (report_trainingsessions_supports_feature('emulate/community')) {
-        // This will accept any.
-        $settings->add(new admin_setting_heading('plugindisthdr', get_string('plugindist', 'report_trainingsessions'), ''));
-
-        $key = 'report_trainingsessions/emulatecommunity';
-        $label = get_string('emulatecommunity', 'report_trainingsessions');
-        $desc = get_string('emulatecommunity_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_configcheckbox($key, $label, $desc, 0));
-    } else {
-        $label = get_string('plugindist', 'report_trainingsessions');
-        $desc = get_string('plugindist_desc', 'report_trainingsessions');
-        $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
-    }
 }
+
+if (report_trainingsessions_supports_feature('emulate/community') == 'pro') {
+    include_once($CFG->dirroot.'/report/trainingsessions/pro/prolib.php');
+    $promanager = report_trainingsessions\pro_manager::instance();
+    $promanager->add_settings($ADMIN, $settings);
+} else {
+    $label = get_string('plugindist', 'report_trainingsessions');
+    $desc = get_string('plugindist_desc', 'report_trainingsessions');
+    $settings->add(new admin_setting_heading('plugindisthdr', $label, $desc));
+}
+

@@ -74,3 +74,12 @@ Allow suspended students to be removed from reports with a setting.
 =============================
 
 Redrawes course report options and logics. Allow full course batch programming.
+
+2023060200 - X.X.0021 Adding start and end enrol dates in reports
+=================================================================
+
+Adds enrolstartdate and addenrolenddate in columns to be added to report output
+
+2023060500 - X.X.0023 Adding multicourse (courseset) agregations (Pro)
+======================================================================
+

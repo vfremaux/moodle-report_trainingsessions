@@ -109,7 +109,9 @@ $durationcols = array('activitytime',
 $datecols = array('lastlogin',
                   'firstcourseaccess',
                   'lastcourseaccess',
-                  'firstaccess');
+                  'firstaccess',
+                  'enrolstartdate',
+                  'enrolenddate');
 $rightaligncols = array('workingsessions');
 
 // Get base data from moodle and bake it into a local format.

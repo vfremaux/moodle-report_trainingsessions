@@ -34,12 +34,33 @@ class CsvRenderer {
         $this->rt = $rt;
     }
 
+    public function print_periodinfo(&$csvbuffer, $input) {
+        $str = '#'."\n";
+        $str .= '# from: '.$this->rt->format_time(0 + $input->from, 'html')."\n";
+        $str .= '# to: '.$this->rt->format_time(0 + $input->to, 'html')."\n";
+
+        $csvbuffer .= $str;
+    }
+
     public function print_userinfo(&$csvbuffer, $user) {
+
+        $config = get_config('report_trainingsessions');
 
         $str = '#'."\n";
         $str .= '# ln: '.$user->lastname."\n";
         $str .= '# fn: '.$user->firstname."\n";
         $str .= '# ID: '.$user->idnumber."\n";
+
+        for ($i = 1; $i <= 2; $i++) {
+            $fieldkey = 'extrauserinfo'.$i;
+            if (!empty($config->$fieldkey)) {
+                $field = $DB->get_record('user_info_field', ['id' => $config->$fieldkey]);
+                $str .= $field->name.':';
+                $data = $DB->get_field('user_info_data', 'data', ['userid' => $user->id, 'fieldid' => $field->id]);
+                $str .= $data."\n";
+            }
+        }
+
         $str .= '#'."\n";
 
         $csvbuffer .= $str;
@@ -76,7 +97,8 @@ class CsvRenderer {
             foreach ($structure as $element) {
                 if (isset($element->instance) && empty($element->instance->visible)) {
                     // Non visible items should not be displayed.
-                    continue;
+                    // This needs rethinking.
+                    // continue;
                 }
                 if (!empty($config->hideemptymodules) && empty($element->elapsed) && empty($element->events)) {
                     // Discard empty items.

@@ -107,7 +107,7 @@ function report_trainingsessions_pluginfile($course, $cm, $context, $filearea, $
  * implementation path where to fetch resources.
  * @param string $feature a feature key to be tested.
  */
-function report_trainingsessions_supports_feature($feature = null, $getsupported = null) {
+function report_trainingsessions_supports_feature($feature = null, $getsupported = false) {
     global $CFG;
     static $supports;
 
@@ -120,7 +120,7 @@ function report_trainingsessions_supports_feature($feature = null, $getsupported
             'pro' => array(
                 'format' => array('xls', 'csv', 'pdf', 'json'),
                 'replay' => array('single', 'replay', 'shift', 'shiftto'),
-                'calculation' => array('coupling', 'specialgrades'),
+                'calculation' => array('coupling', 'specialgrades', 'multicourse'),
                 'xls' => array('calculated'),
                 'export' => array('ws')
             ),
@@ -135,9 +135,9 @@ function report_trainingsessions_supports_feature($feature = null, $getsupported
         ));
     }
 
-	if ($getsupported) {
-		return $supports;
-	}
+    if ($getsupported) {
+        return $supports;
+    }
 
     // Check existance of the 'pro' dir in plugin.
     if (is_dir(__DIR__.'/pro')) {
@@ -202,9 +202,3 @@ function report_trainingsessions_supports_feature_logstore($instance) {
     return false;
 }
 
-/**
- * Legacy cron function.
- */
-function report_trainingsessions_cron() {
-    assert(1);
-}

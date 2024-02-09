@@ -78,7 +78,8 @@ class trainingsessions {
      * decodes a course structure giving an ordered and
      * recursive image of the course.
      * The course structure will recognize topic, weekly and flexipage
-     * course format, keeping an accurate image of the course ordering.
+     * course format, keeping an accurate vision of the course ordering.
+     * Performs no calculation on the tree. @see calculate_course_structure.
      *
      * @param int $courseid
      * @param reference $itemcount a recursive propagating counter in case of flexipage
@@ -115,6 +116,7 @@ class trainingsessions {
                 $pageelement->type = 'page';
                 $pageelement->plugintype = 'page';
                 $pageelement->name = format_string($page->nametwo);
+                $pageelement->visible = ($page->display > FORMAT_PAGE_DISP_HIDDEN);
 
                 $pageelement->subs = $this->page_get_structure_from_page($page, $itemcount);
                 $structure[] = $pageelement;
@@ -437,12 +439,15 @@ class trainingsessions {
         if (!empty($page->childs)) {
             foreach ($page->childs as $key => $child) {
                 if (!($child->display > FORMAT_PAGE_DISP_HIDDEN)) {
+                	// Need rethink about passed activities in
+                	// post-hidden pages
                     continue;
                 }
 
                 $pageelement = new StdClass;
                 $pageelement->type = 'page';
                 $pageelement->name = format_string($child->nametwo);
+                $pageelement->visible = ($child->display > FORMAT_PAGE_DISP_HIDDEN);
 
                 $pageelement->subs = $this->page_get_structure_from_page($child, $itemcount);
                 $structure[] = $pageelement;
@@ -541,10 +546,19 @@ class trainingsessions {
                 $mins = $mins % 60;
 
                 if ($hours > 0) {
-                    return "{$hours}h {$mins}min {$secs}s";
+                    if ($secs) {
+                        return "{$hours}h {$mins}min {$secs}s";
+                    }
+                    if ($mins) {
+                        return "{$hours}h {$mins}min";
+                    }
+                    return "{$hours}h";
                 }
                 if ($mins > 0) {
-                    return "{$mins}min {$secs}s";
+                    if ($secs) {
+                        return "{$mins}min {$secs}s";
+                    }
+                    return "{$mins}min";
                 }
                 return "{$secs}s";
 
@@ -1666,9 +1680,10 @@ class trainingsessions {
      * - 'format' returns expected format for column
      */
     public function get_summary_cols($what = 'keys') {
+        global $DB;
 
-        $config = get_config('report_trainingsessions', 'summarycolumns');
-        $cols = explode("\n", $config);
+        $config = get_config('report_trainingsessions');
+        $cols = explode("\n", $config->summarycolumns);
 
         $corekeys = array('idnumber', 'lastname', 'firstname', 'institution', 'department', 'firstaccess');
 
@@ -1689,7 +1704,13 @@ class trainingsessions {
             }
 
             if ($what == 'title') {
-                if (in_array($c, $corekeys)) {
+                if (in_array($key, ['extrauserinfo1', 'extrauserinfo2'])) {
+                    // special processing. these are customized fields to fetch as extrauserinfo1 or extrauserinfo2.
+                    $field = $DB->get_record('user_info_field', ['id' => $config->$key]);
+                    $result[] = $field->name;
+                }
+
+                if (in_array($key, $corekeys)) {
                     // Core keys get column name in core strings.
                     $result[] = preg_replace('/&nbsp;$/', '', get_string($key));
                 } else {
@@ -1721,6 +1742,8 @@ class trainingsessions {
     public function map_summary_cols(&$cols, &$user, &$aggregate, &$weekaggregate, $courseid = 0, $associative = false) {
         global $COURSE, $DB, $CFG;
 
+        $config = get_config('report_trainingsessions');
+
         if ($courseid == 0) {
             $courseid = $COURSE->id;
         }
@@ -1739,15 +1762,17 @@ class trainingsessions {
         if (!$firstaccessrec) {
             // Get first log.
             $firstcourseaccessrecs = $DB->get_records('logstore_standard_log', ['userid' => $user->id, 'courseid' => $courseid], 'timecreated', 'id,timecreated', 0, 1);
-            $firstaccessrec = new StdClass;
-            $firstaccessrec->userid = $user->id;
-            $firstaccessrec->courseid = $courseid;
             if ($firstcourseaccessrecs) {
+                $firstaccessrec = new StdClass;
+                $firstaccessrec->userid = $user->id;
+                $firstaccessrec->courseid = $courseid;
                 $firstcourseaccessrec = array_shift($firstcourseaccessrecs);
                 $firstaccessrec->timeaccessed = $firstcourseaccessrec->timecreated;
                 $DB->insert_record('report_trainingsessions_fa', $firstaccessrec);
             }
         }
+
+        $ed = $this->get_enrol_dates($user->id, $courseid);
 
         $colsources = array(
             'id' => $user->id,
@@ -1755,11 +1780,14 @@ class trainingsessions {
             'firstname' => $user->firstname,
             'lastname' => $user->lastname,
             'email' => $user->email,
+            'enrolstartdate' => $ed[0],
+            'enrolenddate' => $ed[1],
             'institution' => $user->institution,
+            'city' => $user->city,
             'department' => $user->department,
             'lastlogin' => ($user->currentlogin > $user->lastlogin) ? $user->currentlogin : $user->lastlogin,
             'lastcourseaccess' => $DB->get_field('user_lastaccess', 'timeaccess', ['userid' => $user->id, 'courseid' => $courseid]),
-            'firstcourseaccess' => $firstaccessrec->timeaccessed,
+            'firstcourseaccess' => ($firstaccessrec) ? $firstaccessrec->timeaccessed : '',
             'firstaccess' => $user->firstaccess,
             'groups' => self::get_user_groups($user->id, $courseid),
             'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
@@ -1781,6 +1809,24 @@ class trainingsessions {
             'workingsessions' => $sessions,
             'uploadtime' => @$aggregate['upload'][0]->upload->elapsed
         );
+
+        for ($i = 1; $i <= 2; $i++) {
+            $fieldkey = 'extrauserinfo'.$i;
+            if (!empty($config->$fieldkey)) {
+                $field = $DB->get_record('user_info_field', ['id' => $config->$fieldkey]);
+                $data = $DB->get_field('user_info_data', 'data', ['fieldid' => $config->$fieldkey, 'userid' => $user->id]);
+                $colsources[$fieldkey] = '';
+                if ($field->datatype == 'datetime') {
+                    if ($data) {
+                        $colsources[$fieldkey] = userdate($data, get_string('htmldatefmt', 'report_trainingsessions'));
+                    }
+                } else {
+                    if ($data) {
+                        $colsources[$fieldkey] = $data;
+                    }
+                }
+            }
+        }
 
         if (is_dir($CFG->dirroot.'/mod/learningtimecheck')) {
             // Is LTC installed ?
@@ -1876,6 +1922,61 @@ class trainingsessions {
     }
 
     /**
+     * Get the most plausible start date of user enrol. This is the "last (but widest) active enrol period
+     * which start is BEFORE but closer to the end range". This will eliminate future enrol periods
+     * and anterior enrol periods.
+     * Fetch of start range is recursive : the first step is to get the upper start date before the $to value, wether this period
+     * is closed or not at $to time. This is called the last (active) known period for the user before the ranges end. Next steps
+     * are "queries for extension", if another enrol period overlaps the current period.
+     * @param int $userid the user's id
+     * @param int $courseid the course's id
+     * @param int $from start of compilation range
+     * @param int $to end of compilation range
+     */
+     public function get_enrol_dates($userid, $courseid, $from = 0, $to = null) {
+        global $DB;
+
+        if (is_null($to)) {
+            $to = time();
+        }
+
+        $sql = "
+            SELECT
+                MAX(ue.timestart) as sd,
+                MIN(ue.timeend) as ed
+            FROM
+                {user_enrolments} ue,
+                {enrol} e
+            WHERE
+                e.courseid = ? AND
+                ue.userid = ? AND
+                ue.enrolid = e.id AND
+                ue.status = 0 AND
+                e.status = 0
+        ";
+
+        /*
+        $closestactiveenrol = $DB->get_records_sql($sql, [$courseid, $userid, $to]);
+
+        if (!$closestactiveenrol) {
+            $coursestartdate = $DB->get_field('course', 'startdate', ['id' => $courseid]);
+            return [$coursestartdate, 0];
+        }
+        */
+
+        $uenrols = $DB->get_record_sql($sql, [$courseid, $userid]);
+
+        return [$uenrols->sd, $uenrols->ed];
+     }
+
+    /**
+     * Extends enrol date y fetching overlappping enrol periods at start and at end.
+     */
+    protected function extend_enrol_dates($userid, $courseid, $startdate, $enddate) {
+        
+    }
+
+    /**
      * Return list of groups of a user in a course.
      * @param int $userid
      * @param int $courseid
@@ -1903,16 +2004,55 @@ class trainingsessions {
 
     /**
      * Processes the range boundaries returning from form.
-     * @param array $data
+     * @param array $data coming from request.
+     * @param array $course
      */
     public function process_bounds(&$data, &$course) {
-        global $DB;
+        global $DB, $COURSE;
+
+        $tsconfig = get_config('report_trainingsessions');
 
         // Fix fromstart from _POST in some weird cases.
         if (empty($data->fromstart)) {
-            $data->fromstart = $_POST['fromstart'];
+            $data->fromstart = @$_POST['fromstart'];
             if (empty($data->fromstart)) {
-                $data->fromstart = $tsconfig->defaultstartdate;
+                switch ($tsconfig->defaultstartdate) {
+                    case 'course' : {
+                        $data->fromstart = $course->startdate;
+                        break;
+                    }
+
+                    case 'enrol' : {
+                        // TODO : get first enrol.
+                        if (!empty($data->userid)) {
+                            $sql = "
+                                SELECT
+                                    ue.*
+                                FROM
+                                    {user_enrolments} ue,
+                                    {enrol} e
+                                WHERE
+                                    ue.status = 0 AND
+                                    e.status = 0 AND
+                                    ue.enrolid = e.id AND
+                                    e.courseid = ? AND
+                                    ue.userid = ? AND
+                                    (ue.timestart IS NULL OR ue.timestart <= ?) AND
+                                    (ue.timeend IS NULL OR ue.timeend >= ?)
+                                ORDER BY
+                                    ue.timestart
+                            ";
+                            if ($firstenrol = $DB->get_record_sql($sql, [$course->id, $data->userid, time(), time()])) {
+                                $data->fromstart = $firstenrol->timestart;
+                            }
+                        }
+                        if (empty($data->fromstart)) {
+                            // default value.
+                            $data->fromstart = $course->startdate;
+                        }
+                        break;
+                    }
+                }
             }
         }
 
@@ -1922,7 +2062,8 @@ class trainingsessions {
             $data->from = $course->startdate;
             $changed = true;
         } else if (!empty($data->fromstart) && ($data->fromstart == 'account')) {
-            $data->from = $course->startdate;
+            $accountdate = $DB->get_field('user', 'firstaccess', ['id' => $data->userid]);
+            $data->from = max($course->startdate, $accountdate);
             $changed = true;
         } else if (!empty($data->fromstart) && (trim($data->fromstart) == 'enrol')) {
 
@@ -2002,13 +2143,12 @@ class trainingsessions {
     }
 
     /**
-     * Precalculates subtree aggregates without printing anything
-     * @param objectref &$pdf the pdf document
-     * @param int $y the current vertical position in page
+     * Precalculates subtree aggregates without printing anything.
+     *
      * @param objectref &$structure the course structure subtree
      * @param objectref &$aggregate the log aggregation
      * @param intref &$done the "done items" counter
-     * @param int $level the current recursion level in structure
+     * @param intref &$items the "total items" counter
      */
     public function calculate_course_structure(&$structure, &$aggregate, &$done, &$items) {
 
@@ -2020,6 +2160,8 @@ class trainingsessions {
         $dataobject = new StdClass;
         $dataobject->elapsed = 0;
         $dataobject->events = 0;
+        $dataobject->firstaccess = null;
+        $dataobject->lastaccess = null;
 
         if (is_array($structure)) {
             // recurse in sub structures
@@ -2031,8 +2173,11 @@ class trainingsessions {
                 $res = self::calculate_course_structure($element, $aggregate, $done, $items);
                 $dataobject->elapsed += $res->elapsed;
                 $dataobject->events += $res->events;
+                trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
+                trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
             }
         } else {
+            // We are an element of the tree.
             if (!empty($structure->visible) || !isset($structure->instance) || !empty($structure->instance->visible)) {
                 // Non visible items should not be displayed.
                 if (!empty($structure->name)) {
@@ -2041,36 +2186,45 @@ class trainingsessions {
                         $done++;
                         $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                         $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
-                    } else {
-                        $dataobject->elapsed = 0;
-                        $dataobject->events = 0;
+                        $dataobject->firstaccess = $aggregate[$structure->type][$structure->id]->firstaccess;
+                        $dataobject->lastaccess = $aggregate[$structure->type][$structure->id]->lastaccess;
                     }
 
                     if (!empty($structure->subs)) {
                         $res = $this->calculate_course_structure($structure->subs, $aggregate, $done, $items);
                         $dataobject->elapsed = $res->elapsed;
                         $dataobject->events = $res->events;
+                        trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
+                        trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
                     }
                 } else {
                     // It is only a structural module that should not impact on level.
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                        // FIX : Do not sum, or it will double value.
                         $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                         $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
+                        $dataobject->firstaccess = $aggregate[$structure->type][$structure->id]->firstaccess;
+                        $dataobject->lastaccess = $aggregate[$structure->type][$structure->id]->lastaccess;
                     }
                     if (!empty($structure->subs)) {
                         $res = $this->calculate_course_structure($structure->subs, $aggregate, $done, $items);
-                        $dataobject->elapsed += $res->elapsed;
-                        $dataobject->events += $res->events;
+                        // FIX : Do not sum, or it will double value.
+                        $dataobject->elapsed = $res->elapsed;
+                        $dataobject->events = $res->events;
+                        trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
+                        trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
                     }
                 }
 
-                // Report in element.
+                // Report in structure element.
                 $structure->elapsed = $dataobject->elapsed;
                 $structure->events = $dataobject->events;
+                $structure->firstaccess = $dataobject->firstaccess;
+                $structure->lastaccess = $dataobject->lastaccess;
             }
         }
 
-        // Returns acumulated aggregates.
+        // Returns acumulated aggregates for the recursive calculation.
         return $dataobject;
     }
 
@@ -2142,6 +2296,7 @@ class trainingsessions {
             return;
         }
         if ($first > $input) {
+            // finds the min().
             $first = $input;
         }
     }
@@ -2151,6 +2306,7 @@ class trainingsessions {
             return;
         }
         if (is_null($last)) {
+            // finds the max().
             $last = $input;
             return;
         }
@@ -2214,5 +2370,74 @@ class trainingsessions {
             }
         }
 
+    }
+
+    /**
+     * Sums values of all fields with second object incoming values.
+     * Admits second values null or not set (adds 0)
+     */
+    function aggregate_objects(&$obj1, $obj2) {
+        foreach ($obj1 as $key => $value) {
+            // Manage fields specificities
+
+            if ($key == 'id') {
+                $obj1->$key .= ','.$obj2->$key;
+            }
+
+            if (in_array($key, ['firstname', 'lastname', 'email', 'idnumber'])) {
+                // Supposed to be same info.
+                continue;
+            }
+
+            if (in_array($key, ['coursestartdate', 'enrolstartdate'])) {
+                $obj1->$key = min($obj1->$key, $obj2->$key);
+                continue;
+            }
+
+            if (in_array($key, ['courseenddate', 'enrolenddate'])) {
+                $obj1->$key = max($obj1->$key, 0 + @$obj2->$key);
+                continue;
+            }
+
+            if (is_string($obj1->$key)) {
+                $obj1->$key .= ' '.@$obj2->$key;
+                continue;
+            }
+
+            if (is_array($obj1->$key)) {
+                if (!isset($obj2->$key)) {
+                    $obj2->$key = [];
+                }
+                $obj1->$key += $obj2->$key;
+                continue;
+            }
+
+            $obj1->$key += 0 + @$obj2->$key;
+        }
+    }
+
+    /**
+     * Probably better way to do this, more efficiant.
+     */
+    public function get_courseset($courseid) {
+        global $DB;
+
+        if (report_trainingsessions_supports_feature('calculation/multicourse')) {
+
+            $config = get_config('report_trainingsessions');
+            $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
+            $courseset = [];
+            foreach ($coursesetslines as $line) {
+                $coursesetids = explode(',', $line);
+                if (in_array($courseid, $coursesetids)) {
+                    foreach ($coursesetids as $cid) {
+                        $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+                    }
+                    return $courseset;
+                }
+            }
+        }
+
+        return null;
     }
 }

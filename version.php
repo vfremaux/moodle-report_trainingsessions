@@ -26,13 +26,14 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2020100500; // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2023060500; // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2019111200; // Requires this Moodle version.
 $plugin->component = 'report_trainingsessions'; // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '3.8.0 (build 2020100500)';
+$plugin->release = '3.8.0 (build 2023060500)';
 $plugin->dependencies = array('block_use_stats' => '2020031300', 'auth_ticket' => '2012060400');
+$plugin->supported = [38, 39];
 
 // Non moodle attributes.
-$plugin->codeincrement = '3.8.0019';
+$plugin->codeincrement = '3.8.0023';
 $plugin->privacy = 'dualrelease';

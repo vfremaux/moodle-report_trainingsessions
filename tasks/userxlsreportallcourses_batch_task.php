@@ -72,7 +72,7 @@ $config = get_config('report_trainingsessions');
 
 // Get all results for this user.
 $logs = use_stats_extract_logs($input->from, $input->to, $user->id, 0);
-$aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to);
+$aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, 0);
 
 $fulltotal = 0;
 list($displaycourses,
@@ -95,9 +95,13 @@ $xlsformats = $renderer->xls_formats($workbook);
 
 // Define variables.
 $startrow = $renderer->count_header_rows($course->id);
-$worksheet = $renderer->init_worksheet($user->id, $startrow, $xlsformats, $workbook);
+$worksheet = $renderer->init_worksheet($user->id, $startrow, $xlsformats, $workbook, 'allcourses');
 $cols = $rt->get_summary_cols();
-$renderer->print_header_xls($worksheet, $user->id, 0, $input, $cols, $xlsformats);
+$headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true /* associative */);
+$headdata = (object) $headdata;
+$headdata->from = $input->from;
+$headdata->to = $input->to;
+$startrow = $renderer->print_header_xls($worksheet, $user->id, 0, $headdata, $cols, $xlsformats);
 
 $y = $renderer->print_allcourses_xls($worksheet, $aggregate, $startrow, $xlsformats);
 

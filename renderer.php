@@ -34,7 +34,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
      * @param type $to
      * @return type
      */
-    public function tabs($course, $view, $from, $to) {
+    public function tabs($course, $view, $from, $to, $iscourseset = false) {
 
         $context = context_course::instance($course->id);
         $rows = array();
@@ -42,6 +42,12 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         $params = array('id' => $course->id, 'view' => 'user', 'from' => $from, 'to' => $to);
         $userurl = new moodle_url('/report/trainingsessions/index.php', $params);
         $rows[0][] = new tabobject('user', $userurl, get_string('userdetail', 'report_trainingsessions'));
+
+        if ($iscourseset) {
+            $params = array('id' => $course->id, 'view' => 'userprogram', 'from' => $from, 'to' => $to);
+            $userurl = new moodle_url('/report/trainingsessions/index.php', $params);
+            $rows[0][] = new tabobject('userprogram', $userurl, get_string('userprogramdetail', 'report_trainingsessions'));
+        }
 
         if (has_capability('report/trainingsessions:viewother', $context)) {
 
@@ -82,7 +88,7 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
         return $str;
     }
 
-    public function xls_userexport_button($data) {
+    public function xls_userexport_button($data, $scope = 'currentcourse') {
         global $COURSE;
 
         if ($COURSE->id > SITEID) {
@@ -100,7 +106,8 @@ class report_trainingsessions_renderer extends plugin_renderer_base {
                         'view' => 'user',
                         'userid' => $data->userid,
                         'from' => $data->from,
-                        'to' => $data->to);
+                        'to' => $data->to,
+                        'scope' => $scope);
         $xlsurl = new moodle_url('/report/trainingsessions/tasks/userxlsreportperuser_batch_task.php', $params);
         $str .= '<div class="trainingsessions-inline">';
         $str .= $this->output->single_button($xlsurl, get_string('generatexls', 'report_trainingsessions'));

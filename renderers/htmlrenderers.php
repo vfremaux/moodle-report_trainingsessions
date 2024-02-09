@@ -137,8 +137,6 @@ class HtmlRenderer {
      *
      * @param object $structure a course structure object.
      * @param objectref $aggregate an object with all the time samples inside.
-     * @param objectref &$dataobject an object reference for collecting overall calculated time and events.
-     * @param integerref &$done a give back integer counting the "done" items.
      * @param string $indent indent string for the current level
      * @param int $level the current nesting level
      * @return a printable template.

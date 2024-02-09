@@ -208,7 +208,7 @@ class HtmlRenderer {
             $template->elapsed = $structure->elapsed;
             $template->events = $structure->events;
             $template->firstaccess = $structure->firstaccess;
-            $template->lastaccess = $structure->firstaccess;
+            $template->lastaccess = $structure->lastaccess;
 
             $template->visible = !empty($structure->instance->visible) || !empty($structure->visible);
             if (!isset($structure->instance) || !empty($structure->instance->visible)) {

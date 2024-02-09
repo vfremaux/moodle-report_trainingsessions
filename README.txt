@@ -122,3 +122,6 @@ Redrawes course report options and logics.
 =================================================================
 
 Adds enrolstartdate and addenrolenddate in columns to be added to report output
+
+2023060500 - X.X.0023 Adding multicourse (courseset) agregations (Pro)
+======================================================================

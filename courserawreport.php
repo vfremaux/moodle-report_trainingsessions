@@ -363,11 +363,11 @@ if (!empty($targetusers)) {
     $formdata->taskid = 0;
     $formdata->groupid = $selform->groupid;
     $form->set_data($formdata);
-    $form->display();
 } else {
     echo $OUTPUT->box(get_string('nothing', 'report_trainingsessions'), 'report-trainingsession userinfobox');
 }
 
+$form->display();
 echo $OUTPUT->heading(get_string('reports', 'report_trainingsessions'));
 
 $reportsfileurl = new moodle_url('/report/trainingsessions/filearea.php', array('id' => $id, 'view' => $view));

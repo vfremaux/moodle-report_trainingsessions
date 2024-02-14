@@ -201,3 +201,4 @@ function report_trainingsessions_supports_feature_logstore($instance) {
     }
     return false;
 }
+

@@ -67,7 +67,9 @@ $string['courselabel'] = 'as column: ';
 $string['coursename'] = 'Group name';
 $string['courseraw'] = 'Batchs';
 $string['courses'] = 'Courses';
-$string['coursesessions'] = 'Working sessions in course (real guessed times)';
+$string['courseset'] = 'Course set';
+$string['experimental'] = 'Experimental';
+$string['coursesessions'] = 'Working sessions in course (real guessed times) for course : {$a}';
 $string['coursestart'] = 'Course start date';
 $string['coursesummary'] = 'Per participant summary';
 $string['coursetime'] = 'Time in course (activities excluded)';
@@ -540,5 +542,6 @@ $string['xlsexportlocale_desc'] = 'Used to force locale when exporting and g√©n√
 Leave empty for using site default locale, or force with an explicit locale code such as en_EN.UTF-8';
 
 $string['hasdisabledenrolmentsrestriction'] = 'Suspended enrolements are filtered out.';
+$string['gotocourse'] = '<span class="smalltext">Go to course</span>';
 
 include(__DIR__.'/pro_additional_strings.php');

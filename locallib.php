@@ -2196,14 +2196,15 @@ class trainingsessions {
 
                     if (!empty($structure->subs)) {
                         $res = $this->calculate_course_structure($structure->subs, $aggregate, $done, $items);
-                        $dataobject->elapsed += $res->elapsed;
-                        $dataobject->events += $res->events;
+                        $dataobject->elapsed = $res->elapsed;
+                        $dataobject->events = $res->events;
                         trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
                         trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
                     }
                 } else {
                     // It is only a structural module that should not impact on level.
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                        // FIX : Do not sum, or it will double value.
                         $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                         $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
                         $dataobject->firstaccess = $aggregate[$structure->type][$structure->id]->firstaccess;
@@ -2211,8 +2212,9 @@ class trainingsessions {
                     }
                     if (!empty($structure->subs)) {
                         $res = $this->calculate_course_structure($structure->subs, $aggregate, $done, $items);
-                        $dataobject->elapsed += $res->elapsed;
-                        $dataobject->events += $res->events;
+                        // FIX : Do not sum, or it will double value.
+                        $dataobject->elapsed = $res->elapsed;
+                        $dataobject->events = $res->events;
                         trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
                         trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
                     }

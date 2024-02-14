@@ -78,7 +78,8 @@ class trainingsessions {
      * decodes a course structure giving an ordered and
      * recursive image of the course.
      * The course structure will recognize topic, weekly and flexipage
-     * course format, keeping an accurate image of the course ordering.
+     * course format, keeping an accurate vision of the course ordering.
+     * Performs no calculation on the tree. @see calculate_course_structure.
      *
      * @param int $courseid
      * @param reference $itemcount a recursive propagating counter in case of flexipage
@@ -2146,13 +2147,12 @@ class trainingsessions {
     }
 
     /**
-     * Precalculates subtree aggregates without printing anything
-     * @param objectref &$pdf the pdf document
-     * @param int $y the current vertical position in page
+     * Precalculates subtree aggregates without printing anything.
+     *
      * @param objectref &$structure the course structure subtree
      * @param objectref &$aggregate the log aggregation
      * @param intref &$done the "done items" counter
-     * @param int $level the current recursion level in structure
+     * @param intref &$items the "total items" counter
      */
     public function calculate_course_structure(&$structure, &$aggregate, &$done, &$items) {
 
@@ -2164,6 +2164,8 @@ class trainingsessions {
         $dataobject = new StdClass;
         $dataobject->elapsed = 0;
         $dataobject->events = 0;
+        $dataobject->firstaccess = null;
+        $dataobject->lastaccess = null;
 
         if (is_array($structure)) {
             // recurse in sub structures
@@ -2175,8 +2177,11 @@ class trainingsessions {
                 $res = self::calculate_course_structure($element, $aggregate, $done, $items);
                 $dataobject->elapsed += $res->elapsed;
                 $dataobject->events += $res->events;
+                trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
+                trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
             }
         } else {
+            // We are an element of the tree.
             if (!empty($structure->visible) || !isset($structure->instance) || !empty($structure->instance->visible)) {
                 // Non visible items should not be displayed.
                 if (!empty($structure->name)) {
@@ -2185,36 +2190,45 @@ class trainingsessions {
                         $done++;
                         $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                         $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
-                    } else {
-                        $dataobject->elapsed = 0;
-                        $dataobject->events = 0;
+                        $dataobject->firstaccess = $aggregate[$structure->type][$structure->id]->firstaccess;
+                        $dataobject->lastaccess = $aggregate[$structure->type][$structure->id]->lastaccess;
                     }
 
                     if (!empty($structure->subs)) {
                         $res = $this->calculate_course_structure($structure->subs, $aggregate, $done, $items);
                         $dataobject->elapsed = $res->elapsed;
                         $dataobject->events = $res->events;
+                        trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
+                        trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
                     }
                 } else {
                     // It is only a structural module that should not impact on level.
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
+                        // FIX : Do not sum, or it will double value.
                         $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                         $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
+                        $dataobject->firstaccess = $aggregate[$structure->type][$structure->id]->firstaccess;
+                        $dataobject->lastaccess = $aggregate[$structure->type][$structure->id]->lastaccess;
                     }
                     if (!empty($structure->subs)) {
                         $res = $this->calculate_course_structure($structure->subs, $aggregate, $done, $items);
-                        $dataobject->elapsed += $res->elapsed;
-                        $dataobject->events += $res->events;
+                        // FIX : Do not sum, or it will double value.
+                        $dataobject->elapsed = $res->elapsed;
+                        $dataobject->events = $res->events;
+                        trainingsessions::updatefirst($dataobject->firstaccess, $res->firstaccess);
+                        trainingsessions::updatelast($dataobject->lastaccess, $res->lastaccess);
                     }
                 }
 
-                // Report in element.
+                // Report in structure element.
                 $structure->elapsed = $dataobject->elapsed;
                 $structure->events = $dataobject->events;
+                $structure->firstaccess = $dataobject->firstaccess;
+                $structure->lastaccess = $dataobject->lastaccess;
             }
         }
 
-        // Returns acumulated aggregates.
+        // Returns acumulated aggregates for the recursive calculation.
         return $dataobject;
     }
 
@@ -2286,6 +2300,7 @@ class trainingsessions {
             return;
         }
         if ($first > $input) {
+            // finds the min().
             $first = $input;
         }
     }
@@ -2295,6 +2310,7 @@ class trainingsessions {
             return;
         }
         if (is_null($last)) {
+            // finds the max().
             $last = $input;
             return;
         }
@@ -2382,7 +2398,7 @@ class trainingsessions {
                 continue;
             }
 
-            if ($key == 'courseenddate') {
+            if (in_array($key, ['courseenddate', 'enrolenddate'])) {
                 $obj1->$key = max($obj1->$key, 0 + @$obj2->$key);
                 continue;
             }
@@ -2410,17 +2426,20 @@ class trainingsessions {
     public function get_courseset($courseid) {
         global $DB;
 
-        $config = get_config('report_trainingsessions');
-        $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
-        $courseset = [];
-        foreach ($coursesetslines as $line) {
-            $coursesetids = explode(',', $line);
-            if (in_array($courseid, $coursesetids)) {
-                foreach ($coursesetids as $cid) {
-                    $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+        if (report_trainingsessions_supports_feature('calculation/multicourse')) {
+
+            $config = get_config('report_trainingsessions');
+            $coursesetslines = preg_split("/[\s]+/", $config->multicoursesets);
+            $courseset = [];
+            foreach ($coursesetslines as $line) {
+                $coursesetids = explode(',', $line);
+                if (in_array($courseid, $coursesetids)) {
+                    foreach ($coursesetids as $cid) {
+                        $courseset[$cid] = $DB->get_record('course', ['id' => $cid]);
+                    }
+                    return $courseset;
                 }
             }
-            return $courseset;
         }
 
         return null;

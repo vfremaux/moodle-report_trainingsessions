@@ -87,7 +87,7 @@ class SelectorForm extends moodleform {
         $allgroupaccess = has_capability('moodle/site:accessallgroups', $context, $USER->id);
         $mygroups = groups_get_my_groups();
 
-        if ($this->mode == 'user' || $this->mode == 'allcourses') {
+        if (in_array($this->mode, ['user', 'userprogram', 'allcourses'])) {
 
             if (has_capability('report/trainingsessions:viewother', $context)) {
                 $users = get_enrolled_users($context, '', 0, 'u.*', 'u.lastname,u.firstname', 0, 0, $config->disablesuspendedenrolments);

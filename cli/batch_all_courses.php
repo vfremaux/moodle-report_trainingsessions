@@ -120,7 +120,7 @@ if (empty($options['format'])) {
 }
 
 $batchpath = 'batchs/';
-if ($options['format'] == 'json')) {
+if ($options['format'] == 'json') {
     if (!report_trainingsessions_supports_feature('format/json')) {
         die ("unsupported format in this distribution");
     } else {
@@ -128,7 +128,7 @@ if ($options['format'] == 'json')) {
     }
 }
 
-if ($options['format'] == 'pdf')) {
+if ($options['format'] == 'pdf') {
     if (!report_trainingsessions_supports_feature('format/pdf')) {
         die ("unsupported format in this distribution");
     } else {

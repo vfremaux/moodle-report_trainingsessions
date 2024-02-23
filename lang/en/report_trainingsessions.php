@@ -146,6 +146,7 @@ $string['firstname'] = 'First Name';
 $string['firstsessiontime'] = 'First session';
 $string['formulalabel'] = 'Column label';
 $string['from'] = 'From';
+$string['fromip'] = 'From IP: {$a}';
 $string['generatecsv'] = 'Generate as CSV';
 $string['generatepdf'] = 'Generate as PDF';
 $string['generatereports'] = 'Generate reports';

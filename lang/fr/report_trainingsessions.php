@@ -143,6 +143,7 @@ $string['firstname'] = 'Prénom';
 $string['firstsessiontime'] = 'Première session';
 $string['formulalabel'] = 'Intitulé de colonne';
 $string['from'] = 'Depuis ';
+$string['fromip'] = 'Depuis l\'IP: {$a}';
 $string['generatecsv'] = 'Générer en CSV';
 $string['generatepdf'] = 'Générer en PDF';
 $string['generatereports'] = 'Générer les rapports';

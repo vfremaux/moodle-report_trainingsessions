@@ -176,6 +176,7 @@ $string['institutions'] = 'Institutions';
 $string['instructure'] = 'Time in course activities';
 $string['interactive'] = 'Interactive';
 $string['interactivetitle'] = 'Produce this batch now!';
+$string['ip'] = 'From IP';
 $string['item'] = 'Item';
 $string['items'] = 'Items';
 $string['json'] = 'JSON';

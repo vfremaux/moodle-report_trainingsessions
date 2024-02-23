@@ -172,6 +172,7 @@ $string['institutions'] = 'Etablissements';
 $string['instructure'] = 'Temps dans les activités ';
 $string['interactive'] = 'Interactif';
 $string['interactivetitle'] = 'Compilez ce rapport maintenant !';
+$string['ip'] = 'Depuis l\'IP ';
 $string['item'] = 'Elément';
 $string['items'] = 'Eléments ';
 $string['json'] = 'JSON';

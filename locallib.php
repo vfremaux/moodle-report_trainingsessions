@@ -1797,6 +1797,7 @@ class trainingsessions {
             'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
             'activityelapsed' => 0 + @$aggregate['activities'][$courseid]->elapsed,
             'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
+            'firstip' => 0 + @$aggregate['course'][$courseid]->firstaccessip,
             'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'othertime' => 0 + @$t[0]->elapsed,
             'otherelapsed' => 0 + @$t[0]->elapsed,

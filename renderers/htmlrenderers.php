@@ -228,6 +228,7 @@ class HtmlRenderer {
                         $template->debuginfo = '['.$structure->type.'] ';
                     }
                     $template->name = shorten_text(strip_tags(format_string($structure->name)), 85);
+                    $template->name = "<span title=\"".$structure->type."\" data-id=\"".$structure->id."\">".$template->name."</span>";
 
                     if (!empty($structure->subs)) {
                         $subtemplate = $this->print_html($structure->subs, $aggregate, $indent, $level + 1);
@@ -299,6 +300,13 @@ class HtmlRenderer {
     /**
      * a raster for html printing of a report structure header
      * with all the relevant data about a user.
+     * @param object $user
+     * @param object $course
+     * @param array $data
+     * @param array $cols required columns for summary
+     * @param bool $short
+     * @param bool $withcompletion
+     * @param bool $withnooutofstructure if true, will not print "out of structure" stats.
      */
     public function print_header_html($user, $course, $data, $cols, $short = false, $withcompletion = true,
                                                        $withnooutofstructure = false) {
@@ -345,6 +353,12 @@ class HtmlRenderer {
         // Print Department.
         if (in_array('department', $cols)) {
             $template->department . $user->department;
+        }
+
+        // Print IP.
+        if (in_array('firstip', $cols)) {
+            $template->printip  = true;
+            $template->firstip = $data->firstip;
         }
 
         // Print roles list.

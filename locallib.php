@@ -27,6 +27,7 @@ namespace report\trainingsessions;
 
 use \StdClass;
 use \coding_exception;
+use \moodle_exception;
 use \moodle_url;
 use \context_course;
 use \context_system;
@@ -1171,7 +1172,7 @@ class trainingsessions {
             }
 
             if (!$pass) {
-                print_error(get_string('notallowed', 'report_trainingsessions'));
+                throw new moodle_exception(get_string('notallowed', 'report_trainingsessions'));
             }
         }
     }
@@ -1216,39 +1217,48 @@ class trainingsessions {
      * document content as plain row string.
      *
      * @param type $user
-     * @param type $id
+     * @param type $id the course id
      * @param type $from
      * @param type $to
      * @param type $timesession
      * @param type $uri
-     * @param type $filerec
+     * @param type $filerec the file where to store the compilation result. If null (ex: json), will return the raw compilation content
      * @param type $reportscope
      * @return type
      */
     public function process_user_file($user, $id, $from, $to, $timesession, $uri, $filerec = null,
-                                                       $reportscope = 'currentcourse') {
-        mtrace('Compile_users for user : '.fullname($user)."<br/>\n");
-        mtrace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
-        mtrace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
+                                                       $reportscope = 'currentcourse', $noout = false) {
+        global $CFG;
+
+        if (function_exists('debug_trace')) {
+            debug_trace('Compile_users for user : '.fullname($user)."<br/>\n");
+            debug_trace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
+            debug_trace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
+        }
+        if (!$noout) {
+            mtrace('Compile_users for user : '.fullname($user)."<br/>\n");
+            mtrace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
+            mtrace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
+        }
 
         $fs = get_file_storage();
 
-        $rqfields = array();
-        $rqfields[] = 'id='.$id;
-        $rqfields[] = 'from='.$from;
-        $rqfields[] = 'to='.$to;
-        $rqfields[] = 'userid='.$user->id;
-        $rqfields[] = 'timesession='.$timesession;
-        $rqfields[] = 'scope='.$reportscope;
-        $rqfields[] = 'ticket='.urlencode($this->back_office_get_ticket());
+        $rqfields = [];
+        $rqfields['id'] = $id;
+        $rqfields['from'] = $from;
+        $rqfields['to'] = $to;
+        $rqfields['userid'] = $user->id;
+        $rqfields['timesession'] = $timesession;
+        $rqfields['scope'] = $reportscope;
+        $rqfields['ticket'] = $this->back_office_get_ticket();
 
-        $rq = implode('&', $rqfields);
+        $rq = http_build_query($rqfields);
 
         $ch = curl_init($uri.'?'.$rq);
         if (function_exists('debug_trace')) {
             debug_trace("Firing url : {$uri}?{$rq}<br/>\n");
         }
-        if (debugging()) {
+        if (!$noout) {
             mtrace('Calling : '.$uri.'?'.$rq."<br/>\n");
             mtrace('direct link : <a href="'.$uri.'?'.$rq."\">Generate direct single doc</a><br/>\n");
         }
@@ -1259,6 +1269,12 @@ class trainingsessions {
         curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+        if (!empty($CFG->httpbasicauth)) {
+            // For qualification instances or any instances hidden behind basic HTTP auth.
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_USERPWD, $CFG->httpbasicauth);
+        }
+
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 
@@ -1267,6 +1283,7 @@ class trainingsessions {
         // Check for curl errors.
         $curlerrno = curl_errno($ch);
         if ($curlerrno != 0) {
+            debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno", TRACE_ERRORS);
             debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno");
         }
 
@@ -1275,21 +1292,31 @@ class trainingsessions {
         if (!empty($info['http_code']) &&
                 ($info['http_code'] != 200) &&
                         ($info['http_code'] != 303)) {
+            if ($info['http_code'] == 401) {
+                throw new moodle_exception("This moodle seems having an HTTP authentication restriction. Add \"httpbasicauth\" with user:password value to your moodle config file.");
+            }
+
+            debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code'], TRACE_ERRORS);
+            debug_trace($info, TRACE_ERRORS);
             debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code']);
         } else {
             if (!is_null($filerec)) {
-                // Feed pdf result in file storage.
+                // Feed compilation result in file storage.
                 $oldfile = $fs->get_file($filerec->contextid, $filerec->component, $filerec->filearea, $filerec->itemid,
                                          $filerec->filepath, $filerec->filename);
                 if ($oldfile) {
                     // Clean old file before.
                     $oldfile->delete();
                 }
+                debug_trace('Creating batch file in filestore', TRACE_DEBUG);
                 $newfile = $fs->create_file_from_string($filerec, $raw);
 
                 $createdurl = moodle_url::make_pluginfile_url($filerec->contextid, $filerec->component, $filerec->filearea,
                                                               $filerec->itemid, $filerec->filepath, $filerec->filename);
-                mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+                if (!$noout) {
+                    mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+                }
+                return $createdurl;
             } else {
                 return $raw;
             }
@@ -1797,7 +1824,7 @@ class trainingsessions {
             'activitytime' => 0 + @$aggregate['activities'][$courseid]->elapsed,
             'activityelapsed' => 0 + @$aggregate['activities'][$courseid]->elapsed,
             'coursetime' => 0 + @$aggregate['course'][$courseid]->elapsed,
-            'firstip' => 0 + @$aggregate['course'][$courseid]->firstaccessip,
+            'firstip' => @$aggregate['course'][$courseid]->firstaccessip,
             'courseelapsed' => 0 + @$aggregate['course'][$courseid]->elapsed,
             'othertime' => 0 + @$t[0]->elapsed,
             'otherelapsed' => 0 + @$t[0]->elapsed,
@@ -2112,7 +2139,7 @@ class trainingsessions {
                     $data->from = mktime(0, 0, 0, $data->startmonth, $data->startday, $data->startyear);
                     $changed = true;
                 } else {
-                    print_error('Bad start date');
+                    throw new moodle_exception('Bad start date');
                 }
             }
         }
@@ -2161,6 +2188,9 @@ class trainingsessions {
             return;
         }
 
+        $itemsdebug = [];
+        $itemsdebugtrace = 0;
+
         // makes a blank dataobject.
         $dataobject = new StdClass;
         $dataobject->elapsed = 0;
@@ -2186,9 +2216,16 @@ class trainingsessions {
             if (!empty($structure->visible) || !isset($structure->instance) || !empty($structure->instance->visible)) {
                 // Non visible items should not be displayed.
                 if (!empty($structure->name)) {
-                    $items++;
+                    if ($structure->type != 'section') {
+                        $itemsdebugtrace = 1;
+                        $items++;
+                        $itemsdebug[$structure->type.':'.$structure->id] = $done."/".$items.":0";
+                    }
                     if (isset($structure->id) && !empty($aggregate[$structure->type][$structure->id])) {
-                        $done++;
+                        if ($structure->type != 'section') {
+                            $done++;
+                            $itemsdebug[$structure->type.':'.$structure->id] = $done."/".$items.":1";
+                        }
                         $dataobject->elapsed = $aggregate[$structure->type][$structure->id]->elapsed;
                         $dataobject->events = $aggregate[$structure->type][$structure->id]->events;
                         $dataobject->firstaccess = $aggregate[$structure->type][$structure->id]->firstaccess;
@@ -2221,13 +2258,15 @@ class trainingsessions {
                     }
                 }
 
-                // Report in structure element.
+                // Report in structure element if structure is not an array.
                 $structure->elapsed = $dataobject->elapsed;
                 $structure->events = $dataobject->events;
                 $structure->firstaccess = $dataobject->firstaccess;
                 $structure->lastaccess = $dataobject->lastaccess;
             }
         }
+
+        if ($itemsdebugtrace && function_exists('debug_trace')) debug_trace($itemsdebug, TRACE_DATA);
 
         // Returns acumulated aggregates for the recursive calculation.
         return $dataobject;

@@ -25,7 +25,9 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-class report_trainingsessions_external {
+require_once($CFG->dirroot.'/report/trainingsessions/lib.php');
+
+class report_trainingsessions_external extends external_api {
 
     public static function validate_report_parameters($configparamdefs, $inputs) {
         global $DB, $CFG;
@@ -41,8 +43,8 @@ class report_trainingsessions_external {
         }
 
         $reportlayouts = array('onefulluserpersheet', 'onefulluserperfile', 'oneuserperrow', 'alluserssessionsinglefile', 'sessions');
-        if (!in_array($input['reportlayout'], $reportlayouts)) {
-            throw new invalid_parameter_exception('Unsupported report scope');;
+        if (!in_array($inputs['reportlayout'], $reportlayouts)) {
+            throw new invalid_parameter_exception('Unsupported report layout');;
         }
 
         switch ($inputs['courseidsource']) {
@@ -71,6 +73,7 @@ class report_trainingsessions_external {
         }
 
         switch ($inputs['groupidsource']) {
+            // If not provided, pass through.
             case 'id': {
                 if (!$DB->record_exists('groups', array('id' => $inputs['groupid']))) {
                     throw new invalid_parameter_exception('Group not found by id: '.$inputs['groupid']);
@@ -133,7 +136,7 @@ class report_trainingsessions_external {
 
         return new external_function_parameters (
             array(
-                '$reportlayout' => new external_value(
+                'reportlayout' => new external_value(
                         PARAM_ALPHA,
                         'Report layout'),
                 'reportscope' => new external_value(
@@ -156,16 +159,16 @@ class report_trainingsessions_external {
                         'course target restriction (for group ranged reports)'),
                 'groupidsource' => new external_value(
                         PARAM_ALPHA,
-                        'The source for group id. Can be "id" or "name"'),
+                        'The source for group id. Can be "id" or "name"', VALUE_DEFAULT, ''),
                 'groupid' => new external_value(
                         PARAM_TEXT,
-                        'group target restriction (for group ranged reports)'),
+                        'group target restriction (for group ranged reports)', VALUE_DEFAULT, 0),
                 'useridsource' => new external_value(
                         PARAM_ALPHA,
-                        'The source for user id. Can be "id", "username", "idnumber" or "email"'),
+                        'The source for user id. Can be "id", "username", "idnumber" or "email"', VALUE_DEFAULT, ''),
                 'userid' => new external_value(
                         PARAM_TEXT,
-                        'user targetting restriction (for user range reports)'),
+                        'user targetting restriction (for user range reports)', VALUE_DEFAULT, 0),
             )
         );
     }

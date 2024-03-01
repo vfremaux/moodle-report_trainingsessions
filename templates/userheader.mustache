@@ -39,6 +39,13 @@
         </tr>
         {{/department}}
 
+        {{#printip}}
+        <tr>
+            <td class="attribute-label" width="25%">{{#str}}fromip, report_trainingsessions{{/str}}</td>
+            <td class="attribute-value">{{firstip}}</td>
+        </tr>
+        {{/printip}}
+
         {{#hasprofilefields}}
         {{#profilefields}}
         <tr>

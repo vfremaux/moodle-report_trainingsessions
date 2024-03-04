@@ -1265,9 +1265,9 @@ class trainingsessions {
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, null);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $rqfields);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
         if (!empty($CFG->httpbasicauth)) {
             // For qualification instances or any instances hidden behind basic HTTP auth.

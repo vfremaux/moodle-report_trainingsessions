@@ -1252,7 +1252,7 @@ class trainingsessions {
         $rqfields['scope'] = $reportscope;
         $rqfields['ticket'] = $this->back_office_get_ticket();
 
-        $rq = http_build_query($rqfields);
+        $rq = http_build_query($rqfields, '', '&');
 
         $ch = curl_init($uri);
         if (function_exists('debug_trace')) {
@@ -1267,8 +1267,10 @@ class trainingsessions {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $rqfields);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
+        curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_POSTREDIR, CURL_REDIR_POST_ALL);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/x-www-form-urlencoded charset=UTF-8"));
         if (!empty($CFG->httpbasicauth)) {
             // For qualification instances or any instances hidden behind basic HTTP auth.
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -1284,6 +1286,7 @@ class trainingsessions {
         $curlerrno = curl_errno($ch);
         if ($curlerrno != 0) {
             debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno", TRACE_ERRORS);
+            throw new moodle_exception("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno");
         }
 
         // Check HTTP error code.
@@ -1295,9 +1298,10 @@ class trainingsessions {
                 throw new moodle_exception("This moodle seems having an HTTP authentication restriction. Add \"httpbasicauth\" with user:password value to your moodle config file.");
             }
 
-            debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code'], TRACE_ERRORS);
-            debug_trace($info, TRACE_ERRORS);
-            debug_trace(htmlentities($raw));
+            if (function_exists('debug_trace')) {
+                debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code'], TRACE_ERRORS);
+                debug_trace($info, TRACE_ERRORS);
+            }
         } else {
             if (!is_null($filerec)) {
                 // Feed compilation result in file storage.
@@ -1307,7 +1311,7 @@ class trainingsessions {
                     // Clean old file before.
                     $oldfile->delete();
                 }
-                debug_trace('Creating batch file in filestore', TRACE_DEBUG);
+
                 $newfile = $fs->create_file_from_string($filerec, $raw);
 
                 $createdurl = moodle_url::make_pluginfile_url($filerec->contextid, $filerec->component, $filerec->filearea,
@@ -1340,10 +1344,19 @@ class trainingsessions {
      * @return mixed void/raw if no file descriptor is given, will return the raw response of the call.
      */
     public function process_group_file($group, $id, $from, $to, $timesession, $uri, $filerec = null,
-                                                        $reportscope = 'currentcourse') {
-        mtrace('Compile_users for group : '.$group->name."<br/>\n");
-        mtrace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
-        mtrace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
+                                                        $reportscope = 'currentcourse', $noout = false) {
+        global $CFG;
+
+        if (function_exists('debug_trace')) {
+            debug_trace('Compile_users for group : '.$group->name."<br/>\n", TRACE_DEBUG);
+            debug_trace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n", TRACE_DEBUG);
+            debug_trace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n", TRACE_DEBUG);
+        }
+        if (!$noout) {
+            mtrace('Compile_users for group : '.$group->name."<br/>\n");
+            mtrace('From : '.strftime('%Y/%M/%D %H:%m:%S = %s', $from)."<br/>\n");
+            mtrace('to : '.strftime('%Y/%M/%D %H:%m:%S = %s', $to)."<br/>\n");
+        }
 
         $fs = get_file_storage();
 
@@ -1356,7 +1369,7 @@ class trainingsessions {
         $rqfields[] = 'scope='.$reportscope;
         $rqfields[] = 'ticket='.urlencode($this->back_office_get_ticket());
 
-        $rq = implode('&', $rqfields);
+        $rq = http_build_query($rqfields, '', '&');
 
         $ch = curl_init($uri.'?'.$rq);
 
@@ -1364,32 +1377,45 @@ class trainingsessions {
             debug_trace("Firing url : {$uri}?{$rq}<br/>\n");
         }
 
-        if (debugging()) {
+        if (!$noout) {
             mtrace('Calling : '.$uri.'<br/>: '.$rq."<br/>\n");
             mtrace('direct link : <a href="'.$uri.'?'.$rq."\">Generate direct single doc</a><br/>\n");
         }
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 300);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, false);
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
+        curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_POSTREDIR, CURL_REDIR_POST_ALL);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/x-www-form-urlencoded charset=UTF-8"));
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        if (!empty($CFG->httpbasicauth)) {
+            // For qualification instances or any instances hidden behind basic HTTP auth.
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+            curl_setopt($ch, CURLOPT_USERPWD, $CFG->httpbasicauth);
+        }
 
         $raw = curl_exec($ch);
 
         // Check for curl errors.
         $curlerrno = curl_errno($ch);
         if ($curlerrno != 0) {
-            debugging("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with curl error $curlerrno");
+            if (function_exists('debug_trace')) {
+                debug_trace("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with curl error $curlerrno", TRACE_ERRORS);
+            }
+            throw new moodle_exception("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with curl error $curlerrno");
         }
 
         // Check HTTP error code.
         $info = curl_getinfo($ch);
         if (!empty($info['http_code']) && ($info['http_code'] != 200) && ($info['http_code'] != 303)) {
-            debugging("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with HTTP code ".$info['http_code']);
+            if (function_exists('debug_trace')) {
+                debug_trace("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with HTTP code ".$info['http_code'], TRACE_ERRORS);
+            }
+            throw new moodle_exception("Request for <a href=\"{$uri}?{$rq}\">Group {$group->id}</a> failed with HTTP code ".$info['http_code']);
         } else {
             if (!is_null($filerec)) {
                 // Feed xls result in file storage.
@@ -1403,7 +1429,10 @@ class trainingsessions {
 
                 $createdurl = moodle_url::make_pluginfile_url($filerec->contextid, $filerec->component, $filerec->filearea,
                                                               $filerec->itemid, $filerec->filepath, $filerec->filename);
-                mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+                if (!$noout) {
+                    mtrace('Result : <a href="'.$createdurl.'" >'.$filerec->filename."</a><br/>\n");
+                }
+                return $createdurl;
             } else {
                 return $raw;
             }

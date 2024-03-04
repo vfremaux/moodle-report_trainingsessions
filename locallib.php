@@ -1254,7 +1254,7 @@ class trainingsessions {
 
         $rq = http_build_query($rqfields);
 
-        $ch = curl_init($uri.'?'.$rq);
+        $ch = curl_init($uri);
         if (function_exists('debug_trace')) {
             debug_trace("Firing url : {$uri}?{$rq}<br/>\n");
         }
@@ -1267,7 +1267,7 @@ class trainingsessions {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, false);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Moodle Report Batch');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $rq);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, null);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
         if (!empty($CFG->httpbasicauth)) {
             // For qualification instances or any instances hidden behind basic HTTP auth.
@@ -1284,7 +1284,6 @@ class trainingsessions {
         $curlerrno = curl_errno($ch);
         if ($curlerrno != 0) {
             debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno", TRACE_ERRORS);
-            debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno");
         }
 
         // Check HTTP error code.
@@ -1298,7 +1297,7 @@ class trainingsessions {
 
             debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code'], TRACE_ERRORS);
             debug_trace($info, TRACE_ERRORS);
-            debugging("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with HTTP code ".$info['http_code']);
+            debug_trace(htmlentities($raw));
         } else {
             if (!is_null($filerec)) {
                 // Feed compilation result in file storage.

@@ -96,15 +96,19 @@ $sessions = [];
 foreach ($reportcourses as $c) {
 
     $logs = use_stats_extract_logs($input->from, $input->to, $auser->id, $c->id);
-    $aggregate = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $c);
-    $weekaggregate = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to, '', false, $c);
+    $aggregates[$c->id] = use_stats_aggregate_logs($logs, $input->from, $input->to, '', false, $c);
+    $weekaggregate[$c->id] = use_stats_aggregate_logs($logs, $input->to - WEEKSECS, $input->to, '', false, $c);
 
-    $coursestructure = $rt->get_course_structure($c->id, $items);
+    $coursestructures[$c->id] = $rt->get_course_structure($c->id, $items);
     $cols = $rt->get_summary_cols();
-    $courseheaddata = $rt->map_summary_cols($cols, $auser, $aggregate, $weekaggregate, $c->id, true /* associative */);
+    $courseheaddata = $rt->map_summary_cols($cols, $auser, $aggregates[$c->id], $weekaggregates[$c->id], $c->id, true /* associative */);
     $rt->add_graded_columns($cols, $titles);
-    $rt->add_graded_data($gradedata, $auser->id, $aggregate);
-    $rt->calculate_course_structure($coursestructure, $aggregate, $done, $items);
+    $rt->add_graded_data($gradedata, $auser->id, $aggregates[$c->id]);
+    $topdata = $rt->calculate_course_structure($coursestructures[$c->id], $aggregates[$c->id], $done, $items);
+    $topdata->elapsedstr = $rt->format_time($topdata->elapsed, 'htmlds');
+
+    debug_trace("XLS Top structure C".$c->id);
+    debug_trace($topdata);
 
     if (!isset($headdata)) {
         $headdata = (object) $courseheaddata;
@@ -118,12 +122,12 @@ foreach ($reportcourses as $c) {
     if ($reportscope == 'courseset') {
         $renderer->print_xls_coursehead($worksheet, $c, $row, $xlsformats);
     }
-    $renderer->print_xls($worksheet, $coursestructure, $aggregate, $row, $xlsformats);
+    $renderer->print_xls($worksheet, $coursestructures[$c->id], $aggregates[$c->id], $row, $xlsformats);
     $headdata->done = $done;
 
     if (!empty($config->showsessions)) {
-        if (!empty($aggregate['sessions'])) {
-            $sessions[$c->id] = $aggregate['sessions'];
+        if (!empty($aggregates[$c->id]['sessions'])) {
+            $sessions[$c->id] = $aggregates[$c->id]['sessions'];
         } else {
             $sessions[$c->id] = [];
         }

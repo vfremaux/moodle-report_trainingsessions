@@ -98,7 +98,7 @@ $aggregate = use_stats_aggregate_logs($logs, $data->from, $data->to);
 $weekaggregate = use_stats_aggregate_logs($logs, $data->to - WEEKSECS, $data->to);
 
 // Get course structure.
-$coursestructure = $rt->get_course_structure($course->id, $items);
+$coursestructure = $rt->get_course_structure($course->id, $structureitems);
 $cols = $rt->get_summary_cols('keys');
 $headdata = $rt->map_summary_cols($cols, $user, $aggregate, $weekaggregate, $course->id, true);
 $rt->add_graded_columns($cols, $unusedtitles);

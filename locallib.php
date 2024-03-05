@@ -1285,7 +1285,9 @@ class trainingsessions {
         // Check for curl errors.
         $curlerrno = curl_errno($ch);
         if ($curlerrno != 0) {
-            debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno", TRACE_ERRORS);
+            if (function_exists('debug_trace')) {
+                debug_trace("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno", TRACE_ERRORS);
+            }
             throw new moodle_exception("Request for <a href=\"{$uri}?{$rq}\">User {$user->id}</a> failed with curl error $curlerrno");
         }
 

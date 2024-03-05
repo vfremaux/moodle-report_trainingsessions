@@ -107,8 +107,10 @@ foreach ($reportcourses as $c) {
     $topdata = $rt->calculate_course_structure($coursestructures[$c->id], $aggregates[$c->id], $done, $items);
     $topdata->elapsedstr = $rt->format_time($topdata->elapsed, 'htmlds');
 
-    debug_trace("XLS Top structure C".$c->id);
-    debug_trace($topdata);
+    if (function_exists('debug_trace')) {
+        debug_trace("XLS Top structure C".$c->id, TRACE_DEBUG);
+        debug_trace($topdata, TRACE_DEBUG);
+    }
 
     if (!isset($headdata)) {
         $headdata = (object) $courseheaddata;
@@ -139,8 +141,10 @@ if (count($reportcourses) == 1) {
     $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
 } else {
     // Course set case.
-    debug_trace("course set report for ");
-    debug_trace(array_keys($reportcourses));
+    if (function_exists('debug_trace')) {
+        debug_trace("course set report for ", TRACE_DEBUG);
+        debug_trace(array_keys($reportcourses), TRACE_DEBUG);
+    }
     $renderer->print_header_xls($worksheet, $auser->id, array_keys($reportcourses), $headdata, $cols, $xlsformats);
 }
 
@@ -153,8 +157,10 @@ if (!empty($config->showsessions)) {
             $renderer->print_header_xls($worksheet, $auser->id, $course->id, $headdata, $cols, $xlsformats);
         } else {
             // Course set case.
-            debug_trace("course set report for ");
-            debug_trace(array_keys($reportcourses));
+            if (function_exists('debug_trace')) {
+                debug_trace("course set report for ", TRACE_DEBUG);
+                debug_trace(array_keys($reportcourses), TRACE_DEBUG);
+            }
             $renderer->print_header_xls($worksheet, $auser->id, array_keys($reportcourses), $headdata, $cols, $xlsformats);
         }
 

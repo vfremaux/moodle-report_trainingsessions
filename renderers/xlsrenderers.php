@@ -370,12 +370,10 @@ class XlsRenderer {
         }
 
         if (!is_array($courseid) && $courseid > 0) {
-            debug_trace("Writing course line");
             $worksheet->write_string($row, 0, get_string('course', 'report_trainingsessions').' :', $xlsformats['b']);
             $worksheet->write_string($row, 1, format_string($course->fullname));
             $row++;
         } else if (is_array($courseid)) {
-            debug_trace("Writing courseset line");
             // We are in a courseset.
             $worksheet->write_string($row, 0, get_string('courseset', 'report_trainingsessions').' :', $xlsformats['b']);
             $names = [];
@@ -385,7 +383,9 @@ class XlsRenderer {
             $worksheet->write_string($row, 1, implode(', ', $names));
             $row++;
         } else {
-            debug_trace("Writing nothing (all courses)");
+            if (function_exists('debug_trace')) {
+                debug_trace("Writing nothing (all courses)", TRACE_DEBUG);
+            }
         }
 
         $worksheet->write_string($row, 0, get_string('from').' :', $xlsformats['b']);
